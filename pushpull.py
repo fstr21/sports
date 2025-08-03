@@ -81,8 +81,14 @@ def main():
         
         if choice == "1":
             git_pull()
+            print("\n✅ Operation completed. Press Enter to exit...")
+            input()
+            sys.exit(0)
         elif choice == "2":
             git_push()
+            print("\n✅ Operation completed. Press Enter to exit...")
+            input()
+            sys.exit(0)
         elif choice == "3":
             success, stdout, stderr = run_command("git status")
             if success:
@@ -90,6 +96,9 @@ def main():
             else:
                 print("❌ Failed to get git status!")
                 print(stderr)
+            print("\n✅ Status check completed. Press Enter to exit...")
+            input()
+            sys.exit(0)
         elif choice == "4":
             print("👋 Goodbye!")
             sys.exit(0)

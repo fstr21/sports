@@ -261,6 +261,41 @@ _Complete this checklist BEFORE subscribing to any APIs or writing code_
   - **Code Framework:** 
   - **Notes:** 
 
+- [ ] **Source AND calculations for predictions with code for NHL player level shots on goal (SOG)**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **Algorithm Approach:** 
+  - **Data Inputs Required:** 
+  - **Code Framework:** 
+  - **Notes:** 
+
+- [ ] **Source AND calculations for predictions with code for NBA player level points**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **Algorithm Approach:** 
+  - **Data Inputs Required:** 
+  - **Code Framework:** 
+  - **Notes:** 
+
+- [ ] **Source AND calculations for predictions with code for NBA player level assists**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **Algorithm Approach:** 
+  - **Data Inputs Required:** 
+  - **Code Framework:** 
+  - **Notes:** 
+
+- [ ] **Source AND calculations for predictions with code for NBA player level rebounds**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **Algorithm Approach:** 
+  - **Data Inputs Required:** 
+  - **Code Framework:** 
+  - **Notes:** 
+
+- [ ] **Source AND calculations for predictions with code for NBA player level 3-pointers made**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **Algorithm Approach:** 
+  - **Data Inputs Required:** 
+  - **Code Framework:** 
+  - **Notes:** 
+
 ---
 
 ## **🗄️ DATABASE & ARCHITECTURE**
@@ -310,6 +345,65 @@ _Complete this checklist BEFORE subscribing to any APIs or writing code_
 
 ---
 
+## **🌤️ WEATHER DATA SOURCES**
+
+- [ ] **Weather API for game location conditions**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **API/Source:** 
+  - **Data Available:** (Temperature, Wind, Precipitation, Humidity)
+  - **Historical Data:** 
+  - **Rate Limits:** 
+  - **Cost:** 
+  - **Example Code:** 
+  - **Notes:** 
+
+- [ ] **Integration strategy for weather impact on predictions**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **Sports Affected:** (NFL outdoor games, Soccer, etc.)
+  - **Impact Factors:** 
+  - **Algorithm Integration:** 
+  - **Notes:** 
+
+---
+
+## **🤖 AI LLM INTEGRATION (OPENROUTER)**
+
+- [ ] **OpenRouter API setup and configuration**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **API Key Setup:** 
+  - **Available Models:** 
+  - **Rate Limits:** 
+  - **Cost Structure:** 
+  - **Example Code:** 
+  - **Notes:** 
+
+- [ ] **LLM integration for prediction analysis**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **Use Cases:** (Game analysis, trend explanations)
+  - **Model Selection:** 
+  - **Prompt Engineering:** 
+  - **Response Processing:** 
+  - **Implementation Framework:** 
+  - **Notes:** 
+
+- [ ] **AI-powered user interaction features**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **Chat Interface:** 
+  - **Query Understanding:** 
+  - **Natural Language Responses:** 
+  - **Context Management:** 
+  - **Notes:** 
+
+- [ ] **LLM for automated insights and reports**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **Report Generation:** 
+  - **Trend Analysis:** 
+  - **Performance Summaries:** 
+  - **Scheduling:** 
+  - **Notes:** 
+
+---
+
 ## **📊 ADVANCED FEATURES**
 
 - [ ] **Is there anything else I can do with the predictions or stats (heavy team based stat organization head to heads)**
@@ -330,10 +424,10 @@ _Complete this checklist BEFORE subscribing to any APIs or writing code_
 
 ## **📋 COMPLETION TRACKING**
 
-**Total Items:** 42
+**Total Items:** 53
 **Completed:** 0
 **In Progress:** 0
-**Not Started:** 42
+**Not Started:** 53
 
 **Completion Percentage:** 0%
 
