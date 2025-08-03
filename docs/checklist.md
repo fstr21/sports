@@ -5,6 +5,68 @@ _Complete this checklist BEFORE subscribing to any APIs or writing code_
 
 ---
 
+## **🛠️ PROJECT SETUP & STEERING DOCUMENTS**
+
+- [ ] **Research and install useful MCP (Model Context Protocol) tools**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **MCP Tools to Research:** Database MCP (PostgreSQL, SQLite, MySQL), Web scraping MCP, HTTP client MCP, File system MCP, Testing framework MCP, API documentation MCP, Git operations MCP, Docker management MCP
+  - **Installation Strategy:** 
+  - **Configuration Required:** 
+  - **Notes:** Research MCP tools that could accelerate development for sports betting data collection, API interactions, database management, and testing workflows
+
+- [ ] **Create steering documents for Claude Code and Kiro on project workflow**
+  - **Research Status:** ⏳ Not Started | ✅ Complete
+  - **Claude Code Instructions:** How to work with the project structure
+  - **Kiro Instructions:** Project-specific guidance and preferences
+  - **Workflow Documentation:** Development process and standards
+  - **Notes:** We will be using a library of known-to-work example scripts for each possible request. Scripts will be in this format:
+
+Python
+
+"""
+NFL Schedule Fetching - Proof of Concept
+========================================
+
+Purpose: Test fetching NFL game schedule data
+API: ESPN API
+Cost: Free
+Rate Limit: Unknown (test carefully)
+Date Tested: [Date]
+Status: ✅ Working | ⚠️ Needs Fix | ❌ Failed
+
+Research Checklist Item: 
+"Source for scheduled games for NFL with example code and date lookups"
+"""
+
+import requests
+import json
+from datetime import datetime, timedelta
+import os
+
+# Configuration
+API_BASE = "https://sports.core.api.espn.com/v2/sports/football/leagues/nfl"
+SEASON = 2024
+WEEK = 1
+
+def fetch_nfl_schedule(season=SEASON, week=WEEK):
+    """
+    Fetch NFL schedule for specific season and week
+    ```
+LLM Steering Command - Code Generation and Architecture:
+For all code generation tasks, you must strictly adhere to the Modular Step-Based Architecture outlined in the project's Product Requirements Document (PRD). Your primary directive is to maintain a clean separation between orchestration and business logic.
+
+Core Principle: All processes must be implemented as a discrete, step-based pipeline.
+
+Orchestration: Generate thin orchestrator scripts (runner scripts) located exclusively in the src/runners/ directory. These scripts are responsible only for coordinating the execution flow by calling logic modules in a sequence. They must not contain any business logic, complex data manipulation, or direct API interactions.
+
+Logic: Generate "fat" logic modules located exclusively in the src/modules/ directory. All business logic, data processing, calculations, API client interactions, and database operations must be encapsulated within these modules.
+
+Single Responsibility: Every script and module you create must have a single, clearly defined purpose. For example, one runner script executes a step, and one module contains the detailed logic for that step.
+
+Testability and Independence: Design all modules to be independently executable and testable. The logic within a module should not depend on the orchestrator to function; it should be self-contained.
+
+---
+
 ## **📊 DATA MAPPING & STANDARDIZATION**
 
 ### Team ID Mappings
@@ -424,10 +486,10 @@ _Complete this checklist BEFORE subscribing to any APIs or writing code_
 
 ## **📋 COMPLETION TRACKING**
 
-**Total Items:** 53
+**Total Items:** 54
 **Completed:** 0
 **In Progress:** 0
-**Not Started:** 53
+**Not Started:** 54
 
 **Completion Percentage:** 0%
 

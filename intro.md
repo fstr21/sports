@@ -1,0 +1,1 @@
+Please read over my  prd.md in the docs folder, then look at our checklist.md and 

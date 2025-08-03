@@ -163,6 +163,98 @@ A platform that combines real-time odds data with historical performance analyti
 - **Hosting:** Railway/Heroku (initial), AWS (scale)
 - **Monitoring:** Basic logging and error tracking
 
+#### **Modular Step-Based Architecture**
+
+The system will operate as a **discrete step pipeline** with thin orchestrator scripts and fat logic modules:
+
+**Step-Based Execution Model:**
+```
+Daily Pipeline:
+Step 1: Fetch Schedules → Step 2: Fetch Odds → Step 3: Fetch Team Performance → 
+Step 4: Calculate Predictions → Step 5: Detect Value → Step 6: Post to Discord
+```
+
+**Architecture Principles:**
+- **Thin Orchestrators:** Small runner scripts that coordinate execution
+- **Fat Modules:** All business logic contained in organized, testable modules  
+- **Single Responsibility:** Each step has one clear purpose
+- **Independent Execution:** Steps can run separately for testing/debugging
+- **Easy Monitoring:** Clear success/failure at each step
+
+#### **File Structure Example**
+```
+src/
+├── runners/                    # Thin orchestrator scripts
+│   ├── step1_fetch_schedule.py
+│   ├── step2_fetch_odds.py
+│   ├── step3_fetch_performance.py
+│   ├── step4_calculate_predictions.py
+│   ├── step5_detect_value.py
+│   └── step6_post_discord.py
+├── modules/                    # Fat logic modules
+│   ├── data_fetchers/
+│   │   ├── schedule_fetcher.py
+│   │   ├── odds_fetcher.py
+│   │   └── performance_fetcher.py
+│   ├── calculators/
+│   │   ├── spread_calculator.py
+│   │   ├── total_calculator.py
+│   │   └── value_detector.py
+│   ├── database/
+│   │   ├── models.py
+│   │   ├── crud_operations.py
+│   │   └── data_validators.py
+│   └── discord/
+│       ├── bot_manager.py
+│       ├── message_formatter.py
+│       └── channel_poster.py
+└── shared/
+    ├── config.py
+    ├── logging.py
+    └── exceptions.py
+```
+
+#### **Example Step Implementation**
+```python
+# runners/step2_fetch_odds.py (Thin Orchestrator)
+from modules.data_fetchers.odds_fetcher import OddsFetcher
+from modules.database.crud_operations import save_odds_data
+from shared.logging import log_step_execution
+
+def main():
+    log_step_execution("step2_fetch_odds", "starting")
+    
+    # Get today's games from database
+    games = get_todays_games()
+    
+    # Fetch odds for each game
+    fetcher = OddsFetcher()
+    for game in games:
+        odds_data = fetcher.fetch_game_odds(game.id)
+        save_odds_data(odds_data)
+    
+    log_step_execution("step2_fetch_odds", "completed")
+
+# modules/data_fetchers/odds_fetcher.py (Fat Module)
+class OddsFetcher:
+    def __init__(self):
+        self.api_client = TheOddsAPIClient()
+    
+    def fetch_game_odds(self, game_id):
+        # All the complex logic here
+        # Error handling, data parsing, validation
+        # Rate limiting, retries, caching
+        pass
+```
+
+#### **Benefits of This Architecture**
+- **Testability:** Each module can be unit tested independently
+- **Debuggability:** Run individual steps to isolate issues  
+- **Maintainability:** Logic separated from orchestration
+- **Scalability:** Easy to parallelize or optimize individual steps
+- **Monitoring:** Clear visibility into pipeline health
+- **Development:** Multiple developers can work on different modules
+
 #### **Data Infrastructure**
 - **External APIs**
   - Primary odds source with backup providers
