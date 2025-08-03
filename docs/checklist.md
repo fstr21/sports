@@ -19,6 +19,7 @@ _Complete this checklist BEFORE subscribing to any APIs or writing code_
   - **Claude Code Instructions:** How to work with the project structure
   - **Kiro Instructions:** Project-specific guidance and preferences
   - **Workflow Documentation:** Development process and standards
+  - **MCP Integration:** Ensure steering documents reference and utilize available MCP servers (httpx, sqlalchemy, prefect, zen, custom_normalization) for enhanced development capabilities
   - **Notes:** We will be using a library of known-to-work example scripts for each possible request. Scripts will be in this format:
 
 Python

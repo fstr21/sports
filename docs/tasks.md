@@ -4,7 +4,7 @@ _Organized list of development tasks and feature ideas_
 
 ---
 
-## **<¯ PRIORITY TASKS**
+## **<ï¿½ PRIORITY TASKS**
 
 1. [ ] Complete checklist.md research items
 2. [ ] Set up development environment
@@ -13,7 +13,7 @@ _Organized list of development tasks and feature ideas_
 
 ---
 
-## **=ñ NOTIFICATION SYSTEM IDEAS**
+## **=ï¿½ NOTIFICATION SYSTEM IDEAS**
 
 ### Discord Bot Features
 - [ ] **Real-time bet alerts when odds reach target thresholds**
@@ -49,7 +49,7 @@ _Organized list of development tasks and feature ideas_
 
 ---
 
-## **<À NBA FIRST BASKET BETTING**
+## **<ï¿½ NBA FIRST BASKET BETTING**
 
 ### Research & Implementation
 - [ ] **First basket prediction algorithm**
@@ -79,7 +79,7 @@ _Organized list of development tasks and feature ideas_
 
 ---
 
-## **=¨ ALERT TRIGGER EXAMPLES**
+## **=ï¿½ ALERT TRIGGER EXAMPLES**
 
 ### Bet Outcome Alerts
 - "Your over 225.5 total is looking good - teams on pace for 240+"
@@ -120,7 +120,68 @@ _Organized list of development tasks and feature ideas_
 
 ---
 
-## **=¡ FUTURE FEATURES**
+## **=ï¿½ USER ONBOARDING & EDUCATION**
+
+### Initial Setup & Welcome Flow
+- [ ] **Welcome tutorial walkthrough**
+  - App navigation and key features overview
+  - Setting up first betting preferences
+  - Connecting notification channels (Discord, mobile)
+  - Account verification and security setup
+
+- [ ] **Bankroll management education**
+  - Interactive calculator for proper bet sizing
+  - Kelly Criterion explanation with examples
+  - Setting daily/weekly/monthly limits
+  - Understanding unit sizing (1-5 unit system)
+
+- [ ] **Confidence level interpretation**
+  - What different confidence percentages mean
+  - How to use confidence in bet sizing decisions
+  - Historical accuracy of confidence predictions
+  - When to trust vs question the model
+
+- [ ] **Sports betting variance education**
+  - Understanding short-term vs long-term results
+  - Why even good bets can lose
+  - Sample size requirements for meaningful data
+  - Dealing with losing streaks mentally
+
+- [ ] **Setting realistic expectations**
+  - Typical win rates for different bet types
+  - Expected ROI ranges for profitable bettors
+  - Time horizon for seeing meaningful results
+  - Common beginner mistakes to avoid
+
+### Progressive Learning System
+- [ ] **Skill-based content unlocking**
+  - Basic concepts â†’ Intermediate strategies â†’ Advanced techniques
+  - Quiz system to test understanding
+  - Achievement badges for learning milestones
+  - Personalized learning paths based on experience level
+
+- [ ] **Practice mode features**
+  - Paper trading with fake money
+  - Historical game simulations
+  - Risk-free environment to test strategies
+  - Performance tracking without financial impact
+
+### Ongoing Education & Support
+- [ ] **Weekly educational content**
+  - Market analysis tutorials
+  - Strategy deep-dives
+  - Common mistake breakdowns
+  - Success story case studies
+
+- [ ] **Community features**
+  - Beginner-friendly discussion forums
+  - Mentorship program pairing
+  - Q&A sessions with experienced users
+  - Shared learning resources library
+
+---
+
+## **=ï¿½ FUTURE FEATURES**
 
 - [ ] Social betting groups with shared alerts
 - [ ] AI-powered bet analysis summaries
