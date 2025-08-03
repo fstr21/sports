@@ -1,3 +1,4 @@
+
 # Sports Betting App: Pre-Coding Research Checklist
 
 _Complete this checklist BEFORE subscribing to any APIs or writing code_
