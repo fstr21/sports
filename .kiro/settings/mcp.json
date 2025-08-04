@@ -1,9 +1,29 @@
 {
-  "mcpServers": {
-    "wnba-stats": {
-      "command": "python",
-      "args": ["C:\\Users\\fstr2\\Desktop\\sports\\mcp\\wnba_mcp.py"],
-      "disabled": false
+    "mcpServers": {
+        "wnba-espn": {
+            "command": "python",
+            "args": [
+                "C:\\Users\\fstr2\\Desktop\\sports\\mcp\\wnba_mcp.py"
+            ],
+            "disabled": false,
+            "autoApprove": [
+                "fetchWnbaScoreboard"
+            ]
+        },
+        "wnba-comprehensive": {
+            "command": "python",
+            "args": [
+                "C:\\Users\\fstr2\\Desktop\\sports\\mcp\\wnba_comprehensive_mcp.py"
+            ],
+            "disabled": false,
+            "autoApprove": [
+                "getWnbaScoreboard",
+                "getWnbaGameBoxScore",
+                "getWnbaTeams",
+                "getWnbaTeamSchedule",
+                "getWnbaStandings",
+                "getWnbaUpcomingGames"
+            ]
+        }
     }
-  }
 }

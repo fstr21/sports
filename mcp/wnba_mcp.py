@@ -1,85 +1,50 @@
 import asyncio
-import json
-from typing import Any
+import re
+from typing import Any, Dict, Optional
+
 import httpx
-from mcp.server.fastmcp import FastMCP
+from mcp.server import FastMCP
 
-# Initialize FastMCP server
-mcp = FastMCP("wnba-stats")
+ESPN_WNBA_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard"
+date_re = re.compile(r"^\d{8}$")
 
-@mcp.tool()
-async def get_wnba_standings() -> str:
-    """Get current WNBA team standings and records"""
-    try:
-        # ESPN WNBA scoreboard API - contains team records
-        url = "http://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard"
-        
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-        
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=headers, timeout=10.0)
-            response.raise_for_status()
-            data = response.json()
-        
-        # Extract team records from events
-        teams_data = {}
-        
-        if 'events' in data:
-            for event in data['events']:
-                if 'competitions' in event:
-                    for comp in event['competitions']:
-                        if 'competitors' in comp:
-                            for team in comp['competitors']:
-                                if 'team' in team and 'records' in team:
-                                    team_name = team['team']['displayName']
-                                    
-                                    # Find overall record
-                                    for record in team['records']:
-                                        if record.get('type') == 'total' and record.get('name') == 'overall':
-                                            record_str = record.get('summary', '0-0')
-                                            
-                                            # Calculate win percentage
-                                            try:
-                                                wins, losses = record_str.split('-')
-                                                wins, losses = int(wins), int(losses)
-                                                total_games = wins + losses
-                                                win_pct = wins / total_games if total_games > 0 else 0
-                                                
-                                                teams_data[team_name] = {
-                                                    'wins': wins,
-                                                    'losses': losses,
-                                                    'pct': win_pct,
-                                                    'record': record_str
-                                                }
-                                            except:
-                                                teams_data[team_name] = {
-                                                    'wins': 0,
-                                                    'losses': 0,
-                                                    'pct': 0,
-                                                    'record': record_str
-                                                }
-        
-        if not teams_data:
-            return "No team records found in API data"
-        
-        # Sort teams by win percentage (descending)
-        sorted_teams = sorted(teams_data.items(), key=lambda x: x[1]['pct'], reverse=True)
-        
-        # Format output
-        standings_text = "WNBA STANDINGS\n" + "="*50 + "\n\n"
-        
-        for i, (team_name, stats) in enumerate(sorted_teams, 1):
-            win_pct_display = f"({stats['pct']:.3f})"
-            standings_text += f"{i:2d}. {team_name:<22} {stats['record']} {win_pct_display}\n"
-        
-        standings_text += f"\n✓ Found {len(sorted_teams)} teams"
-        return standings_text
-        
-    except Exception as e:
-        return f"Error fetching WNBA standings: {str(e)}"
+server = FastMCP("mcp-wnba-espn")
+
+@server.tool(
+    name="fetchWnbaScoreboard",
+    description="Fetch WNBA scoreboard JSON from ESPN. Optional inputs: dates (YYYYMMDD), limit (number)."
+)
+async def fetch_wnba_scoreboard(args: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    args = args or {}
+    dates = args.get("dates")
+    limit = args.get("limit")
+
+    qs = []
+    if dates is not None:
+        if not isinstance(dates, str) or not date_re.match(dates):
+            raise ValueError("dates must be a string in YYYYMMDD format")
+        qs.append(f"dates={dates}")
+
+    if limit is not None:
+        try:
+            n = float(limit)
+        except Exception:
+            raise ValueError("limit must be a number")
+        if not (n > 0 and n == int(n)):
+            raise ValueError("limit must be a positive integer")
+        qs.append(f"limit={int(n)}")
+
+    url = ESPN_WNBA_SCOREBOARD_URL if not qs else f"{ESPN_WNBA_SCOREBOARD_URL}?{'&'.join(qs)}"
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        res = await client.get(url, headers={"user-agent": "mcp-wnba-espn/1.0", "accept": "application/json"})
+        res.raise_for_status()
+        data = res.json()
+
+    return {"content": [{"type": "json", "data": data}]}
+
+async def amain():
+    await server.run_stdio_async()
 
 if __name__ == "__main__":
-    # Initialize and run the server
-    mcp.run(transport='stdio')
+    asyncio.run(amain())
