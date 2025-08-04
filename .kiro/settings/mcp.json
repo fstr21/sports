@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "wnba-stats": {
+      "command": "python",
+      "args": ["C:\\Users\\fstr2\\Desktop\\sports\\mcp\\wnba_mcp.py"],
+      "disabled": false
+    }
+  }
+}
