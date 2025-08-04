@@ -6,10 +6,11 @@ _Organized list of development tasks and feature ideas_
 
 ## **<� PRIORITY TASKS**
 
-1. [ ] Complete checklist.md research items
-2. [ ] Set up development environment
-3. [ ] Choose and implement database solution
-4. [ ] Create core prediction algorithms
+1. [ ] Keep leaning into MCP and using LLM to make the calls
+2. [ ] Complete checklist.md research items
+3. [ ] Set up development environment
+4. [ ] Choose and implement database solution
+5. [ ] Create core prediction algorithms
 
 ---
 

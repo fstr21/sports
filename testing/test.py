@@ -1,208 +1,152 @@
 import asyncio
-import re
-from typing import Any, Dict, Optional, List
-from datetime import datetime, timedelta
+import json
+import sys
+from datetime import datetime
+# Corrected import: Removed ToolCallResult
+from mcp.client.session import ClientSession
+from mcp.client.stdio import StdioServerParameters, stdio_client
 
-import httpx
-from mcp.server import FastMCP
+# --- Configuration ---
+# Update this path to point to your Python executable
+PYTHON = r"C:\Users\fstr2\AppData\Local\Programs\Python\Python313\python.exe"
+# Update this path to point to your comprehensive MCP server script
+SERVER = r"C:\Users\fstr2\Desktop\sports\mcp\wnba_comprehensive_mcp.py"
 
-# ESPN API endpoints
-ESPN_WNBA_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard"
-ESPN_WNBA_TEAMS_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams"
-ESPN_WNBA_BOXSCORE_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/summary"
-ESPN_WNBA_SCHEDULE_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/{team_id}/schedule"
-ESPN_WNBA_STANDINGS_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/standings"
+OUTPUT_JSON = "wnba_mcp_exploration_results.json"
 
-date_re = re.compile(r"^\d{8}$")
-server = FastMCP("wnba-comprehensive")
+# Corrected function signature: Removed the ToolCallResult type hint
+def process_tool_result(result) -> dict | None:
+    """Helper function to extract the JSON data from a tool call result."""
+    if result and result.content:
+        for content in result.content:
+            if getattr(content, "type", "") == "json":
+                return content.data
+    return None
 
-@server.tool(
-    name="getWnbaScoreboard",
-    description="Get WNBA scoreboard for a specific date. Optional: dates (YYYYMMDD), limit (number)"
-)
-async def get_wnba_scoreboard(args: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Get WNBA scoreboard data for a specific date"""
-    args = args or {}
-    dates = args.get("dates")
-    limit = args.get("limit")
-
-    qs = []
-    if dates is not None:
-        if not isinstance(dates, str) or not date_re.match(dates):
-            raise ValueError("dates must be a string in YYYYMMDD format")
-        qs.append(f"dates={dates}")
-
-    if limit is not None:
-        try:
-            n = float(limit)
-        except Exception:
-            raise ValueError("limit must be a number")
-        if not (n > 0 and n == int(n)):
-            raise ValueError("limit must be a positive integer")
-        qs.append(f"limit={int(n)}")
-
-    url = ESPN_WNBA_SCOREBOARD_URL if not qs else f"{ESPN_WNBA_SCOREBOARD_URL}?{'&'.join(qs)}"
-
-    async with httpx.AsyncClient(timeout=15) as client:
-        res = await client.get(url, headers={"user-agent": "wnba-comprehensive/1.0", "accept": "application/json"})
-        res.raise_for_status()
-        data = res.json()
-
-    return {"content": [{"type": "json", "data": data}]}
-
-@server.tool(
-    name="getWnbaGameBoxScore",
-    description="Get detailed box score for a specific WNBA game. Requires game_id parameter."
-)
-async def get_wnba_game_boxscore(args: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Get detailed box score including all player stats for a specific game"""
-    args = args or {}
-    game_id = args.get("game_id")
+async def explore_mcp_server():
+    """
+    Explore the WNBA MCP server by calling each available tool and saving the results.
+    """
+    print("🚀 Starting WNBA MCP server exploration...")
     
-    if not game_id:
-        raise ValueError("game_id is required")
+    server_params = StdioServerParameters(
+        command=PYTHON,
+        args=[SERVER],
+    )
 
-    url = f"{ESPN_WNBA_BOXSCORE_URL}?event={game_id}"
-
-    async with httpx.AsyncClient(timeout=15) as client:
-        res = await client.get(url, headers={"user-agent": "wnba-comprehensive/1.0", "accept": "application/json"})
-        res.raise_for_status()
-        data = res.json()
-
-    return {"content": [{"type": "json", "data": data}]}
-
-@server.tool(
-    name="getWnbaTeams",
-    description="Get all WNBA teams with basic information"
-)
-async def get_wnba_teams(args: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Get list of all WNBA teams"""
-    async with httpx.AsyncClient(timeout=15) as client:
-        res = await client.get(ESPN_WNBA_TEAMS_URL, headers={"user-agent": "wnba-comprehensive/1.0", "accept": "application/json"})
-        res.raise_for_status()
-        data = res.json()
-
-    return {"content": [{"type": "json", "data": data}]}
-
-@server.tool(
-    name="getWnbaTeamSchedule",
-    description="Get full season schedule for a specific WNBA team. Requires team_id parameter."
-)
-async def get_wnba_team_schedule(args: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Get complete schedule for a specific team"""
-    args = args or {}
-    team_id = args.get("team_id")
-    
-    if not team_id:
-        raise ValueError("team_id is required")
-
-    url = ESPN_WNBA_SCHEDULE_URL.format(team_id=team_id)
-
-    async with httpx.AsyncClient(timeout=15) as client:
-        res = await client.get(url, headers={"user-agent": "wnba-comprehensive/1.0", "accept": "application/json"})
-        res.raise_for_status()
-        data = res.json()
-
-    return {"content": [{"type": "json", "data": data}]}
-
-@server.tool(
-    name="getWnbaStandings",
-    description="Get current WNBA standings"
-)
-async def get_wnba_standings(args: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Get current league standings"""
-    async with httpx.AsyncClient(timeout=15) as client:
-        res = await client.get(ESPN_WNBA_STANDINGS_URL, headers={"user-agent": "wnba-comprehensive/1.0", "accept": "application/json"})
-        res.raise_for_status()
-        data = res.json()
-
-    return {"content": [{"type": "json", "data": data}]}
-
-@server.tool(
-    name="getWnbaUpcomingGames",
-    description="Get upcoming WNBA games for the next N days. Optional: days (default 7)"
-)
-async def get_wnba_upcoming_games(args: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Get upcoming games for the next several days"""
-    args = args or {}
-    days = args.get("days", 7)
-    
-    try:
-        days = int(days)
-    except (ValueError, TypeError):
-        days = 7
-    
-    if days < 1 or days > 30:
-        days = 7
-
-    # Get games for the next N days
-    games_data = []
-    today = datetime.now()
-    
-    async with httpx.AsyncClient(timeout=15) as client:
-        for i in range(days):
-            date = today + timedelta(days=i)
-            date_str = date.strftime("%Y%m%d")
-            
-            url = f"{ESPN_WNBA_SCOREBOARD_URL}?dates={date_str}"
-            
-            try:
-                res = await client.get(url, headers={"user-agent": "wnba-comprehensive/1.0", "accept": "application/json"})
-                res.raise_for_status()
-                day_data = res.json()
-                
-                if day_data.get("events"):
-                    games_data.append({
-                        "date": date_str,
-                        "games": day_data["events"]
-                    })
-            except Exception:
-                # Continue if one day fails
-                continue
-
-    # If you only want the single next upcoming game from that collected data:
-    next_game = None
-    next_game_date = None
-    next_game_start = None
-    for day in games_data:
-        for ev in day.get("games", []):
-            # ESPN event start time is at competitions[0].date or top-level date
-            start_str = None
-            competitions = ev.get("competitions") or []
-            if competitions:
-                start_str = competitions[0].get("date")
-            if not start_str:
-                start_str = ev.get("date")
-            # parse leniently
-            try:
-                # ESPN may return Z; python fromisoformat needs +00:00
-                if start_str and isinstance(start_str, str) and start_str.endswith("Z"):
-                    start_iso = start_str[:-1] + "+00:00"
-                else:
-                    start_iso = start_str
-                start_dt = datetime.fromisoformat(start_iso) if start_iso else None
-            except Exception:
-                start_dt = None
-
-            # Only consider future games
-            if start_dt and start_dt > datetime.now(start_dt.tzinfo or None):
-                if next_game_start is None or start_dt < next_game_start:
-                    next_game = ev
-                    next_game_start = start_dt
-                    next_game_date = day.get("date")
-
-    result = {
-        "upcoming_games": games_data,
-        "days_searched": days,
-        "next_game_found": next_game is not None,
-        "next_game_date": next_game_date,
-        "next_game": next_game
+    # This dictionary will store the results from each tool call
+    output = {
+        "teams_data": None,
+        "team_schedule_data": None,
+        "scoreboard_data": None,
+        "game_boxscore_data": None,
+        "standings_data": None,
+        "upcoming_games_data": None,
     }
 
-    return {"content": [{"type": "json", "data": result}]}
+    try:
+        async with stdio_client(server_params) as (read, write):
+            async with ClientSession(read, write) as session:
+                await session.initialize()
+                print("✅ MCP session initialized.")
 
-async def amain():
-    await server.run_stdio_async()
+                # 1. Get all WNBA Teams
+                print("\n[1/6] 🏀 Calling 'getWnbaTeams'...")
+                teams_result = await session.call_tool(name="getWnbaTeams")
+                output["teams_data"] = process_tool_result(teams_result)
+                print("✅ Success! Found team data.")
+
+                # 2. Get a schedule for the first team found
+                print("\n[2/6] 📅 Calling 'getWnbaTeamSchedule'...")
+                first_team_id = None
+                if output["teams_data"]:
+                    try:
+                        first_team_id = output["teams_data"]["sports"][0]["leagues"][0]["teams"][0]["team"]["id"]
+                        print(f"   -> Found team ID: {first_team_id}. Using it to get the schedule.")
+                        schedule_result = await session.call_tool(
+                            name="getWnbaTeamSchedule",
+                            arguments={"team_id": first_team_id}
+                        )
+                        output["team_schedule_data"] = process_tool_result(schedule_result)
+                        print("✅ Success! Retrieved team schedule.")
+                    except (KeyError, IndexError) as e:
+                        print(f"   -> Could not extract a team ID from the teams data. Skipping schedule call. Error: {e}")
+                else:
+                    print("   -> No team data found, skipping schedule call.")
+
+                # 3. Get the scoreboard for today
+                today_str = datetime.now().strftime("%Y%m%d")
+                print(f"\n[3/6] 📊 Calling 'getWnbaScoreboard' for today ({today_str})...")
+                scoreboard_result = await session.call_tool(
+                    name="getWnbaScoreboard",
+                    arguments={"dates": today_str}
+                )
+                output["scoreboard_data"] = process_tool_result(scoreboard_result)
+                print("✅ Success! Retrieved scoreboard.")
+                
+                # 4. Get the box score for the first game on the scoreboard
+                print("\n[4/6] 📋 Calling 'getWnbaGameBoxScore'...")
+                first_game_id = None
+                if output["scoreboard_data"] and output["scoreboard_data"].get("events"):
+                    try:
+                        first_game_id = output["scoreboard_data"]["events"][0]["id"]
+                        print(f"   -> Found game ID: {first_game_id}. Using it to get the box score.")
+                        boxscore_result = await session.call_tool(
+                            name="getWnbaGameBoxScore",
+                            arguments={"game_id": first_game_id}
+                        )
+                        output["game_boxscore_data"] = process_tool_result(boxscore_result)
+                        print("✅ Success! Retrieved game box score.")
+                    except (KeyError, IndexError) as e:
+                        print(f"   -> No games on today's scoreboard or could not find ID. Skipping box score call. Error: {e}")
+                else:
+                    print("   -> No games found on the scoreboard, skipping box score call.")
+
+                # 5. Get current WNBA Standings
+                print("\n[5/6] 🏆 Calling 'getWnbaStandings'...")
+                standings_result = await session.call_tool(name="getWnbaStandings")
+                output["standings_data"] = process_tool_result(standings_result)
+                print("✅ Success! Retrieved league standings.")
+
+                # 6. Get upcoming games for the next 2 days
+                print("\n[6/6] 🗓️  Calling 'getWnbaUpcomingGames'...")
+                upcoming_result = await session.call_tool(
+                    name="getWnbaUpcomingGames",
+                    arguments={"days": 2}
+                )
+                output["upcoming_games_data"] = process_tool_result(upcoming_result)
+                print("✅ Success! Retrieved upcoming games.")
+                
+                # --- All tests complete, save the results ---
+                print("\n" + "="*50)
+                print(" MCP EXPLORATION COMPLETE ")
+                print("="*50)
+
+                try:
+                    with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+                        json.dump(output, f, ensure_ascii=False, indent=2)
+                    print(f"\n💾 Results successfully written to '{OUTPUT_JSON}'")
+                except Exception as e:
+                    print(f"❌ Failed to write JSON output: {e}")
+
+                return True
+
+    except Exception as e:
+        print(f"\n❌ A critical error occurred during the exploration: {e}")
+        import traceback
+        traceback.print_exc()
+        # Attempt to write whatever data was collected before the error
+        try:
+            with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+                json.dump(output, f, ensure_ascii=False, indent=2)
+            print(f"\n💾 Partial results have been written to '{OUTPUT_JSON}'")
+        except Exception as write_error:
+            print(f"❌ Additionally, failed to write partial results to JSON: {write_error}")
+        return False
+
+def main():
+    success = asyncio.run(explore_mcp_server())
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    asyncio.run(amain())
+    main()
