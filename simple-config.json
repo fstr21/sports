@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "espn": {
+      "command": "npx",
+      "args": ["dkmaker-mcp-rest-api"],
+      "env": {
+        "REST_BASE_URL": "https://site.api.espn.com/apis/site/v2/sports",
+        "REST_RESPONSE_SIZE_LIMIT": "200000"
+      }
+    }
+  }
+}

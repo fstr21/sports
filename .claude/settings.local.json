@@ -12,7 +12,8 @@
       "Bash(claude mcp:*)",
       "Bash(claude doctor)",
       "Bash(move:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }
