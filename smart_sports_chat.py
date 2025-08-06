@@ -7,7 +7,7 @@ Uses OpenRouter API for real AI analysis
 import asyncio
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from mcp import ClientSession
 from mcp.client.sse import sse_client
 import httpx
@@ -18,7 +18,10 @@ load_dotenv('.env.local')
 
 class SmartSportsBot:
     def __init__(self):
+        # Use per-server SSE endpoint exposed by your proxy
         self.proxy_url = "http://127.0.0.1:8080/servers/espn/sse"
+        # If your proxy enforces token auth, add Authorization header:
+        # self.headers = {"Authorization": "Bearer 455ff43d-791a-45b1-bdd1-bdf0e1de1738"}
         self.headers = {}
         
         # OpenRouter API configuration
@@ -53,32 +56,66 @@ class SmartSportsBot:
         except:
             return "🔴 Error"
         
-    async def fetch_espn_data(self, endpoint):
-        """Fetch data from ESPN via our MCP proxy"""
+    async def _discover_rest_tool(self, session: ClientSession) -> str:
+        """
+        Auto-detect the REST tool exposed by dkmaker-mcp-rest-api by looking
+        for 'method' and 'endpoint' in the input schema. Falls back to common names.
+        """
+        tools = await session.list_tools()
+        for t in tools.tools:
+            try:
+                schema = t.inputSchema or {}
+                if "properties" in schema:
+                    props = schema["properties"]
+                    if "method" in props and "endpoint" in props:
+                        return t.name
+            except Exception:
+                continue
+        for candidate in ["test_request", "http_request", "rest_request", "request"]:
+            if any(t.name == candidate for t in tools.tools):
+                return candidate
+        # If still not found, return test_request to preserve prior behavior
+        return "test_request"
+
+    async def fetch_espn_data(self, endpoint, params: dict | None = None):
+        """Fetch data from ESPN via our MCP proxy (auto-detect REST tool)"""
         try:
             async with sse_client(self.proxy_url, headers=self.headers) as (read, write):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
-                    
-                    args = {
-                        "method": "GET",
-                        "endpoint": endpoint
-                    }
-                    
-                    result = await session.call_tool("test_request", args)
-                    
-                    if result.content:
-                        response_text = result.content[0].text
+
+                    tool_name = await self._discover_rest_tool(session)
+
+                    # Build endpoint with querystring if params provided
+                    if params:
+                        qs = "&".join(f"{k}={v}" for k, v in params.items())
+                        eff_endpoint = f"{endpoint}?{qs}"
+                    else:
+                        eff_endpoint = endpoint
+
+                    args = {"method": "GET", "endpoint": eff_endpoint}
+                    result = await session.call_tool(tool_name, args)
+
+                    if not result.content:
+                        return {"error": "Empty content from tool"}
+
+                    response_text = result.content[0].text
+
+                    # dkmaker-mcp-rest-api usually wraps JSON in response.body
+                    try:
                         response_data = json.loads(response_text)
-                        
-                        if "response" in response_data and "body" in response_data["response"]:
+                        if isinstance(response_data, dict) and "response" in response_data and "body" in response_data["response"]:
                             body_data = response_data["response"]["body"]
-                            
                             if isinstance(body_data, str):
-                                return json.loads(body_data)
+                                try:
+                                    return json.loads(body_data)
+                                except Exception:
+                                    return {"raw": body_data}
                             else:
                                 return body_data
-                        
+                        return response_data
+                    except Exception:
+                        return {"raw": response_text}
         except Exception as e:
             return {"error": str(e)}
     
@@ -128,20 +165,19 @@ class SmartSportsBot:
                 dates_to_check = [today.strftime("%Y%m%d")]
         
         # Determine sport/league - check specific teams first
-        sport_league = "/basketball/wnba/scoreboard"  # Default
+        # Use official ESPN site API paths under /apis/site/v2/sports
+        sport_league = "/apis/site/v2/sports/basketball/wnba/scoreboard"  # Default
         
         # WNBA teams
         wnba_teams = ['aces', 'liberty', 'sparks', 'sky', 'fever', 'sun', 'mercury', 'storm', 'lynx', 'wings', 'mystics', 'dream']
-        if any(team in question for team in wnba_teams):
-            sport_league = "/basketball/wnba/scoreboard"
-        elif 'wnba' in question:
-            sport_league = "/basketball/wnba/scoreboard"
+        if any(team in question for team in wnba_teams) or 'wnba' in question:
+            sport_league = "/apis/site/v2/sports/basketball/wnba/scoreboard"
         elif 'nba' in question:
-            sport_league = "/basketball/nba/scoreboard"
+            sport_league = "/apis/site/v2/sports/basketball/nba/scoreboard"
         elif 'nfl' in question:
-            sport_league = "/football/nfl/scoreboard"
+            sport_league = "/apis/site/v2/sports/football/nfl/scoreboard"
         elif 'mlb' in question:
-            sport_league = "/baseball/mlb/scoreboard"
+            sport_league = "/apis/site/v2/sports/baseball/mlb/scoreboard"
         
         # Create endpoints for each date
         for date_str in dates_to_check:
@@ -149,8 +185,46 @@ class SmartSportsBot:
             
         return endpoints
     
+    def _to_eastern(self, iso_dt: str) -> str:
+        """
+        Convert an ISO8601 time (usually Z/UTC) to Eastern Time with abbreviation.
+        Handles DST automatically using fixed UTC offsets (ET: UTC-5 standard, UTC-4 DST).
+        Note: Without zoneinfo/pytz, we approximate DST using US rules: second Sunday in March to first Sunday in November.
+        """
+        try:
+            # Parse ISO8601 like '2025-08-07T02:00Z' or '2025-08-07T02:00:00Z'
+            dt = datetime.fromisoformat(iso_dt.replace("Z", "+00:00"))
+            dt_utc = dt.astimezone(timezone.utc)
+
+            year = dt_utc.year
+
+            # Helper to compute nth weekday of month
+            def nth_weekday(year, month, weekday, n):
+                # weekday: Monday=0 ... Sunday=6
+                first = datetime(year, month, 1, tzinfo=timezone.utc)
+                offset = (weekday - first.weekday()) % 7
+                day = 1 + offset + (n - 1) * 7
+                return datetime(year, month, day, tzinfo=timezone.utc)
+
+            # US DST rules (approx):
+            # Starts: 2nd Sunday in March at 2:00 local -> treat as UTC boundary for simplicity
+            # Ends: 1st Sunday in November at 2:00 local
+            dst_start = nth_weekday(year, 3, 6, 2)  # Sunday=6
+            dst_end = nth_weekday(year, 11, 6, 1)
+
+            in_dst = dst_start <= dt_utc < dst_end
+            offset = -4 if in_dst else -5  # ET offset hours
+            tz = timezone(timedelta(hours=offset))
+            abbr = "EDT" if in_dst else "EST"
+
+            dt_et = dt_utc.astimezone(tz)
+            # Format: Wed Aug 06, 2025 10:00 PM EDT
+            return dt_et.strftime(f"%a %b %d, %Y %I:%M %p {abbr}")
+        except Exception:
+            return iso_dt  # fallback to original
+
     def format_espn_data_for_llm(self, data):
-        """Format ESPN data into a clean summary for the LLM"""
+        """Format ESPN data into a clean summary for the LLM (times in Eastern Time)"""
         if "error" in data:
             return f"Error getting ESPN data: {data['error']}"
             
@@ -158,7 +232,7 @@ class SmartSportsBot:
         
         if "events" in data and len(data["events"]) > 0:
             league_name = data.get("leagues", [{}])[0].get("name", "Games")
-            summary.append(f"Current {league_name} Games:")
+            summary.append(f"Current {league_name} Games (All times Eastern):")
             
             for i, game in enumerate(data["events"], 1):
                 try:
@@ -167,7 +241,8 @@ class SmartSportsBot:
                     away_team = next(c for c in competitors if c["homeAway"] == "away")["team"]["displayName"]
                     
                     status = game["status"]["type"]["description"]
-                    game_time = game.get("date", "TBD")
+                    game_time_iso = game.get("date", "TBD")
+                    game_time_et = self._to_eastern(game_time_iso) if game_time_iso != "TBD" else "TBD ET"
                     
                     game_summary = f"{i}. {away_team} @ {home_team} - {status}"
                     
@@ -180,7 +255,7 @@ class SmartSportsBot:
                         except:
                             pass
                     else:
-                        game_summary += f" (Time: {game_time})"
+                        game_summary += f" (Time: {game_time_et})"
                         
                     summary.append(game_summary)
                     
@@ -272,7 +347,12 @@ Be conversational and knowledgeable, like a sports expert friend would be. Remem
         
         for endpoint in endpoints:
             print(f"🌐 Fetching: {endpoint}")
-            data = await self.fetch_espn_data(endpoint)
+            # Pass date param explicitly; endpoint already contains base path
+            # When endpoint already has a querystring, fetch_espn_data preserves it.
+            if "scoreboard" in endpoint and "dates=" not in endpoint:
+                data = await self.fetch_espn_data(endpoint, {"dates": datetime.now().strftime("%Y%m%d")})
+            else:
+                data = await self.fetch_espn_data(endpoint)
             formatted_data = self.format_espn_data_for_llm(data)
             if formatted_data and "No games found" not in formatted_data and "Error" not in formatted_data:
                 all_data.append(formatted_data)
@@ -281,7 +361,11 @@ Be conversational and knowledgeable, like a sports expert friend would be. Remem
             await asyncio.sleep(0.3)
         
         if not all_data:
-            espn_summary = "No games found for the requested time period."
+            # If the user asked about a specific league and nothing returned, be explicit.
+            if 'wnba' in user_question.lower():
+                espn_summary = f"No WNBA games found on {datetime.now().strftime('%Y-%m-%d')}."
+            else:
+                espn_summary = "No games found for the requested time period."
         else:
             espn_summary = "\n\n".join(all_data)
         
