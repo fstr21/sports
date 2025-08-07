@@ -34,14 +34,26 @@ class SportsAnalysisSystem:
         """Initialize the system with API keys and configuration."""
         self.openrouter_api_key = os.environ.get('OPENROUTER_API_KEY')
         self.openrouter_base_url = os.environ.get('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1')
-        self.openrouter_model = os.environ.get('OPENROUTER_MODEL', 'openai/gpt-3.5-turbo')
+        self.openrouter_model = os.environ.get('OPENROUTER_MODEL', 'meta-llama/llama-3.2-3b-instruct:free')
+        self.fallback_models = [
+            'meta-llama/llama-3.2-3b-instruct:free',
+            'microsoft/phi-3-mini-128k-instruct:free',
+            'google/gemma-2-9b-it:free'
+        ]
         self.odds_api_key = os.environ.get('ODDS_API_KEY')
         
         # Validate required keys
-        if not self.openrouter_api_key:
-            raise ValueError("OPENROUTER_API_KEY not found in .env.local")
         if not self.odds_api_key:
             raise ValueError("ODDS_API_KEY not found in .env.local")
+        
+        # Validate OpenRouter API key (warn but don't fail)
+        self.openrouter_valid = True
+        if not self.openrouter_api_key:
+            print("⚠️  Warning: OPENROUTER_API_KEY not found in .env.local - AI analysis will be unavailable")
+            self.openrouter_valid = False
+        elif not self.openrouter_api_key.startswith('sk-or-v1-'):
+            print("⚠️  Warning: OPENROUTER_API_KEY appears to be invalid - AI analysis may not work")
+            self.openrouter_valid = False
     
     def detect_sport_from_query(self, query: str) -> str:
         """Detect which sport the user is asking about."""
@@ -124,7 +136,7 @@ NFL Games Analysis for This Week:
                     "apiKey": self.odds_api_key,
                     "regions": "us",
                     "markets": "h2h,spreads",
-                    "oddsFormat": "decimal"
+                    "oddsFormat": "american"
                 },
                 timeout=10
             )
@@ -144,13 +156,21 @@ NFL Games Analysis for This Week:
                                 if market['key'] == 'h2h':
                                     formatted_odds += "Moneyline: "
                                     for outcome in market['outcomes']:
-                                        formatted_odds += f"{outcome['name']} {outcome['price']:.2f} "
+                                        price = outcome['price']
+                                        if price > 0:
+                                            formatted_odds += f"{outcome['name']} +{price} "
+                                        else:
+                                            formatted_odds += f"{outcome['name']} {price} "
                                     formatted_odds += "\n"
                                 elif market['key'] == 'spreads':
                                     formatted_odds += "Spread: "
                                     for outcome in market['outcomes']:
                                         point = outcome.get('point', 0)
-                                        formatted_odds += f"{outcome['name']} {point:+.1f} ({outcome['price']:.2f}) "
+                                        price = outcome['price']
+                                        if price > 0:
+                                            formatted_odds += f"{outcome['name']} {point:+.1f} (+{price}) "
+                                        else:
+                                            formatted_odds += f"{outcome['name']} {point:+.1f} ({price}) "
                                     formatted_odds += "\n"
                         formatted_odds += "\n"
                     
@@ -164,10 +184,9 @@ NFL Games Analysis for This Week:
             return f"Error getting odds data: {str(e)}"
     
     def get_ai_analysis(self, query: str, sports_data: str, odds_data: str, sport: str) -> str:
-        """Get AI analysis from OpenRouter."""
-        try:
-            # Create a comprehensive prompt with real data
-            prompt = f"""You are a professional sports betting analyst with access to real-time {sport.upper()} data. 
+        """Get AI analysis from OpenRouter with fallback to basic analysis."""
+        # Create a comprehensive prompt with real data
+        prompt = f"""You are a professional sports betting analyst with access to real-time {sport.upper()} data. 
 
 User Question: {query}
 
@@ -177,45 +196,93 @@ Current {sport.upper()} Games & Analysis:
 Live Betting Odds:
 {odds_data}
 
-Based on this real data, provide specific betting recommendations with detailed reasoning. Include:
-1. Best value bets (moneyline, spread, or totals)
-2. Player performance insights
-3. Key factors affecting the games
-4. Risk assessment for each recommendation
+Based on this real data, provide specific betting recommendations with detailed reasoning. 
 
-Be specific about which bets to place and why."""
-            
-            # Call OpenRouter
-            response = requests.post(
-                f"{self.openrouter_base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.openrouter_api_key}",
-                    "HTTP-Referer": "http://localhost:3000",
-                    "X-Title": "Sports Betting Analysis",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": self.openrouter_model,
-                    "messages": [
-                        {"role": "user", "content": prompt}
-                    ],
-                    "max_tokens": 1500,
-                    "temperature": 0.7
-                },
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                if 'choices' in data and len(data['choices']) > 0:
-                    return data['choices'][0]['message']['content']
-                else:
-                    return "Error: Unexpected response format from AI"
-            else:
-                return f"Error: AI API returned {response.status_code} - {response.text}"
+IMPORTANT FORMATTING RULES:
+- Use simple text formatting, NO markdown tables
+- Use bullet points (•) and dashes (-) for lists
+- Use clear section headers with emojis
+- Keep lines under 80 characters for terminal display
+- Use simple spacing and indentation
+
+Include these sections:
+🎯 TOP BETTING RECOMMENDATIONS
+💰 BEST VALUE BETS  
+📊 GAME-BY-GAME ANALYSIS
+⚠️ RISK ASSESSMENT
+
+Be specific about which bets to place and why, with clear reasoning for each recommendation."""
+        
+        # Try primary model first, then fallbacks
+        models_to_try = [self.openrouter_model] + [m for m in self.fallback_models if m != self.openrouter_model]
+        
+        for model in models_to_try:
+            try:
+                response = requests.post(
+                    f"{self.openrouter_base_url}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.openrouter_api_key}",
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": "https://localhost:3000",
+                        "X-Title": "Sports Betting Analysis"
+                    },
+                    json={
+                        "model": model,
+                        "messages": [
+                            {"role": "system", "content": "You are a professional sports betting analyst."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        "max_tokens": 1500,
+                        "temperature": 0.7
+                    },
+                    timeout=30
+                )
                 
-        except Exception as e:
-            return f"Error getting AI analysis: {str(e)}"
+                if response.status_code == 200:
+                    data = response.json()
+                    if 'choices' in data and len(data['choices']) > 0:
+                        return data['choices'][0]['message']['content']
+                elif response.status_code == 401:
+                    # Authentication error - fall back to basic analysis
+                    break
+                else:
+                    # Try next model
+                    continue
+                    
+            except Exception as e:
+                # Try next model
+                continue
+        
+        # Fallback to basic analysis when AI is unavailable
+        return self.get_basic_analysis(query, sports_data, odds_data, sport)
+    
+    def get_basic_analysis(self, query: str, sports_data: str, odds_data: str, sport: str) -> str:
+        """Provide basic analysis when AI is unavailable."""
+        analysis = f"""🚨 AI Analysis Unavailable (Invalid OpenRouter API Key)
+
+📊 BASIC SPORTS ANALYSIS FOR {sport.upper()}:
+
+{sports_data}
+
+💰 CURRENT BETTING ODDS:
+{odds_data}
+
+📝 BASIC RECOMMENDATIONS:
+• Check team records and recent performance
+• Look for value in underdog moneylines with good recent form
+• Consider home field advantage in close matchups
+• Monitor injury reports before placing bets
+• Start with smaller bet sizes until you establish patterns
+
+⚠️  To get AI-powered recommendations:
+1. Visit https://openrouter.ai and create an account
+2. Generate a new API key
+3. Update OPENROUTER_API_KEY in your .env.local file
+4. Restart the application
+
+Current API Key Status: Invalid/Expired"""
+        
+        return analysis
     
     def process_query(self, query: str) -> str:
         """Process a user query and return analysis."""
