@@ -5,6 +5,11 @@
       "args": [
         "mcp/sports_ai_mcp.py"
       ],
+      "env": {
+        "OPENROUTER_API_KEY": "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",
+        "OPENROUTER_BASE_URL": "https://openrouter.ai/api/v1",
+        "OPENROUTER_MODEL": "openai/gpt-oss-20b:free"
+      },
       "disabled": false,
       "autoApprove": []
     },
@@ -17,7 +22,9 @@
         "ODDS_API_KEY": "85edbe8616f7887b660905e1ecde8600"
       },
       "disabled": false,
-      "autoApprove": []
+      "autoApprove": [
+        "get_sports"
+      ]
     }
   }
 }

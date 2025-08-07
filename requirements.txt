@@ -1,2 +1,7 @@
 requests>=2.28.0
 schedule>=1.2.0
+httpx
+python-dotenv
+mcp
+fastmcp
+pydantic
