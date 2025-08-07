@@ -1,24 +1,10 @@
 {
   "mcpServers": {
-    "rest-api": {
-      "command": "npx",
-      "args": ["-y", "dkmaker-mcp-rest-api"],
-      "env": {
-        "REST_BASE_URL": "http://site.api.espn.com",
-        "HEADER_Accept": "application/json",
-        "HEADER_User-Agent": "ESPN-Research/1.0",
-        "REST_ENABLE_SSL_VERIFY": "true",
-        "REST_RESPONSE_SIZE_LIMIT": "100000"
-      }
-    },
-    "openrouter-mcp": {
-      "command": "npx", 
-      "args": ["-y", "@modelcontextprotocol/server-everything", "stdio"],
-      "env": {
-        "OPENAI_API_KEY": "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",
-        "OPENAI_BASE_URL": "https://openrouter.ai/api/v1",
-        "OPENAI_MODEL": "openrouter/horizon-beta"
-      },
+    "sports-ai": {
+      "command": "python",
+      "args": [
+        "mcp/sports_ai_mcp.py"
+      ],
       "disabled": false,
       "autoApprove": []
     }
