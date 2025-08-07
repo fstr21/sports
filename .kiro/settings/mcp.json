@@ -7,6 +7,17 @@
       ],
       "disabled": false,
       "autoApprove": []
+    },
+    "wagyu-sports": {
+      "command": "python",
+      "args": [
+        "mcp/wagyu_sports/mcp_server/odds_client_server.py"
+      ],
+      "env": {
+        "ODDS_API_KEY": "85edbe8616f7887b660905e1ecde8600"
+      },
+      "disabled": false,
+      "autoApprove": []
     }
   }
 }

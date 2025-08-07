@@ -2,6 +2,7 @@ import asyncio
 import os
 import re
 from typing import Any, Dict, Optional
+from datetime import datetime, timezone, timedelta
 
 import httpx
 from mcp.server import FastMCP
@@ -9,6 +10,9 @@ from mcp.server import FastMCP
 # Load environment variables
 from dotenv import load_dotenv
 load_dotenv('.env.local')
+
+# Eastern timezone (EDT in August)
+EASTERN_TZ = timezone(timedelta(hours=-4))  # EDT (Eastern Daylight Time)
 
 ESPN_BASE_URL = "http://site.api.espn.com/apis/site/v2/sports"
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
@@ -83,10 +87,18 @@ async def analyze_wnba_games(args: Optional[Dict[str, Any]] = None) -> Dict[str,
     
     # Build ESPN API parameters
     params = {}
+    
+    # Force Eastern timezone date handling
     if dates:
         if not isinstance(dates, str) or not date_re.match(dates):
             raise ValueError("dates must be a string in YYYYMMDD format")
         params["dates"] = dates
+    else:
+        # Default to current date in Eastern timezone
+        eastern_now = datetime.now(EASTERN_TZ)
+        current_date = eastern_now.strftime("%Y%m%d")
+        params["dates"] = current_date
+        print(f"[DEBUG] Using Eastern timezone date: {current_date} (Eastern time: {eastern_now.strftime('%Y-%m-%d %H:%M:%S %Z')})")
     
     if limit:
         try:
@@ -98,14 +110,16 @@ async def analyze_wnba_games(args: Optional[Dict[str, Any]] = None) -> Dict[str,
             raise ValueError("limit must be a number")
     
     # Fetch WNBA data
+    print(f"[DEBUG] Calling ESPN API with params: {params}")
     espn_data = await fetch_espn_data("/basketball/wnba/scoreboard", params)
+    print(f"[DEBUG] ESPN API returned {len(espn_data.get('events', []))} events")
     
     # Create analysis prompt based on type
     analysis_prompts = {
-        "general": "Provide a general analysis of these WNBA games including key matchups, standout performances, and notable trends.",
-        "betting": "Analyze these WNBA games from a betting perspective. Look for value bets, upset potential, and key factors that could influence outcomes.",
-        "performance": "Focus on individual and team performance metrics. Highlight standout players, team strengths/weaknesses, and statistical trends.",
-        "predictions": "Based on the current data, provide predictions for upcoming games and identify which teams are trending up or down."
+        "general": "Provide a general analysis of these WNBA games including key matchups, standout performances, and notable trends. When discussing players, use SPECIFIC PLAYER NAMES from the roster data provided, not generic descriptions.",
+        "betting": "Analyze these WNBA games from a betting perspective. Look for value bets, upset potential, and key factors that could influence outcomes. Use specific player names when making predictions.",
+        "performance": "Focus on individual and team performance metrics. Highlight standout players by NAME, team strengths/weaknesses, and statistical trends.",
+        "predictions": "Based on the current data, provide predictions for upcoming games and identify which teams are trending up or down. Use specific player names for scoring and rebounding predictions."
     }
     
     prompt = analysis_prompts.get(analysis_type, analysis_prompts["general"])
@@ -113,12 +127,15 @@ async def analyze_wnba_games(args: Optional[Dict[str, Any]] = None) -> Dict[str,
     # Convert data to readable format for AI analysis
     games_summary = []
     if "events" in espn_data:
-        for event in espn_data["events"][:5]:  # Limit to 5 games for analysis
+        print(f"[DEBUG] Processing {len(espn_data['events'])} events from ESPN")
+        for i, event in enumerate(espn_data["events"][:5]):  # Limit to 5 games for analysis
             game_info = {
                 "matchup": event.get("name", "Unknown matchup"),
                 "date": event.get("date", "Unknown date"),
                 "competitors": []
             }
+            
+            print(f"[DEBUG] Event {i+1}: {game_info['matchup']} on {game_info['date']}")
             
             if "competitions" in event and event["competitions"]:
                 comp = event["competitions"][0]
@@ -126,12 +143,39 @@ async def analyze_wnba_games(args: Optional[Dict[str, Any]] = None) -> Dict[str,
                     for competitor in comp["competitors"]:
                         team_info = {
                             "team": competitor["team"]["displayName"],
+                            "team_id": competitor["team"].get("id"),
+                            "abbreviation": competitor["team"].get("abbreviation"),
                             "score": competitor.get("score", "0"),
-                            "record": competitor.get("records", [{}])[0].get("summary", "Unknown")
+                            "record": competitor.get("records", [{}])[0].get("summary", "Unknown"),
+                            "leaders": {}
                         }
+                        
+                        # Extract player leaders
+                        if "leaders" in competitor:
+                            for leader_category in competitor["leaders"]:
+                                category_name = leader_category.get("name", "unknown")
+                                category_leaders = []
+                                
+                                for leader in leader_category.get("leaders", []):
+                                    if "athlete" in leader:
+                                        athlete = leader["athlete"]
+                                        leader_info = {
+                                            "name": athlete.get("fullName", "Unknown"),
+                                            "value": leader.get("displayValue", "N/A")
+                                        }
+                                        category_leaders.append(leader_info)
+                                
+                                if category_leaders:
+                                    team_info["leaders"][category_name] = category_leaders
+                        
                         game_info["competitors"].append(team_info)
             
             games_summary.append(game_info)
+            
+        print(f"[DEBUG] Extracted player leaders for all teams")
+                        
+    else:
+        print("[DEBUG] No 'events' key found in ESPN data")
     
     # Analyze with OpenRouter
     data_for_analysis = str(games_summary)
