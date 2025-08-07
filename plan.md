@@ -29,4 +29,3 @@ Specific Team: http://site.api.espn.com/apis/site/v2/sports/basketball/wnba/team
 
 i was told to maybe look into turning my rest api into its own mcp server  
 
-I was told to look into https://github.com/MagicBeansAI/magictunnel

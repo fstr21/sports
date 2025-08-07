@@ -1,0 +1,61 @@
+{
+  "mcpProxy": {
+    "baseURL": "http://localhost:9091",
+    "addr": ":9091",
+    "name": "Sports Data MCP Proxy",
+    "version": "1.0.0",
+    "type": "streamable-http",
+    "options": {
+      "panicIfInvalid": false,
+      "logEnabled": true,
+      "authTokens": [
+        "sports-betting-token"
+      ]
+    }
+  },
+  "mcpServers": {
+    "sports-ai": {
+      "command": "python",
+      "args": [
+        "../mcp/sports_ai_mcp.py"
+      ],
+      "env": {
+        "PYTHONPATH": "../mcp"
+      },
+      "options": {
+        "logEnabled": true,
+        "panicIfInvalid": false
+      }
+    },
+    "wagyu-sports": {
+      "command": "python",
+      "args": [
+        "../mcp/wagyu_sports/mcp_server/odds_client_server.py",
+        "--api-key", "85edbe8616f7887b660905e1ecde8600"
+      ],
+      "env": {
+        "PYTHONPATH": "../mcp"
+      },
+      "options": {
+        "logEnabled": true,
+        "panicIfInvalid": false
+      }
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-fetch"
+      ],
+      "options": {
+        "logEnabled": true,
+        "panicIfInvalid": false,
+        "toolFilter": {
+          "mode": "allow",
+          "list": [
+            "fetch"
+          ]
+        }
+      }
+    }
+  }
+}

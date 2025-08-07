@@ -29,3 +29,19 @@ out/
 # Logs
 *.log
 logs/
+
+# Executables
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go build artifacts
+go.mod
+go.sum
+main.go
+*.go
+
+# Test files
+test_*.py
+*_test.py
