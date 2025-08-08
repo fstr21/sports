@@ -192,3 +192,49 @@ Add --tz flag or default to America/Los_Angeles for “today”.
 Add caching only for league/team lists (not scoreboards) if needed.
 
 Reminder: lock it to MCP — no direct ESPN calls in clients.
+
+
+
+
+MCP logging verbosity levels:
+
+DEBUG: show full ESPN URLs and timing
+
+INFO: only league/date/event and OK/ERR
+
+Structured logging: output JSON logs if LOG_FORMAT=json for integration with log aggregation.
+
+🛠 CLI UX & Productivity
+--json flag everywhere in feature CLIs to dump raw MCP output (good for debugging adapters).
+
+--fields flag in game CLI to output only selected columns (e.g., --fields=pts,reb,ast).
+
+--pretty default for human-readable output with aligned columns.
+
+Team/league autocomplete in chat CLI (optional, via prompt_toolkit).
+
+🔄 Testing & CI
+Integration smoke tests that:
+
+Start MCP locally
+
+Hit each data type CLI
+
+Assert ok:true and non-empty data
+
+Rate-limit aware: throttle ESPN calls in tests to avoid bans.
+
+Skip live tests if no network or API key.
+
+🌐 Timezone & Dates
+Decide one canonical timezone for “today” (UTC vs. local).
+
+In MCP, always return meta.date_used so clients know which date actually ran.
+
+📈 Future-proofing
+Play-by-play support in MCP (getPlayByPlay) for sports that have it → later you can generate advanced analytics.
+
+Multi-event analysis: let analyzeGameByTeams accept a list of team pairs or event IDs for batch queries.
+
+Odds + stats join in MCP: optional, but could be handy for “value play” queries.
+
