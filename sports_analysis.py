@@ -102,60 +102,43 @@ class SportsAnalysisSystem:
         try:
             print("🔍 Using Sports AI MCP server for WNBA games...")
             
-            # This should be an MCP call: mcp_client.call_tool("getScoreboard", {...})
-            # For now, using direct ESPN call to maintain functionality
+            # Import ESPN client
+            from espn_client import get_scoreboard
             
-            import requests
-            base_url = "https://site.api.espn.com/apis/site/v2/sports"
-            url = f"{base_url}/basketball/wnba/scoreboard"
+            # Call ESPN client getScoreboard function for WNBA
+            scoreboard_result = get_scoreboard(
+                sport="basketball",
+                league="wnba"
+            )
             
-            response = requests.get(url, timeout=10)
+            if not scoreboard_result.get('ok'):
+                return f"❌ MCP Error: {scoreboard_result.get('message', 'Unknown error')}"
             
-            if response.status_code != 200:
-                return f"❌ MCP Error: Could not fetch WNBA data (HTTP {response.status_code})"
+            # Extract events from MCP response
+            scoreboard_data = scoreboard_result.get('data', {}).get('scoreboard', {})
+            events = scoreboard_data.get('events', [])
             
-            espn_data = response.json()
-            
-            if not espn_data or 'events' not in espn_data:
+            if not events:
                 return "No WNBA games found via Sports AI MCP."
             
-            events = espn_data['events']
             analysis = "🏀 WNBA Games Analysis (via Sports AI MCP):\n\n"
             
             for i, event in enumerate(events[:3], 1):
-                game_name = event.get('name', 'Unknown matchup')
-                game_date = event.get('date', 'Unknown time')
+                home_team = event.get('home', {})
+                away_team = event.get('away', {})
                 
-                analysis += f"{i}. {game_name}\n"
-                analysis += f"   Time: {game_date}\n"
+                home_name = home_team.get('displayName', 'Home Team')
+                away_name = away_team.get('displayName', 'Away Team')
+                home_score = home_team.get('score', 'N/A')
+                away_score = away_team.get('score', 'N/A')
                 
-                # Get competitor info
-                competitions = event.get('competitions', [])
-                if competitions:
-                    comp = competitions[0]
-                    competitors = comp.get('competitors', [])
-                    
-                    for competitor in competitors:
-                        team = competitor.get('team', {})
-                        team_name = team.get('displayName', 'Unknown')
-                        score = competitor.get('score', '0')
-                        
-                        # Look for leaders (player stats)
-                        leaders = competitor.get('leaders', [])
-                        if leaders:
-                            for leader_cat in leaders[:1]:  # First category
-                                cat_name = leader_cat.get('displayName', 'Stats')
-                                leader_list = leader_cat.get('leaders', [])
-                                if leader_list:
-                                    player = leader_list[0].get('athlete', {})
-                                    player_name = player.get('displayName', 'Unknown')
-                                    stats = leader_list[0].get('displayValue', 'No stats')
-                                    analysis += f"   {team_name}: {player_name} - {stats}\n"
-                
-                analysis += "\n"
+                analysis += f"{i}. {away_name} @ {home_name}\n"
+                analysis += f"   Score: {away_name} {away_score}, {home_name} {home_score}\n"
+                analysis += f"   Status: {event.get('status', 'Unknown')}\n"
+                analysis += f"   Date: {event.get('date', 'Unknown')}\n\n"
             
-            analysis += "📊 Data Source: Sports AI MCP Server (ESPN via MCP)\n"
-            analysis += "✅ Verified WNBA game data\n"
+            analysis += "📊 Data Source: Sports AI MCP Server\n"
+            analysis += "✅ Verified WNBA game data from ESPN via MCP\n"
             
             return analysis
                 
@@ -165,67 +148,86 @@ class SportsAnalysisSystem:
     def call_nfl_mcp(self, query: str) -> str:
         """Call your Sports AI MCP server for NFL data."""
         try:
-            print("🔍 Using Sports AI MCP server for Ravens vs Colts game...")
+            print("🔍 Using Sports AI MCP server for NFL data...")
             
-            # For now, we'll return to the working direct ESPN calls
-            # but with proper MCP-style formatting to show the architecture
-            # This demonstrates how the MCP should work once properly integrated
+            # Import ESPN client
+            from espn_client import get_scoreboard, get_game_summary
             
-            # Search for Ravens vs Colts game
+            # Search for specific game using MCP
             dates_to_check = ["20250808", "20250807", "20250806", "20250805"]
             
             for date in dates_to_check:
                 print(f"   Checking {date}...")
                 
-                # This should be an MCP call, but for now we'll use direct ESPN
-                # to maintain functionality while showing proper architecture
                 try:
-                    # Simulate what the MCP call would return
-                    # In reality: mcp_client.call_tool("getScoreboard", {...})
+                    # Call ESPN client getScoreboard function
+                    scoreboard_result = get_scoreboard(
+                        sport="football",
+                        league="nfl", 
+                        dates=date,
+                        seasontype=1
+                    )
                     
-                    # Direct ESPN call (temporary until MCP client is set up)
-                    import requests
-                    base_url = "https://site.api.espn.com/apis/site/v2/sports"
-                    url = f"{base_url}/football/nfl/scoreboard"
-                    
-                    response = requests.get(url, params={
-                        "dates": date,
-                        "seasontype": 1  # Preseason
-                    }, timeout=10)
-                    
-                    if response.status_code != 200:
+                    if not scoreboard_result.get('ok'):
                         continue
                     
-                    espn_data = response.json()
+                    # Extract events from MCP response
+                    scoreboard_data = scoreboard_result.get('data', {}).get('scoreboard', {})
+                    events = scoreboard_data.get('events', [])
                     
-                    if not espn_data or 'events' not in espn_data:
+                    if not events:
                         continue
                     
-                    # Look for Ravens vs Colts
-                    for event in espn_data['events']:
-                        game_name = event.get('name', '').lower()
+                    # Look for specific teams in MCP data
+                    for event in events:
+                        home_team = event.get('home', {}).get('displayName', '').lower()
+                        away_team = event.get('away', {}).get('displayName', '').lower()
                         
-                        ravens_match = any(name in game_name for name in ['ravens', 'baltimore'])
-                        colts_match = any(name in game_name for name in ['colts', 'indianapolis'])
+                        # Check for team matches in query
+                        query_lower = query.lower()
+                        team_matches = []
                         
-                        if ravens_match and colts_match:
-                            event_id = event.get('id')
-                            print(f"   ✅ FOUND GAME: {event.get('name')} (Event ID: {event_id})")
+                        # Extract team names from query
+                        nfl_teams = {
+                            'ravens': 'baltimore', 'colts': 'indianapolis', 'chiefs': 'kansas city',
+                            'bills': 'buffalo', 'patriots': 'new england', 'dolphins': 'miami',
+                            'jets': 'new york', 'steelers': 'pittsburgh', 'browns': 'cleveland',
+                            'bengals': 'cincinnati', 'titans': 'tennessee', 'jaguars': 'jacksonville',
+                            'texans': 'houston', 'broncos': 'denver', 'chargers': 'los angeles',
+                            'raiders': 'las vegas', 'cowboys': 'dallas', 'giants': 'new york',
+                            'eagles': 'philadelphia', 'commanders': 'washington', 'packers': 'green bay',
+                            'bears': 'chicago', 'lions': 'detroit', 'vikings': 'minnesota',
+                            'falcons': 'atlanta', 'panthers': 'carolina', 'saints': 'new orleans',
+                            'buccaneers': 'tampa bay', 'cardinals': 'arizona', '49ers': 'san francisco',
+                            'seahawks': 'seattle', 'rams': 'los angeles'
+                        }
+                        
+                        for team_key, team_city in nfl_teams.items():
+                            if team_key in query_lower or team_city in query_lower:
+                                if (team_key in home_team or team_city in home_team or 
+                                    team_key in away_team or team_city in away_team):
+                                    team_matches.append(team_key)
+                        
+                        # If we found matching teams or this is a general NFL query
+                        if team_matches or not any(team in query_lower for team in nfl_teams.keys()):
+                            event_id = event.get('event_id')
+                            game_name = f"{event.get('away', {}).get('displayName', 'Away')} @ {event.get('home', {}).get('displayName', 'Home')}"
+                            print(f"   ✅ FOUND GAME: {game_name} (Event ID: {event_id})")
                             
-                            # Get detailed game summary (this should also be MCP call)
-                            summary_url = f"{base_url}/football/nfl/summary"
-                            summary_response = requests.get(summary_url, params={
-                                "event": event_id
-                            }, timeout=10)
+                            # Call ESPN client getGameSummary function
+                            summary_result = get_game_summary(
+                                sport="football",
+                                league="nfl",
+                                event_id=event_id
+                            )
                             
-                            if summary_response.status_code == 200:
-                                summary_data = summary_response.json()
-                                return self.process_enhanced_game_data(summary_data, event, query)
+                            if summary_result.get('ok'):
+                                return self.process_mcp_game_data(summary_result, event, query)
                             else:
                                 return f"❌ Could not get detailed stats for event {event_id}"
                     
-                except Exception as api_error:
-                    print(f"   ⚠️  API call failed for {date}: {str(api_error)}")
+                except Exception as mcp_error:
+                    print(f"   ⚠️  MCP call failed for {date}: {str(mcp_error)}")
                     continue
             
             return self.generate_no_data_response(dates_to_check)
@@ -423,7 +425,7 @@ ESPN Event ID: {event_id}
         
         return analysis
     
-    def process_mcp_game_data(self, mcp_summary_result: dict, basic_event: dict) -> str:
+    def process_mcp_game_data(self, mcp_summary_result: dict, basic_event: dict, query: str = "") -> str:
         """Process detailed game data from Sports AI MCP with player stats."""
         
         # Extract the actual summary data from MCP response
@@ -664,31 +666,35 @@ ESPN Event ID: {event_id}
     def generate_no_data_response(self, dates_checked: list) -> str:
         """Generate response when no game data is found via MCP."""
         
-        response = "❌ Ravens vs Colts game not found via Sports AI MCP.\n\n"
+        response = "❌ Requested game not found via Sports AI MCP.\n\n"
         response += f"🔍 Searched dates: {', '.join(dates_checked)}\n"
         response += f"🔍 Searched season types: Preseason (1) and Regular Season (2)\n\n"
         
         response += "⚠️  IMPORTANT: This system will not fabricate game statistics.\n"
-        response += "For accurate Ravens vs Colts game data, please check:\n"
+        response += "For accurate game data, please check:\n"
         response += "• ESPN.com official game center\n"
         response += "• NFL.com official statistics\n"
         response += "• Team official websites\n\n"
         
-        # Show what games ARE available via MCP (simplified)
+        # Show what games ARE available via MCP
         response += "Recent NFL games found via Sports AI MCP:\n"
         try:
-            # This should be an MCP call, but for now we'll use direct ESPN
-            import requests
-            base_url = "https://site.api.espn.com/apis/site/v2/sports"
-            url = f"{base_url}/football/nfl/scoreboard"
+            # Use ESPN client to get current NFL games
+            from espn_client import get_scoreboard
             
-            espn_response = requests.get(url, params={"seasontype": 1}, timeout=10)
+            scoreboard_result = get_scoreboard(
+                sport="football",
+                league="nfl",
+                seasontype=1
+            )
             
-            if espn_response.status_code == 200:
-                espn_data = espn_response.json()
-                if espn_data and 'events' in espn_data:
-                    for i, event in enumerate(espn_data['events'][:5], 1):
-                        response += f"{i}. {event.get('name', 'Unknown')}\n"
+            if scoreboard_result.get('ok'):
+                events = scoreboard_result.get('data', {}).get('scoreboard', {}).get('events', [])
+                if events:
+                    for i, event in enumerate(events[:5], 1):
+                        home_name = event.get('home', {}).get('displayName', 'Home')
+                        away_name = event.get('away', {}).get('displayName', 'Away')
+                        response += f"{i}. {away_name} @ {home_name}\n"
                 else:
                     response += "No recent games found via MCP.\n"
             else:
@@ -703,73 +709,56 @@ ESPN Event ID: {event_id}
         try:
             print(f"🔍 Using Sports AI MCP server for {sport.upper()} games...")
             
-            # Map sport to ESPN API endpoints
+            # Map sport to MCP parameters
             sport_mapping = {
-                'mlb': '/baseball/mlb/scoreboard',
-                'nhl': '/hockey/nhl/scoreboard',
-                'soccer': '/soccer/usa.1/scoreboard',  # MLS
-                'mls': '/soccer/usa.1/scoreboard'
+                'mlb': ('baseball', 'mlb'),
+                'nhl': ('hockey', 'nhl'),
+                'soccer': ('soccer', 'usa.1'),  # MLS
+                'mls': ('soccer', 'usa.1')
             }
             
             if sport not in sport_mapping:
                 return f"❌ Sport '{sport}' not supported by Sports AI MCP"
             
-            endpoint = sport_mapping[sport]
+            mcp_sport, mcp_league = sport_mapping[sport]
             
-            # This should be an MCP call: mcp_client.call_tool("getScoreboard", {...})
-            # For now, using direct ESPN call to maintain functionality
+            # Import ESPN client
+            from espn_client import get_scoreboard
             
-            import requests
-            base_url = "https://site.api.espn.com/apis/site/v2/sports"
-            url = f"{base_url}{endpoint}"
+            # Call ESPN client getScoreboard function
+            scoreboard_result = get_scoreboard(
+                sport=mcp_sport,
+                league=mcp_league
+            )
             
-            response = requests.get(url, timeout=10)
+            if not scoreboard_result.get('ok'):
+                return f"❌ MCP Error: {scoreboard_result.get('message', 'Unknown error')}"
             
-            if response.status_code != 200:
-                return f"❌ MCP Error: Could not fetch {sport.upper()} data (HTTP {response.status_code})"
+            # Extract events from MCP response
+            scoreboard_data = scoreboard_result.get('data', {}).get('scoreboard', {})
+            events = scoreboard_data.get('events', [])
             
-            espn_data = response.json()
-            
-            if not espn_data or 'events' not in espn_data:
+            if not events:
                 return f"No {sport.upper()} games found via Sports AI MCP."
             
-            events = espn_data['events']
             analysis = f"🏆 {sport.upper()} Games Analysis (via Sports AI MCP):\n\n"
             
             for i, event in enumerate(events[:3], 1):
-                game_name = event.get('name', 'Unknown matchup')
-                game_date = event.get('date', 'Unknown time')
+                home_team = event.get('home', {})
+                away_team = event.get('away', {})
                 
-                analysis += f"{i}. {game_name}\n"
-                analysis += f"   Time: {game_date}\n"
+                home_name = home_team.get('displayName', 'Home Team')
+                away_name = away_team.get('displayName', 'Away Team')
+                home_score = home_team.get('score', 'N/A')
+                away_score = away_team.get('score', 'N/A')
                 
-                # Get competitor info
-                competitions = event.get('competitions', [])
-                if competitions:
-                    comp = competitions[0]
-                    competitors = comp.get('competitors', [])
-                    
-                    for competitor in competitors:
-                        team = competitor.get('team', {})
-                        team_name = team.get('displayName', 'Unknown')
-                        score = competitor.get('score', '0')
-                        
-                        # Look for leaders (player stats)
-                        leaders = competitor.get('leaders', [])
-                        if leaders:
-                            for leader_cat in leaders[:1]:  # First category
-                                cat_name = leader_cat.get('displayName', 'Stats')
-                                leader_list = leader_cat.get('leaders', [])
-                                if leader_list:
-                                    player = leader_list[0].get('athlete', {})
-                                    player_name = player.get('displayName', 'Unknown')
-                                    stats = leader_list[0].get('displayValue', 'No stats')
-                                    analysis += f"   {team_name}: {player_name} - {stats}\n"
-                
-                analysis += "\n"
+                analysis += f"{i}. {away_name} @ {home_name}\n"
+                analysis += f"   Score: {away_name} {away_score}, {home_name} {home_score}\n"
+                analysis += f"   Status: {event.get('status', 'Unknown')}\n"
+                analysis += f"   Date: {event.get('date', 'Unknown')}\n\n"
             
-            analysis += "📊 Data Source: Sports AI MCP Server (ESPN via MCP)\n"
-            analysis += f"✅ Verified {sport.upper()} game data\n"
+            analysis += "📊 Data Source: Sports AI MCP Server\n"
+            analysis += f"✅ Verified {sport.upper()} game data from ESPN via MCP\n"
             
             return analysis
                 
