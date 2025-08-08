@@ -1,293 +1,482 @@
-import asyncio
-import os
-import re
-from typing import Any, Dict, Optional
-from datetime import datetime, timezone, timedelta
-
-import httpx
-from mcp.server import FastMCP
-
-# Load environment variables
-from dotenv import load_dotenv
-load_dotenv('.env.local')
-
-# Eastern timezone (EDT in August)
-EASTERN_TZ = timezone(timedelta(hours=-4))  # EDT (Eastern Daylight Time)
-
-ESPN_BASE_URL = "http://site.api.espn.com/apis/site/v2/sports"
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "openrouter/horizon-beta")
-
-date_re = re.compile(r"^\d{8}$")
-
-server = FastMCP("sports-ai-analyzer")
-
-async def fetch_espn_data(endpoint: str, params: Optional[Dict] = None) -> Dict[str, Any]:
-    """Fetch data from ESPN API"""
-    url = f"{ESPN_BASE_URL}{endpoint}"
-    if params:
-        query_string = "&".join([f"{k}={v}" for k, v in params.items()])
-        url = f"{url}?{query_string}"
-    
-    async with httpx.AsyncClient(timeout=15) as client:
-        response = await client.get(url, headers={
-            "user-agent": "sports-ai-analyzer/1.0",
-            "accept": "application/json"
-        })
-        response.raise_for_status()
-        return response.json()
-
-async def analyze_with_openrouter(data: str, analysis_prompt: str) -> str:
-    """Send data to OpenRouter for AI analysis"""
-    if not OPENROUTER_API_KEY:
-        return "OpenRouter API key not configured"
-    
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    
-    payload = {
-        "model": OPENROUTER_MODEL,
-        "messages": [
-            {
-                "role": "system",
-                "content": "You are a sports analytics expert. Analyze the provided sports data and give insightful, actionable analysis."
-            },
-            {
-                "role": "user", 
-                "content": f"{analysis_prompt}\n\nData to analyze:\n{data}"
-            }
-        ],
-        "max_tokens": 1000,
-        "temperature": 0.7
-    }
-    
-    async with httpx.AsyncClient(timeout=30) as client:
-        response = await client.post(
-            f"{OPENROUTER_BASE_URL}/chat/completions",
-            headers=headers,
-            json=payload
-        )
-        response.raise_for_status()
-        result = response.json()
-        return result["choices"][0]["message"]["content"]
-
-@server.tool(
-    name="analyzeWnbaGames",
-    description="Fetch WNBA games and provide AI-powered analysis and insights"
-)
-async def analyze_wnba_games(args: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Fetch WNBA scoreboard and analyze with AI"""
-    args = args or {}
-    dates = args.get("dates")
-    limit = args.get("limit")
-    analysis_type = args.get("analysis_type", "general")
-    
-    # Build ESPN API parameters
-    params = {}
-    
-    # Force Eastern timezone date handling
-    if dates:
-        if not isinstance(dates, str) or not date_re.match(dates):
-            raise ValueError("dates must be a string in YYYYMMDD format")
-        params["dates"] = dates
-    else:
-        # Default to current date in Eastern timezone
-        eastern_now = datetime.now(EASTERN_TZ)
-        current_date = eastern_now.strftime("%Y%m%d")
-        params["dates"] = current_date
-        print(f"[DEBUG] Using Eastern timezone date: {current_date} (Eastern time: {eastern_now.strftime('%Y-%m-%d %H:%M:%S %Z')})")
-    
-    if limit:
-        try:
-            n = float(limit)
-            if not (n > 0 and n == int(n)):
-                raise ValueError("limit must be a positive integer")
-            params["limit"] = int(n)
-        except Exception:
-            raise ValueError("limit must be a number")
-    
-    # Fetch WNBA data
-    print(f"[DEBUG] Calling ESPN API with params: {params}")
-    espn_data = await fetch_espn_data("/basketball/wnba/scoreboard", params)
-    print(f"[DEBUG] ESPN API returned {len(espn_data.get('events', []))} events")
-    
-    # Create analysis prompt based on type
-    analysis_prompts = {
-        "general": "Provide a general analysis of these WNBA games including key matchups, standout performances, and notable trends. When discussing players, use SPECIFIC PLAYER NAMES from the roster data provided, not generic descriptions.",
-        "betting": "Analyze these WNBA games from a betting perspective. Look for value bets, upset potential, and key factors that could influence outcomes. Use specific player names when making predictions.",
-        "performance": "Focus on individual and team performance metrics. Highlight standout players by NAME, team strengths/weaknesses, and statistical trends.",
-        "predictions": "Based on the current data, provide predictions for upcoming games and identify which teams are trending up or down. Use specific player names for scoring and rebounding predictions."
-    }
-    
-    prompt = analysis_prompts.get(analysis_type, analysis_prompts["general"])
-    
-    # Convert data to readable format for AI analysis
-    games_summary = []
-    if "events" in espn_data:
-        print(f"[DEBUG] Processing {len(espn_data['events'])} events from ESPN")
-        for i, event in enumerate(espn_data["events"][:5]):  # Limit to 5 games for analysis
-            game_info = {
-                "matchup": event.get("name", "Unknown matchup"),
-                "date": event.get("date", "Unknown date"),
-                "competitors": []
-            }
-            
-            print(f"[DEBUG] Event {i+1}: {game_info['matchup']} on {game_info['date']}")
-            
-            if "competitions" in event and event["competitions"]:
-                comp = event["competitions"][0]
-                if "competitors" in comp:
-                    for competitor in comp["competitors"]:
-                        team_info = {
-                            "team": competitor["team"]["displayName"],
-                            "team_id": competitor["team"].get("id"),
-                            "abbreviation": competitor["team"].get("abbreviation"),
-                            "score": competitor.get("score", "0"),
-                            "record": competitor.get("records", [{}])[0].get("summary", "Unknown"),
-                            "leaders": {}
-                        }
-                        
-                        # Extract player leaders
-                        if "leaders" in competitor:
-                            for leader_category in competitor["leaders"]:
-                                category_name = leader_category.get("name", "unknown")
-                                category_leaders = []
-                                
-                                for leader in leader_category.get("leaders", []):
-                                    if "athlete" in leader:
-                                        athlete = leader["athlete"]
-                                        leader_info = {
-                                            "name": athlete.get("fullName", "Unknown"),
-                                            "value": leader.get("displayValue", "N/A")
-                                        }
-                                        category_leaders.append(leader_info)
-                                
-                                if category_leaders:
-                                    team_info["leaders"][category_name] = category_leaders
-                        
-                        game_info["competitors"].append(team_info)
-            
-            games_summary.append(game_info)
-            
-        print(f"[DEBUG] Extracted player leaders for all teams")
-                        
-    else:
-        print("[DEBUG] No 'events' key found in ESPN data")
-    
-    # Analyze with OpenRouter
-    data_for_analysis = str(games_summary)
-    ai_analysis = await analyze_with_openrouter(data_for_analysis, prompt)
-    
-    return {
-        "content": [
-            {
-                "type": "text",
-                "text": f"## WNBA Games Analysis ({analysis_type.title()})\n\n{ai_analysis}\n\n---\n\n**Raw Data Summary:**\n{data_for_analysis}"
-            }
-        ]
-    }
-
-@server.tool(
-    name="analyzeNflGames", 
-    description="Fetch NFL games and provide AI-powered analysis and insights"
-)
-async def analyze_nfl_games(args: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Fetch NFL scoreboard and analyze with AI"""
-    args = args or {}
-    analysis_type = args.get("analysis_type", "general")
-    week = args.get("week")
-    
-    # Build ESPN API parameters
-    params = {}
-    if week:
-        params["week"] = week
-    
-    # Fetch NFL data
-    espn_data = await fetch_espn_data("/football/nfl/scoreboard", params)
-    
-    # Analysis prompts
-    analysis_prompts = {
-        "general": "Provide a general analysis of these NFL games including key matchups, standout performances, and notable trends.",
-        "betting": "Analyze these NFL games from a betting perspective. Look for value bets, upset potential, spread analysis, and key factors.",
-        "fantasy": "Focus on fantasy football implications. Highlight players to start/sit, breakout candidates, and matchup advantages.",
-        "predictions": "Based on current data and trends, provide predictions for upcoming games and identify which teams are hot or cold."
-    }
-    
-    prompt = analysis_prompts.get(analysis_type, analysis_prompts["general"])
-    
-    # Convert data to readable format
-    games_summary = []
-    if "events" in espn_data:
-        for event in espn_data["events"][:5]:  # Limit for analysis
-            game_info = {
-                "matchup": event.get("name", "Unknown matchup"),
-                "date": event.get("date", "Unknown date"),
-                "week": event.get("week", {}).get("number", "Unknown"),
-                "competitors": []
-            }
-            
-            if "competitions" in event and event["competitions"]:
-                comp = event["competitions"][0]
-                if "competitors" in comp:
-                    for competitor in comp["competitors"]:
-                        team_info = {
-                            "team": competitor["team"]["displayName"],
-                            "score": competitor.get("score", "0"),
-                            "record": competitor.get("records", [{}])[0].get("summary", "Unknown")
-                        }
-                        game_info["competitors"].append(team_info)
-            
-            games_summary.append(game_info)
-    
-    # Analyze with OpenRouter
-    data_for_analysis = str(games_summary)
-    ai_analysis = await analyze_with_openrouter(data_for_analysis, prompt)
-    
-    return {
-        "content": [
-            {
-                "type": "text", 
-                "text": f"## NFL Games Analysis ({analysis_type.title()})\n\n{ai_analysis}\n\n---\n\n**Raw Data Summary:**\n{data_for_analysis}"
-            }
-        ]
-    }
-
-@server.tool(
-    name="customSportsAnalysis",
-    description="Fetch any sports data and analyze it with custom prompts using AI"
-)
-async def custom_sports_analysis(args: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Fetch custom sports data and analyze with user-defined prompts"""
-    args = args or {}
-    sport = args.get("sport", "basketball")  # basketball, football, etc.
-    league = args.get("league", "wnba")      # wnba, nfl, nba, etc.
-    endpoint = args.get("endpoint", "scoreboard")  # scoreboard, standings, etc.
-    custom_prompt = args.get("prompt", "Analyze this sports data and provide insights")
-    
-    # Build endpoint URL
-    api_endpoint = f"/{sport}/{league}/{endpoint}"
-    
-    # Fetch data
-    espn_data = await fetch_espn_data(api_endpoint)
-    
-    # Analyze with custom prompt
-    data_for_analysis = str(espn_data)[:3000]  # Limit data size
-    ai_analysis = await analyze_with_openrouter(data_for_analysis, custom_prompt)
-    
-    return {
-        "content": [
-            {
-                "type": "text",
-                "text": f"## Custom Sports Analysis\n\n**Query:** {sport}/{league}/{endpoint}\n**Prompt:** {custom_prompt}\n\n**Analysis:**\n{ai_analysis}"
-            }
-        ]
-    }
-
+# ================= Entrypoint =================
 async def amain():
     await server.run_stdio_async()
+import asyncio
+import json
+import os
+import re
+from datetime import datetime, timezone
+from typing import Any, Dict, Optional, Tuple
+
+import httpx
+from fastmcp import FastMCP
+
+# ================= Configuration =================
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "openrouter/auto")
+MAX_INPUT_BYTES = int(os.getenv("MAX_INPUT_BYTES", "8000"))
+MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "700"))
+REQUEST_CONNECT_TIMEOUT = float(os.getenv("REQUEST_CONNECT_TIMEOUT", "5"))
+REQUEST_READ_TIMEOUT = float(os.getenv("REQUEST_READ_TIMEOUT", "15"))
+
+ESPN_BASE_URL = "https://site.api.espn.com/apis/site/v2/sports"
+USER_AGENT = "sports-ai-analyzer/1.2"
+PROMPT_VERSION = "v1.2"
+
+# ================= Allowed routes (scoreboard/teams/news/standings-link) =================
+# League slugs follow ESPN patterns. Add more as needed.
+ALLOWED_ROUTES: Dict[Tuple[str, str], Dict[str, str]] = {
+    ("basketball", "wnba"): {
+        "scoreboard": "/basketball/wnba/scoreboard",
+        "teams": "/basketball/wnba/teams",
+        "news": "/basketball/wnba/news",
+        "standings": "/basketball/wnba/standings",  # returns link metadata only
+    },
+    ("basketball", "nba"): {
+        "scoreboard": "/basketball/nba/scoreboard",
+        "teams": "/basketball/nba/teams",
+        "news": "/basketball/nba/news",
+        "standings": "/basketball/nba/standings",
+    },
+    ("baseball", "mlb"): {
+        "scoreboard": "/baseball/mlb/scoreboard",
+        "teams": "/baseball/mlb/teams",
+        "news": "/baseball/mlb/news",
+        "standings": "/baseball/mlb/standings",
+    },
+    ("hockey", "nhl"): {
+        "scoreboard": "/hockey/nhl/scoreboard",
+        "teams": "/hockey/nhl/teams",
+        "news": "/hockey/nhl/news",
+        "standings": "/hockey/nhl/standings",
+    },
+    ("football", "nfl"): {
+        "scoreboard": "/football/nfl/scoreboard",
+        "teams": "/football/nfl/teams",
+        "news": "/football/nfl/news",
+        "standings": "/football/nfl/standings",
+    },
+    ("football", "college-football"): {
+        "scoreboard": "/football/college-football/scoreboard",
+        "teams": "/football/college-football/teams",
+        "news": "/football/college-football/news",
+        "standings": "/football/college-football/standings",
+    },
+    ("basketball", "mens-college-basketball"): {
+        "scoreboard": "/basketball/mens-college-basketball/scoreboard",
+        "teams": "/basketball/mens-college-basketball/teams",
+        "news": "/basketball/mens-college-basketball/news",
+        "standings": "/basketball/mens-college-basketball/standings",
+    },
+    ("soccer", "usa.1"): {  # MLS
+        "scoreboard": "/soccer/usa.1/scoreboard",
+        "teams": "/soccer/usa.1/teams",
+        "news": "/soccer/usa.1/news",
+        "standings": "/soccer/usa.1/standings",
+    },
+    ("soccer", "eng.1"): {  # EPL
+        "scoreboard": "/soccer/eng.1/scoreboard",
+        "teams": "/soccer/eng.1/teams",
+        "news": "/soccer/eng.1/news",
+        "standings": "/soccer/eng.1/standings",
+    },
+}
+
+# ================= Shared HTTP clients =================
+_http_client: Optional[httpx.AsyncClient] = None
+_or_client: Optional[httpx.AsyncClient] = None
+
+async def get_http_client() -> httpx.AsyncClient:
+    global _http_client
+    if _http_client is None:
+        _http_client = httpx.AsyncClient(
+            timeout=httpx.Timeout(connect=REQUEST_CONNECT_TIMEOUT, read=REQUEST_READ_TIMEOUT),
+            headers={"user-agent": USER_AGENT, "accept": "application/json"},
+        )
+    return _http_client
+
+async def get_or_client() -> httpx.AsyncClient:
+    global _or_client
+    if _or_client is None:
+        _or_client = httpx.AsyncClient(
+            timeout=httpx.Timeout(connect=REQUEST_CONNECT_TIMEOUT, read=REQUEST_READ_TIMEOUT),
+            headers={"user-agent": USER_AGENT},
+        )
+    return _or_client
+
+# ================= Utilities =================
+
+def sanitize_segment(s: str) -> str:
+    # allow dot for soccer (e.g., eng.1)
+    if not re.fullmatch(r"[a-z0-9_.-]+", s):
+        raise ValueError(f"Invalid segment: {s!r}")
+    return s
+
+def resolve_route(sport: str, league: str, endpoint: str) -> str:
+    sport = sanitize_segment(sport.lower())
+    league = sanitize_segment(league.lower())
+    endpoint = sanitize_segment(endpoint.lower())
+    try:
+        return ALLOWED_ROUTES[(sport, league)][endpoint]
+    except KeyError:
+        raise ValueError(f"Unsupported route: {sport}/{league}/{endpoint}")
+
+async def fetch_espn(endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    url = f"{ESPN_BASE_URL}{endpoint}"
+    client = await get_http_client()
+    try:
+        r = await client.get(url, params=params or {})
+        if r.status_code >= 400:
+            excerpt = r.text[:500] if r.text else None
+            return {
+                "ok": False,
+                "error_type": "upstream_error",
+                "source": "ESPN",
+                "status": r.status_code,
+                "url": str(r.request.url),
+                "body_excerpt": excerpt,
+            }
+        return {"ok": True, "data": r.json(), "url": str(r.request.url)}
+    except httpx.RequestError as e:
+        return {"ok": False, "error_type": "request_error", "source": "ESPN", "url": url, "message": str(e)}
+
+
+def truncate_utf8(s: str, limit: int = MAX_INPUT_BYTES) -> str:
+    b = s.encode("utf-8")
+    return b[:limit].decode("utf-8", "ignore")
+
+
+def compute_data_age_seconds(iso_timestamp: Optional[str]) -> Optional[int]:
+    if not iso_timestamp:
+        return None
+    try:
+        dt = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
+        return int((datetime.now(timezone.utc) - dt.astimezone(timezone.utc)).total_seconds())
+    except Exception:
+        return None
+
+
+def summarize_events(payload: Dict[str, Any]) -> Dict[str, Any]:
+    # Normalize ESPN event payload to a small, stable schema
+    events = payload.get("events") or []
+    summary = []
+    newest_ts = None
+    for ev in events:
+        ev_id = ev.get("id")
+        date = ev.get("date")
+        if date and (newest_ts is None or date > newest_ts):
+            newest_ts = date
+        comps = ev.get("competitions") or []
+        comp = comps[0] if comps else {}
+        competitors = (comp.get("competitors") or [])[:2]
+        if len(competitors) < 2:
+            continue
+        def tinfo(c):
+            t = c.get("team") or {}
+            return {
+                "id": t.get("id"),
+                "displayName": t.get("displayName"),
+                "abbrev": t.get("abbreviation"),
+                "score": c.get("score"),
+                "homeAway": c.get("homeAway"),
+            }
+        summary.append({
+            "id": ev_id,
+            "date": date,
+            "home": tinfo(next((c for c in competitors if c.get("homeAway") == "home"), competitors[0])),
+            "away": tinfo(next((c for c in competitors if c.get("homeAway") == "away"), competitors[-1])),
+            "status": (comp.get("status") or {}).get("type", {}).get("state"),
+        })
+    return {"events": summary, "newest_event_time": newest_ts}
+
+
+# ================= OpenRouter analysis =================
+async def analyze_with_openrouter(payload_json: str, analysis_prompt: str) -> Tuple[bool, str]:
+    if not OPENROUTER_API_KEY:
+        return False, "OpenRouter API key not configured. Set OPENROUTER_API_KEY."
+    client = await get_or_client()
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+        "X-Title": "Sports AI Analyzer",
+    }
+    body = {
+        "model": OPENROUTER_MODEL,
+        "messages": [
+            {"role": "system", "content": "You are a precise sports analyst. Be concise and factual."},
+            {"role": "user", "content": truncate_utf8(payload_json)},
+            {"role": "user", "content": analysis_prompt},
+        ],
+        "max_tokens": MAX_OUTPUT_TOKENS,
+        "temperature": 0.2,
+        "stream": False,
+    }
+    try:
+        r = await client.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=body)
+        if r.status_code >= 400:
+            return False, f"OpenRouter error {r.status_code}: {r.text[:300]}"
+        data = r.json()
+        content = (data.get("choices") or [{}])[0].get("message", {}).get("content") or ""
+        return True, content.strip()
+    except httpx.RequestError as e:
+        return False, f"OpenRouter request error: {e}"
+
+
+# ================= Envelope helpers =================
+
+def envelope_ok(markdown: str, games_summary: Dict[str, Any], meta_extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    meta = {
+        "source": "espn",
+        "newest_event_time": games_summary.get("newest_event_time"),
+        "data_age_seconds": compute_data_age_seconds(games_summary.get("newest_event_time")),
+        "prompt_version": PROMPT_VERSION,
+        "model": OPENROUTER_MODEL,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if meta_extra:
+        meta.update(meta_extra)
+    return {
+        "ok": True,
+        "content_md": markdown,
+        "games": games_summary.get("events", []),
+        "meta": meta,
+    }
+
+
+# ================= Param validation =================
+
+def _validate_params_for_league(sport: str, league: str, params: Dict[str, Any]) -> None:
+    allows_week = (sport, league) in [("football", "nfl"), ("football", "college-football")]
+    if not allows_week:
+        if any(k in params for k in ("week", "seasontype")):
+            raise ValueError("'week'/'seasontype' only allowed for NFL or College Football")
+    else:
+        if "week" in params:
+            w = params["week"]
+            if not isinstance(w, int) or w <= 0:
+                raise ValueError("week must be a positive integer")
+        if "seasontype" in params and params["seasontype"] not in (1, 2, 3):
+            raise ValueError("seasontype must be 1 (pre), 2 (reg), or 3 (post)")
+
+
+# ================= MCP Server & Tools =================
+server = FastMCP("sports-ai-analyzer")
+
+@server.tool(name="getScoreboard", description="Generic scoreboard for supported leagues. Params: sport, league, dates?, limit?, week?, seasontype? (week/seasontype for NFL/NCAAF only)")
+async def get_scoreboard(sport: str, league: str, dates: Optional[str] = None, limit: Optional[int] = None, week: Optional[int] = None, seasontype: Optional[int] = None) -> Dict[str, Any]:
+    try:
+        route = resolve_route(sport, league, "scoreboard")
+    except Exception as e:
+        return {"ok": False, "error_type": "validation_error", "message": str(e)}
+
+    params: Dict[str, Any] = {}
+    if dates:
+        params["dates"] = dates
+    if limit is not None:
+        if not isinstance(limit, int) or limit <= 0:
+            return {"ok": False, "error_type": "validation_error", "message": "limit must be a positive integer"}
+        params["limit"] = limit
+    if week is not None:
+        params["week"] = week
+    if seasontype is not None:
+        params["seasontype"] = seasontype
+
+    try:
+        _validate_params_for_league(sport.lower(), league.lower(), params)
+    except Exception as e:
+        return {"ok": False, "error_type": "validation_error", "message": str(e)}
+
+    resp = await fetch_espn(route, params)
+    if not resp.get("ok"):
+        return resp
+
+    summary = summarize_events(resp["data"]) if resp.get("ok") else {}
+    md = f"""## Scoreboard: {sport}/{league}
+
+Params: `{json.dumps(params)}`
+
+Events: {len(summary.get('events', []))}"""
+    return envelope_ok(md, summary, {"sport": sport.lower(), "league": league.lower(), "resolved": route})
+
+
+@server.tool(name="getTeams", description="Team directory for supported leagues. Params: sport, league")
+async def get_teams(sport: str, league: str) -> Dict[str, Any]:
+    try:
+        route = resolve_route(sport, league, "teams")
+    except Exception as e:
+        return {"ok": False, "error_type": "validation_error", "message": str(e)}
+
+    resp = await fetch_espn(route)
+    if not resp.get("ok"):
+        return resp
+
+    data = resp["data"]
+    teams = data.get("sports", [{}])[0].get("leagues", [{}])[0].get("teams", [])
+    # Normalize minimal team info
+    norm = []
+    for t in teams:
+        info = t.get("team") or {}
+        norm.append({
+            "id": info.get("id"),
+            "displayName": info.get("displayName"),
+            "abbrev": info.get("abbreviation"),
+            "location": info.get("location"),
+            "logos": info.get("logos"),
+            "links": info.get("links"),
+        })
+    md = f"""## Teams: {sport}/{league}
+
+Count: {len(norm)}"""
+    return {"ok": True, "content_md": md, "teams": norm, "meta": {"resolved": route, "generated_at": datetime.now(timezone.utc).isoformat()}}
+
+
+@server.tool(name="getNews", description="League news (metadata only). Params: sport, league")
+async def get_news(sport: str, league: str) -> Dict[str, Any]:
+    try:
+        route = resolve_route(sport, league, "news")
+    except Exception as e:
+        return {"ok": False, "error_type": "validation_error", "message": str(e)}
+
+    resp = await fetch_espn(route)
+    if not resp.get("ok"):
+        return resp
+
+    articles = (resp["data"].get("articles") or [])
+    # Lightly normalize expected fields
+    norm = []
+    for a in articles:
+        norm.append({
+            "id": a.get("id"),
+            "headline": a.get("headline"),
+            "published": a.get("published"),
+            "images": a.get("images"),
+            "links": a.get("links"),
+        })
+    md = f"""## News: {sport}/{league}
+
+Articles: {len(norm)}"""
+    return {"ok": True, "content_md": md, "news": norm, "meta": {"resolved": route, "generated_at": datetime.now(timezone.utc).isoformat()}}
+
+
+@server.tool(name="getStandingsLink", description="Returns link metadata for standings (raw standings not available via ESPN JSON for some leagues). Params: sport, league")
+async def get_standings_link(sport: str, league: str) -> Dict[str, Any]:
+    try:
+        route = resolve_route(sport, league, "standings")
+    except Exception as e:
+        return {"ok": False, "error_type": "validation_error", "message": str(e)}
+
+    resp = await fetch_espn(route)
+    if not resp.get("ok"):
+        return resp
+
+    # Many standings endpoints return link metadata rather than raw table
+    data = resp["data"]
+    link = None
+    # Heuristic places where ESPN hides the page link
+    for k in ("links", "standings", "Leagues", "leagues"):
+        v = data.get(k)
+        if isinstance(v, list) and v:
+            link = v[0]
+            break
+    md = f"""## Standings Link: {sport}/{league}
+
+Raw standings often unavailable; use returned URL in a browser."""
+    return {"ok": True, "content_md": md, "standings": link or data, "meta": {"resolved": route}}
+
+
+# --------- WNBA-specific analysis tool (preserving original feature set) ---------
+ANALYSIS_TYPES_WNBA = {"general", "betting", "performance", "predictions"}
+
+@server.tool(name="analyzeWnbaGames", description="Analyze WNBA games by date with an analysis_type: general|betting|performance|predictions")
+async def analyze_wnba_games(dates: Optional[str] = None, limit: Optional[int] = None, analysis_type: str = "general", custom_prompt: Optional[str] = None) -> Dict[str, Any]:
+    # Validate
+    if analysis_type not in ANALYSIS_TYPES_WNBA:
+        return {"ok": False, "error_type": "validation_error", "message": f"analysis_type must be one of {sorted(ANALYSIS_TYPES_WNBA)}"}
+
+    # Fetch scoreboard
+    sb = await get_scoreboard("basketball", "wnba", dates=dates, limit=limit)
+    if not sb.get("ok"):
+        return sb
+
+    # Prepare payload for analysis
+    payload = {
+        "league": "wnba",
+        "params": {"dates": dates, "limit": limit},
+        "games": sb.get("games", []),
+        "meta": sb.get("meta", {}),
+        "analysis_type": analysis_type,
+    }
+
+    # Prompt selection
+    default_prompts = {
+        "general": "Provide a concise, factual summary of today’s WNBA games and notable storylines.",
+        "betting": "Identify actionable pre-game or in-game betting insights, based strictly on the data provided. Avoid fabricating odds.",
+        "performance": "Analyze team and player performance trends observable in these games. Be specific and avoid speculation.",
+        "predictions": "Provide cautious predictions grounded only in the listed data; state confidence qualitatively and note uncertainties.",
+    }
+    prompt = custom_prompt or default_prompts[analysis_type]
+
+    ok, analysis = await analyze_with_openrouter(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), prompt)
+
+    md = f"""## WNBA Games Analysis ({analysis_type})
+
+Params: `{json.dumps({'dates': dates, 'limit': limit})}`
+
+{analysis if ok else f"Analysis failed: {analysis}"}"""
+    return envelope_ok(md, {"events": payload["games"], "newest_event_time": (sb.get('meta') or {}).get('newest_event_time')}, {"league": "wnba"})
+
+
+# Convenience NFL tool (kept for parity with original)
+@server.tool(name="getNFLScoreboard", description="NFL scoreboard convenience wrapper (supports week/dates/seasontype)")
+async def get_nfl_scoreboard(week: Optional[int] = None, dates: Optional[str] = None, seasontype: Optional[int] = None) -> Dict[str, Any]:
+    return await get_scoreboard("football", "nfl", dates=dates, week=week, seasontype=seasontype)
+
+
+# General analysis tool across any supported league/endpoint
+@server.tool(name="customSportsAnalysis", description="Analyze any supported sport/league endpoint via OpenRouter. endpoint in {scoreboard, teams, news, standings}")
+async def custom_sports_analysis(sport: str, league: str, endpoint: str, custom_prompt: str, dates: Optional[str] = None, limit: Optional[int] = None, week: Optional[int] = None, seasontype: Optional[int] = None) -> Dict[str, Any]:
+    try:
+        route = resolve_route(sport, league, endpoint)
+    except Exception as e:
+        return {"ok": False, "error_type": "validation_error", "message": str(e)}
+
+    params: Dict[str, Any] = {}
+    if dates:
+        params["dates"] = dates
+    if limit is not None:
+        if not isinstance(limit, int) or limit <= 0:
+            return {"ok": False, "error_type": "validation_error", "message": "limit must be a positive integer"}
+        params["limit"] = limit
+    if week is not None:
+        params["week"] = week
+    if seasontype is not None:
+        params["seasontype"] = seasontype
+
+    try:
+        _validate_params_for_league(sport.lower(), league.lower(), params)
+    except Exception as e:
+        return {"ok": False, "error_type": "validation_error", "message": str(e)}
+
+    resp = await fetch_espn(route, params)
+    if not resp.get("ok"):
+        return resp
+
+    data = resp["data"]
+    # prefer events summary if present; otherwise pass raw
+    if endpoint == "scoreboard":
+        summary = summarize_events(data)
+        payload = {"route": {"sport": sport, "league": league, "endpoint": endpoint}, "params": params, "summary": summary}
+        md_summary = summary
+    else:
+        payload = {"route": {"sport": sport, "league": league, "endpoint": endpoint}, "params": params, "data": data}
+        md_summary = {"events": [], "newest_event_time": None}
+
+    ok, analysis = await analyze_with_openrouter(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), custom_prompt)
+
+    md = f"## Custom Sports Analysis ({sport}/{league}/{endpoint})\n\nParams: `{json.dumps(params)}`\n\n"
+    md += (analysis if ok else f"Analysis failed: {analysis}")
+    
+    return {"content": [{"type": "text", "text": md}]}
 
 if __name__ == "__main__":
     asyncio.run(amain())
