@@ -12,6 +12,7 @@ import os
 import sys
 import json
 import time
+import asyncio
 from datetime import datetime
 from pathlib import Path
 
@@ -26,6 +27,9 @@ if env_file.exists():
                 os.environ[key.strip()] = value.strip()
 
 import requests
+
+# Import MCP core functions
+from clients.core_mcp import scoreboard, game_summary, MCPError, MCPServerError, MCPValidationError
 
 class SportsAnalysisSystem:
     """Interactive sports betting analysis system using MCP servers."""
@@ -54,6 +58,62 @@ class SportsAnalysisSystem:
         elif not self.openrouter_api_key.startswith('sk-or-v1-'):
             print("⚠️  Warning: OPENROUTER_API_KEY appears to be invalid - AI analysis may not work")
             self.openrouter_valid = False
+    
+    def _run_async(self, coro):
+        """Run async coroutine in sync context."""
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        
+        return loop.run_until_complete(coro)
+    
+    def get_scoreboard_mcp(self, sport: str, league: str, **kwargs) -> dict:
+        """Synchronous wrapper for MCP scoreboard call."""
+        try:
+            # Map sport/league to MCP league key
+            league_key_map = {
+                ('football', 'nfl'): 'nfl',
+                ('basketball', 'wnba'): 'wnba',
+                ('basketball', 'nba'): 'nba',
+                ('baseball', 'mlb'): 'mlb',
+                ('hockey', 'nhl'): 'nhl',
+                ('soccer', 'usa.1'): 'mls'
+            }
+            
+            league_key = league_key_map.get((sport, league))
+            if not league_key:
+                return {"ok": False, "message": f"Unsupported sport/league: {sport}/{league}"}
+            
+            return self._run_async(scoreboard(league_key, **kwargs))
+        except (MCPError, MCPServerError, MCPValidationError) as e:
+            return {"ok": False, "message": str(e)}
+        except Exception as e:
+            return {"ok": False, "message": f"Unexpected error: {str(e)}"}
+    
+    def get_game_summary_mcp(self, sport: str, league: str, event_id: str) -> dict:
+        """Synchronous wrapper for MCP game summary call."""
+        try:
+            # Map sport/league to MCP league key
+            league_key_map = {
+                ('football', 'nfl'): 'nfl',
+                ('basketball', 'wnba'): 'wnba',
+                ('basketball', 'nba'): 'nba',
+                ('baseball', 'mlb'): 'mlb',
+                ('hockey', 'nhl'): 'nhl',
+                ('soccer', 'usa.1'): 'mls'
+            }
+            
+            league_key = league_key_map.get((sport, league))
+            if not league_key:
+                return {"ok": False, "message": f"Unsupported sport/league: {sport}/{league}"}
+            
+            return self._run_async(game_summary(league_key, event_id))
+        except (MCPError, MCPServerError, MCPValidationError) as e:
+            return {"ok": False, "message": str(e)}
+        except Exception as e:
+            return {"ok": False, "message": f"Unexpected error: {str(e)}"}
     
     def detect_sport_from_query(self, query: str) -> str:
         """Detect which sport the user is asking about."""
@@ -102,11 +162,8 @@ class SportsAnalysisSystem:
         try:
             print("🔍 Using Sports AI MCP server for WNBA games...")
             
-            # Import ESPN client
-            from espn_client import get_scoreboard
-            
-            # Call ESPN client getScoreboard function for WNBA
-            scoreboard_result = get_scoreboard(
+            # Call MCP scoreboard function for WNBA
+            scoreboard_result = self.get_scoreboard_mcp(
                 sport="basketball",
                 league="wnba"
             )
@@ -150,9 +207,6 @@ class SportsAnalysisSystem:
         try:
             print("🔍 Using Sports AI MCP server for NFL data...")
             
-            # Import ESPN client
-            from espn_client import get_scoreboard, get_game_summary
-            
             # Search for specific game using MCP
             dates_to_check = ["20250808", "20250807", "20250806", "20250805"]
             
@@ -160,8 +214,8 @@ class SportsAnalysisSystem:
                 print(f"   Checking {date}...")
                 
                 try:
-                    # Call ESPN client getScoreboard function
-                    scoreboard_result = get_scoreboard(
+                    # Call MCP scoreboard function
+                    scoreboard_result = self.get_scoreboard_mcp(
                         sport="football",
                         league="nfl", 
                         dates=date,
@@ -214,8 +268,8 @@ class SportsAnalysisSystem:
                             game_name = f"{event.get('away', {}).get('displayName', 'Away')} @ {event.get('home', {}).get('displayName', 'Home')}"
                             print(f"   ✅ FOUND GAME: {game_name} (Event ID: {event_id})")
                             
-                            # Call ESPN client getGameSummary function
-                            summary_result = get_game_summary(
+                            # Call MCP game summary function
+                            summary_result = self.get_game_summary_mcp(
                                 sport="football",
                                 league="nfl",
                                 event_id=event_id
@@ -679,10 +733,8 @@ ESPN Event ID: {event_id}
         # Show what games ARE available via MCP
         response += "Recent NFL games found via Sports AI MCP:\n"
         try:
-            # Use ESPN client to get current NFL games
-            from espn_client import get_scoreboard
-            
-            scoreboard_result = get_scoreboard(
+            # Use MCP to get current NFL games
+            scoreboard_result = self.get_scoreboard_mcp(
                 sport="football",
                 league="nfl",
                 seasontype=1
@@ -722,11 +774,8 @@ ESPN Event ID: {event_id}
             
             mcp_sport, mcp_league = sport_mapping[sport]
             
-            # Import ESPN client
-            from espn_client import get_scoreboard
-            
-            # Call ESPN client getScoreboard function
-            scoreboard_result = get_scoreboard(
+            # Call MCP scoreboard function
+            scoreboard_result = self.get_scoreboard_mcp(
                 sport=mcp_sport,
                 league=mcp_league
             )

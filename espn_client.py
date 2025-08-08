@@ -1,5 +1,20 @@
 #!/usr/bin/env python3
 """
+DEPRECATED: Standalone ESPN API client for sports analysis
+
+⚠️  DEPRECATION NOTICE ⚠️
+This module is deprecated and should not be used in new code.
+All ESPN data access should now flow through the MCP-only architecture.
+
+MIGRATION PATH:
+- Replace direct espn_client imports with clients.core_mcp functions
+- Use scoreboard(), game_summary(), teams(), etc. from clients.core_mcp
+- All ESPN API calls now go through the sports_ai_mcp.py MCP server
+
+This file is kept for legacy compatibility only.
+New implementations should use the MCP-only client architecture.
+
+Original description:
 Standalone ESPN API client for sports analysis
 Extracted from MCP server for direct use
 """

@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Optional, Tuple, List
 
 import httpx
-from mcp.server import FastMCP
+from fastmcp import FastMCP
 
 # =========================== Config ===========================
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()

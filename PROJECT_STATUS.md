@@ -61,8 +61,9 @@ User (Natural Language) → Client → MCP Server → ESPN API → OpenRouter AI
 - **Coverage**: All target sports
 
 #### **3. ESPN Client (espn_client.py)**
-- **Status**: ✅ Standalone ESPN wrapper
-- **Purpose**: Bridge between client and MCP (temporary solution)
+- **Status**: ⚠️ DEPRECATED - Legacy ESPN wrapper
+- **Purpose**: Legacy bridge - replaced by MCP-only architecture
+- **Migration**: All functionality moved to clients/core_mcp.py
 - **Functions**: `get_scoreboard()`, `get_game_summary()`
 
 #### **4. Data Formatting & Display**
@@ -99,16 +100,15 @@ User (Natural Language) → Client → MCP Server → ESPN API → OpenRouter AI
 ### ❌ **STILL NEEDED**
 
 #### **1. Complete MCP Architecture**
-- **Issue**: Client bypasses MCP and calls ESPN directly
-- **Solution Needed**: 
+- **Status**: ✅ COMPLETED - MCP-only architecture implemented
+- **Solution Implemented**: 
   ```python
-  # Instead of:
-  requests.get("https://site.api.espn.com/...")
-  
-  # Should be:
-  mcp_client.call_tool("getScoreboard", {...})
+  # Migration completed:
+  # OLD: requests.get("https://site.api.espn.com/...")
+  # NEW: from clients.core_mcp import scoreboard, game_summary
+  #      result = await scoreboard('nfl', date='20240815')
   ```
-- **Priority**: 🔴 HIGH - Core architecture requirement
+- **Details**: All ESPN API calls now flow through sports_ai_mcp.py server
 
 #### **2. Prediction Engine**
 - **Status**: ❌ Not implemented
@@ -168,8 +168,8 @@ User (Natural Language) → Client → MCP Server → ESPN API → OpenRouter AI
 
 ```
 sports/
-├── sports_analysis.py          # 🚧 Main client (needs MCP integration)
-├── espn_client.py             # ✅ Temporary ESPN wrapper
+├── sports_analysis.py          # ✅ Main client (MCP-only architecture)
+├── espn_client.py             # ⚠️ DEPRECATED - Legacy ESPN wrapper
 ├── mcp/
 │   └── sports_ai_mcp.py       # ✅ MCP server (fully functional)
 ├── .env.local                 # ✅ API keys configuration
