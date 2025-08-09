@@ -214,10 +214,14 @@ Return JSON with:
 
 IMPORTANT: 
 - Use only these endpoint names: scoreboard, teams, game-summary, daily-intelligence
-- For "today's games" questions, use scoreboard endpoint WITHOUT dates parameter (omit dates completely)
+- For "today's games" questions, use scoreboard endpoint with NO dates parameter at all
+- NEVER use dates:"today" - omit the dates field entirely for today's games
 - Only include dates parameter for specific dates like "yesterday", "2024-08-09", etc.
 - For questions about multiple sports or daily summaries, use daily-intelligence
-- If you need a specific event_id, explain that more info is needed"""
+- If you need a specific event_id, explain that more info is needed
+
+Example for today's games:
+{"endpoint": "scoreboard", "params": {"sport": "baseball", "league": "mlb"}}"""
 
     try:
         import httpx
