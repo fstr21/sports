@@ -23,6 +23,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
+import pytz
 
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -183,6 +184,47 @@ class NaturalLanguageRequest(BaseModel):
     question: str
     model: Optional[str] = "openai/gpt-4o-mini"
 
+# Timezone conversion utilities
+def convert_utc_to_eastern(utc_datetime_str: str) -> str:
+    """Convert UTC datetime string to Eastern time"""
+    try:
+        # Parse the UTC datetime
+        if utc_datetime_str.endswith('Z'):
+            utc_datetime_str = utc_datetime_str[:-1] + '+00:00'
+        
+        utc_dt = datetime.fromisoformat(utc_datetime_str)
+        
+        # Convert to Eastern time
+        eastern = pytz.timezone('US/Eastern')
+        utc = pytz.timezone('UTC')
+        
+        if utc_dt.tzinfo is None:
+            utc_dt = utc.localize(utc_dt)
+        
+        eastern_dt = utc_dt.astimezone(eastern)
+        return eastern_dt.strftime('%Y-%m-%d %I:%M %p %Z')
+    except:
+        return utc_datetime_str
+
+def convert_timestamps_in_data(data: Any) -> Any:
+    """Recursively convert UTC timestamps to Eastern in nested data structures"""
+    if isinstance(data, dict):
+        result = {}
+        for key, value in data.items():
+            if key == 'date' and isinstance(value, str) and ('T' in value or 'Z' in value):
+                result[key] = value  # Keep original UTC
+                result[key + '_eastern'] = convert_utc_to_eastern(value)  # Add Eastern version
+            elif key == 'generated_at' and isinstance(value, str):
+                result[key] = value  # Keep original UTC
+                result[key + '_eastern'] = convert_utc_to_eastern(value)  # Add Eastern version
+            else:
+                result[key] = convert_timestamps_in_data(value)
+        return result
+    elif isinstance(data, list):
+        return [convert_timestamps_in_data(item) for item in data]
+    else:
+        return data
+
 # Natural Language Processing Functions
 async def ask_openrouter_query(question: str, model: str = "openai/gpt-4o-mini") -> Tuple[bool, str, Dict[str, Any]]:
     """Ask OpenRouter to process a natural language sports query"""
@@ -271,7 +313,7 @@ async def execute_parsed_query(parsed_query: Dict[str, Any]) -> Dict[str, Any]:
     
     try:
         if endpoint == "scoreboard" or "scoreboard" in endpoint:
-            return await get_scoreboard_wrapper(
+            result = await get_scoreboard_wrapper(
                 sport=params.get("sport", ""),
                 league=params.get("league", ""),
                 dates=params.get("dates"),
@@ -279,6 +321,10 @@ async def execute_parsed_query(parsed_query: Dict[str, Any]) -> Dict[str, Any]:
                 week=params.get("week"),
                 seasontype=params.get("seasontype")
             )
+            # Convert timestamps to Eastern time
+            if result.get("ok") and "data" in result:
+                result["data"] = convert_timestamps_in_data(result["data"])
+            return result
         
         elif endpoint == "teams" or "teams" in endpoint:
             return await get_teams_wrapper(
@@ -365,6 +411,9 @@ async def espn_scoreboard(request: ScoreboardRequest, _: HTTPAuthorizationCreden
             week=request.week,
             seasontype=request.seasontype
         )
+        # Convert timestamps to Eastern time
+        if result.get("ok") and "data" in result:
+            result["data"] = convert_timestamps_in_data(result["data"])
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting scoreboard: {str(e)}")
@@ -445,7 +494,11 @@ async def odds_sports(all_sports: bool = False, _: HTTPAuthorizationCredentials 
     
     try:
         # Call the odds server method directly
-        result = await odds_server.server._tools["get_sports"].handler(all_sports=all_sports)
+        if hasattr(odds_server.server, '_tools'):
+            result = await odds_server.server._tools["get_sports"].handler(all_sports=all_sports)
+        else:
+            # Try alternative method for newer MCP versions
+            result = await odds_server.server.call_tool("get_sports", {"all_sports": all_sports})
         return json.loads(result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting sports: {str(e)}")
