@@ -75,6 +75,34 @@ class OddsClient:
             
         return self.make_request(endpoint, params)
     
+    def get_event_odds(self, sport: str, event_id: str, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Get odds for a specific event (required for player props).
+        
+        Args:
+            sport (str): Sport key (e.g., 'basketball_nba')
+            event_id (str): Event ID from the odds API
+            options (Dict[str, Any], optional): Additional options for the request. Defaults to None.
+                Possible options include:
+                - regions: Comma-separated list of regions (e.g., 'us,uk')
+                - markets: Comma-separated list of markets (e.g., 'player_points,player_rebounds,player_assists')
+                - oddsFormat: Format for odds ('decimal' or 'american')
+                - dateFormat: Format for dates ('unix' or 'iso')
+                
+        Returns:
+            Dict[str, Any]: Response containing event-specific odds data
+            
+        Raises:
+            requests.exceptions.RequestException: If the request fails
+        """
+        endpoint = f"/sports/{sport}/events/{event_id}/odds"
+        params = {"apiKey": self.api_key}
+        
+        if options:
+            params.update(options)
+            
+        return self.make_request(endpoint, params)
+    
     def make_request(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Make a request to the sports data API.

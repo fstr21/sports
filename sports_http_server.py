@@ -120,20 +120,47 @@ def verify_api_key(credentials: HTTPAuthorizationCredentials = Depends(security)
 
 # Initialize Odds MCP server if available
 odds_server = None
-if ODDS_AVAILABLE and ODDS_API_KEY:
+odds_client = None
+
+if ODDS_AVAILABLE:
     try:
-        odds_server = OddsMcpServer(api_key=ODDS_API_KEY, test_mode=False)
-        print("[OK] Odds MCP initialized with API key")
+        if ODDS_API_KEY:
+            # Try to import the OddsClient directly
+            try:
+                from sports_mcp.wagyu_sports.odds_client import OddsClient
+                odds_client = OddsClient(ODDS_API_KEY)
+                print("[OK] Odds Client initialized directly with API key")
+            except ImportError:
+                try:
+                    from mcp.wagyu_mcp_hackathon.wagyu_sports.odds_client import OddsClient
+                    odds_client = OddsClient(ODDS_API_KEY)
+                    print("[OK] Odds Client initialized directly with API key")
+                except ImportError:
+                    print("[WARNING] Could not import OddsClient directly")
+            
+            # Also try MCP server initialization
+            try:
+                odds_server = OddsMcpServer(api_key=ODDS_API_KEY, test_mode=False)
+                print("[OK] Odds MCP server also initialized")
+            except Exception as e:
+                print(f"[WARNING] Odds MCP server initialization failed: {e}")
+        else:
+            # Test mode only
+            try:
+                odds_server = OddsMcpServer(test_mode=True)
+                print("[WARNING] Odds MCP initialized in TEST MODE (no API key)")
+            except Exception as e:
+                print(f"[ERROR] Odds MCP failed to initialize even in test mode: {e}")
     except Exception as e:
-        print(f"[WARNING] Odds MCP initialization failed: {e}")
-        odds_server = None
-elif ODDS_AVAILABLE:
-    try:
-        odds_server = OddsMcpServer(test_mode=True)
-        print("[WARNING] Odds MCP initialized in TEST MODE (no API key)")
-    except Exception as e:
-        print(f"[ERROR] Odds MCP failed to initialize even in test mode: {e}")
-        odds_server = None
+        print(f"[ERROR] Odds initialization failed: {e}")
+
+# Determine which odds system to use
+ODDS_DIRECT_CLIENT = odds_client is not None
+ODDS_MCP_SERVER = odds_server is not None
+
+print(f"[INFO] Odds systems available:")
+print(f"   Direct Client: {'Yes' if ODDS_DIRECT_CLIENT else 'No'}")
+print(f"   MCP Server: {'Yes' if ODDS_MCP_SERVER else 'No'}")
 
 # Request/Response Models
 class ScoreboardRequest(BaseModel):
@@ -501,62 +528,115 @@ async def espn_probe(request: ProbeRequest, _: HTTPAuthorizationCredentials = De
 @app.get("/odds/sports")
 async def odds_sports(all_sports: bool = False, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
     """Get available sports from odds API"""
-    if not odds_server:
-        raise HTTPException(status_code=503, detail="Odds MCP not available")
+    if not (ODDS_DIRECT_CLIENT or ODDS_MCP_SERVER):
+        raise HTTPException(status_code=503, detail="Odds API not available")
     
     try:
-        # Call the server's method directly - we'll add this method to the MCP server
-        result = await odds_server.get_sports_http(all_sports=all_sports)
-        return json.loads(result)
+        if ODDS_DIRECT_CLIENT:
+            # Use direct client
+            result = odds_client.get_sports(all_sports=all_sports)
+            return result.get("data", result)  # Extract data if wrapped
+        elif ODDS_MCP_SERVER and hasattr(odds_server, 'get_sports_http'):
+            # Use MCP server HTTP helper
+            result = await odds_server.get_sports_http(all_sports=all_sports)
+            return json.loads(result)
+        else:
+            raise HTTPException(status_code=503, detail="No working odds implementation available")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting sports: {str(e)}")
 
 @app.post("/odds/get-odds")
 async def odds_get_odds(request: OddsRequest, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
     """Get odds for a specific sport"""
-    if not odds_server:
-        raise HTTPException(status_code=503, detail="Odds MCP not available")
+    if not (ODDS_DIRECT_CLIENT or ODDS_MCP_SERVER):
+        raise HTTPException(status_code=503, detail="Odds API not available")
     
     try:
-        result = await odds_server.get_odds_http(
-            sport=request.sport,
-            regions=request.regions,
-            markets=request.markets,
-            odds_format=request.odds_format,
-            date_format=request.date_format
-        )
-        return json.loads(result)
+        if ODDS_DIRECT_CLIENT:
+            # Use direct client
+            options = {}
+            if request.regions:
+                options["regions"] = request.regions
+            if request.markets:
+                options["markets"] = request.markets
+            if request.odds_format:
+                options["oddsFormat"] = request.odds_format
+            if request.date_format:
+                options["dateFormat"] = request.date_format
+                
+            result = odds_client.get_odds(request.sport, options=options)
+            return result.get("data", result)  # Extract data if wrapped
+        elif ODDS_MCP_SERVER and hasattr(odds_server, 'get_odds_http'):
+            # Use MCP server HTTP helper
+            result = await odds_server.get_odds_http(
+                sport=request.sport,
+                regions=request.regions,
+                markets=request.markets,
+                odds_format=request.odds_format,
+                date_format=request.date_format
+            )
+            return json.loads(result)
+        else:
+            raise HTTPException(status_code=503, detail="No working odds implementation available")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting odds: {str(e)}")
 
 @app.post("/odds/event-odds")
 async def odds_event_odds(request: EventOddsRequest, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
     """Get odds for a specific event (required for player props)"""
-    if not odds_server:
-        raise HTTPException(status_code=503, detail="Odds MCP not available")
+    if not (ODDS_DIRECT_CLIENT or ODDS_MCP_SERVER):
+        raise HTTPException(status_code=503, detail="Odds API not available")
     
     try:
-        result = await odds_server.get_event_odds_http(
-            sport=request.sport,
-            event_id=request.event_id,
-            regions=request.regions,
-            markets=request.markets,
-            odds_format=request.odds_format,
-            date_format=request.date_format
-        )
-        return json.loads(result)
+        if ODDS_DIRECT_CLIENT:
+            # Use direct client
+            options = {}
+            if request.regions:
+                options["regions"] = request.regions
+            if request.markets:
+                options["markets"] = request.markets
+            if request.odds_format:
+                options["oddsFormat"] = request.odds_format
+            if request.date_format:
+                options["dateFormat"] = request.date_format
+                
+            result = odds_client.get_event_odds(request.sport, request.event_id, options=options)
+            return result.get("data", result)  # Extract data if wrapped
+        elif ODDS_MCP_SERVER and hasattr(odds_server, 'get_event_odds_http'):
+            # Use MCP server HTTP helper
+            result = await odds_server.get_event_odds_http(
+                sport=request.sport,
+                event_id=request.event_id,
+                regions=request.regions,
+                markets=request.markets,
+                odds_format=request.odds_format,
+                date_format=request.date_format
+            )
+            return json.loads(result)
+        else:
+            raise HTTPException(status_code=503, detail="No working odds implementation available")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting event odds: {str(e)}")
 
 @app.get("/odds/quota")
 async def odds_quota(_: HTTPAuthorizationCredentials = Depends(verify_api_key)):
     """Get API quota information"""
-    if not odds_server:
-        raise HTTPException(status_code=503, detail="Odds MCP not available")
+    if not (ODDS_DIRECT_CLIENT or ODDS_MCP_SERVER):
+        raise HTTPException(status_code=503, detail="Odds API not available")
     
     try:
-        result = await odds_server.get_quota_info_http()
-        return json.loads(result)
+        if ODDS_DIRECT_CLIENT:
+            # Use direct client quota info
+            return {
+                "remaining_requests": odds_client.remaining_requests,
+                "used_requests": odds_client.used_requests
+            }
+        elif ODDS_MCP_SERVER and hasattr(odds_server, 'get_quota_info_http'):
+            # Use MCP server HTTP helper
+            result = await odds_server.get_quota_info_http()
+            return json.loads(result)
+        else:
+            raise HTTPException(status_code=503, detail="No working odds implementation available")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting quota: {str(e)}")
 
@@ -591,14 +671,24 @@ async def odds_player_props(request: PlayerPropsRequest, _: HTTPAuthorizationCre
         next_day_utc = next_day_et.astimezone(utc)
         
         # Step 1: Get all games to get event IDs
-        games_result = await odds_server.get_odds_http(
-            sport=request.sport,
-            regions=request.regions,
-            markets="h2h",  # Just need basic info to get event IDs
-            odds_format=request.odds_format
-        )
-        
-        games = json.loads(games_result)
+        if ODDS_DIRECT_CLIENT:
+            options = {
+                "regions": request.regions,
+                "markets": "h2h",
+                "oddsFormat": request.odds_format
+            }
+            games_result = odds_client.get_odds(request.sport, options=options)
+            games = games_result.get("data", games_result)
+        elif ODDS_MCP_SERVER and hasattr(odds_server, 'get_odds_http'):
+            games_result = await odds_server.get_odds_http(
+                sport=request.sport,
+                regions=request.regions,
+                markets="h2h",
+                odds_format=request.odds_format
+            )
+            games = json.loads(games_result)
+        else:
+            raise HTTPException(status_code=503, detail="No working odds implementation available")
         if not isinstance(games, list):
             return {"error": "Failed to get games list", "details": games}
         
@@ -619,15 +709,25 @@ async def odds_player_props(request: PlayerPropsRequest, _: HTTPAuthorizationCre
                     
                     if event_id:
                         # Get player props for this specific event
-                        event_result = await odds_server.get_event_odds_http(
-                            sport=request.sport,
-                            event_id=event_id,
-                            regions=request.regions,
-                            markets=request.player_markets,
-                            odds_format=request.odds_format
-                        )
-                        
-                        event_data = json.loads(event_result)
+                        if ODDS_DIRECT_CLIENT:
+                            event_options = {
+                                "regions": request.regions,
+                                "markets": request.player_markets,
+                                "oddsFormat": request.odds_format
+                            }
+                            event_result = odds_client.get_event_odds(request.sport, event_id, options=event_options)
+                            event_data = event_result.get("data", event_result)
+                        elif ODDS_MCP_SERVER and hasattr(odds_server, 'get_event_odds_http'):
+                            event_result = await odds_server.get_event_odds_http(
+                                sport=request.sport,
+                                event_id=event_id,
+                                regions=request.regions,
+                                markets=request.player_markets,
+                                odds_format=request.odds_format
+                            )
+                            event_data = json.loads(event_result)
+                        else:
+                            continue  # Skip this game if no odds system available
                         
                         game_props = {
                             "event_id": event_id,
@@ -728,11 +828,12 @@ async def daily_intelligence(request: DailyIntelligenceRequest, _: HTTPAuthoriza
                         league_data["teams"] = teams_result["data"]["teams"]
                     
                     # Get odds if requested and available
-                    if request.include_odds and odds_server:
+                    if request.include_odds and (ODDS_DIRECT_CLIENT or ODDS_MCP_SERVER):
                         try:
                             # Map league to odds sport key
                             odds_sport_map = {
                                 "basketball/nba": "basketball_nba",
+                                "basketball/wnba": "basketball_wnba",
                                 "football/nfl": "americanfootball_nfl",
                                 "baseball/mlb": "baseball_mlb",
                                 "hockey/nhl": "icehockey_nhl"
@@ -740,12 +841,20 @@ async def daily_intelligence(request: DailyIntelligenceRequest, _: HTTPAuthoriza
                             
                             odds_sport = odds_sport_map.get(league_spec)
                             if odds_sport:
-                                odds_result = await odds_server.get_odds_http(
-                                    sport=odds_sport,
-                                    regions="us",
-                                    markets="h2h,spreads,totals"
-                                )
-                                league_data["odds"] = json.loads(odds_result)
+                                if ODDS_DIRECT_CLIENT:
+                                    options = {
+                                        "regions": "us",
+                                        "markets": "h2h,spreads,totals"
+                                    }
+                                    odds_result = odds_client.get_odds(odds_sport, options=options)
+                                    league_data["odds"] = odds_result.get("data", odds_result)
+                                elif ODDS_MCP_SERVER and hasattr(odds_server, 'get_odds_http'):
+                                    odds_result = await odds_server.get_odds_http(
+                                        sport=odds_sport,
+                                        regions="us",
+                                        markets="h2h,spreads,totals"
+                                    )
+                                    league_data["odds"] = json.loads(odds_result)
                         except Exception as e:
                             league_data["odds_error"] = str(e)
                 else:

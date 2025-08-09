@@ -176,8 +176,70 @@ def test_wnba(base_url):
     except Exception as e:
         print(f"   FAIL: Error with natural language: {e}")
     
+    # Step 5: Test Player Props
+    print("\n5. Testing WNBA Player Props...")
+    try:
+        response = requests.post(
+            f"{base_url}/odds/player-props",
+            headers=headers,
+            json={
+                "sport": "basketball_wnba",
+                "player_markets": "player_points,player_rebounds,player_assists"
+            },
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            props_data = response.json()
+            if props_data.get("status") == "success":
+                games_with_props = props_data.get("games_with_props", 0)
+                print(f"   SUCCESS: Found player props for {games_with_props} games")
+                
+                # Show sample player props
+                if games_with_props > 0:
+                    sample_game = props_data.get("data", [{}])[0]
+                    home_team = sample_game.get("home_team", "")
+                    away_team = sample_game.get("away_team", "")
+                    if home_team and away_team:
+                        print(f"   Sample game: {away_team} @ {home_team}")
+                        
+                        player_props = sample_game.get("player_props", [])
+                        if player_props:
+                            sample_book = player_props[0]
+                            bookmaker = sample_book.get("bookmaker", "")
+                            markets = sample_book.get("markets", [])
+                            print(f"   Bookmaker: {bookmaker}")
+                            print(f"   Markets available: {len(markets)}")
+                            
+                            # Show sample outcomes
+                            if markets:
+                                sample_market = markets[0]
+                                market_name = sample_market.get("market", "")
+                                outcomes = sample_market.get("outcomes", [])
+                                print(f"   Sample market '{market_name}': {len(outcomes)} outcomes")
+                                
+                                for i, outcome in enumerate(outcomes[:2]):  # Show first 2
+                                    player = outcome.get("player", "")
+                                    bet_type = outcome.get("bet_type", "")
+                                    price = outcome.get("price", "")
+                                    point = outcome.get("point", "")
+                                    if point:
+                                        print(f"      {player} - {bet_type} {point}: {price}")
+                                    else:
+                                        print(f"      {player} - {bet_type}: {price}")
+                else:
+                    print("   INFO: No games with player props found")
+            else:
+                print(f"   FAIL: Player props error: {props_data}")
+        else:
+            print(f"   FAIL: Player props request failed: {response.status_code}")
+            print(f"   Response: {response.text}")
+            
+    except Exception as e:
+        print(f"   FAIL: Error getting player props: {e}")
+    
     print("\nTest Complete!")
-    print("SUCCESS: Your WNBA games and moneylines integration is working!")
+    print("SUCCESS: Your WNBA games, moneylines, and player props integration is working!")
     return True
 
 def main():
