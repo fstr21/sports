@@ -22,7 +22,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
 
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -173,6 +173,155 @@ class DailyIntelligenceRequest(BaseModel):
     include_odds: bool = True
     include_analysis: bool = False
     date: Optional[str] = None
+
+class NaturalLanguageRequest(BaseModel):
+    question: str
+    model: Optional[str] = "openai/gpt-4o-mini"
+
+# Natural Language Processing Functions
+async def ask_openrouter_query(question: str, model: str = "openai/gpt-4o-mini") -> Tuple[bool, str, Dict[str, Any]]:
+    """Ask OpenRouter to process a natural language sports query"""
+    if not OPENROUTER_API_KEY:
+        return False, "OpenRouter API key not configured", {}
+    
+    # Create the system prompt for sports query understanding
+    system_prompt = """You are a sports data assistant that converts natural language questions into API calls.
+    
+Available API endpoints:
+1. GET /espn/scoreboard - Get games for a sport/league (params: sport, league, dates)
+2. GET /espn/teams - Get teams for a sport/league (params: sport, league) 
+3. GET /espn/game-summary - Get detailed game info (params: sport, league, event_id)
+4. GET /daily-intelligence - Get comprehensive daily data (params: leagues list, include_odds)
+
+Supported leagues:
+- basketball/nba, basketball/wnba
+- football/nfl, football/college-football  
+- baseball/mlb
+- hockey/nhl
+- soccer/eng.1 (Premier League), soccer/esp.1 (La Liga), soccer/usa.1 (MLS)
+
+Return JSON with:
+{
+  "endpoint": "endpoint_name",
+  "params": {...},
+  "explanation": "brief explanation of what you're doing"
+}
+
+For questions about multiple sports or daily summaries, use daily-intelligence.
+For current date, assume today's date.
+If you need a specific event_id, explain that more info is needed."""
+
+    try:
+        import httpx
+        client = httpx.AsyncClient()
+        
+        response = await client.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
+                "X-Title": "Sports AI MCP"
+            },
+            json={
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": question}
+                ],
+                "max_tokens": 500,
+                "temperature": 0.3
+            }
+        )
+        
+        if response.status_code != 200:
+            return False, f"OpenRouter error: {response.status_code}", {}
+            
+        data = response.json()
+        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        
+        # Try to parse the JSON response
+        try:
+            import json
+            parsed_response = json.loads(content)
+            return True, content, parsed_response
+        except json.JSONDecodeError:
+            # If not valid JSON, return as explanation
+            return True, content, {"explanation": content}
+            
+    except Exception as e:
+        return False, f"Error calling OpenRouter: {str(e)}", {}
+
+async def execute_parsed_query(parsed_query: Dict[str, Any]) -> Dict[str, Any]:
+    """Execute the parsed query against the appropriate endpoint"""
+    
+    endpoint = parsed_query.get("endpoint")
+    params = parsed_query.get("params", {})
+    
+    try:
+        if endpoint == "scoreboard":
+            return await get_scoreboard_wrapper(
+                sport=params.get("sport", ""),
+                league=params.get("league", ""),
+                dates=params.get("dates"),
+                limit=params.get("limit"),
+                week=params.get("week"),
+                seasontype=params.get("seasontype")
+            )
+        
+        elif endpoint == "teams":
+            return await get_teams_wrapper(
+                sport=params.get("sport", ""),
+                league=params.get("league", "")
+            )
+        
+        elif endpoint == "game-summary":
+            return await get_game_summary_wrapper(
+                sport=params.get("sport", ""),
+                league=params.get("league", ""),
+                event_id=params.get("event_id", "")
+            )
+        
+        elif endpoint == "daily-intelligence":
+            leagues = params.get("leagues", [])
+            if isinstance(leagues, str):
+                leagues = [leagues]
+            
+            # Simulate the daily intelligence call
+            results = {}
+            for league_spec in leagues:
+                if "/" not in league_spec:
+                    continue
+                sport, league = league_spec.split("/", 1)
+                
+                # Get scoreboard data
+                scoreboard_data = await get_scoreboard_wrapper(sport=sport, league=league)
+                
+                results[league_spec] = {
+                    "sport": sport,
+                    "league": league,
+                    "games": scoreboard_data.get("data", {}).get("scoreboard") if scoreboard_data.get("ok") else None,
+                    "error": None if scoreboard_data.get("ok") else scoreboard_data.get("message")
+                }
+            
+            return {
+                "ok": True,
+                "status": "success",
+                "data": results
+            }
+        
+        else:
+            return {
+                "ok": False,
+                "message": f"Unknown endpoint: {endpoint}",
+                "explanation": parsed_query.get("explanation", "")
+            }
+            
+    except Exception as e:
+        return {
+            "ok": False,
+            "message": f"Error executing query: {str(e)}",
+            "parsed_query": parsed_query
+        }
 
 # Health check endpoint (no auth required)
 @app.get("/health")
@@ -422,6 +571,58 @@ async def daily_intelligence(request: DailyIntelligenceRequest, _: HTTPAuthoriza
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting daily intelligence: {str(e)}")
+
+# Natural Language Query Endpoint
+@app.post("/ask")
+async def natural_language_query(request: NaturalLanguageRequest, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
+    """
+    Ask a natural language question about sports data.
+    
+    Examples:
+    - "What NBA games are today?"
+    - "Show me all NBA teams"
+    - "Give me today's sports summary"
+    - "What games are happening in the Premier League?"
+    """
+    
+    if not OPENROUTER_API_KEY:
+        raise HTTPException(status_code=503, detail="OpenRouter API key required for natural language queries")
+    
+    try:
+        # Step 1: Parse the natural language question
+        success, raw_response, parsed_query = await ask_openrouter_query(request.question, request.model)
+        
+        if not success:
+            return {
+                "ok": False,
+                "error": "Failed to parse question",
+                "message": raw_response,
+                "question": request.question
+            }
+        
+        # Step 2: Execute the parsed query
+        if "endpoint" in parsed_query:
+            result = await execute_parsed_query(parsed_query)
+            
+            return {
+                "ok": True,
+                "question": request.question,
+                "interpretation": parsed_query.get("explanation", ""),
+                "parsed_query": parsed_query,
+                "result": result,
+                "model_used": request.model
+            }
+        else:
+            # If no endpoint was identified, return the explanation
+            return {
+                "ok": True,
+                "question": request.question,
+                "explanation": parsed_query.get("explanation", raw_response),
+                "model_used": request.model
+            }
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing natural language query: {str(e)}")
 
 # Error handlers
 @app.exception_handler(HTTPException)
