@@ -65,10 +65,15 @@ except ImportError as e:
     SPORTS_AI_AVAILABLE = False
 
 try:
-    from sports_mcp.wagyu_sports.mcp_server.odds_client_server import OddsMcpServer
+    # Try multiple import paths for the wagyu odds server
+    try:
+        from sports_mcp.wagyu_sports.mcp_server.odds_client_server import OddsMcpServer
+    except ImportError:
+        from mcp.wagyu_mcp_hackathon.wagyu_sports.mcp_server.odds_client_server import OddsMcpServer
     ODDS_AVAILABLE = True
+    print("[OK] Wagyu Odds MCP imported successfully")
 except ImportError as e:
-    print(f"Warning: Could not import Wagyu Odds MCP: {e}")
+    print(f"[WARNING] Could not import Wagyu Odds MCP: {e}")
     ODDS_AVAILABLE = False
 
 # Configuration
