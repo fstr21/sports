@@ -138,19 +138,16 @@ if ODDS_AVAILABLE:
                 except ImportError:
                     print("[WARNING] Could not import OddsClient directly")
             
-            # Also try MCP server initialization
+            # Also try MCP server initialization - NEVER test mode
             try:
                 odds_server = OddsMcpServer(api_key=ODDS_API_KEY, test_mode=False)
-                print("[OK] Odds MCP server also initialized")
+                print("[OK] Odds MCP server initialized with REAL API")
             except Exception as e:
                 print(f"[WARNING] Odds MCP server initialization failed: {e}")
         else:
-            # Test mode only
-            try:
-                odds_server = OddsMcpServer(test_mode=True)
-                print("[WARNING] Odds MCP initialized in TEST MODE (no API key)")
-            except Exception as e:
-                print(f"[ERROR] Odds MCP failed to initialize even in test mode: {e}")
+            # NO API KEY = NO ODDS SERVICE
+            print("[ERROR] No ODDS_API_KEY provided - odds service will be unavailable")
+            print("[INFO] Set ODDS_API_KEY environment variable to enable real odds data")
     except Exception as e:
         print(f"[ERROR] Odds initialization failed: {e}")
 

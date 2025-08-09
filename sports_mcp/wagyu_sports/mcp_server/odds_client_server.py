@@ -223,9 +223,7 @@ class OddsMcpServer:
         test_mode = use_test_mode if use_test_mode is not None else self.test_mode
         
         if test_mode:
-            if sport == "basketball_nba":
-                return await self._get_mock_data("nba_games_live.json")
-            return await self._get_mock_data("nba_games_live.json")
+            return json.dumps({"error": "Test mode disabled - real API required", "sport_requested": sport}, indent=2)
         
         options = {}
         if regions:
