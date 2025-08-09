@@ -12,9 +12,7 @@ import asyncio
 from typing import Dict, Any, Optional, List, Union
 from pathlib import Path
 
-from mcp.server.fastmcp import FastMCP
-from mcp.server.stdio import stdio_server
-import mcp.types as types
+from fastmcp import FastMCP
 
 try:
     # When imported as a package
@@ -203,13 +201,7 @@ class OddsMcpServer:
         except Exception as e:
             return json.dumps({"error": f"Error loading mock data: {str(e)}"})
     
-    async def run(self):
-        """Run the MCP server."""
-        # FastMCP has a different API for running the server
-        # We need to use the run_stdio_async method directly
-        await self.server.run_stdio_async()
-            
-def main():
+async def main():
     """Run the MCP server as a standalone process."""
     # Parse arguments
     import argparse
@@ -220,7 +212,7 @@ def main():
     
     # Create and run server
     server = OddsMcpServer(api_key=args.api_key, test_mode=args.test_mode)
-    asyncio.run(server.run())
+    await server.server.run_stdio_async()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

@@ -23,7 +23,9 @@
       },
       "disabled": false,
       "autoApprove": [
-        "get_sports"
+        "get_sports",
+        "get_odds",
+        "get_event_odds"
       ]
     }
   }
