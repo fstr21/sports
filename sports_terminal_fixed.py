@@ -1,17 +1,10 @@
 #!/usr/bin/env python3
 """
-Sports Data Terminal Interface
+Fixed Sports Data Terminal Interface
 
 A comprehensive terminal interface for testing and exploring your sports data system.
 Tests connections to OpenRouter, Wagyu MCP, and ESPN MCP, then provides an interactive
-chat interface for natural language queries.
-
-Features:
-- Connection testing for all services
-- Eastern timezone enforcement
-- Natural language queries
-- Real-time sports data access
-- Betting odds integration
+chat interface for natural language queries including betting odds.
 """
 
 import asyncio
@@ -59,17 +52,30 @@ class ConnectionTester:
         print("🔍 Testing Service Connections...")
         print("=" * 50)
         
-        # Test OpenRouter
-        await self._test_openrouter()
-        
-        # Test ESPN MCP
-        await self._test_espn_mcp()
-        
-        # Test Wagyu MCP
-        await self._test_wagyu_mcp()
-        
-        # Test timezone
-        self._test_timezone()
+        try:
+            # Test OpenRouter
+            await self._test_openrouter()
+            
+            # Test ESPN MCP
+            await self._test_espn_mcp()
+            
+            # Test Wagyu MCP with timeout protection
+            try:
+                await asyncio.wait_for(self._test_wagyu_mcp(), timeout=15.0)
+            except asyncio.TimeoutError:
+                self.test_results["wagyu_mcp"] = {
+                    "status": "⚠️  TIMEOUT",
+                    "error": "Overall connection test timed out after 15 seconds",
+                    "note": "Skipping Wagyu MCP test to prevent terminal hang"
+                }
+                print("   ⚠️  Wagyu MCP test timed out - skipping to prevent hang")
+            
+            # Test timezone
+            self._test_timezone()
+            
+        except Exception as e:
+            print(f"   ❌ Connection testing error: {e}")
+            logger.error(f"Connection testing error: {e}")
         
         return self.test_results
     
@@ -167,12 +173,12 @@ class ConnectionTester:
         print("🎲 Testing Wagyu Odds MCP...")
         
         try:
-            # Import and test the Wagyu client
+            # Import and test the Wagyu client with timeout
             sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'clients'))
             from wagyu_client import test_wagyu_connection
             
-            # Test the connection
-            result = await test_wagyu_connection()
+            # Test the connection with a timeout
+            result = await asyncio.wait_for(test_wagyu_connection(), timeout=10.0)
             
             if result["status"] == "success":
                 self.test_results["wagyu_mcp"] = {
@@ -195,6 +201,13 @@ class ConnectionTester:
                 }
                 print(f"   ❌ Connection failed: {result.get('error', 'Unknown error')}")
                 
+        except asyncio.TimeoutError:
+            self.test_results["wagyu_mcp"] = {
+                "status": "⚠️  TIMEOUT",
+                "error": "Connection test timed out after 10 seconds",
+                "note": "MCP server may be starting slowly or hanging"
+            }
+            print(f"   ⚠️  Connection test timed out (10s) - server may be slow to start")
         except Exception as e:
             self.test_results["wagyu_mcp"] = {
                 "status": "❌ FAILED",
@@ -269,6 +282,11 @@ class SportsTerminal:
         print("  • 'leagues' - Show supported leagues")
         print("  • 'time' - Show current Eastern time")
         print("  • 'quit' or 'exit' - Exit terminal")
+        print("\n📝 Example Questions:")
+        print("  • 'NFL scores today'")
+        print("  • 'WNBA games with odds'")
+        print("  • 'Storm vs Aces betting lines'")
+        print("  • 'Chicago Sky moneyline odds'")
     
     async def _interactive_loop(self):
         """Main interactive loop."""
@@ -349,10 +367,10 @@ class SportsTerminal:
         print(f"🎲 Wagyu Odds MCP: {wagyu.get('status', 'Unknown')}")
         if wagyu.get("sports_count"):
             print(f"   Sports Available: {wagyu['sports_count']}")
-        if wagyu.get("command"):
-            print(f"   Command: {wagyu['command']}")
-        if wagyu.get("note"):
-            print(f"   Note: {wagyu['note']}")
+        if wagyu.get("quota_info"):
+            quota = wagyu["quota_info"]
+            if quota.get("remaining_requests"):
+                print(f"   API Quota: {quota['remaining_requests']} remaining")
         if wagyu.get("error"):
             print(f"   Error: {wagyu['error']}")
         
@@ -397,7 +415,7 @@ class SportsTerminal:
                 return
             
             # Fetch the requested data
-            data = await self._fetch_data(intent)
+            data = await self._fetch_data(query, intent)
             
             # Generate response
             response = await self._generate_response(query, intent, data)
@@ -461,7 +479,7 @@ class SportsTerminal:
             detected_league = 'nfl'
         
         # Detect intent (betting terms take priority)
-        betting_terms = ['odds', 'betting', 'lines', 'spread', 'moneyline', 'money line', 'over', 'under', 'point line', 'take', 'would you']
+        betting_terms = ['odds', 'betting', 'lines', 'line', 'spread', 'moneyline', 'money line', 'over', 'under', 'o/u', 'point line', 'take', 'would you', 'prop', 'props', 'points', 'rebounds', 'assists']
         if any(term in query_lower for term in betting_terms):
             intent_type = 'odds'
         elif any(word in query_lower for word in ['scoreboard', 'games', 'schedule', 'today', 'scores']):
@@ -484,6 +502,8 @@ class SportsTerminal:
         
         if 'storm' in query_lower and 'aces' in query_lower:
             teams = ['Storm', 'Aces']
+        elif ('chicago' in query_lower or 'sky' in query_lower) and ('indiana' in query_lower or 'fever' in query_lower):
+            teams = ['Chicago Sky', 'Indiana Fever']
         elif ' v ' in query_lower or ' vs ' in query_lower:
             import re
             vs_match = re.search(r'(\w+)\s+v[s]?\s+(\w+)', query_lower)
@@ -492,6 +512,12 @@ class SportsTerminal:
         
         if 'ajay wilson' in query_lower or "a'ja wilson" in query_lower:
             player_mentioned = "A'ja Wilson"
+        elif 'kelsey mitchell' in query_lower:
+            player_mentioned = "Kelsey Mitchell"
+        elif 'caitlin clark' in query_lower:
+            player_mentioned = "Caitlin Clark"
+        elif 'veronica burton' in query_lower:
+            player_mentioned = "Veronica Burton"
         
         return {
             "success": True,
@@ -506,7 +532,7 @@ class SportsTerminal:
             }
         }
     
-    async def _fetch_data(self, intent: Dict[str, Any]) -> Dict[str, Any]:
+    async def _fetch_data(self, query: str, intent: Dict[str, Any]) -> Dict[str, Any]:
         """Fetch data based on analyzed intent."""
         intent_data = intent.get("intent", {})
         intent_type = intent_data.get("type")
@@ -562,22 +588,118 @@ class SportsTerminal:
                     if league:
                         wagyu_client = WagyuClient()
                         sport_key = get_sport_key(league)
+                        player_mentioned = intent_data.get("player")
+                        query_lower = query.lower()  # Define query_lower here
                         
                         logger.info(f"Fetching odds for {sport_key}")
-                        odds_data = await wagyu_client.get_odds(
-                            sport=sport_key,
-                            markets="h2h,spreads,totals"  # moneyline, spreads, over/under
-                        )
                         
-                        data["odds"] = odds_data
-                        data["odds_info"] = {
-                            "note": "Live betting odds retrieved",
-                            "league": league,
-                            "sport_key": sport_key,
-                            "teams": intent_data.get("teams", []),
-                            "player": intent_data.get("player"),
-                            "wagyu_status": "Connected and active"
-                        }
+                        # Check if this is a player prop request
+                        if player_mentioned and any(prop in query_lower for prop in ['points', 'rebounds', 'assists', 'prop', 'props', 'o/u', 'over', 'under']):
+                            try:
+                                # First get general odds to find the event ID for the game
+                                logger.info(f"Player prop request detected for {player_mentioned}")
+                                general_odds = await wagyu_client.get_odds(
+                                    sport=sport_key,
+                                    markets="h2h"
+                                )
+                                
+                                # Find the specific game event ID based on teams mentioned
+                                event_id = None
+                                teams_mentioned = intent_data.get("teams", [])
+                                
+                                if isinstance(general_odds, list):
+                                    games_data = general_odds
+                                elif isinstance(general_odds, dict) and "data" in general_odds:
+                                    games_data = general_odds["data"]
+                                elif isinstance(general_odds, dict) and "content" in general_odds:
+                                    games_data = json.loads(general_odds["content"])
+                                else:
+                                    games_data = []
+                                
+                                # Look for matching game
+                                for game in games_data:
+                                    if isinstance(game, dict):
+                                        home_team = game.get('home_team', '').lower()
+                                        away_team = game.get('away_team', '').lower()
+                                        
+                                        # Check if the teams match (or if no specific teams, get first WNBA game)
+                                        if teams_mentioned:
+                                            if any(team.lower() in home_team or team.lower() in away_team for team in teams_mentioned):
+                                                event_id = game.get('id')
+                                                logger.info(f"Found event ID {event_id} for teams {teams_mentioned}")
+                                                break
+                                        elif 'chicago sky' in query_lower and 'fever' in query_lower:
+                                            if 'chicago' in home_team or 'chicago' in away_team or 'fever' in home_team or 'fever' in away_team:
+                                                event_id = game.get('id')
+                                                logger.info(f"Found event ID {event_id} for Sky vs Fever")
+                                                break
+                                        elif 'sky' in query_lower and 'fever' in query_lower:
+                                            if 'sky' in home_team or 'sky' in away_team or 'fever' in home_team or 'fever' in away_team:
+                                                event_id = game.get('id')
+                                                logger.info(f"Found event ID {event_id} for Sky vs Fever")
+                                                break
+                                
+                                # Get player props if we found the event ID
+                                player_props_data = None
+                                if event_id:
+                                    logger.info(f"Fetching player props for event {event_id}")
+                                    player_props_data = await wagyu_client.get_event_odds(
+                                        sport=sport_key,
+                                        event_id=event_id,
+                                        regions="us",
+                                        markets="player_points,player_rebounds,player_assists"
+                                    )
+                                
+                                # Get regular odds too
+                                odds_data = await wagyu_client.get_odds(
+                                    sport=sport_key,
+                                    markets="h2h,spreads,totals"
+                                )
+                                
+                                data["odds"] = odds_data
+                                data["player_props"] = player_props_data
+                                data["odds_info"] = {
+                                    "note": "Live betting odds and player props retrieved" if player_props_data else "Live betting odds retrieved - player props not found",
+                                    "league": league,
+                                    "sport_key": sport_key,
+                                    "teams": intent_data.get("teams", []),
+                                    "player": player_mentioned,
+                                    "event_id": event_id,
+                                    "has_player_props": bool(player_props_data),
+                                    "wagyu_status": "Connected and active"
+                                }
+                            except Exception as e:
+                                logger.error(f"Error getting player props: {e}")
+                                # Fall back to regular odds
+                                odds_data = await wagyu_client.get_odds(
+                                    sport=sport_key,
+                                    markets="h2h,spreads,totals"
+                                )
+                                data["odds"] = odds_data
+                                data["odds_info"] = {
+                                    "note": f"Live betting odds retrieved - player props error: {str(e)}",
+                                    "league": league,
+                                    "sport_key": sport_key,
+                                    "teams": intent_data.get("teams", []),
+                                    "player": player_mentioned,
+                                    "wagyu_status": "Connected but player props failed"
+                                }
+                        else:
+                            # Regular odds request (no player props)
+                            odds_data = await wagyu_client.get_odds(
+                                sport=sport_key,
+                                markets="h2h,spreads,totals"  # moneyline, spreads, over/under
+                            )
+                            
+                            data["odds"] = odds_data
+                            data["odds_info"] = {
+                                "note": "Live betting odds retrieved",
+                                "league": league,
+                                "sport_key": sport_key,
+                                "teams": intent_data.get("teams", []),
+                                "player": intent_data.get("player"),
+                                "wagyu_status": "Connected and active"
+                            }
                     else:
                         data["odds_info"] = {
                             "note": "Betting analysis requested but no league detected",
@@ -721,16 +843,19 @@ class SportsTerminal:
                 response_parts.append(f"\n💰 **LIVE BETTING ODDS:**")
                 
                 # Process odds data
-                if isinstance(odds_data, list):
-                    games_with_odds = odds_data[:5]  # Show first 5 games
+                games_with_odds = []
+                if isinstance(odds_data, dict) and "data" in odds_data:
+                    games_with_odds = odds_data["data"][:5]  # Show first 5 games
+                elif isinstance(odds_data, list):
+                    games_with_odds = odds_data[:5]
                 elif isinstance(odds_data, dict) and "content" in odds_data:
                     try:
                         import json
-                        games_with_odds = json.loads(odds_data["content"])[:5] if isinstance(json.loads(odds_data["content"]), list) else []
+                        parsed_content = json.loads(odds_data["content"])
+                        if isinstance(parsed_content, list):
+                            games_with_odds = parsed_content[:5]
                     except:
                         games_with_odds = []
-                else:
-                    games_with_odds = []
                 
                 for game in games_with_odds:
                     if isinstance(game, dict):
@@ -756,7 +881,10 @@ class SportsTerminal:
                                     for outcome in outcomes:
                                         team = outcome.get("name", "Unknown")
                                         price = outcome.get("price", "N/A")
-                                        response_parts.append(f"        {team}: {price}")
+                                        if isinstance(price, (int, float)):
+                                            response_parts.append(f"        {team}: {price:+d}")
+                                        else:
+                                            response_parts.append(f"        {team}: {price}")
                                 
                                 elif market_key == "spreads":  # Point spread
                                     response_parts.append(f"     📊 {book_name} Spread:")
@@ -764,7 +892,9 @@ class SportsTerminal:
                                         team = outcome.get("name", "Unknown")
                                         point = outcome.get("point", "N/A")
                                         price = outcome.get("price", "N/A")
-                                        response_parts.append(f"        {team} {point}: {price}")
+                                        spread_str = f"{point:+.1f}" if isinstance(point, (int, float)) else str(point)
+                                        price_str = f"{price:+d}" if isinstance(price, (int, float)) else str(price)
+                                        response_parts.append(f"        {team} {spread_str}: {price_str}")
                                 
                                 elif market_key == "totals":  # Over/Under
                                     response_parts.append(f"     🎯 {book_name} Total:")
@@ -772,7 +902,9 @@ class SportsTerminal:
                                         name = outcome.get("name", "Unknown")
                                         point = outcome.get("point", "N/A")
                                         price = outcome.get("price", "N/A")
-                                        response_parts.append(f"        {name} {point}: {price}")
+                                        total_str = f"{point}" if isinstance(point, (int, float)) else str(point)
+                                        price_str = f"{price:+d}" if isinstance(price, (int, float)) else str(price)
+                                        response_parts.append(f"        {name} {total_str}: {price_str}")
                 
                 # Look for specific team matchup if requested
                 if teams:
@@ -792,21 +924,70 @@ class SportsTerminal:
                         for game in matching_odds:
                             home_team = game.get("home_team", "Unknown")
                             away_team = game.get("away_team", "Unknown")
-                            response_parts.append(f"  • {away_team} @ {home_team}")
+                            commence_time = game.get("commence_time", "TBD")
                             
-                            # Provide basic analysis
+                            response_parts.append(f"  🏀 **{away_team} @ {home_team}**")
+                            response_parts.append(f"     ⏰ {commence_time}")
+                            
+                            # Show moneyline odds from multiple books
                             bookmakers = game.get("bookmakers", [])
-                            if bookmakers:
-                                book = bookmakers[0]  # Use first bookmaker
+                            for book in bookmakers[:2]:  # Show first 2 bookmakers
+                                book_name = book.get("title", "Unknown")
+                                markets = book.get("markets", [])
+                                
+                                for market in markets:
+                                    if market.get("key") == "h2h":  # Moneyline
+                                        outcomes = market.get("outcomes", [])
+                                        response_parts.append(f"     💵 {book_name} Moneyline:")
+                                        for outcome in outcomes:
+                                            team = outcome.get("name", "Unknown")
+                                            price = outcome.get("price", "N/A")
+                                            if isinstance(price, (int, float)):
+                                                response_parts.append(f"        {team}: {price:+d}")
+                                            else:
+                                                response_parts.append(f"        {team}: {price}")
+                                        break  # Only show moneyline
+                                break  # Only show first market per book
+                
+                # Also check for Chicago Sky specifically in the query
+                elif 'chicago' in query.lower() and 'sky' in query.lower():
+                    sky_games = []
+                    for game in games_with_odds:
+                        if isinstance(game, dict):
+                            home = game.get("home_team", "").lower()
+                            away = game.get("away_team", "").lower()
+                            
+                            if 'chicago' in home or 'chicago' in away or 'sky' in home or 'sky' in away:
+                                sky_games.append(game)
+                    
+                    if sky_games:
+                        response_parts.append(f"\n🎯 **CHICAGO SKY GAMES:**")
+                        for game in sky_games:
+                            home_team = game.get("home_team", "Unknown")
+                            away_team = game.get("away_team", "Unknown")
+                            commence_time = game.get("commence_time", "TBD")
+                            
+                            response_parts.append(f"  🏀 **{away_team} @ {home_team}**")
+                            response_parts.append(f"     ⏰ {commence_time}")
+                            
+                            # Show moneyline odds
+                            bookmakers = game.get("bookmakers", [])
+                            for book in bookmakers[:2]:
+                                book_name = book.get("title", "Unknown")
                                 markets = book.get("markets", [])
                                 
                                 for market in markets:
                                     if market.get("key") == "h2h":
                                         outcomes = market.get("outcomes", [])
-                                        if len(outcomes) >= 2:
-                                            fav_odds = min(float(o.get("price", 999)) for o in outcomes if o.get("price", "").lstrip('-').replace('.', '').isdigit())
-                                            favorite = next((o.get("name") for o in outcomes if float(o.get("price", 999)) == fav_odds), "Unknown")
-                                            response_parts.append(f"    💡 Favorite: {favorite} ({fav_odds:+.0f})")
+                                        response_parts.append(f"     💵 {book_name} Moneyline:")
+                                        for outcome in outcomes:
+                                            team = outcome.get("name", "Unknown")
+                                            price = outcome.get("price", "N/A")
+                                            if isinstance(price, (int, float)):
+                                                response_parts.append(f"        {team}: {price:+d}")
+                                            else:
+                                                response_parts.append(f"        {team}: {price}")
+                                        break
             
             # Show current games from scoreboard
             if "scoreboard" in data and data["scoreboard"].get("ok"):
@@ -827,12 +1008,79 @@ class SportsTerminal:
                     else:
                         response_parts.append(f"  • {away} {away_score} - {home_score} {home} (Final)")
             
-            # Player prop note
+            # Player prop section
             if player:
                 response_parts.append(f"\n👤 **PLAYER PROP REQUEST:**")
                 response_parts.append(f"  • Player: {player}")
-                response_parts.append(f"  • Note: Player prop odds (points, rebounds, etc.) require")
-                response_parts.append(f"    specialized sportsbook APIs beyond basic game odds")
+                
+                # Check if we have actual player props data
+                if data.get("player_props"):
+                    player_props_data = data["player_props"]
+                    
+                    # Check if we have specific prop request
+                    if 'points' in query.lower() and ('o/u' in query.lower() or 'over' in query.lower() or 'under' in query.lower()):
+                        response_parts.append(f"  • Requested: Points Over/Under")
+                    
+                    # Parse and display player props
+                    if isinstance(player_props_data, dict) and "bookmakers" in player_props_data:
+                        bookmakers = player_props_data["bookmakers"]
+                    elif isinstance(player_props_data, list):
+                        bookmakers = player_props_data
+                    elif isinstance(player_props_data, dict) and "content" in player_props_data:
+                        try:
+                            parsed_data = json.loads(player_props_data["content"])
+                            bookmakers = parsed_data.get("bookmakers", [])
+                        except:
+                            bookmakers = []
+                    else:
+                        bookmakers = []
+                    
+                    # Display player props for the requested player
+                    found_player_props = False
+                    for bookmaker in bookmakers:
+                        if isinstance(bookmaker, dict) and "markets" in bookmaker:
+                            bookmaker_title = bookmaker.get("title", "Unknown Sportsbook")
+                            for market in bookmaker["markets"]:
+                                market_key = market.get("key", "")
+                                for outcome in market.get("outcomes", []):
+                                    outcome_player = outcome.get("description", "")
+                                    if player.lower() in outcome_player.lower():
+                                        found_player_props = True
+                                        bet_type = outcome.get("name", "")
+                                        price = outcome.get("price", "N/A")
+                                        point = outcome.get("point", "")
+                                        
+                                        if "points" in market_key:
+                                            prop_type = "Points"
+                                        elif "rebounds" in market_key:
+                                            prop_type = "Rebounds"
+                                        elif "assists" in market_key:
+                                            prop_type = "Assists"
+                                        else:
+                                            prop_type = market_key.replace("player_", "").title()
+                                        
+                                        if point:
+                                            response_parts.append(f"     💰 {bookmaker_title} - {prop_type} {bet_type} {point}: {price}")
+                                        else:
+                                            response_parts.append(f"     💰 {bookmaker_title} - {prop_type} {bet_type}: {price}")
+                    
+                    if not found_player_props:
+                        response_parts.append(f"  • No prop odds found for {player} at this time")
+                        response_parts.append(f"  • Event ID used: {odds_info.get('event_id', 'None')}")
+                
+                elif odds_info.get("has_player_props") is False:
+                    response_parts.append(f"  • Event ID: {odds_info.get('event_id', 'Not found')}")
+                    response_parts.append(f"  • No player props available for this game")
+                    
+                else:
+                    # Check if we have specific prop request
+                    if 'points' in query.lower() and ('o/u' in query.lower() or 'over' in query.lower() or 'under' in query.lower()):
+                        response_parts.append(f"  • Requested: Points Over/Under")
+                        response_parts.append(f"  • Note: Player prop odds require event-specific API calls")
+                        response_parts.append(f"  • Try: 'Get {player} player props for tonight's game'")
+                    else:
+                        response_parts.append(f"  • Note: Player prop odds (points, rebounds, etc.) require")
+                        response_parts.append(f"    specialized sportsbook APIs beyond basic game odds")
             
             # Status
             response_parts.append(f"\n✅ **WAGYU STATUS:** {odds_info.get('wagyu_status', 'Unknown')}")
