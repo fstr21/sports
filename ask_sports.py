@@ -20,6 +20,20 @@ import sys
 import os
 from typing import Dict, Any
 
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    if os.path.exists('.env.local'):
+        load_dotenv('.env.local')
+        print("[INFO] Loaded environment from .env.local")
+    else:
+        load_dotenv()
+        print("[INFO] Loaded environment from .env")
+except ImportError:
+    print("[WARNING] python-dotenv not installed")
+except Exception as e:
+    print(f"[WARNING] Could not load environment: {e}")
+
 class SportsAI:
     def __init__(self, base_url: str = None, api_key: str = None):
         # Default to Railway URL or localhost
