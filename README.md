@@ -31,6 +31,7 @@ An efficient, automated system for analyzing WNBA games daily with minimal API c
 ## 📋 Usage
 
 ### Quick Analysis (Manual)
+
 ```bash
 # Analyze today's games
 python run_analysis.py
@@ -40,12 +41,14 @@ python run_analysis.py 20250805
 ```
 
 ### Automated Daily Runs
+
 ```bash
 # Start the scheduler (runs daily at 10 AM)
 python scheduler.py
 ```
 
 ### Using the Core Analyzer
+
 ```python
 from daily_wnba_analyzer import WNBAAnalyzer
 
@@ -70,23 +73,26 @@ print(report)
 The system provides confidence-based recommendations:
 
 - **STRONG** ⭐⭐⭐⭐⭐ (80%+ confidence) - High conviction bets
-- **MODERATE** ⭐⭐⭐⭐ (60-79% confidence) - Solid opportunities  
+- **MODERATE** ⭐⭐⭐⭐ (60-79% confidence) - Solid opportunities
 - **LEAN** ⭐⭐⭐ (40-59% confidence) - Slight edge
 - **AVOID** ⭐⭐ (<40% confidence) - Too close to call
 
 ## 💡 Efficiency Features
 
 ### Minimal API Calls
+
 - **1 call** for daily scoreboard (all games)
 - **N calls** for team stats (where N = unique teams playing)
 - **Total**: Typically 6-12 API calls per day vs 100+ for naive approaches
 
 ### Smart Data Processing
+
 - Extracts only essential stats needed for analysis
 - Caches team data within single run
 - Processes multiple games from single scoreboard call
 
 ### Token Optimization
+
 - Focused analysis algorithms (no LLM calls needed)
 - Structured output generation
 - Minimal text processing
@@ -97,14 +103,17 @@ The system provides confidence-based recommendations:
 # WNBA Daily Analysis - 2025-08-05
 
 ## Games Summary
+
 Total Games: 5
 
 ### Game 1: Dallas Wings @ New York Liberty
+
 **Prediction**: Home team wins
 **Confidence**: 100.0% ⭐⭐⭐⭐⭐
 **Recommendation**: STRONG - Home team moneyline
 
 **Key Stats**:
+
 - Home: 18-10 (86.9 PPG, +5.8 diff)
 - Away: 8-21 (82.1 PPG, -4.5 diff)
 ```
@@ -112,6 +121,7 @@ Total Games: 5
 ## ⚙️ Configuration
 
 Edit `config.py` to customize:
+
 - API settings and rate limiting
 - Analysis weights and thresholds
 - Output formats and directories
@@ -120,11 +130,13 @@ Edit `config.py` to customize:
 ## 🔄 Automation Options
 
 ### Daily Scheduler
+
 - Runs analysis every day at 10 AM
 - Automatic cleanup of old reports
 - Comprehensive logging
 
 ### Custom Scheduling
+
 ```python
 import schedule
 from daily_wnba_analyzer import WNBAAnalyzer
@@ -138,12 +150,14 @@ schedule.every().day.at("09:00").do(analyzer.process_daily_games)
 ## 📊 Cost Comparison
 
 **Traditional Approach** (per day):
+
 - 50+ API calls for individual game data
 - Multiple LLM calls for analysis
 - High token usage for report generation
 - **Cost**: $5-15 per day
 
 **This System** (per day):
+
 - 6-12 API calls total
 - No LLM calls needed
 - Minimal token usage
@@ -166,6 +180,7 @@ schedule.every().day.at("09:00").do(analyzer.process_daily_games)
 4. **Permission Errors**: Ensure write permissions for output directory
 
 ### Debug Mode
+
 ```python
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -178,6 +193,7 @@ This project is for educational and personal use. Respect ESPN's API terms of se
 ## 🤝 Contributing
 
 Feel free to submit improvements, especially for:
+
 - Additional betting markets
 - Enhanced statistical analysis
 - New output formats

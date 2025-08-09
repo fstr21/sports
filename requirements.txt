@@ -5,3 +5,4 @@ python-dotenv
 mcp
 fastmcp
 pydantic
+pytz>=2023.3

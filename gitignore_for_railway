@@ -20,7 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Environment variables
+# Environment variables (keep .env for Railway to read)
 .env.local
 .env.production
 
@@ -37,9 +37,6 @@ Thumbs.db
 # Local development
 ngrok.exe
 *.log
-quick_test_local.py
-install_ngrok.py
-setup_http_server.py
 
 # Temporary files
 *.tmp
