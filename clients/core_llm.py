@@ -12,6 +12,10 @@ import os
 from typing import Any, Dict, Optional, Tuple
 
 import httpx
+from dotenv import load_dotenv
+
+# Load environment variables from .env.local
+load_dotenv('.env.local')
 
 # Configure logging
 logger = logging.getLogger(__name__)

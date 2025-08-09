@@ -150,11 +150,11 @@ def filter_fields(data: Dict[str, Any], fields: list, league: str) -> Dict[str, 
             
             filtered_data['players'] = filtered_players
         
-        # Handle NFL-specific structure
+        # Handle NFL-specific structure (now with 'players' sub-key)
         for category in ['passing', 'rushing', 'receiving']:
-            if category in data:
-                filtered_category = []
-                for player in data[category]:
+            if category in data and 'players' in data[category]:
+                filtered_players = []
+                for player in data[category]['players']:
                     filtered_player = {}
                     # Always include name and team
                     filtered_player['name'] = player.get('name', 'Unknown')
@@ -167,9 +167,9 @@ def filter_fields(data: Dict[str, Any], fields: list, league: str) -> Dict[str, 
                         else:
                             filtered_player[field] = 'unavailable'
                     
-                    filtered_category.append(filtered_player)
+                    filtered_players.append(filtered_player)
                 
-                filtered_data[category] = filtered_category
+                filtered_data[category] = {'players': filtered_players}
         
         return filtered_data if filtered_data else data
         
@@ -198,10 +198,10 @@ def format_normalized_data(normalized_data: Dict[str, Any], league: str, fields:
         
         # Handle NFL data
         if league.lower() in ['nfl', 'ncaaf']:
-            if 'passing' in normalized_data:
+            if 'passing' in normalized_data and 'players' in normalized_data['passing']:
                 output.append("PASSING STATS:")
                 output.append("-" * 40)
-                for player in normalized_data['passing']:
+                for player in normalized_data['passing']['players']:
                     if fields:
                         # Custom field display
                         stats = []
@@ -213,12 +213,12 @@ def format_normalized_data(normalized_data: Dict[str, Any], league: str, fields:
                         # Default display
                         output.append(f"  {player['name']} ({player['team']}): {player.get('completions_attempts', 'N/A')}, {player.get('yards', 'N/A')} yds, {player.get('touchdowns', 'N/A')} TD")
             
-            if 'rushing' in normalized_data:
+            if 'rushing' in normalized_data and 'players' in normalized_data['rushing']:
                 if output:
                     output.append("")
                 output.append("RUSHING STATS:")
                 output.append("-" * 40)
-                for player in normalized_data['rushing']:
+                for player in normalized_data['rushing']['players']:
                     if fields:
                         stats = []
                         for field in fields:
@@ -228,12 +228,12 @@ def format_normalized_data(normalized_data: Dict[str, Any], league: str, fields:
                     else:
                         output.append(f"  {player['name']} ({player['team']}): {player.get('carries', 'N/A')} car, {player.get('yards', 'N/A')} yds, {player.get('touchdowns', 'N/A')} TD")
             
-            if 'receiving' in normalized_data:
+            if 'receiving' in normalized_data and 'players' in normalized_data['receiving']:
                 if output:
                     output.append("")
                 output.append("RECEIVING STATS:")
                 output.append("-" * 40)
-                for player in normalized_data['receiving']:
+                for player in normalized_data['receiving']['players']:
                     if fields:
                         stats = []
                         for field in fields:

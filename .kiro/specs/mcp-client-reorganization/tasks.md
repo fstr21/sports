@@ -66,7 +66,7 @@
 
 - [x] 5. Build game CLI client with adapter integration
 
-- [ ] 5.1 Create game_cli.py with basic game summary functionality
+- [x] 5.1 Create game_cli.py with basic game summary functionality
 
   - Implement "game <league> <event_id>" command using core_mcp.game_summary()
   - Display game summary data for any sport using MCP getGameSummary
@@ -96,7 +96,7 @@
 
 - [x] 6. Build season and odds CLI clients
 
-- [ ] 6. Build season and odds CLI clients
+- [x] 6. Build season and odds CLI clients
 
 - [x] 6.1 Create season_cli.py with team and player season stats
 
@@ -204,15 +204,15 @@
   - Include error context and troubleshooting information
   - _Requirements: 10.4_
 
-- [ ] 11. Final integration and validation
-- [ ] 11.1 Verify complete elimination of direct ESPN API calls
+- [x] 11. Final integration and validation
+- [x] 11.1 Verify complete elimination of direct ESPN API calls
 
   - Run grep search for "site.api.espn.com" in clients directory to confirm no matches
   - Test all CLI clients work with MCP server only
   - Validate that all requirements are met through end-to-end testing
   - _Requirements: 2.3_
 
-- [ ] 11.2 Performance testing and optimization
+- [x] 11.2 Performance testing and optimization
   - Test CLI response times with MCP server
   - Verify memory usage is reasonable for command-line tools
   - Ensure error handling is robust across all failure scenarios

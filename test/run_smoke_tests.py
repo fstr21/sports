@@ -31,13 +31,13 @@ def run_smoke_tests():
         "TestRateLimitingAndNetworkAwareness::test_network_availability_check"
     ]
     
-    print("🔍 Running essential smoke tests for MCP-only architecture...")
+    print("Running essential smoke tests for MCP-only architecture...")
     print("=" * 60)
     
     all_passed = True
     
     for test in essential_tests:
-        print(f"\n📋 Running {test}...")
+        print(f"\nRunning {test}...")
         
         result = subprocess.run([
             sys.executable, "-m", "pytest", 
@@ -46,23 +46,23 @@ def run_smoke_tests():
         ], capture_output=True, text=True)
         
         if result.returncode == 0:
-            print(f"✅ {test} - PASSED")
+            print(f"PASSED: {test}")
         else:
-            print(f"❌ {test} - FAILED")
+            print(f"FAILED: {test}")
             print(f"Error: {result.stderr}")
             all_passed = False
     
     print("\n" + "=" * 60)
     if all_passed:
-        print("🎉 All essential smoke tests PASSED!")
+        print("All essential smoke tests PASSED!")
         print("\nVerified:")
-        print("  ✓ No direct ESPN API calls in clients directory")
-        print("  ✓ MCP server setup is correct")
-        print("  ✓ CLI commands work without errors")
-        print("  ✓ Rate limiting awareness is implemented")
+        print("  - No direct ESPN API calls in clients directory")
+        print("  - MCP server setup is correct")
+        print("  - CLI commands work without errors")
+        print("  - Rate limiting awareness is implemented")
         return 0
     else:
-        print("💥 Some smoke tests FAILED!")
+        print("Some smoke tests FAILED!")
         print("\nPlease check the errors above and fix the issues.")
         return 1
 

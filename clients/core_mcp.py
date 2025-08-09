@@ -10,7 +10,7 @@ import logging
 from typing import Any, Dict, Optional, Tuple
 
 from mcp_client import MCPClient, MCPClientError, get_server_path
-from .logging_config import get_mcp_logger
+from logging_config import get_mcp_logger
 
 # Configure logging
 logger = logging.getLogger(__name__)
