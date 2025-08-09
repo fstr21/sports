@@ -203,6 +203,79 @@ class OddsMcpServer:
         except Exception as e:
             return json.dumps({"error": f"Error loading mock data: {str(e)}"})
     
+    # HTTP Helper Methods for direct calling from HTTP server
+    async def get_sports_http(self, all_sports: bool = False, use_test_mode: Optional[bool] = None) -> str:
+        """HTTP wrapper for get_sports tool"""
+        test_mode = use_test_mode if use_test_mode is not None else self.test_mode
+        
+        if test_mode:
+            return await self._get_mock_data("sports_list_live.json")
+        
+        result = self.client.get_sports(all_sports=all_sports)
+        return json.dumps(result, indent=2)
+    
+    async def get_odds_http(self, sport: str, regions: Optional[str] = None, 
+                           markets: Optional[str] = None, 
+                           odds_format: Optional[str] = None,
+                           date_format: Optional[str] = None,
+                           use_test_mode: Optional[bool] = None) -> str:
+        """HTTP wrapper for get_odds tool"""
+        test_mode = use_test_mode if use_test_mode is not None else self.test_mode
+        
+        if test_mode:
+            if sport == "basketball_nba":
+                return await self._get_mock_data("nba_games_live.json")
+            return await self._get_mock_data("nba_games_live.json")
+        
+        options = {}
+        if regions:
+            options["regions"] = regions
+        if markets:
+            options["markets"] = markets
+        if odds_format:
+            options["oddsFormat"] = odds_format
+        if date_format:
+            options["dateFormat"] = date_format
+            
+        result = self.client.get_odds(sport, options=options)
+        return json.dumps(result, indent=2)
+    
+    async def get_event_odds_http(self, sport: str, event_id: str, regions: Optional[str] = None, 
+                                 markets: Optional[str] = None, 
+                                 odds_format: Optional[str] = None,
+                                 date_format: Optional[str] = None,
+                                 use_test_mode: Optional[bool] = None) -> str:
+        """HTTP wrapper for get_event_odds tool"""
+        test_mode = use_test_mode if use_test_mode is not None else self.test_mode
+        
+        if test_mode:
+            return await self._get_mock_data("player_props_live.json")
+        
+        options = {}
+        if regions:
+            options["regions"] = regions
+        if markets:
+            options["markets"] = markets
+        if odds_format:
+            options["oddsFormat"] = odds_format
+        if date_format:
+            options["dateFormat"] = date_format
+            
+        result = self.client.get_event_odds(sport, event_id, options=options)
+        return json.dumps(result, indent=2)
+    
+    async def get_quota_info_http(self, use_test_mode: Optional[bool] = None) -> str:
+        """HTTP wrapper for get_quota_info tool"""
+        test_mode = use_test_mode if use_test_mode is not None else self.test_mode
+        
+        if test_mode:
+            return await self._get_mock_data("quota_info_live.json")
+        
+        return json.dumps({
+            "remaining_requests": self.client.remaining_requests,
+            "used_requests": self.client.used_requests
+        }, indent=2)
+
     async def run(self):
         """Run the MCP server."""
         # FastMCP has a different API for running the server

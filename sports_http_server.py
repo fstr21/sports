@@ -179,6 +179,13 @@ class EventOddsRequest(BaseModel):
     odds_format: Optional[str] = None
     date_format: Optional[str] = None
 
+class PlayerPropsRequest(BaseModel):
+    sport: str
+    date: Optional[str] = None  # YYYY-MM-DD format, defaults to today
+    player_markets: Optional[str] = "player_points,player_rebounds,player_assists"
+    regions: Optional[str] = "us"
+    odds_format: Optional[str] = "american"
+
 class DailyIntelligenceRequest(BaseModel):
     leagues: List[str]
     include_odds: bool = True
@@ -498,12 +505,8 @@ async def odds_sports(all_sports: bool = False, _: HTTPAuthorizationCredentials 
         raise HTTPException(status_code=503, detail="Odds MCP not available")
     
     try:
-        # Call the odds server method directly
-        if hasattr(odds_server.server, '_tools'):
-            result = await odds_server.server._tools["get_sports"].handler(all_sports=all_sports)
-        else:
-            # Try alternative method for newer MCP versions
-            result = await odds_server.server.call_tool("get_sports", {"all_sports": all_sports})
+        # Call the server's method directly - we'll add this method to the MCP server
+        result = await odds_server.get_sports_http(all_sports=all_sports)
         return json.loads(result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting sports: {str(e)}")
@@ -515,7 +518,7 @@ async def odds_get_odds(request: OddsRequest, _: HTTPAuthorizationCredentials = 
         raise HTTPException(status_code=503, detail="Odds MCP not available")
     
     try:
-        result = await odds_server.server._tools["get_odds"].handler(
+        result = await odds_server.get_odds_http(
             sport=request.sport,
             regions=request.regions,
             markets=request.markets,
@@ -533,7 +536,7 @@ async def odds_event_odds(request: EventOddsRequest, _: HTTPAuthorizationCredent
         raise HTTPException(status_code=503, detail="Odds MCP not available")
     
     try:
-        result = await odds_server.server._tools["get_event_odds"].handler(
+        result = await odds_server.get_event_odds_http(
             sport=request.sport,
             event_id=request.event_id,
             regions=request.regions,
@@ -552,10 +555,132 @@ async def odds_quota(_: HTTPAuthorizationCredentials = Depends(verify_api_key)):
         raise HTTPException(status_code=503, detail="Odds MCP not available")
     
     try:
-        result = await odds_server.server._tools["get_quota_info"].handler()
+        result = await odds_server.get_quota_info_http()
         return json.loads(result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting quota: {str(e)}")
+
+@app.post("/odds/player-props")
+async def odds_player_props(request: PlayerPropsRequest, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
+    """Get player props for all games on a specific date (based on oddstest.py implementation)"""
+    if not odds_server:
+        raise HTTPException(status_code=503, detail="Odds MCP not available")
+    
+    try:
+        from datetime import datetime, timedelta
+        import pytz
+        
+        # Timezone setup
+        eastern = pytz.timezone("US/Eastern")
+        utc = pytz.UTC
+        
+        # Parse target date
+        if request.date:
+            try:
+                target_date_et = eastern.localize(datetime.strptime(request.date, "%Y-%m-%d"))
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Date must be in YYYY-MM-DD format")
+        else:
+            # Default to today
+            target_date_et = datetime.now(eastern).replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        next_day_et = target_date_et + timedelta(days=1)
+        
+        # Convert to UTC for filtering
+        target_date_utc = target_date_et.astimezone(utc)
+        next_day_utc = next_day_et.astimezone(utc)
+        
+        # Step 1: Get all games to get event IDs
+        games_result = await odds_server.get_odds_http(
+            sport=request.sport,
+            regions=request.regions,
+            markets="h2h",  # Just need basic info to get event IDs
+            odds_format=request.odds_format
+        )
+        
+        games = json.loads(games_result)
+        if not isinstance(games, list):
+            return {"error": "Failed to get games list", "details": games}
+        
+        # Step 2: For each game on target date, get player props
+        player_props_data = []
+        
+        for game in games:
+            commence_time_str = game.get("commence_time", "")
+            if not commence_time_str:
+                continue
+                
+            # Parse commence time
+            try:
+                commence_time_utc = datetime.fromisoformat(commence_time_str.replace("Z", "+00:00"))
+                if target_date_utc <= commence_time_utc < next_day_utc:
+                    commence_time_et = commence_time_utc.astimezone(eastern)
+                    event_id = game.get("id", "")
+                    
+                    if event_id:
+                        # Get player props for this specific event
+                        event_result = await odds_server.get_event_odds_http(
+                            sport=request.sport,
+                            event_id=event_id,
+                            regions=request.regions,
+                            markets=request.player_markets,
+                            odds_format=request.odds_format
+                        )
+                        
+                        event_data = json.loads(event_result)
+                        
+                        game_props = {
+                            "event_id": event_id,
+                            "home_team": game.get("home_team", ""),
+                            "away_team": game.get("away_team", ""),
+                            "commence_time_et": commence_time_et.strftime('%Y-%m-%d %I:%M %p ET'),
+                            "commence_time_utc": commence_time_str,
+                            "player_props": []
+                        }
+                        
+                        # Parse player props data
+                        if isinstance(event_data, dict) and event_data.get("bookmakers"):
+                            for bookmaker in event_data.get("bookmakers", []):
+                                bookmaker_data = {
+                                    "bookmaker": bookmaker.get("title", "Unknown"),
+                                    "markets": []
+                                }
+                                
+                                for market in bookmaker.get("markets", []):
+                                    market_data = {
+                                        "market": market.get("key", ""),
+                                        "outcomes": []
+                                    }
+                                    
+                                    for outcome in market.get("outcomes", []):
+                                        outcome_data = {
+                                            "player": outcome.get('description', 'Unknown Player'),
+                                            "bet_type": outcome.get('name', 'Unknown'),
+                                            "price": outcome.get('price', 'N/A'),
+                                            "point": outcome.get('point', '')
+                                        }
+                                        market_data["outcomes"].append(outcome_data)
+                                    
+                                    bookmaker_data["markets"].append(market_data)
+                                
+                                game_props["player_props"].append(bookmaker_data)
+                        
+                        player_props_data.append(game_props)
+            except Exception as e:
+                # Skip games with parsing errors
+                continue
+        
+        return {
+            "status": "success",
+            "target_date": target_date_et.strftime('%Y-%m-%d'),
+            "sport": request.sport,
+            "player_markets": request.player_markets,
+            "games_with_props": len(player_props_data),
+            "data": player_props_data
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting player props: {str(e)}")
 
 # High-level orchestration endpoint
 @app.post("/daily-intelligence")
@@ -615,7 +740,7 @@ async def daily_intelligence(request: DailyIntelligenceRequest, _: HTTPAuthoriza
                             
                             odds_sport = odds_sport_map.get(league_spec)
                             if odds_sport:
-                                odds_result = await odds_server.server._tools["get_odds"].handler(
+                                odds_result = await odds_server.get_odds_http(
                                     sport=odds_sport,
                                     regions="us",
                                     markets="h2h,spreads,totals"
