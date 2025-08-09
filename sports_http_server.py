@@ -31,15 +31,20 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import uvicorn
 
-# Load environment variables from .env file if it exists
+# Load environment variables from .env.local file if it exists
 try:
     from dotenv import load_dotenv
-    load_dotenv()
-    print("[INFO] Loaded environment variables from .env file")
+    # Try .env.local first, then fall back to .env
+    if os.path.exists('.env.local'):
+        load_dotenv('.env.local')
+        print("[INFO] Loaded environment variables from .env.local file")
+    else:
+        load_dotenv()
+        print("[INFO] Loaded environment variables from .env file")
 except ImportError:
     print("[WARNING] python-dotenv not installed, using system environment variables")
 except Exception as e:
-    print(f"[WARNING] Could not load .env file: {e}")
+    print(f"[WARNING] Could not load environment file: {e}")
 
 # Add the current directory and sports_mcp to the path
 current_dir = Path(__file__).parent
@@ -258,7 +263,7 @@ async def execute_parsed_query(parsed_query: Dict[str, Any]) -> Dict[str, Any]:
     params = parsed_query.get("params", {})
     
     try:
-        if endpoint == "scoreboard":
+        if endpoint == "scoreboard" or "scoreboard" in endpoint:
             return await get_scoreboard_wrapper(
                 sport=params.get("sport", ""),
                 league=params.get("league", ""),
@@ -268,20 +273,20 @@ async def execute_parsed_query(parsed_query: Dict[str, Any]) -> Dict[str, Any]:
                 seasontype=params.get("seasontype")
             )
         
-        elif endpoint == "teams":
+        elif endpoint == "teams" or "teams" in endpoint:
             return await get_teams_wrapper(
                 sport=params.get("sport", ""),
                 league=params.get("league", "")
             )
         
-        elif endpoint == "game-summary":
+        elif endpoint == "game-summary" or "game-summary" in endpoint:
             return await get_game_summary_wrapper(
                 sport=params.get("sport", ""),
                 league=params.get("league", ""),
                 event_id=params.get("event_id", "")
             )
         
-        elif endpoint == "daily-intelligence":
+        elif endpoint == "daily-intelligence" or "daily-intelligence" in endpoint:
             leagues = params.get("leagues", [])
             if isinstance(leagues, str):
                 leagues = [leagues]
