@@ -193,7 +193,7 @@ async def ask_openrouter_query(question: str, model: str = "openai/gpt-4o-mini")
     system_prompt = """You are a sports data assistant that converts natural language questions into API calls.
     
 Available endpoints (use ONLY these exact endpoint names):
-1. scoreboard - Get games for a sport/league (params: sport, league, dates)
+1. scoreboard - Get games for a sport/league (params: sport, league, dates optional)
 2. teams - Get teams for a sport/league (params: sport, league) 
 3. game-summary - Get detailed game info (params: sport, league, event_id)
 4. daily-intelligence - Get comprehensive daily data (params: leagues list, include_odds)
@@ -212,10 +212,12 @@ Return JSON with:
   "explanation": "brief explanation of what you're doing"
 }
 
-IMPORTANT: Use only these endpoint names: scoreboard, teams, game-summary, daily-intelligence
-For questions about multiple sports or daily summaries, use daily-intelligence.
-For current date, assume today's date.
-If you need a specific event_id, explain that more info is needed."""
+IMPORTANT: 
+- Use only these endpoint names: scoreboard, teams, game-summary, daily-intelligence
+- For "today's games" questions, use scoreboard endpoint WITHOUT dates parameter (omit dates completely)
+- Only include dates parameter for specific dates like "yesterday", "2024-08-09", etc.
+- For questions about multiple sports or daily summaries, use daily-intelligence
+- If you need a specific event_id, explain that more info is needed"""
 
     try:
         import httpx
