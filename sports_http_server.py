@@ -65,11 +65,8 @@ except ImportError as e:
     SPORTS_AI_AVAILABLE = False
 
 try:
-    # Try multiple import paths for the wagyu odds server
-    try:
-        from sports_mcp.wagyu_sports.mcp_server.odds_client_server import OddsMcpServer
-    except ImportError:
-        from mcp.wagyu_mcp_hackathon.wagyu_sports.mcp_server.odds_client_server import OddsMcpServer
+    # Import the wagyu odds server
+    from sports_mcp.wagyu_sports.mcp_server.odds_client_server import OddsMcpServer
     ODDS_AVAILABLE = True
     print("[OK] Wagyu Odds MCP imported successfully")
 except ImportError as e:
@@ -125,18 +122,13 @@ odds_client = None
 if ODDS_AVAILABLE:
     try:
         if ODDS_API_KEY:
-            # Try to import the OddsClient directly
+            # Import the OddsClient directly
             try:
                 from sports_mcp.wagyu_sports.odds_client import OddsClient
                 odds_client = OddsClient(ODDS_API_KEY)
                 print("[OK] Odds Client initialized directly with API key")
             except ImportError:
-                try:
-                    from mcp.wagyu_mcp_hackathon.wagyu_sports.odds_client import OddsClient
-                    odds_client = OddsClient(ODDS_API_KEY)
-                    print("[OK] Odds Client initialized directly with API key")
-                except ImportError:
-                    print("[WARNING] Could not import OddsClient directly")
+                print("[WARNING] Could not import OddsClient directly")
             
             # Also try MCP server initialization - NEVER test mode
             try:
