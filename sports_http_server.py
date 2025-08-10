@@ -878,11 +878,13 @@ def filter_games_to_today(games_data):
     import pytz
     
     if not games_data:
+        print(f"[DEBUG] No games data provided to filter")
         return games_data
         
     # Handle both list and dict responses
     games = games_data if isinstance(games_data, list) else games_data
     if not isinstance(games, list):
+        print(f"[DEBUG] Games data is not a list: {type(games)}")
         return games_data
     
     # Get today's date in the format that appears in commence_time
@@ -890,15 +892,31 @@ def filter_games_to_today(games_data):
     today_eastern = datetime.now(eastern_tz)
     today_str = today_eastern.strftime("%Y-%m-%d")  # 2025-08-10
     
+    print(f"[DEBUG] Filtering {len(games)} games for today's date: {today_str}")
+    
     filtered_games = []
     
-    for game in games:
+    for i, game in enumerate(games[:5]):  # Check first 5 games for debug
         commence_time_str = game.get("commence_time", "")
+        home_team = game.get("home_team", "Unknown")
+        away_team = game.get("away_team", "Unknown")
+        
+        print(f"[DEBUG] Game {i+1}: {away_team} @ {home_team}, Time: {commence_time_str}")
         
         # Simple check: if today's date appears in the commence_time string, include it
         if today_str in commence_time_str:
             filtered_games.append(game)
+            print(f"[DEBUG] ✅ INCLUDED: {today_str} found in {commence_time_str}")
+        else:
+            print(f"[DEBUG] ❌ EXCLUDED: {today_str} NOT in {commence_time_str}")
     
+    # Continue filtering the rest without debug spam
+    for game in games[5:]:
+        commence_time_str = game.get("commence_time", "")
+        if today_str in commence_time_str:
+            filtered_games.append(game)
+    
+    print(f"[DEBUG] Filtered to {len(filtered_games)} games")
     return filtered_games
 
 @app.post("/odds/get-odds")
