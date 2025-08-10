@@ -93,44 +93,17 @@ async def get_scoreboard_wrapper(sport: str, league: str, dates: str = None, lim
             
             espn_data = response.json()
             
-            # Filter games to only today's games in Eastern timezone
+            # Trust ESPN's date filtering - no need to re-filter
             games = espn_data.get('events', [])
-            todays_games = []
-            
-            # Also check for games that started yesterday evening but extend into today
-            yesterday_eastern = (today_eastern - timedelta(days=1))
-            tomorrow_eastern = (today_eastern + timedelta(days=1))
-            
-            for game in games:
-                game_date_str = game.get('date', '')
-                if game_date_str:
-                    try:
-                        # Parse ESPN date (UTC) and convert to Eastern
-                        game_utc = datetime.fromisoformat(game_date_str.replace('Z', '+00:00'))
-                        game_eastern = game_utc.astimezone(eastern_tz)
-                        
-                        # Include games from today, or late games from yesterday/early tomorrow
-                        game_date = game_eastern.date()
-                        
-                        # Include games that are on today's date OR games that started late yesterday
-                        # and might still be ongoing, OR very early games tomorrow (like midnight starts)
-                        if (game_date == today_eastern or 
-                            (game_date == yesterday_eastern and game_eastern.hour >= 18) or  # 6 PM or later yesterday
-                            (game_date == tomorrow_eastern and game_eastern.hour <= 6)):    # Before 6 AM tomorrow
-                            todays_games.append(game)
-                    except Exception as e:
-                        # If we can't parse the date, include the game anyway
-                        print(f"[DEBUG] Date parsing error for game: {e}")
-                        todays_games.append(game)
             
             return {
                 "ok": True,
                 "data": {
-                    "scoreboard": todays_games,
-                    "games_count": len(todays_games),
+                    "scoreboard": games,
+                    "games_count": len(games),
                     "date_filter": today_eastern.strftime("%Y-%m-%d"),
                     "timezone": "US/Eastern",
-                    "total_espn_events": len(games)
+                    "espn_date_param": dates
                 }
             }
             
