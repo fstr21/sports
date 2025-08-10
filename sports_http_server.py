@@ -52,17 +52,208 @@ current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 sys.path.insert(0, str(current_dir / "sports_mcp"))
 
-# Import the MCP wrapper functions
-try:
-    from mcp_wrappers import (
-        get_scoreboard_wrapper, get_teams_wrapper, 
-        get_game_summary_wrapper, analyze_game_wrapper
-    )
-    SPORTS_AI_AVAILABLE = True
-    print("[OK] Sports AI MCP wrappers imported")
-except ImportError as e:
-    print(f"[WARNING] Could not import Sports AI MCP wrappers: {e}")
-    SPORTS_AI_AVAILABLE = False
+# Embedded MCP wrapper functions for ESPN data
+import httpx
+from datetime import datetime, timedelta
+
+async def get_scoreboard_wrapper(sport: str, league: str, dates: str = None, limit: int = None, 
+                                week: int = None, seasontype: int = None) -> dict:
+    """Get scoreboard data with proper Eastern timezone filtering."""
+    try:
+        # If no date specified, use today in Eastern timezone
+        eastern_tz = pytz.timezone('US/Eastern')
+        today_eastern = datetime.now(eastern_tz).date()
+        
+        if not dates:
+            # Format as YYYYMMDD for ESPN API
+            dates = today_eastern.strftime("%Y%m%d")
+        
+        # Build ESPN API URL
+        base_url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard"
+        params = {}
+        
+        if dates:
+            params['dates'] = dates
+        if limit:
+            params['limit'] = limit
+        if week:
+            params['week'] = week
+        if seasontype:
+            params['seasontype'] = seasontype
+            
+        async with httpx.AsyncClient() as client:
+            response = await client.get(base_url, params=params)
+            
+            if response.status_code != 200:
+                return {
+                    "ok": False,
+                    "message": f"ESPN API error: {response.status_code}",
+                    "data": None
+                }
+            
+            espn_data = response.json()
+            
+            # Filter games to only today's games in Eastern timezone
+            games = espn_data.get('events', [])
+            todays_games = []
+            
+            for game in games:
+                game_date_str = game.get('date', '')
+                if game_date_str:
+                    try:
+                        # Parse ESPN date (UTC) and convert to Eastern
+                        game_utc = datetime.fromisoformat(game_date_str.replace('Z', '+00:00'))
+                        game_eastern = game_utc.astimezone(eastern_tz)
+                        
+                        # Only include games from today (Eastern time)
+                        if game_eastern.date() == today_eastern:
+                            todays_games.append(game)
+                    except:
+                        # If we can't parse the date, include the game
+                        todays_games.append(game)
+            
+            return {
+                "ok": True,
+                "data": {
+                    "scoreboard": todays_games,
+                    "games_count": len(todays_games),
+                    "date_filter": today_eastern.strftime("%Y-%m-%d"),
+                    "timezone": "US/Eastern"
+                }
+            }
+            
+    except Exception as e:
+        return {
+            "ok": False,
+            "message": f"Error fetching scoreboard: {str(e)}",
+            "data": None
+        }
+
+async def get_teams_wrapper(sport: str, league: str) -> dict:
+    """Get teams data."""
+    try:
+        base_url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/teams"
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.get(base_url)
+            
+            if response.status_code != 200:
+                return {
+                    "ok": False,
+                    "message": f"ESPN API error: {response.status_code}",
+                    "data": None
+                }
+            
+            espn_data = response.json()
+            
+            return {
+                "ok": True,
+                "data": {
+                    "teams": espn_data.get('sports', [{}])[0].get('leagues', [{}])[0].get('teams', [])
+                }
+            }
+            
+    except Exception as e:
+        return {
+            "ok": False,
+            "message": f"Error fetching teams: {str(e)}",
+            "data": None
+        }
+
+async def get_game_summary_wrapper(sport: str, league: str, event_id: str) -> dict:
+    """Get game summary data."""
+    try:
+        base_url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/summary"
+        params = {"event": event_id}
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.get(base_url, params=params)
+            
+            if response.status_code != 200:
+                return {
+                    "ok": False,
+                    "message": f"ESPN API error: {response.status_code}",
+                    "data": None
+                }
+            
+            espn_data = response.json()
+            
+            return {
+                "ok": True,
+                "data": espn_data
+            }
+            
+    except Exception as e:
+        return {
+            "ok": False,
+            "message": f"Error fetching game summary: {str(e)}",
+            "data": None
+        }
+
+async def analyze_game_wrapper(sport: str, league: str, event_id: str, question: str) -> dict:
+    """Analyze game using OpenRouter."""
+    if not OPENROUTER_API_KEY:
+        return {
+            "ok": False,
+            "message": "OpenRouter API key required for game analysis",
+            "data": None
+        }
+    
+    try:
+        # Get game summary first
+        game_data = await get_game_summary_wrapper(sport, league, event_id)
+        
+        if not game_data.get("ok"):
+            return game_data
+        
+        # Use OpenRouter to analyze the game
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                    "Content-Type": "application/json",
+                    "X-Title": "Sports AI Analysis"
+                },
+                json={
+                    "model": "openai/gpt-4o-mini",
+                    "messages": [
+                        {"role": "system", "content": "You are a sports analyst. Answer questions about the game data provided."},
+                        {"role": "user", "content": f"Game data: {json.dumps(game_data['data'])}\n\nQuestion: {question}"}
+                    ],
+                    "max_tokens": 1000,
+                    "temperature": 0.3
+                }
+            )
+            
+            if response.status_code != 200:
+                return {
+                    "ok": False,
+                    "message": f"OpenRouter error: {response.status_code}",
+                    "data": None
+                }
+                
+            analysis = response.json()
+            content = analysis.get("choices", [{}])[0].get("message", {}).get("content", "")
+            
+            return {
+                "ok": True,
+                "data": {
+                    "analysis": content,
+                    "game_data": game_data["data"],
+                    "question": question
+                }
+            }
+            
+    except Exception as e:
+        return {
+            "ok": False,
+            "message": f"Error analyzing game: {str(e)}",
+            "data": None
+        }
+
+SPORTS_AI_AVAILABLE = True
+print("[OK] Sports AI MCP wrappers created dynamically")
 
 try:
     # Import the wagyu odds server
