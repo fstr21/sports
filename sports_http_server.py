@@ -292,17 +292,14 @@ async def get_player_stats_wrapper(sport: str, league: str, player_id: str, seas
         # Build ESPN API URL for player stats (using core API)
         base_url = f"https://sports.core.api.espn.com/v2/sports/{sport}/leagues/{league}/athletes/{player_id}"
         
-        params = {}
-        if season:
-            params['season'] = season
-        if limit:
-            params['limit'] = limit
-            
         async with httpx.AsyncClient() as client:
-            # Get player profile first
-            response = await client.get(base_url, params=params, timeout=15.0)
+            # Get player profile first (no params needed for base player data)
+            print(f"[DEBUG] Calling ESPN Core API: {base_url}")
+            response = await client.get(base_url, timeout=15.0)
+            print(f"[DEBUG] ESPN Core API response: {response.status_code}")
             
             if response.status_code != 200:
+                print(f"[DEBUG] ESPN Core API failed: {response.status_code}, URL: {base_url}")
                 return {
                     "ok": False,
                     "message": f"ESPN API error: {response.status_code}",
