@@ -886,11 +886,10 @@ def filter_games_to_today(games_data):
         return games_data
     
     eastern_tz = pytz.timezone('US/Eastern')
-    today_eastern = datetime.now(eastern_tz).date()
+    now_eastern = datetime.now(eastern_tz)
+    today_eastern = now_eastern.date()
     
     filtered_games = []
-    
-    print(f"[DEBUG] Filtering {len(games)} games for date: {today_eastern}")
     
     for game in games:
         commence_time_str = game.get("commence_time", "")
@@ -903,18 +902,18 @@ def filter_games_to_today(games_data):
             commence_time_eastern = commence_time_utc.astimezone(eastern_tz)
             game_date = commence_time_eastern.date()
             
-            print(f"[DEBUG] Game: {game.get('home_team', '')} vs {game.get('away_team', '')} - Date: {game_date}, Today: {today_eastern}, Match: {game_date == today_eastern}")
-            
-            # For debugging - be more permissive with date range (±2 days)
-            date_diff = abs((game_date - today_eastern).days)
-            if date_diff <= 2:
+            # Include games from today in Eastern time
+            # Also include games that started late yesterday but might still be ongoing
+            # And very early games tomorrow (like after midnight)
+            if (game_date == today_eastern or 
+                (game_date == (today_eastern - timedelta(days=1)) and commence_time_eastern.hour >= 18) or
+                (game_date == (today_eastern + timedelta(days=1)) and commence_time_eastern.hour <= 6)):
                 filtered_games.append(game)
                 
         except Exception as e:
-            print(f"[DEBUG] Date parsing error for game: {e}")
+            # Skip games with invalid dates rather than including all
             continue
     
-    print(f"[DEBUG] Filtered to {len(filtered_games)} games")
     return filtered_games
 
 @app.post("/odds/get-odds")
@@ -939,10 +938,9 @@ async def odds_get_odds(request: OddsRequest, _: HTTPAuthorizationCredentials = 
             result = odds_client.get_odds(request.sport, options=options)
             raw_data = result.get("data", result)  # Extract data if wrapped
             
-            # TEMPORARILY DISABLE FILTERING FOR DEBUG
-            # filtered_data = filter_games_to_today(raw_data)
-            # return filtered_data
-            return raw_data  # Return unfiltered data temporarily
+            # Filter to today's games only
+            filtered_data = filter_games_to_today(raw_data)
+            return filtered_data
             
         elif ODDS_MCP_SERVER and hasattr(odds_server, 'get_odds_http'):
             # Use MCP server HTTP helper
@@ -955,10 +953,9 @@ async def odds_get_odds(request: OddsRequest, _: HTTPAuthorizationCredentials = 
             )
             raw_data = json.loads(result)
             
-            # TEMPORARILY DISABLE FILTERING FOR DEBUG  
-            # filtered_data = filter_games_to_today(raw_data)
-            # return filtered_data
-            return raw_data  # Return unfiltered data temporarily
+            # Filter to today's games only
+            filtered_data = filter_games_to_today(raw_data)
+            return filtered_data
             
         else:
             raise HTTPException(status_code=503, detail="No working odds implementation available")
