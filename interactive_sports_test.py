@@ -24,25 +24,53 @@ class SportsTestInterface:
         self.games_cache = {}
         self.current_sport_league = None
         self.api_calls_count = 0
+        # Multi-season sport keys - tries all variations and combines results
         self.available_leagues = {
             "basketball": {
-                "nba": {"name": "NBA", "odds_key": "basketball_nba"},
-                "wnba": {"name": "WNBA", "odds_key": "basketball_wnba"}
+                "nba": {
+                    "name": "NBA", 
+                    "odds_keys": ["basketball_nba", "basketball_nba_preseason", "basketball_nba_championship_winner"]
+                },
+                "wnba": {
+                    "name": "WNBA", 
+                    "odds_keys": ["basketball_wnba", "basketball_wnba_championship_winner"]
+                }
             },
             "football": {
-                "nfl": {"name": "NFL", "odds_key": "americanfootball_nfl"},
-                "college-football": {"name": "College Football", "odds_key": "americanfootball_ncaaf"}
+                "nfl": {
+                    "name": "NFL", 
+                    "odds_keys": ["americanfootball_nfl", "americanfootball_nfl_preseason", "americanfootball_nfl_super_bowl_winner"]
+                },
+                "college-football": {
+                    "name": "College Football", 
+                    "odds_keys": ["americanfootball_ncaaf", "americanfootball_ncaaf_championship_winner"]
+                }
             },
             "baseball": {
-                "mlb": {"name": "MLB", "odds_key": "baseball_mlb"}
+                "mlb": {
+                    "name": "MLB", 
+                    "odds_keys": ["baseball_mlb", "baseball_mlb_preseason", "baseball_mlb_world_series_winner"]
+                }
             },
             "hockey": {
-                "nhl": {"name": "NHL", "odds_key": "icehockey_nhl"}
+                "nhl": {
+                    "name": "NHL", 
+                    "odds_keys": ["icehockey_nhl", "icehockey_nhl_championship_winner"]
+                }
             },
             "soccer": {
-                "eng.1": {"name": "Premier League", "odds_key": "soccer_epl"},
-                "esp.1": {"name": "La Liga", "odds_key": "soccer_spain_la_liga"},
-                "usa.1": {"name": "MLS", "odds_key": "soccer_usa_mls"}
+                "eng.1": {
+                    "name": "Premier League", 
+                    "odds_keys": ["soccer_epl", "soccer_epl_championship_winner"]
+                },
+                "esp.1": {
+                    "name": "La Liga", 
+                    "odds_keys": ["soccer_spain_la_liga", "soccer_spain_la_liga_championship_winner"]
+                },
+                "usa.1": {
+                    "name": "MLS", 
+                    "odds_keys": ["soccer_usa_mls", "soccer_usa_mls_championship_winner"]
+                }
             }
         }
         
@@ -220,33 +248,26 @@ class SportsTestInterface:
         """Get moneylines for selected sport"""
         sport, league = self.current_sport_league
         league_info = self.available_leagues[sport][league]
-        odds_key = league_info["odds_key"]
         
         self.print_section(f"{league_info['name'].upper()} MONEYLINES")
         
         print(f"Fetching {league_info['name']} moneylines from Odds API...")
-        success, result = self.make_request("POST", "/odds/get-odds", {
-            "sport": odds_key,
-            "regions": "us",
-            "markets": "h2h",  # head-to-head = moneylines
-            "odds_format": "american"
-        })
         
-        if success:
-            games = self.extract_games_from_odds(result)
-            print(f"Found moneylines for {len(games)} games")
+        # Get games from all sport keys for this league
+        all_games = self.get_all_odds_for_league(sport, league, "h2h")
+        games = self.extract_games_from_odds(all_games)
+        
+        print(f"Found moneylines for {len(games)} games")
+        
+        for i, game in enumerate(games, 1):
+            home = game.get("home_team", "Home")
+            away = game.get("away_team", "Away")
+            start_time = game.get("commence_time", "TBD")
             
-            for i, game in enumerate(games, 1):
-                home = game.get("home_team", "Home")
-                away = game.get("away_team", "Away")
-                start_time = game.get("commence_time", "TBD")
-                
-                print(f"\n{i}. {away} @ {home}")
-                print(f"   Start: {start_time}")
-                
-                self.display_game_odds(game, ["h2h"])
-        else:
-            print(f"Failed to get moneylines: {result}")
+            print(f"\n{i}. {away} @ {home}")
+            print(f"   Start: {start_time}")
+            
+            self.display_game_odds(game, ["h2h"])
         
         input(f"\nPress Enter to continue...     (odds calls this session: {self.api_calls_count})")
     
@@ -254,35 +275,62 @@ class SportsTestInterface:
         """Get spreads and totals for selected sport"""
         sport, league = self.current_sport_league
         league_info = self.available_leagues[sport][league]
-        odds_key = league_info["odds_key"]
         
         self.print_section(f"{league_info['name'].upper()} SPREADS & TOTALS")
         
         print(f"Fetching {league_info['name']} spreads and totals from Odds API...")
-        success, result = self.make_request("POST", "/odds/get-odds", {
-            "sport": odds_key,
-            "regions": "us",
-            "markets": "spreads,totals",
-            "odds_format": "american"
-        })
         
-        if success:
-            games = self.extract_games_from_odds(result)
-            print(f"Found spreads/totals for {len(games)} games")
+        # Get games from all sport keys for this league
+        all_games = self.get_all_odds_for_league(sport, league, "spreads,totals")
+        games = self.extract_games_from_odds(all_games)
+        
+        print(f"Found spreads/totals for {len(games)} games")
+        
+        for i, game in enumerate(games, 1):
+            home = game.get("home_team", "Home")
+            away = game.get("away_team", "Away")
+            start_time = game.get("commence_time", "TBD")
             
-            for i, game in enumerate(games, 1):
-                home = game.get("home_team", "Home")
-                away = game.get("away_team", "Away")
-                start_time = game.get("commence_time", "TBD")
-                
-                print(f"\n{i}. {away} @ {home}")
-                print(f"   Start: {start_time}")
-                
-                self.display_game_odds(game, ["spreads", "totals"])
-        else:
-            print(f"Failed to get spreads/totals: {result}")
+            print(f"\n{i}. {away} @ {home}")
+            print(f"   Start: {start_time}")
+            
+            self.display_game_odds(game, ["spreads", "totals"])
         
         input(f"\nPress Enter to continue...     (odds calls this session: {self.api_calls_count})")
+    
+    def get_all_odds_for_league(self, sport, league, markets="h2h"):
+        """Get odds from ALL sport keys for a league and combine results"""
+        league_info = self.available_leagues[sport][league]
+        all_games = []
+        
+        print(f"\nTrying multiple sport keys for {league_info['name']}...")
+        
+        for odds_key in league_info['odds_keys']:
+            print(f"  Fetching from {odds_key}...")
+            
+            success, result = self.make_request("POST", "/odds/get-odds", {
+                "sport": odds_key,
+                "regions": "us",
+                "markets": markets,
+                "odds_format": "american"
+            })
+            
+            if success:
+                # Get games from this sport key
+                if isinstance(result, list):
+                    key_games = result
+                elif isinstance(result, dict) and "data" in result:
+                    key_games = result["data"]
+                else:
+                    key_games = []
+                    
+                print(f"    Found {len(key_games)} games")
+                all_games.extend(key_games)
+            else:
+                print(f"    Failed: {result}")
+        
+        print(f"  Total: {len(all_games)} games from all keys")
+        return all_games
     
     def extract_games_from_odds(self, result):
         """Extract games from odds API response and filter to today's games"""
