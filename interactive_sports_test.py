@@ -191,7 +191,8 @@ class SportsTestInterface:
         })
         
         if success and result.get("ok"):
-            games = result.get("data", {}).get("scoreboard", {}).get("events", [])
+            # Our new format returns games directly in the scoreboard array
+            games = result.get("data", {}).get("scoreboard", [])
             print(f"Found {len(games)} games today")
             
             if games:
