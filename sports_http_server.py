@@ -271,6 +271,113 @@ async def analyze_game_wrapper(sport: str, league: str, event_id: str, question:
             "data": None
         }
 
+async def get_team_stats_wrapper(sport: str, league: str, team_id: str = None, season: str = None) -> dict:
+    """Get team stats data."""
+    try:
+        # Build ESPN API URL for team stats
+        if team_id:
+            base_url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/teams/{team_id}/statistics"
+        else:
+            base_url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/teams"
+        
+        params = {}
+        if season:
+            params['season'] = season
+            
+        async with httpx.AsyncClient() as client:
+            response = await client.get(base_url, params=params, timeout=15.0)
+            
+            if response.status_code != 200:
+                return {
+                    "ok": False,
+                    "message": f"ESPN API error: {response.status_code}",
+                    "data": None
+                }
+            
+            espn_data = response.json()
+            
+            return {
+                "ok": True,
+                "data": {
+                    "team_stats": espn_data,
+                    "sport": sport,
+                    "league": league,
+                    "team_id": team_id
+                }
+            }
+            
+    except Exception as e:
+        return {
+            "ok": False,
+            "message": f"Error fetching team stats: {str(e)}",
+            "data": None
+        }
+
+async def get_player_stats_wrapper(sport: str, league: str, player_id: str, season: str = None, limit: int = 10) -> dict:
+    """Get player stats data, focusing on recent games."""
+    try:
+        # Build ESPN API URL for player stats
+        base_url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/athletes/{player_id}"
+        
+        params = {}
+        if season:
+            params['season'] = season
+        if limit:
+            params['limit'] = limit
+            
+        async with httpx.AsyncClient() as client:
+            # Get player profile first
+            response = await client.get(base_url, params=params, timeout=15.0)
+            
+            if response.status_code != 200:
+                return {
+                    "ok": False,
+                    "message": f"ESPN API error: {response.status_code}",
+                    "data": None
+                }
+            
+            player_data = response.json()
+            
+            # Try to get game log (last X games)
+            gamelog_url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/athletes/{player_id}/gamelog"
+            gamelog_params = {"limit": limit}
+            if season:
+                gamelog_params['season'] = season
+                
+            gamelog_response = await client.get(gamelog_url, params=gamelog_params, timeout=15.0)
+            
+            gamelog_data = {}
+            if gamelog_response.status_code == 200:
+                gamelog_data = gamelog_response.json()
+            
+            # Try to get player statistics
+            stats_url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/athletes/{player_id}/statistics"
+            stats_response = await client.get(stats_url, params=params, timeout=15.0)
+            
+            stats_data = {}
+            if stats_response.status_code == 200:
+                stats_data = stats_response.json()
+            
+            return {
+                "ok": True,
+                "data": {
+                    "player_profile": player_data,
+                    "recent_games": gamelog_data,
+                    "season_stats": stats_data,
+                    "sport": sport,
+                    "league": league,
+                    "player_id": player_id,
+                    "games_requested": limit
+                }
+            }
+            
+    except Exception as e:
+        return {
+            "ok": False,
+            "message": f"Error fetching player stats: {str(e)}",
+            "data": None
+        }
+
 SPORTS_AI_AVAILABLE = True
 print("[OK] Sports AI MCP wrappers created dynamically")
 
@@ -421,6 +528,19 @@ class DailyIntelligenceRequest(BaseModel):
 class NaturalLanguageRequest(BaseModel):
     question: str
     model: Optional[str] = "openai/gpt-4o-mini"
+
+class TeamStatsRequest(BaseModel):
+    sport: str
+    league: str
+    team_id: Optional[str] = None
+    season: Optional[str] = None
+
+class PlayerStatsRequest(BaseModel):
+    sport: str
+    league: str
+    player_id: str
+    season: Optional[str] = None
+    limit: Optional[int] = 10  # Default to last 10 games
 
 # Timezone conversion utilities
 def convert_utc_to_eastern(utc_datetime_str: str) -> str:
@@ -722,6 +842,41 @@ async def espn_probe(request: ProbeRequest, _: HTTPAuthorizationCredentials = De
             }
         }
     }
+
+@app.post("/espn/team-stats")
+async def espn_team_stats(request: TeamStatsRequest, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
+    """Get team statistics"""
+    if not SPORTS_AI_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Sports AI MCP not available")
+    
+    try:
+        result = await get_team_stats_wrapper(
+            sport=request.sport,
+            league=request.league,
+            team_id=request.team_id,
+            season=request.season
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting team stats: {str(e)}")
+
+@app.post("/espn/player-stats")
+async def espn_player_stats(request: PlayerStatsRequest, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
+    """Get player statistics and recent game logs"""
+    if not SPORTS_AI_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Sports AI MCP not available")
+    
+    try:
+        result = await get_player_stats_wrapper(
+            sport=request.sport,
+            league=request.league,
+            player_id=request.player_id,
+            season=request.season,
+            limit=request.limit
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting player stats: {str(e)}")
 
 # Odds API Endpoints
 @app.get("/odds/sports")
