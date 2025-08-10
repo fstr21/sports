@@ -289,8 +289,8 @@ async def get_team_stats_wrapper(sport: str, league: str, team_id: str = None, s
 async def get_player_stats_wrapper(sport: str, league: str, player_id: str, season: str = None, limit: int = 10) -> dict:
     """Get player stats data, focusing on recent games."""
     try:
-        # Build ESPN API URL for player stats
-        base_url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/athletes/{player_id}"
+        # Build ESPN API URL for player stats (using core API)
+        base_url = f"https://sports.core.api.espn.com/v2/sports/{sport}/leagues/{league}/athletes/{player_id}"
         
         params = {}
         if season:
@@ -311,37 +311,53 @@ async def get_player_stats_wrapper(sport: str, league: str, player_id: str, seas
             
             player_data = response.json()
             
-            # Try to get game log (last X games)
-            gamelog_url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/athletes/{player_id}/gamelog"
-            gamelog_params = {"limit": limit}
-            if season:
-                gamelog_params['season'] = season
-                
-            gamelog_response = await client.get(gamelog_url, params=gamelog_params, timeout=15.0)
-            
+            # Follow $ref links to get statistics and game logs
             gamelog_data = {}
-            if gamelog_response.status_code == 200:
-                gamelog_data = gamelog_response.json()
-            
-            # Try to get player statistics
-            stats_url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/athletes/{player_id}/statistics"
-            stats_response = await client.get(stats_url, params=params, timeout=15.0)
-            
             stats_data = {}
-            if stats_response.status_code == 200:
-                stats_data = stats_response.json()
+            
+            # Get statisticslog (game-by-game stats) if available
+            if "statisticslog" in player_data and isinstance(player_data["statisticslog"], dict):
+                log_ref = player_data["statisticslog"].get("$ref")
+                if log_ref:
+                    # Add limit parameter to the ref URL
+                    log_url = f"{log_ref}?limit={limit}" if limit else log_ref
+                    if season:
+                        log_url += f"&season={season}"
+                        
+                    gamelog_response = await client.get(log_url, timeout=15.0)
+                    if gamelog_response.status_code == 200:
+                        gamelog_data = gamelog_response.json()
+            
+            # Get statistics (season totals) if available  
+            if "statistics" in player_data and isinstance(player_data["statistics"], dict):
+                stats_ref = player_data["statistics"].get("$ref")
+                if stats_ref:
+                    stats_url = f"{stats_ref}"
+                    if season:
+                        stats_url += f"?season={season}"
+                        
+                    stats_response = await client.get(stats_url, timeout=15.0)
+                    if stats_response.status_code == 200:
+                        stats_data = stats_response.json()
+            
+            # Format response similar to old structure but with proper data
+            result_data = {
+                "player_profile": {
+                    "athlete": player_data  # Put full player data in athlete structure
+                },
+                "recent_games": {
+                    "events": gamelog_data.get("entries", []) if gamelog_data else []
+                },
+                "season_stats": stats_data,
+                "sport": sport,
+                "league": league,
+                "player_id": player_id,
+                "games_requested": limit
+            }
             
             return {
                 "ok": True,
-                "data": {
-                    "player_profile": player_data,
-                    "recent_games": gamelog_data,
-                    "season_stats": stats_data,
-                    "sport": sport,
-                    "league": league,
-                    "player_id": player_id,
-                    "games_requested": limit
-                }
+                "data": result_data
             }
             
     except Exception as e:

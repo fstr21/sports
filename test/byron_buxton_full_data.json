@@ -1,0 +1,205 @@
+{
+  "$ref": "http://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/athletes/32655?lang=en&region=us",
+  "id": "32655",
+  "uid": "s:1~l:10~a:32655",
+  "guid": "615b99eb-8129-09f0-e7f9-8841982a341a",
+  "type": "baseball",
+  "alternateIds": {
+    "sdr": "3022546"
+  },
+  "firstName": "Byron",
+  "lastName": "Buxton",
+  "fullName": "Byron Buxton",
+  "displayName": "Byron Buxton",
+  "nickname": "",
+  "shortName": "B. Buxton",
+  "weight": 190.0,
+  "displayWeight": "190 lbs",
+  "height": 74.0,
+  "displayHeight": "6' 2\"",
+  "age": 31,
+  "dateOfBirth": "1993-12-18T08:00Z",
+  "debutYear": 2015,
+  "links": [
+    {
+      "language": "en-US",
+      "rel": [
+        "playercard",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/mlb/player/_/id/32655",
+      "text": "Player Card",
+      "shortText": "Player Card",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "stats",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/mlb/player/stats/_/id/32655/byron-buxton",
+      "text": "Stats",
+      "shortText": "Stats",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "splits",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/mlb/player/splits/_/id/32655/byron-buxton",
+      "text": "Splits",
+      "shortText": "Splits",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "gamelog",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/mlb/player/gamelog/_/id/32655/byron-buxton",
+      "text": "Game Log",
+      "shortText": "Game Log",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "news",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/mlb/player/news/_/id/32655/byron-buxton",
+      "text": "News",
+      "shortText": "News",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "bio",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/mlb/player/bio/_/id/32655/byron-buxton",
+      "text": "Bio",
+      "shortText": "Bio",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "overview",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/mlb/player/_/id/32655/byron-buxton",
+      "text": "Overview",
+      "shortText": "Overview",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "batvspitch",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/mlb/player/batvspitch/_/id/32655/byron-buxton",
+      "text": "Bat vs Pitch",
+      "shortText": "Bat vs Pitch",
+      "isExternal": false,
+      "isPremium": false
+    }
+  ],
+  "birthPlace": {
+    "city": "Baxley",
+    "state": "GA",
+    "country": "United States"
+  },
+  "slug": "byron-buxton",
+  "headshot": {
+    "href": "https://a.espncdn.com/i/headshots/mlb/players/full/32655.png",
+    "alt": "Byron Buxton"
+  },
+  "jersey": "25",
+  "position": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/positions/8?lang=en&region=us",
+    "id": "8",
+    "name": "Center Field",
+    "displayName": "Center Fielder",
+    "abbreviation": "CF",
+    "leaf": true,
+    "parent": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/positions/14?lang=en&region=us"
+    }
+  },
+  "linked": true,
+  "team": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/seasons/2025/teams/9?lang=en&region=us"
+  },
+  "statistics": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/athletes/32655/statistics?lang=en&region=us"
+  },
+  "contracts": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/athletes/32655/contracts?lang=en&region=us"
+  },
+  "experience": {
+    "years": 11
+  },
+  "debut": {
+    "year": 2015,
+    "event": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/events/350614113?lang=en&region=us"
+    },
+    "statistics": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/events/350614113/competitions/350614113/competitors/9/roster/32655/statistics/0?lang=en&region=us"
+    }
+  },
+  "active": false,
+  "draft": {
+    "displayText": "Year: 2012 Round: 1 Pick: 2",
+    "round": 1,
+    "year": 2012,
+    "selection": 2,
+    "team": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/seasons/2012/teams/9?lang=en&region=us"
+    }
+  },
+  "status": {
+    "id": "3",
+    "name": "Injured",
+    "type": "injured",
+    "abbreviation": "IL"
+  },
+  "statisticslog": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/athletes/32655/statisticslog?lang=en&region=us"
+  },
+  "awards": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/athletes/32655/awards?lang=en&region=us"
+  },
+  "bats": {
+    "type": "RIGHT",
+    "abbreviation": "R",
+    "displayValue": "Right"
+  },
+  "throws": {
+    "type": "RIGHT",
+    "abbreviation": "R",
+    "displayValue": "Right"
+  }
+}

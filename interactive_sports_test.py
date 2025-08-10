@@ -168,15 +168,17 @@ class SportsTestInterface:
                 print("3. Get Moneylines") 
                 print("4. Get Spreads & Totals")
                 print("5. Get Player Props")
-                print("6. Deep Dive on Specific Game")
-                print("7. Search for Specific Player")
-                print("8. Full Daily Intelligence Report")
-                print("9. Available Sports from Odds API")
+                print("6. Get Team Statistics")
+                print("7. Get Player Statistics") 
+                print("8. Deep Dive on Specific Game")
+                print("9. Search for Specific Player")
+                print("10. Full Daily Intelligence Report")
+                print("11. Available Sports from Odds API")
             
             print("\nOTHER:")
             print("0. Quit")
             
-            max_option = 9 if self.current_sport_league else 1
+            max_option = 11 if self.current_sport_league else 1
             choice = input(f"\nSelect option (0-{max_option}): ").strip()
             
             if choice == '0':
@@ -193,12 +195,16 @@ class SportsTestInterface:
                 elif choice == '5':
                     self.get_player_props()
                 elif choice == '6':
-                    self.deep_dive_game()
+                    self.get_team_stats()
                 elif choice == '7':
-                    self.search_player()
+                    self.get_player_stats()
                 elif choice == '8':
-                    self.daily_intelligence()
+                    self.deep_dive_game()
                 elif choice == '9':
+                    self.search_player()
+                elif choice == '10':
+                    self.daily_intelligence()
+                elif choice == '11':
                     self.show_available_odds_sports()
                 else:
                     print("Invalid choice.")
@@ -423,23 +429,14 @@ class SportsTestInterface:
         """Get player props with progressive selection"""
         sport, league = self.current_sport_league
         league_info = self.available_leagues[sport][league]
-        odds_key = league_info["odds_key"]
         
         self.print_section(f"{league_info['name'].upper()} PLAYER PROPS")
         
-        # First get available games with odds
+        # First get available games with odds using multi-key system
         print("1. Finding games with player props...")
-        success, result = self.make_request("POST", "/odds/get-odds", {
-            "sport": odds_key,
-            "regions": "us", 
-            "markets": "h2h"  # Just to get game list
-        })
         
-        if not success:
-            print(f"Failed to get games: {result}")
-            return
-        
-        games = self.extract_games_from_odds(result)
+        all_games = self.get_all_odds_for_league(sport, league, "h2h")
+        games = self.extract_games_from_odds(all_games)
         
         if not games:
             print("No games found")
@@ -456,7 +453,7 @@ class SportsTestInterface:
             choice = int(input(f"\nSelect game (1-{len(games)}): ")) - 1
             if 0 <= choice < len(games):
                 selected_game = games[choice]
-                self.get_game_player_props(selected_game, odds_key)
+                self.get_game_player_props(selected_game, sport, league)
             else:
                 print("Invalid selection")
         except ValueError:
@@ -464,7 +461,7 @@ class SportsTestInterface:
         
         input(f"\nPress Enter to continue...     (odds calls this session: {self.api_calls_count})")
     
-    def get_game_player_props(self, game, odds_key):
+    def get_game_player_props(self, game, sport, league):
         """Get player props for a specific game"""
         event_id = game.get("id")
         home = game.get("home_team", "Home")
@@ -472,27 +469,46 @@ class SportsTestInterface:
         
         print(f"\n2. Getting player props for {away} @ {home}...")
         
-        # Use sport-specific markets
-        if "baseball" in odds_key:
+        # Use sport-specific markets based on specification
+        if sport == "baseball":
             markets = "batter_hits,batter_home_runs,batter_total_bases,pitcher_strikeouts"
-        elif "football" in odds_key:
+        elif sport == "football":
             markets = "player_pass_yds,player_rush_yds,player_receptions,player_pass_tds,player_rush_tds"
-        elif "hockey" in odds_key:
+        elif sport == "hockey":
             markets = "player_points,player_assists,player_shots_on_goal,player_saves"
-        elif "soccer" in odds_key:
+        elif sport == "soccer":
             markets = "player_shots,player_shots_on_target,player_goals,player_assists"
         else:
             # Basketball (NBA, WNBA)
             markets = "player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks"
         
-        success, result = self.make_request("POST", "/odds/event-odds", {
-            "sport": odds_key,
-            "event_id": event_id,
-            "regions": "us",
-            "markets": markets,
-            "odds_format": "american"
-        })
+        # Try each odds key until we find one with player props
+        league_info = self.available_leagues[sport][league]
+        success = False
+        result = None
         
+        for odds_key in league_info['odds_keys']:
+            success, result = self.make_request("POST", "/odds/event-odds", {
+                "sport": odds_key,
+                "event_id": event_id,
+                "regions": "us",
+                "markets": markets,
+                "odds_format": "american"
+            })
+            
+            if success:
+                # Check if we actually got player props data
+                if isinstance(result, dict) and "data" in result:
+                    event_data = result["data"]
+                elif isinstance(result, dict):
+                    event_data = result
+                else:
+                    continue
+                    
+                if event_data.get("bookmakers"):
+                    print(f"   Found player props using {odds_key}")
+                    break
+            
         if not success:
             print(f"Failed to get player props: {result}")
             return
@@ -707,6 +723,378 @@ class SportsTestInterface:
             return "🚫"
         else:
             return "📈"
+    
+    def get_team_stats(self):
+        """Get team statistics for the selected league"""
+        sport, league = self.current_sport_league
+        league_info = self.available_leagues[sport][league]
+        
+        self.print_section(f"{league_info['name'].upper()} TEAM STATISTICS")
+        
+        print(f"Fetching {league_info['name']} team statistics from ESPN...")
+        
+        success, result = self.make_request("POST", "/espn/team-stats", {
+            "sport": sport,
+            "league": league
+        })
+        
+        if success and result.get("ok"):
+            team_data = result.get("data", {})
+            team_stats = team_data.get("team_stats", {})
+            
+            if isinstance(team_stats, dict) and "sports" in team_stats:
+                # Extract teams from ESPN structure
+                sports = team_stats.get("sports", [])
+                if sports and len(sports) > 0:
+                    leagues = sports[0].get("leagues", [])
+                    if leagues and len(leagues) > 0:
+                        teams = leagues[0].get("teams", [])
+                        
+                        print(f"Found statistics for {len(teams)} teams")
+                        
+                        # Show first 5 teams as examples
+                        for i, team in enumerate(teams[:5]):
+                            team_info = team.get("team", {})
+                            name = team_info.get("displayName", "Unknown Team")
+                            print(f"\n{i+1}. {name}")
+                            
+                            # Show basic team info
+                            if "record" in team_info:
+                                record = team_info["record"]
+                                if "items" in record and record["items"]:
+                                    wins = record["items"][0].get("stats", [])
+                                    if len(wins) >= 2:
+                                        w = wins[0].get("value", 0)
+                                        l = wins[1].get("value", 0)
+                                        print(f"   Record: {w}-{l}")
+                        
+                        if len(teams) > 5:
+                            print(f"\n... and {len(teams) - 5} more teams")
+                    else:
+                        print("No team data found in league structure")
+                else:
+                    print("No sports data found")
+            else:
+                print("No team statistics available")
+        else:
+            error_msg = result.get("message", "Unknown error") if isinstance(result, dict) else str(result)
+            print(f"Failed to get team stats: {error_msg}")
+        
+        input(f"\nPress Enter to continue...     (odds calls this session: {self.api_calls_count})")
+    
+    def get_player_stats(self):
+        """Get player statistics based on sport specification"""
+        sport, league = self.current_sport_league
+        league_info = self.available_leagues[sport][league]
+        
+        self.print_section(f"{league_info['name'].upper()} PLAYER STATISTICS")
+        
+        # Get sport-specific player metrics based on specification
+        sport_metrics = self.get_sport_specific_metrics(sport)
+        
+        print(f"Target metrics for {league_info['name']}:")
+        for metric in sport_metrics:
+            print(f"  • {metric}")
+        
+        print(f"\nTo get player stats, you need a specific player ID.")
+        print("This would typically come from team rosters or game summaries.")
+        print("\nExample player IDs:")
+        
+        # Show example player IDs based on sport
+        if sport == "basketball":
+            print("  • LeBron James: 1966")
+            print("  • Stephen Curry: 3975")
+        elif sport == "football":
+            print("  • Patrick Mahomes: 3139477")
+            print("  • Josh Allen: 3918298")
+        elif sport == "baseball":
+            print("  • Aaron Judge: 11579")
+            print("  • Mike Trout: 9961")
+        
+        player_id = input("\nEnter player ID to test (or press Enter to skip): ").strip()
+        
+        if player_id:
+            print(f"\nFetching stats for player ID {player_id}...")
+            
+            success, result = self.make_request("POST", "/espn/player-stats", {
+                "sport": sport,
+                "league": league,
+                "player_id": player_id,
+                "limit": 10  # Last 10 games per specification
+            })
+            
+            if success and result.get("ok"):
+                player_data = result.get("data", {})
+                profile = player_data.get("player_profile", {})
+                recent_games = player_data.get("recent_games", {})
+                
+                # Display player info
+                if "athlete" in profile:
+                    athlete = profile["athlete"]
+                    name = athlete.get("displayName", "Unknown Player")
+                    position = athlete.get("position", {}).get("abbreviation", "N/A")
+                    
+                    print(f"\n=== {name} ({position}) ===")
+                    
+                    # Show recent games stats
+                    if recent_games and "events" in recent_games:
+                        games = recent_games["events"]
+                        print(f"\nRecent {len(games)} games:")
+                        
+                        for i, game in enumerate(games[:5], 1):
+                            opponent = game.get("opponent", {}).get("displayName", "vs Unknown")
+                            date = game.get("date", "Unknown date")
+                            print(f"  Game {i}: {opponent} on {date}")
+                            
+                            # Parse sport-specific statistics
+                            self.parse_game_stats(game, sport, name, position)
+                    else:
+                        print("No recent games data available")
+                else:
+                    print("Player profile not found")
+            else:
+                error_msg = result.get("message", "Unknown error") if isinstance(result, dict) else str(result)
+                print(f"Failed to get player stats: {error_msg}")
+        
+        input(f"\nPress Enter to continue...     (odds calls this session: {self.api_calls_count})")
+    
+    def get_sport_specific_metrics(self, sport):
+        """Return sport-specific metrics from specification"""
+        metrics = {
+            "basketball": [
+                "Points", "Rebounds", "Assists", "3-Pointers Made", 
+                "Steals", "Blocks", "Field Goal %", "Minutes Played"
+            ],
+            "football": [
+                "QB: Passing Yards, Pass TDs, Completions, Interceptions",
+                "RB: Rushing Yards, Rushing TDs, Receiving Yards, Receptions", 
+                "WR: Receiving Yards, Receptions, Receiving TDs, Targets"
+            ],
+            "baseball": [
+                "Batters: Hits, Home Runs, RBIs, Runs, Total Bases, AVG",
+                "Pitchers: Strikeouts, Walks, Hits Allowed, ERA, Innings"
+            ],
+            "hockey": [
+                "Goals", "Assists", "Points", "Shots on Goal", 
+                "Plus/Minus", "Penalty Minutes", "Time on Ice"
+            ],
+            "soccer": [
+                "Goals", "Assists", "Shots", "Shots on Target",
+                "Passes", "Tackles", "Cards"
+            ]
+        }
+        
+        return metrics.get(sport, ["General statistics"])
+    
+    def parse_game_stats(self, game, sport, player_name, position):
+        """Parse game statistics based on sport specification"""
+        if not game.get("statistics"):
+            print("    No statistics available for this game")
+            return
+        
+        stats = game.get("statistics", [])
+        if not isinstance(stats, list):
+            print("    Statistics format not recognized")
+            return
+        
+        print(f"    Statistics for {player_name}:")
+        
+        # Parse based on sport specification
+        if sport == "basketball":
+            self.parse_basketball_stats(stats)
+        elif sport == "football":
+            self.parse_football_stats(stats, position)
+        elif sport == "baseball":
+            self.parse_baseball_stats(stats, position)
+        elif sport == "hockey":
+            self.parse_hockey_stats(stats)
+        elif sport == "soccer":
+            self.parse_soccer_stats(stats)
+        else:
+            print(f"    Raw stats: {stats[:3] if len(stats) > 3 else stats}")
+    
+    def parse_basketball_stats(self, stats):
+        """Parse basketball statistics according to specification"""
+        # Target: Points, Rebounds, Assists, 3PM, Steals, Blocks, FG%, Minutes
+        target_stats = {
+            "points": "Points",
+            "rebounds": "Rebounds", 
+            "assists": "Assists",
+            "threePointFieldGoalsMade": "3-Pointers Made",
+            "steals": "Steals",
+            "blocks": "Blocks",
+            "fieldGoalPct": "Field Goal %",
+            "minutes": "Minutes Played"
+        }
+        
+        found_stats = {}
+        for stat in stats:
+            if isinstance(stat, dict):
+                name = stat.get("name", "")
+                value = stat.get("value", 0)
+                
+                for key, label in target_stats.items():
+                    if key.lower() in name.lower():
+                        found_stats[label] = value
+        
+        if found_stats:
+            for label, value in found_stats.items():
+                print(f"      {label}: {value}")
+        else:
+            print(f"      Available stats: {[stat.get('name', 'Unknown') for stat in stats[:5]]}")
+    
+    def parse_football_stats(self, stats, position):
+        """Parse football statistics by position according to specification"""
+        if not position:
+            position = "Unknown"
+        
+        position = position.upper()
+        
+        if "QB" in position or "QUARTERBACK" in position:
+            # QB stats: Passing Yards, Pass TDs, Completions, Interceptions, Rush Yards
+            target_stats = {
+                "passingYards": "Passing Yards",
+                "passingTouchdowns": "Passing TDs", 
+                "completions": "Completions",
+                "interceptions": "Interceptions",
+                "rushingYards": "Rushing Yards"
+            }
+        elif "RB" in position or "RUNNING" in position:
+            # RB stats: Rush Yards, Rush TDs, Rec Yards, Receptions, Total TDs
+            target_stats = {
+                "rushingYards": "Rushing Yards",
+                "rushingTouchdowns": "Rushing TDs",
+                "receivingYards": "Receiving Yards", 
+                "receptions": "Receptions",
+                "touchdowns": "Total TDs"
+            }
+        elif "WR" in position or "WIDE" in position or "TE" in position:
+            # WR/TE stats: Rec Yards, Receptions, Rec TDs, Targets
+            target_stats = {
+                "receivingYards": "Receiving Yards",
+                "receptions": "Receptions",
+                "receivingTouchdowns": "Receiving TDs",
+                "targets": "Targets"
+            }
+        else:
+            # General football stats
+            target_stats = {
+                "yards": "Yards",
+                "touchdowns": "Touchdowns"
+            }
+        
+        found_stats = {}
+        for stat in stats:
+            if isinstance(stat, dict):
+                name = stat.get("name", "")
+                value = stat.get("value", 0)
+                
+                for key, label in target_stats.items():
+                    if key.lower() in name.lower():
+                        found_stats[label] = value
+        
+        print(f"      Position: {position}")
+        if found_stats:
+            for label, value in found_stats.items():
+                print(f"      {label}: {value}")
+        else:
+            print(f"      Available stats: {[stat.get('name', 'Unknown') for stat in stats[:5]]}")
+    
+    def parse_baseball_stats(self, stats, position):
+        """Parse baseball statistics according to specification"""
+        if position and ("P" in position.upper() or "PITCHER" in position.upper()):
+            # Pitcher stats: Strikeouts, Walks, Hits Allowed, ERA, Innings
+            target_stats = {
+                "strikeouts": "Strikeouts",
+                "walks": "Walks Allowed",
+                "hitsAllowed": "Hits Allowed",
+                "era": "ERA",
+                "inningsPitched": "Innings Pitched"
+            }
+        else:
+            # Batter stats: Hits, HRs, RBIs, Runs, Total Bases, AVG
+            target_stats = {
+                "hits": "Hits",
+                "homeRuns": "Home Runs",
+                "rbi": "RBIs", 
+                "runs": "Runs Scored",
+                "totalBases": "Total Bases",
+                "battingAverage": "Batting Average"
+            }
+        
+        found_stats = {}
+        for stat in stats:
+            if isinstance(stat, dict):
+                name = stat.get("name", "")
+                value = stat.get("value", 0)
+                
+                for key, label in target_stats.items():
+                    if key.lower() in name.lower():
+                        found_stats[label] = value
+        
+        if found_stats:
+            for label, value in found_stats.items():
+                print(f"      {label}: {value}")
+        else:
+            print(f"      Available stats: {[stat.get('name', 'Unknown') for stat in stats[:5]]}")
+    
+    def parse_hockey_stats(self, stats):
+        """Parse hockey statistics according to specification"""
+        # Goals, Assists, Points, Shots on Goal, +/-, PIM, TOI
+        target_stats = {
+            "goals": "Goals",
+            "assists": "Assists",
+            "points": "Points",
+            "shotsOnGoal": "Shots on Goal",
+            "plusMinus": "Plus/Minus",
+            "penaltyMinutes": "Penalty Minutes",
+            "timeOnIce": "Time on Ice"
+        }
+        
+        found_stats = {}
+        for stat in stats:
+            if isinstance(stat, dict):
+                name = stat.get("name", "")
+                value = stat.get("value", 0)
+                
+                for key, label in target_stats.items():
+                    if key.lower() in name.lower():
+                        found_stats[label] = value
+        
+        if found_stats:
+            for label, value in found_stats.items():
+                print(f"      {label}: {value}")
+        else:
+            print(f"      Available stats: {[stat.get('name', 'Unknown') for stat in stats[:5]]}")
+    
+    def parse_soccer_stats(self, stats):
+        """Parse soccer statistics according to specification"""
+        # Goals, Assists, Shots, Shots on Target, Passes, Tackles, Cards
+        target_stats = {
+            "goals": "Goals",
+            "assists": "Assists", 
+            "shots": "Shots",
+            "shotsOnTarget": "Shots on Target",
+            "passes": "Passes",
+            "tackles": "Tackles",
+            "cards": "Cards"
+        }
+        
+        found_stats = {}
+        for stat in stats:
+            if isinstance(stat, dict):
+                name = stat.get("name", "")
+                value = stat.get("value", 0)
+                
+                for key, label in target_stats.items():
+                    if key.lower() in name.lower():
+                        found_stats[label] = value
+        
+        if found_stats:
+            for label, value in found_stats.items():
+                print(f"      {label}: {value}")
+        else:
+            print(f"      Available stats: {[stat.get('name', 'Unknown') for stat in stats[:5]]}")
     
     def deep_dive_game(self):
         """Deep dive analysis of a specific game"""
