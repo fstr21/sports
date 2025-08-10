@@ -905,10 +905,9 @@ def filter_games_to_today(games_data):
             
             print(f"[DEBUG] Game: {game.get('home_team', '')} vs {game.get('away_team', '')} - Date: {game_date}, Today: {today_eastern}, Match: {game_date == today_eastern}")
             
-            # Include games from today, plus games within 24 hours (for late night/early morning games)
-            if (game_date == today_eastern or 
-                game_date == (today_eastern - timedelta(days=1)) or
-                game_date == (today_eastern + timedelta(days=1))):
+            # For debugging - be more permissive with date range (±2 days)
+            date_diff = abs((game_date - today_eastern).days)
+            if date_diff <= 2:
                 filtered_games.append(game)
                 
         except Exception as e:
@@ -940,9 +939,10 @@ async def odds_get_odds(request: OddsRequest, _: HTTPAuthorizationCredentials = 
             result = odds_client.get_odds(request.sport, options=options)
             raw_data = result.get("data", result)  # Extract data if wrapped
             
-            # Filter to today's games only
-            filtered_data = filter_games_to_today(raw_data)
-            return filtered_data
+            # TEMPORARILY DISABLE FILTERING FOR DEBUG
+            # filtered_data = filter_games_to_today(raw_data)
+            # return filtered_data
+            return raw_data  # Return unfiltered data temporarily
             
         elif ODDS_MCP_SERVER and hasattr(odds_server, 'get_odds_http'):
             # Use MCP server HTTP helper
@@ -955,9 +955,10 @@ async def odds_get_odds(request: OddsRequest, _: HTTPAuthorizationCredentials = 
             )
             raw_data = json.loads(result)
             
-            # Filter to today's games only
-            filtered_data = filter_games_to_today(raw_data)
-            return filtered_data
+            # TEMPORARILY DISABLE FILTERING FOR DEBUG  
+            # filtered_data = filter_games_to_today(raw_data)
+            # return filtered_data
+            return raw_data  # Return unfiltered data temporarily
             
         else:
             raise HTTPException(status_code=503, detail="No working odds implementation available")
