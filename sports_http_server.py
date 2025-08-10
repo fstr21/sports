@@ -447,7 +447,12 @@ async def get_player_stats_wrapper(sport: str, league: str, player_id: str, seas
                         gamelog_data = gamelog_response.json()
                         recent_games_data = gamelog_data.get("entries", [])
             
-            # Format response to match expected structure
+            # Ensure parsed_stats is populated
+            if not parsed_stats and 'season_data' in locals() and season_data:
+                if "splits" in season_data:
+                    parsed_stats = parse_espn_statistics(season_data["splits"], sport)
+            
+            # Format response to match expected structure  
             result_data = {
                 "player_profile": {
                     "athlete": {
@@ -467,10 +472,16 @@ async def get_player_stats_wrapper(sport: str, league: str, player_id: str, seas
                 },
                 "season_stats": season_data if 'season_data' in locals() else {},
                 "parsed_statistics": parsed_stats,
+                "basketball_specification_stats": parsed_stats if sport == "basketball" else {},
                 "sport": sport,
                 "league": league,
                 "player_id": player_id,
-                "games_requested": limit
+                "games_requested": limit,
+                "debug_info": {
+                    "has_season_data": 'season_data' in locals(),
+                    "has_splits": 'season_data' in locals() and season_data and "splits" in season_data,
+                    "parsed_stats_count": len(parsed_stats)
+                }
             }
             
             return {
