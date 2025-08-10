@@ -285,13 +285,50 @@ class SportsTestInterface:
         input(f"\nPress Enter to continue...     (odds calls this session: {self.api_calls_count})")
     
     def extract_games_from_odds(self, result):
-        """Extract games from odds API response"""
+        """Extract games from odds API response and filter to today's games"""
+        from datetime import datetime
+        import pytz
+        
+        # Get all games first
         if isinstance(result, list):
-            return result
+            all_games = result
         elif isinstance(result, dict) and "data" in result:
-            return result["data"]
+            all_games = result["data"]
         else:
+            all_games = []
+        
+        if not all_games:
             return []
+        
+        # Filter to today's games in Eastern time
+        eastern_tz = pytz.timezone('US/Eastern')
+        today_str = datetime.now(eastern_tz).strftime("%Y-%m-%d")  # 2025-08-10
+        
+        print(f"\n[CLIENT DEBUG] Filtering {len(all_games)} games for today: {today_str}")
+        
+        filtered_games = []
+        for i, game in enumerate(all_games[:10]):  # Debug first 10
+            commence_time = game.get("commence_time", "")
+            home = game.get("home_team", "")
+            away = game.get("away_team", "")
+            
+            if i < 5:  # Show first 5 for debug
+                print(f"[CLIENT DEBUG] Game {i+1}: {away} @ {home} - Time: {commence_time}")
+            
+            if today_str in commence_time:
+                filtered_games.append(game)
+                if i < 5:
+                    print(f"[CLIENT DEBUG] ✅ INCLUDED")
+            elif i < 5:
+                print(f"[CLIENT DEBUG] ❌ EXCLUDED")
+        
+        # Filter the rest without debug spam
+        for game in all_games[10:]:
+            if today_str in game.get("commence_time", ""):
+                filtered_games.append(game)
+        
+        print(f"[CLIENT DEBUG] Found {len(filtered_games)} games for today")
+        return filtered_games
     
     def display_game_odds(self, game, market_types):
         """Display odds for a game"""

@@ -941,9 +941,8 @@ async def odds_get_odds(request: OddsRequest, _: HTTPAuthorizationCredentials = 
             result = odds_client.get_odds(request.sport, options=options)
             raw_data = result.get("data", result)  # Extract data if wrapped
             
-            # Filter to today's games only
-            filtered_data = filter_games_to_today(raw_data)
-            return filtered_data
+            # Return all games - let client filter
+            return raw_data
             
         elif ODDS_MCP_SERVER and hasattr(odds_server, 'get_odds_http'):
             # Use MCP server HTTP helper
@@ -956,9 +955,8 @@ async def odds_get_odds(request: OddsRequest, _: HTTPAuthorizationCredentials = 
             )
             raw_data = json.loads(result)
             
-            # Filter to today's games only
-            filtered_data = filter_games_to_today(raw_data)
-            return filtered_data
+            # Return all games - let client filter
+            return raw_data
             
         else:
             raise HTTPException(status_code=503, detail="No working odds implementation available")
