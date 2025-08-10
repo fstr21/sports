@@ -890,6 +890,8 @@ def filter_games_to_today(games_data):
     
     filtered_games = []
     
+    print(f"[DEBUG] Filtering {len(games)} games for date: {today_eastern}")
+    
     for game in games:
         commence_time_str = game.get("commence_time", "")
         if not commence_time_str:
@@ -899,15 +901,21 @@ def filter_games_to_today(games_data):
             # Parse commence time (UTC) and convert to Eastern
             commence_time_utc = datetime.fromisoformat(commence_time_str.replace("Z", "+00:00"))
             commence_time_eastern = commence_time_utc.astimezone(eastern_tz)
+            game_date = commence_time_eastern.date()
             
-            # Only include games that are today in Eastern time
-            if commence_time_eastern.date() == today_eastern:
+            print(f"[DEBUG] Game: {game.get('home_team', '')} vs {game.get('away_team', '')} - Date: {game_date}, Today: {today_eastern}, Match: {game_date == today_eastern}")
+            
+            # Include games from today, plus games within 24 hours (for late night/early morning games)
+            if (game_date == today_eastern or 
+                game_date == (today_eastern - timedelta(days=1)) or
+                game_date == (today_eastern + timedelta(days=1))):
                 filtered_games.append(game)
                 
         except Exception as e:
-            # Skip games with invalid dates
+            print(f"[DEBUG] Date parsing error for game: {e}")
             continue
     
+    print(f"[DEBUG] Filtered to {len(filtered_games)} games")
     return filtered_games
 
 @app.post("/odds/get-odds")
