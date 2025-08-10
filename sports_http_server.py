@@ -872,9 +872,47 @@ async def odds_sports(all_sports: bool = False, _: HTTPAuthorizationCredentials 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting sports: {str(e)}")
 
+def filter_games_to_today(games_data):
+    """Filter odds games to only show today's games in Eastern time"""
+    import pytz
+    from datetime import datetime, timedelta
+    
+    if not games_data:
+        return games_data
+        
+    # Handle both list and dict responses
+    games = games_data if isinstance(games_data, list) else games_data
+    if not isinstance(games, list):
+        return games_data
+    
+    eastern_tz = pytz.timezone('US/Eastern')
+    today_eastern = datetime.now(eastern_tz).date()
+    
+    filtered_games = []
+    
+    for game in games:
+        commence_time_str = game.get("commence_time", "")
+        if not commence_time_str:
+            continue
+            
+        try:
+            # Parse commence time (UTC) and convert to Eastern
+            commence_time_utc = datetime.fromisoformat(commence_time_str.replace("Z", "+00:00"))
+            commence_time_eastern = commence_time_utc.astimezone(eastern_tz)
+            
+            # Only include games that are today in Eastern time
+            if commence_time_eastern.date() == today_eastern:
+                filtered_games.append(game)
+                
+        except Exception as e:
+            # Skip games with invalid dates
+            continue
+    
+    return filtered_games
+
 @app.post("/odds/get-odds")
 async def odds_get_odds(request: OddsRequest, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
-    """Get odds for a specific sport"""
+    """Get odds for a specific sport - filtered to today's games only"""
     if not (ODDS_DIRECT_CLIENT or ODDS_MCP_SERVER):
         raise HTTPException(status_code=503, detail="Odds API not available")
     
@@ -892,7 +930,12 @@ async def odds_get_odds(request: OddsRequest, _: HTTPAuthorizationCredentials = 
                 options["dateFormat"] = request.date_format
                 
             result = odds_client.get_odds(request.sport, options=options)
-            return result.get("data", result)  # Extract data if wrapped
+            raw_data = result.get("data", result)  # Extract data if wrapped
+            
+            # Filter to today's games only
+            filtered_data = filter_games_to_today(raw_data)
+            return filtered_data
+            
         elif ODDS_MCP_SERVER and hasattr(odds_server, 'get_odds_http'):
             # Use MCP server HTTP helper
             result = await odds_server.get_odds_http(
@@ -902,7 +945,12 @@ async def odds_get_odds(request: OddsRequest, _: HTTPAuthorizationCredentials = 
                 odds_format=request.odds_format,
                 date_format=request.date_format
             )
-            return json.loads(result)
+            raw_data = json.loads(result)
+            
+            # Filter to today's games only
+            filtered_data = filter_games_to_today(raw_data)
+            return filtered_data
+            
         else:
             raise HTTPException(status_code=503, detail="No working odds implementation available")
     except Exception as e:
