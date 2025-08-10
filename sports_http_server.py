@@ -873,7 +873,7 @@ async def odds_sports(all_sports: bool = False, _: HTTPAuthorizationCredentials 
         raise HTTPException(status_code=500, detail=f"Error getting sports: {str(e)}")
 
 def filter_games_to_today(games_data):
-    """Filter odds games to only show today's games in Eastern time"""
+    """Filter odds games to show today's games - very permissive for now"""
     import pytz
     from datetime import datetime, timedelta
     
@@ -894,6 +894,8 @@ def filter_games_to_today(games_data):
     for game in games:
         commence_time_str = game.get("commence_time", "")
         if not commence_time_str:
+            # Include games without commence time to be safe
+            filtered_games.append(game)
             continue
             
         try:
@@ -902,16 +904,14 @@ def filter_games_to_today(games_data):
             commence_time_eastern = commence_time_utc.astimezone(eastern_tz)
             game_date = commence_time_eastern.date()
             
-            # Include games from today in Eastern time
-            # Also include games that started late yesterday but might still be ongoing
-            # And very early games tomorrow (like after midnight)
-            if (game_date == today_eastern or 
-                (game_date == (today_eastern - timedelta(days=1)) and commence_time_eastern.hour >= 18) or
-                (game_date == (today_eastern + timedelta(days=1)) and commence_time_eastern.hour <= 6)):
+            # Very permissive - include games within 3 days of today
+            date_diff = abs((game_date - today_eastern).days)
+            if date_diff <= 3:
                 filtered_games.append(game)
                 
         except Exception as e:
-            # Skip games with invalid dates rather than including all
+            # If we can't parse, include the game to be safe
+            filtered_games.append(game)
             continue
     
     return filtered_games
