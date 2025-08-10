@@ -97,6 +97,10 @@ async def get_scoreboard_wrapper(sport: str, league: str, dates: str = None, lim
             games = espn_data.get('events', [])
             todays_games = []
             
+            # Also check for games that started yesterday evening but extend into today
+            yesterday_eastern = (today_eastern - timedelta(days=1))
+            tomorrow_eastern = (today_eastern + timedelta(days=1))
+            
             for game in games:
                 game_date_str = game.get('date', '')
                 if game_date_str:
@@ -105,11 +109,18 @@ async def get_scoreboard_wrapper(sport: str, league: str, dates: str = None, lim
                         game_utc = datetime.fromisoformat(game_date_str.replace('Z', '+00:00'))
                         game_eastern = game_utc.astimezone(eastern_tz)
                         
-                        # Only include games from today (Eastern time)
-                        if game_eastern.date() == today_eastern:
+                        # Include games from today, or late games from yesterday/early tomorrow
+                        game_date = game_eastern.date()
+                        
+                        # Include games that are on today's date OR games that started late yesterday
+                        # and might still be ongoing, OR very early games tomorrow (like midnight starts)
+                        if (game_date == today_eastern or 
+                            (game_date == yesterday_eastern and game_eastern.hour >= 18) or  # 6 PM or later yesterday
+                            (game_date == tomorrow_eastern and game_eastern.hour <= 6)):    # Before 6 AM tomorrow
                             todays_games.append(game)
-                    except:
-                        # If we can't parse the date, include the game
+                    except Exception as e:
+                        # If we can't parse the date, include the game anyway
+                        print(f"[DEBUG] Date parsing error for game: {e}")
                         todays_games.append(game)
             
             return {
@@ -118,15 +129,23 @@ async def get_scoreboard_wrapper(sport: str, league: str, dates: str = None, lim
                     "scoreboard": todays_games,
                     "games_count": len(todays_games),
                     "date_filter": today_eastern.strftime("%Y-%m-%d"),
-                    "timezone": "US/Eastern"
+                    "timezone": "US/Eastern",
+                    "total_espn_events": len(games)
                 }
             }
             
     except Exception as e:
+        error_msg = str(e) if str(e) else "Unknown error occurred while fetching ESPN data"
         return {
             "ok": False,
-            "message": f"Error fetching scoreboard: {str(e)}",
-            "data": None
+            "message": f"Error fetching scoreboard: {error_msg}",
+            "data": None,
+            "debug": {
+                "sport": sport,
+                "league": league,
+                "dates": dates,
+                "eastern_date": today_eastern.strftime("%Y-%m-%d") if 'today_eastern' in locals() else "unknown"
+            }
         }
 
 async def get_teams_wrapper(sport: str, league: str) -> dict:
