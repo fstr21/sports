@@ -286,20 +286,123 @@ async def get_team_stats_wrapper(sport: str, league: str, team_id: str = None, s
             "data": None
         }
 
+def parse_espn_statistics(splits_data, sport):
+    """Parse ESPN statistics from splits.categories.stats structure for any sport"""
+    stats_found = {}
+    
+    if not isinstance(splits_data, dict) or "categories" not in splits_data:
+        return stats_found
+    
+    categories = splits_data["categories"]
+    
+    for category in categories:
+        stats = category.get("stats", [])
+        
+        for stat in stats:
+            name = stat.get("name", "").lower()
+            display_value = stat.get("displayValue", str(stat.get("value", 0)))
+            
+            # Map to sport-specific stats based on specification
+            if sport == "basketball":
+                # Basketball: Points, Rebounds, Assists, 3PM, Steals, Blocks, FG%, Minutes
+                if name == "points":
+                    stats_found["Points"] = display_value
+                elif name == "rebounds":
+                    stats_found["Rebounds"] = display_value  
+                elif name == "assists":
+                    stats_found["Assists"] = display_value
+                elif name == "steals":
+                    stats_found["Steals"] = display_value
+                elif name == "blocks":
+                    stats_found["Blocks"] = display_value
+                elif "threepointfieldgoalsmade" in name.replace(" ", ""):
+                    stats_found["3PM"] = display_value
+                elif "fieldgoalpercentage" in name.replace(" ", ""):
+                    stats_found["FG%"] = display_value
+                elif name == "minutes":
+                    stats_found["Minutes"] = display_value
+            
+            elif sport == "football":
+                # Football: Pass yards, Rush yards, Receptions, TDs, etc.
+                if "passingyards" in name.replace(" ", ""):
+                    stats_found["Passing Yards"] = display_value
+                elif "passingtouchdowns" in name.replace(" ", ""):
+                    stats_found["Passing TDs"] = display_value
+                elif "completions" in name:
+                    stats_found["Completions"] = display_value
+                elif "interceptions" in name:
+                    stats_found["Interceptions"] = display_value
+                elif "rushingyards" in name.replace(" ", ""):
+                    stats_found["Rushing Yards"] = display_value
+                elif "receivingyards" in name.replace(" ", ""):
+                    stats_found["Receiving Yards"] = display_value
+                elif "receptions" in name:
+                    stats_found["Receptions"] = display_value
+                elif "touchdowns" in name:
+                    stats_found["Touchdowns"] = display_value
+            
+            elif sport == "baseball":
+                # Baseball: Hits, HRs, RBIs, Strikeouts, ERA, etc.
+                if name == "hits":
+                    stats_found["Hits"] = display_value
+                elif "homeruns" in name.replace(" ", ""):
+                    stats_found["Home Runs"] = display_value
+                elif "rbi" in name:
+                    stats_found["RBIs"] = display_value
+                elif "runs" in name and "earned" not in name:
+                    stats_found["Runs"] = display_value
+                elif "strikeouts" in name:
+                    stats_found["Strikeouts"] = display_value
+                elif "era" in name.lower():
+                    stats_found["ERA"] = display_value
+                elif "walks" in name:
+                    stats_found["Walks"] = display_value
+            
+            elif sport == "hockey":
+                # Hockey: Goals, Assists, Points, Shots, +/-, PIM, TOI
+                if name == "goals":
+                    stats_found["Goals"] = display_value
+                elif name == "assists":
+                    stats_found["Assists"] = display_value
+                elif name == "points":
+                    stats_found["Points"] = display_value
+                elif "shots" in name:
+                    stats_found["Shots"] = display_value
+                elif "plusminus" in name.replace(" ", ""):
+                    stats_found["Plus/Minus"] = display_value
+                elif "penalties" in name or "pim" in name:
+                    stats_found["PIM"] = display_value
+                elif "timeonice" in name.replace(" ", ""):
+                    stats_found["TOI"] = display_value
+            
+            elif sport == "soccer":
+                # Soccer: Goals, Assists, Shots, Passes, Tackles, Cards
+                if name == "goals":
+                    stats_found["Goals"] = display_value
+                elif name == "assists":
+                    stats_found["Assists"] = display_value
+                elif name == "shots":
+                    stats_found["Shots"] = display_value
+                elif "passes" in name:
+                    stats_found["Passes"] = display_value
+                elif "tackles" in name:
+                    stats_found["Tackles"] = display_value
+                elif "cards" in name or "yellowcards" in name or "redcards" in name:
+                    stats_found["Cards"] = display_value
+    
+    return stats_found
+
 async def get_player_stats_wrapper(sport: str, league: str, player_id: str, season: str = None, limit: int = 10) -> dict:
-    """Get player stats data, focusing on recent games."""
+    """Get player stats using ESPN Core API with proper $ref link following and sport-specific parsing."""
     try:
-        # Build ESPN API URL for player stats (using core API)
+        # Build ESPN Core API URL
         base_url = f"https://sports.core.api.espn.com/v2/sports/{sport}/leagues/{league}/athletes/{player_id}"
         
         async with httpx.AsyncClient() as client:
-            # Get player profile first (no params needed for base player data)
-            print(f"[DEBUG] Calling ESPN Core API: {base_url}")
+            # Get base player profile
             response = await client.get(base_url, timeout=15.0)
-            print(f"[DEBUG] ESPN Core API response: {response.status_code}")
             
             if response.status_code != 200:
-                print(f"[DEBUG] ESPN Core API failed: {response.status_code}, URL: {base_url}")
                 return {
                     "ok": False,
                     "message": f"ESPN API error: {response.status_code}",
@@ -308,24 +411,10 @@ async def get_player_stats_wrapper(sport: str, league: str, player_id: str, seas
             
             player_data = response.json()
             
-            # Follow $ref links to get statistics and game logs
-            gamelog_data = {}
-            stats_data = {}
+            # Get season statistics (most reliable for totals)
+            season_stats = {}
+            parsed_stats = {}
             
-            # Get statisticslog (game-by-game stats) if available
-            if "statisticslog" in player_data and isinstance(player_data["statisticslog"], dict):
-                log_ref = player_data["statisticslog"].get("$ref")
-                if log_ref:
-                    # Add limit parameter to the ref URL
-                    log_url = f"{log_ref}?limit={limit}" if limit else log_ref
-                    if season:
-                        log_url += f"&season={season}"
-                        
-                    gamelog_response = await client.get(log_url, timeout=15.0)
-                    if gamelog_response.status_code == 200:
-                        gamelog_data = gamelog_response.json()
-            
-            # Get statistics (season totals) if available  
             if "statistics" in player_data and isinstance(player_data["statistics"], dict):
                 stats_ref = player_data["statistics"].get("$ref")
                 if stats_ref:
@@ -335,17 +424,49 @@ async def get_player_stats_wrapper(sport: str, league: str, player_id: str, seas
                         
                     stats_response = await client.get(stats_url, timeout=15.0)
                     if stats_response.status_code == 200:
-                        stats_data = stats_response.json()
+                        season_data = stats_response.json()
+                        
+                        # Parse the nested splits structure
+                        if "splits" in season_data:
+                            splits = season_data["splits"]
+                            print(f"[DEBUG] Found splits data for {sport}, parsing...")
+                            parsed_stats = parse_espn_statistics(splits, sport)
+                            print(f"[DEBUG] Parsed {len(parsed_stats)} statistics: {list(parsed_stats.keys())}")
+                        else:
+                            print(f"[DEBUG] No splits data found in season_data keys: {list(season_data.keys())}")
             
-            # Format response similar to old structure but with proper data
+            # Get recent games for context (optional)
+            recent_games_data = []
+            if "statisticslog" in player_data and isinstance(player_data["statisticslog"], dict):
+                log_ref = player_data["statisticslog"].get("$ref")
+                if log_ref:
+                    log_url = f"{log_ref}?limit={min(limit, 5)}"  # Limit to 5 for performance
+                    
+                    gamelog_response = await client.get(log_url, timeout=15.0)
+                    if gamelog_response.status_code == 200:
+                        gamelog_data = gamelog_response.json()
+                        recent_games_data = gamelog_data.get("entries", [])
+            
+            # Format response to match expected structure
             result_data = {
                 "player_profile": {
-                    "athlete": player_data  # Put full player data in athlete structure
+                    "athlete": {
+                        "id": player_data.get("id"),
+                        "displayName": player_data.get("displayName", "Unknown"),
+                        "position": player_data.get("position", {}),
+                        "height": player_data.get("displayHeight", "Unknown"),
+                        "weight": player_data.get("displayWeight", "Unknown"),
+                        "age": player_data.get("age"),
+                        "team": player_data.get("team", {}),
+                        # Add parsed stats to athlete profile for easy access
+                        "season_stats": parsed_stats
+                    }
                 },
                 "recent_games": {
-                    "events": gamelog_data.get("entries", []) if gamelog_data else []
+                    "events": recent_games_data
                 },
-                "season_stats": stats_data,
+                "season_stats": season_data if 'season_data' in locals() else {},
+                "parsed_statistics": parsed_stats,
                 "sport": sport,
                 "league": league,
                 "player_id": player_id,
