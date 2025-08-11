@@ -184,7 +184,7 @@ async def handle_get_teams(args: Dict[str, Any]) -> Dict[str, Any]:
 
 async def handle_get_sports(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get available sports from Odds API"""
-    use_test_mode = args.get("use_test_mode", True)
+    use_test_mode = args.get("use_test_mode", False)  # Default to live data
     all_sports = args.get("all_sports", False)
     
     if use_test_mode:
@@ -215,7 +215,7 @@ async def handle_get_sports(args: Dict[str, Any]) -> Dict[str, Any]:
 async def handle_get_odds(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get odds for a specific sport"""
     sport = args.get("sport", "")
-    use_test_mode = args.get("use_test_mode", True)
+    use_test_mode = args.get("use_test_mode", False)  # Default to live data
     regions = args.get("regions", "us")
     markets = args.get("markets", "h2h")
     odds_format = args.get("odds_format", "american")
@@ -249,7 +249,7 @@ async def handle_get_odds(args: Dict[str, Any]) -> Dict[str, Any]:
 
 async def handle_get_quota_info(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get API quota info"""
-    use_test_mode = args.get("use_test_mode", True)
+    use_test_mode = args.get("use_test_mode", False)  # Default to live data
     
     if use_test_mode:
         quota_data = {"used": 45, "remaining": 455, "total": 500}
