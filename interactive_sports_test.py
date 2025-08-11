@@ -1571,6 +1571,10 @@ class SportsTestInterface:
         recent_games = player_stats_data.get("recent_games", [])
         five_game_averages = player_stats_data.get("five_game_averages", {})
         
+        # Debug output
+        print(f"[DEBUG] recent_games type: {type(recent_games)}, length: {len(recent_games) if isinstance(recent_games, list) else 'N/A'}")
+        print(f"[DEBUG] five_game_averages: {five_game_averages}")
+        
         if isinstance(recent_games, list) and recent_games:
             print(f"✅ RECENT {len(recent_games)} GAMES PERFORMANCE:")
             

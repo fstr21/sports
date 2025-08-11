@@ -307,21 +307,21 @@ def parse_espn_statistics(splits_data, sport):
             if sport == "basketball":
                 # Basketball: Points, Rebounds, Assists, 3PM, Steals, Blocks, FG%, Minutes
                 if name == "points":
-                    stats_found["Points"] = display_value
-                elif name == "rebounds":
-                    stats_found["Rebounds"] = display_value  
+                    stats_found["points"] = float(stat.get("value", 0))
+                elif name == "rebounds" or name == "totalrebounds":
+                    stats_found["rebounds"] = float(stat.get("value", 0))
                 elif name == "assists":
-                    stats_found["Assists"] = display_value
+                    stats_found["assists"] = float(stat.get("value", 0))
                 elif name == "steals":
-                    stats_found["Steals"] = display_value
+                    stats_found["steals"] = float(stat.get("value", 0))
                 elif name == "blocks":
-                    stats_found["Blocks"] = display_value
+                    stats_found["blocks"] = float(stat.get("value", 0))
                 elif "threepointfieldgoalsmade" in name.replace(" ", ""):
-                    stats_found["3PM"] = display_value
+                    stats_found["threepointfieldgoalsmade"] = float(stat.get("value", 0))
                 elif "fieldgoalpercentage" in name.replace(" ", ""):
-                    stats_found["FG%"] = display_value
+                    stats_found["fieldgoalpercentage"] = float(stat.get("value", 0))
                 elif name == "minutes":
-                    stats_found["Minutes"] = display_value
+                    stats_found["minutes"] = float(stat.get("value", 0))
             
             elif sport == "football":
                 # Football: Pass yards, Rush yards, Receptions, TDs, etc.
@@ -345,19 +345,19 @@ def parse_espn_statistics(splits_data, sport):
             elif sport == "baseball":
                 # Baseball: Hits, HRs, RBIs, Strikeouts, ERA, etc.
                 if name == "hits":
-                    stats_found["Hits"] = display_value
+                    stats_found["hits"] = float(stat.get("value", 0))
                 elif "homeruns" in name.replace(" ", ""):
-                    stats_found["Home Runs"] = display_value
-                elif "rbi" in name:
-                    stats_found["RBIs"] = display_value
-                elif "runs" in name and "earned" not in name:
-                    stats_found["Runs"] = display_value
+                    stats_found["homeruns"] = float(stat.get("value", 0))
+                elif "rbi" in name.lower():  # This should catch "RBIs"
+                    stats_found["rbis"] = float(stat.get("value", 0))
+                elif name == "runs" and "earned" not in name:  # More specific match
+                    stats_found["runs"] = float(stat.get("value", 0))
                 elif "strikeouts" in name:
-                    stats_found["Strikeouts"] = display_value
+                    stats_found["strikeouts"] = float(stat.get("value", 0))
                 elif "era" in name.lower():
-                    stats_found["ERA"] = display_value
+                    stats_found["era"] = float(stat.get("value", 0))
                 elif "walks" in name:
-                    stats_found["Walks"] = display_value
+                    stats_found["walks"] = float(stat.get("value", 0))
             
             elif sport == "hockey":
                 # Hockey: Goals, Assists, Points, Shots, +/-, PIM, TOI
@@ -414,94 +414,139 @@ async def get_player_recent_games_stats(sport: str, league: str, player_id: str,
             page = 1
             max_pages = 3  # Limit to avoid too many API calls
             
-            # Get all eventlog pages (games are chronological, need recent ones)
-            while page <= max_pages:
-                page_url = eventlog_url if page == 1 else f"{eventlog_url}?page={page}"
-                eventlog_response = await client.get(page_url, timeout=15.0)
-                
-                if eventlog_response.status_code != 200:
-                    print(f"[DEBUG] Eventlog page {page} failed: {eventlog_response.status_code}")
-                    break
-                
-                eventlog_data = eventlog_response.json()
-                events = eventlog_data.get("events", {})
-                
-                if isinstance(events, dict) and "items" in events:
-                    page_events = events["items"]
-                    all_events.extend(page_events)
-                    print(f"[DEBUG] Page {page}: Found {len(page_events)} events")
-                    
-                    # Check if there are more pages
-                    if events.get("pageIndex", 1) >= events.get("pageCount", 1):
-                        break
-                    page += 1
-                else:
-                    break
+            # First, get page 1 to find total pages
+            eventlog_response = await client.get(eventlog_url, timeout=15.0)
+            if eventlog_response.status_code != 200:
+                return {"ok": False, "message": f"Eventlog failed: {eventlog_response.status_code}"}
+            
+            eventlog_data = eventlog_response.json()
+            events = eventlog_data.get("events", {})
+            
+            if not isinstance(events, dict) or "items" not in events:
+                return {"ok": False, "message": "No events found in eventlog"}
+            
+            total_pages = events.get("pageCount", 1)
+            print(f"[DEBUG] Total pages available: {total_pages}")
+            
+            # Get the LAST page only (contains most recent games)
+            last_page_url = eventlog_url if total_pages == 1 else f"{eventlog_url}?page={total_pages}"
+            print(f"[DEBUG] Getting most recent games from last page: {last_page_url}")
+            
+            last_page_response = await client.get(last_page_url, timeout=15.0)
+            if last_page_response.status_code != 200:
+                return {"ok": False, "message": f"Last page failed: {last_page_response.status_code}"}
+            
+            last_page_data = last_page_response.json()
+            events = last_page_data.get("events", {})
+            
+            if isinstance(events, dict) and "items" in events:
+                all_events = events["items"]
+                print(f"[DEBUG] Found {len(all_events)} events on last page")
+            else:
+                return {"ok": False, "message": "No events found on last page"}
             
             print(f"[DEBUG] Total events collected: {len(all_events)}")
             
-            # Process each event to get game details and stats
+            # Process ALL events to get game details and dates, then sort
+            print(f"[DEBUG] Processing all {len(all_events)} events to find most recent games...")
             games_with_stats = []
             
             for i, event_item in enumerate(all_events):
-                if len(games_with_stats) >= games_limit:
-                    break
-                    
                 try:
                     # Get event details
                     event_ref = event_item.get("event", {}).get("$ref")
                     stats_ref = event_item.get("statistics", {}).get("$ref")
                     
-                    if not event_ref or not stats_ref:
+                    if not event_ref:
                         continue
                     
-                    # Fetch game details and player stats
+                    # Fetch game details for date
                     event_response = await client.get(event_ref, timeout=10.0)
-                    stats_response = await client.get(stats_ref, timeout=10.0)
-                    
-                    if event_response.status_code != 200 or stats_response.status_code != 200:
+                    if event_response.status_code != 200:
                         continue
                     
                     event_data = event_response.json()
-                    stats_data = stats_response.json()
+                    game_date = event_data.get("date")
+                    
+                    if not game_date:
+                        continue
+                    
+                    # Convert date to Eastern time
+                    try:
+                        from datetime import datetime
+                        import pytz
+                        utc_dt = datetime.fromisoformat(game_date.replace('Z', '+00:00'))
+                        eastern = pytz.timezone('US/Eastern')
+                        et_dt = utc_dt.astimezone(eastern)
+                        eastern_time = et_dt.strftime("%m/%d %I:%M %p ET")
+                        datetime_obj = et_dt
+                    except:
+                        eastern_time = game_date
+                        datetime_obj = datetime.min
                     
                     # Extract game info
                     game_info = {
                         "event_id": event_data.get("id"),
-                        "date": event_data.get("date"),
+                        "date": game_date,
+                        "eastern_time": eastern_time,
+                        "datetime_obj": datetime_obj,
                         "competitors": event_data.get("competitions", [{}])[0].get("competitors", []),
-                        "stats": {}
+                        "stats": {},
+                        "stats_ref": stats_ref
                     }
                     
-                    # Parse player stats for this game
-                    if "splits" in stats_data:
-                        game_stats = parse_espn_statistics(stats_data["splits"], sport)
-                        game_info["stats"] = game_stats
-                    
-                    # Convert date to Eastern time
-                    if game_info["date"]:
-                        try:
-                            from datetime import datetime
-                            import pytz
-                            utc_dt = datetime.fromisoformat(game_info["date"].replace('Z', '+00:00'))
-                            eastern = pytz.timezone('US/Eastern')
-                            et_dt = utc_dt.astimezone(eastern)
-                            game_info["eastern_time"] = et_dt.strftime("%m/%d %I:%M %p ET")
-                            game_info["datetime_obj"] = et_dt
-                        except:
-                            game_info["eastern_time"] = game_info["date"]
-                            game_info["datetime_obj"] = datetime.now()
-                    
                     games_with_stats.append(game_info)
-                    print(f"[DEBUG] Processed game {len(games_with_stats)}: {game_info.get('eastern_time', 'Unknown date')}")
                     
                 except Exception as e:
                     print(f"[DEBUG] Error processing event {i}: {e}")
                     continue
             
-            # Sort by date (most recent first)
+            # Sort by date (most recent first) - this is critical!
             games_with_stats.sort(key=lambda x: x.get("datetime_obj", datetime.min), reverse=True)
+            print(f"[DEBUG] After sorting, most recent game: {games_with_stats[0].get('eastern_time', 'Unknown') if games_with_stats else 'None'}")
+            
+            # Take only the most recent games and get their stats
             recent_games = games_with_stats[:games_limit]
+            final_games = []
+            
+            for i, game_info in enumerate(recent_games):
+                try:
+                    print(f"[DEBUG] Getting stats for game {i+1}: {game_info.get('eastern_time')}")
+                    
+                    # Get player stats if available
+                    if game_info.get("stats_ref"):
+                        stats_response = await client.get(game_info["stats_ref"], timeout=10.0)
+                        if stats_response.status_code == 200:
+                            stats_data = stats_response.json()
+                            
+                            # Parse player stats for this game
+                            if "splits" in stats_data:
+                                game_stats = parse_espn_statistics(stats_data["splits"], sport)
+                                game_info["stats"] = game_stats
+                                print(f"[DEBUG] Game {i+1} stats: {game_stats}")
+                            else:
+                                print(f"[DEBUG] No splits data in stats_data")
+                    
+                    # Clean up the game info
+                    final_game = {
+                        "event_id": game_info.get("event_id"),
+                        "date": game_info.get("date"),
+                        "eastern_time": game_info.get("eastern_time"),
+                        "datetime_obj": game_info.get("datetime_obj"),
+                        "competitors": game_info.get("competitors", []),
+                        "stats": game_info.get("stats", {})
+                    }
+                    
+                    final_games.append(final_game)
+                    
+                except Exception as e:
+                    print(f"[DEBUG] Error getting stats for game {i}: {e}")
+                    continue
+            
+            games_with_stats = final_games
+            
+            # Games are already sorted and limited
+            recent_games = games_with_stats
             
             # Calculate 5-game averages
             averages = calculate_recent_averages(recent_games, sport)

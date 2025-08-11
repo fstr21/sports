@@ -1,0 +1,67 @@
+{
+  "player": "Kyle Schwarber",
+  "player_id": "33712",
+  "extraction_date": "2025-08-11T04:07:34.321098",
+  "recent_games": [
+    {
+      "date": "07/21/2025 06:45 PM ET",
+      "opponent": "Away @ Home",
+      "stats": {
+        "strikeouts": 1.0,
+        "hits": 0.0,
+        "walks": 0.0,
+        "runs": 0.0,
+        "atbats": 4.0,
+        "homeruns": 0.0
+      }
+    },
+    {
+      "date": "07/22/2025 06:45 PM ET",
+      "opponent": "Away @ Home",
+      "stats": {
+        "strikeouts": 1.0,
+        "hits": 1.0,
+        "walks": 0.0,
+        "runs": 1.0,
+        "atbats": 4.0,
+        "homeruns": 1.0
+      }
+    },
+    {
+      "date": "07/23/2025 07:00 PM ET",
+      "opponent": "Away @ Home",
+      "stats": {
+        "strikeouts": 0.0,
+        "hits": 2.0,
+        "walks": 0.0,
+        "runs": 1.0,
+        "atbats": 5.0,
+        "homeruns": 1.0
+      }
+    },
+    {
+      "date": "07/25/2025 07:05 PM ET",
+      "opponent": "Away @ Home",
+      "stats": {
+        "strikeouts": 1.0,
+        "hits": 3.0,
+        "walks": 1.0,
+        "runs": 3.0,
+        "atbats": 5.0,
+        "homeruns": 2.0
+      }
+    },
+    {
+      "date": "07/26/2025 01:05 PM ET",
+      "opponent": "Away @ Home",
+      "stats": {
+        "strikeouts": 1.0,
+        "hits": 2.0,
+        "walks": 1.0,
+        "runs": 0.0,
+        "atbats": 5.0,
+        "homeruns": 0.0
+      }
+    }
+  ]
+}
