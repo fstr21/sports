@@ -14,4 +14,4 @@
     "api_pattern_used": "eventlog (same as WNBA)",
     "working_endpoint_pattern": "https://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/athletes/{player_id}/eventlog"
   }
-}
+}  

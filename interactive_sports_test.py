@@ -849,18 +849,21 @@ class SportsTestInterface:
                     
                     print(f"\n=== {name} ({position}) ===")
                     
-                    # Show recent games stats
+                    # Show parsed season statistics first
+                    parsed_stats = player_data.get("parsed_statistics", {})
+                    if parsed_stats:
+                        print(f"\nSeason Statistics:")
+                        self.display_parsed_season_stats(parsed_stats, sport)
+                    
+                    # Show recent games context (without trying to parse stats)
                     if recent_games and "events" in recent_games:
                         games = recent_games["events"]
-                        print(f"\nRecent {len(games)} games:")
+                        print(f"\nRecent {len(games)} games context:")
                         
-                        for i, game in enumerate(games[:5], 1):
+                        for i, game in enumerate(games[:3], 1):
                             opponent = game.get("opponent", {}).get("displayName", "vs Unknown")
                             date = game.get("date", "Unknown date")
                             print(f"  Game {i}: {opponent} on {date}")
-                            
-                            # Parse sport-specific statistics
-                            self.parse_game_stats(game, sport, name, position)
                     else:
                         print("No recent games data available")
                 else:
@@ -1292,6 +1295,7 @@ class SportsTestInterface:
         props_data = None
         
         for odds_key in league_info['odds_keys']:
+            print(f"   Trying {odds_key} for event {event_id}...")
             success, result = self.make_request("POST", "/odds/event-odds", {
                 "sport": odds_key,
                 "event_id": event_id,
@@ -1309,11 +1313,41 @@ class SportsTestInterface:
                 if props_data and props_data.get("bookmakers"):
                     print(f"   Found player props using {odds_key}")
                     break
+                else:
+                    print(f"   No bookmakers found in {odds_key} response")
+            else:
+                print(f"   Failed to get {odds_key}: {result}")
                     
         if not props_data or not props_data.get("bookmakers"):
             print("No player props available for this game")
-            input("Press Enter to continue...")
-            return
+            print("Debug: Try using the general player props endpoint instead...")
+            
+            # Fallback: try to get general player props for the sport
+            print("   Trying general player props endpoint...")
+            success, result = self.make_request("POST", "/odds/player-props", {
+                "sport": league_info['odds_keys'][0],
+                "player_markets": markets
+            })
+            
+            if success and result:
+                if isinstance(result, dict) and "data" in result:
+                    props_data = result["data"]
+                elif isinstance(result, list):
+                    # Handle if it returns a list of games
+                    for game_data in result:
+                        if game_data.get("id") == event_id or game_data.get("home_team") == selected_game.get("home_team"):
+                            props_data = game_data
+                            break
+                
+                if props_data and props_data.get("bookmakers"):
+                    print(f"   Found player props using general endpoint")
+                else:
+                    print(f"   General endpoint also failed")
+                    input("Press Enter to continue...")
+                    return
+            else:
+                input("Press Enter to continue...")
+                return
         
         # Step 5: Extract all unique players
         all_players = {}  # player_name: {props: [...], books: [...]}
@@ -1457,20 +1491,13 @@ class SportsTestInterface:
                 # Use parsed statistics from server instead of raw game data
                 parsed_stats = player_stats_data.get("parsed_statistics", {})
                 
-                if parsed_stats:
-                    print(f"   Season Statistics:")
-                    # Display stats relevant to the sport and betting props
-                    self.display_parsed_season_stats(parsed_stats, sport)
-                else:
-                    print(f"   No parsed statistics available")
-                    # Fallback to trying game-by-game parsing
-                    recent_games = player_stats_data.get("recent_games", {})
-                    if recent_games and "events" in recent_games:
-                        games = recent_games["events"]
-                        print(f"   Found {len(games)} recent games")
-                        self.display_simplified_stats(games, sport)
-                    else:
-                        print(f"   No recent games data available")
+                # Try recent games first, fallback to season averages
+                recent_success = self.display_recent_games_stats(player_stats_data, sport)
+                
+                # If recent games failed, show season stats converted to per-game averages
+                if not recent_success and parsed_stats:
+                    print(f"   Season Averages (estimated per game):")
+                    self.display_season_as_per_game_averages(parsed_stats, sport)
             else:
                 print(f"   Could not get stats")
         else:
@@ -1536,6 +1563,110 @@ class SportsTestInterface:
             print(f"      All available stats:")
             for stat_name, stat_value in parsed_stats.items():
                 print(f"        {stat_name}: {stat_value}")
+    
+    def display_recent_games_stats(self, player_stats_data, sport):
+        """Display recent 5 games statistics like in MLB_Random_5_Players_Stats.json"""
+        recent_games = player_stats_data.get("recent_games", {})
+        
+        if not recent_games or "events" not in recent_games:
+            return False
+            
+        games = recent_games["events"]
+        if not games:
+            return False
+            
+        # Track stats across games for averaging
+        stat_totals = {}
+        valid_games = 0
+        
+        for game in games[:5]:  # Last 5 games
+            stats = game.get("statistics", [])
+            if not isinstance(stats, list) or not stats:
+                continue
+                
+            valid_games += 1
+            
+            # Look for the batting stats structure
+            for stat_group in stats:
+                if isinstance(stat_group, dict):
+                    # Check if this has actual stat values (not $ref URLs)
+                    stats_data = stat_group.get("stats", {})
+                    if isinstance(stats_data, dict) and stats_data:
+                        batting_stats = stats_data.get("batting", {})
+                        if isinstance(batting_stats, dict):
+                            # Process batting stats
+                            for stat_name, stat_value in batting_stats.items():
+                                if stat_name in ["Hits", "Home Runs", "Runs Batted In", "Runs", "At Bats", "Strikeouts"]:
+                                    try:
+                                        value = float(stat_value)
+                                        if stat_name not in stat_totals:
+                                            stat_totals[stat_name] = []
+                                        stat_totals[stat_name].append(value)
+                                    except:
+                                        continue
+        
+        if stat_totals and valid_games > 0:
+            print(f"      Recent {valid_games} games averages:")
+            # Calculate and display averages
+            key_stats = ["Hits", "Home Runs", "Runs Batted In", "Runs", "At Bats"]
+            for stat_name in key_stats:
+                if stat_name in stat_totals:
+                    values = stat_totals[stat_name]
+                    avg = sum(values) / len(values)
+                    if stat_name in ["Hits", "Home Runs", "Runs Batted In", "Runs"]:
+                        print(f"        {stat_name}: {avg:.1f} per game")
+                    else:
+                        print(f"        {stat_name}: {avg:.1f}")
+            
+            # Calculate some derived stats
+            if "Hits" in stat_totals and "At Bats" in stat_totals:
+                hits_total = sum(stat_totals["Hits"])
+                ab_total = sum(stat_totals["At Bats"])
+                if ab_total > 0:
+                    avg_batting = hits_total / ab_total
+                    print(f"        Batting Average: {avg_batting:.3f}")
+            return True
+        else:
+            return False
+    
+    def display_season_as_per_game_averages(self, parsed_stats, sport):
+        """Convert season totals to estimated per-game averages"""
+        if not parsed_stats:
+            return
+            
+        # Estimate games played (common season lengths)
+        estimated_games = 162 if sport == "baseball" else 82  # MLB = 162, NBA = 82
+        
+        relevant_stats = {}
+        
+        for stat_name, stat_value in parsed_stats.items():
+            stat_lower = stat_name.lower()
+            
+            try:
+                value = float(stat_value)
+                if sport == "baseball":
+                    if "hits" in stat_lower and value > 0:
+                        per_game = value / estimated_games
+                        relevant_stats["Hits"] = f"{per_game:.1f} per game"
+                    elif "home runs" in stat_lower or "hr" in stat_lower:
+                        per_game = value / estimated_games 
+                        relevant_stats["Home Runs"] = f"{per_game:.1f} per game"
+                    elif "rbi" in stat_lower and "runs batted in" not in stat_lower:
+                        relevant_stats["RBIs"] = f"{value} season / {value/estimated_games:.1f} per game"
+                    elif "runs" in stat_lower and "home" not in stat_lower and "rbi" not in stat_lower:
+                        per_game = value / estimated_games
+                        relevant_stats["Runs"] = f"{per_game:.1f} per game"
+            except:
+                continue
+        
+        if relevant_stats:
+            for stat_name, stat_display in relevant_stats.items():
+                print(f"        {stat_name}: {stat_display}")
+        else:
+            # Show raw season stats as fallback
+            print(f"        Season totals:")
+            for stat_name, stat_value in parsed_stats.items():
+                print(f"          {stat_name}: {stat_value}")
     
     def display_simplified_stats(self, games, sport):
         """Display simplified recent stats for manual comparison"""
