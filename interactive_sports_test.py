@@ -175,14 +175,15 @@ class SportsTestInterface:
                 print("10. Full Daily Intelligence Report")
                 print("11. Available Sports from Odds API")
                 print("\n🎯 VALUE BETTING:")
-                print("12. Value Betting Analysis") 
+                print("12. Game Analysis (Stats vs Props)")
                 print("13. Player Matching Review")
                 print("14. Confirm Player Matches")
+                print("15. Full Value Betting Analysis (Advanced)")
             
             print("\nOTHER:")
             print("0. Quit")
             
-            max_option = 14 if self.current_sport_league else 1
+            max_option = 15 if self.current_sport_league else 1
             choice = input(f"\nSelect option (0-{max_option}): ").strip()
             
             if choice == '0':
@@ -211,11 +212,13 @@ class SportsTestInterface:
                 elif choice == '11':
                     self.show_available_odds_sports()
                 elif choice == '12':
-                    self.value_betting_analysis()
+                    self.game_analysis_stats_vs_props()
                 elif choice == '13':
                     self.player_matching_review()
                 elif choice == '14':
                     self.confirm_player_matches()
+                elif choice == '15':
+                    self.value_betting_analysis()
                 else:
                     print("Invalid choice.")
             else:
@@ -1207,6 +1210,338 @@ class SportsTestInterface:
             print(f"Failed to get sports list: {result}")
         
         input(f"\nPress Enter to continue...     (odds calls this session: {self.api_calls_count})")
+    
+    def game_analysis_stats_vs_props(self):
+        """Focused analysis: Pick a game, see stats vs props for individual players"""
+        sport, league = self.current_sport_league
+        league_info = self.available_leagues[sport][league]
+        
+        self.print_section(f"{league_info['name'].upper()} GAME ANALYSIS - STATS VS PROPS")
+        
+        print(f"This will help you manually spot value bets by comparing stats to props")
+        print(f"Much more accurate than automated analysis")
+        
+        # Step 1: Get games for today with odds
+        print(f"\n1. Getting today's {league_info['name']} games with odds...")
+        
+        all_games = self.get_all_odds_for_league(sport, league, "h2h")
+        games = self.extract_games_from_odds(all_games)
+        
+        if not games:
+            print("No games with odds found for today")
+            input("Press Enter to continue...")
+            return
+        
+        print(f"Found {len(games)} games today. Select one to analyze:")
+        
+        # Step 2: Let user pick a game
+        for i, game in enumerate(games, 1):
+            home = game.get("home_team", "Home")
+            away = game.get("away_team", "Away")
+            start_time = game.get("commence_time", "TBD")
+            print(f"  {i}. {away} @ {home} ({start_time})")
+        
+        try:
+            choice = int(input(f"\nSelect game (1-{len(games)}): ")) - 1
+            if not (0 <= choice < len(games)):
+                print("Invalid selection")
+                input("Press Enter to continue...")
+                return
+                
+            selected_game = games[choice]
+            
+        except ValueError:
+            print("Invalid input")
+            input("Press Enter to continue...")
+            return
+        
+        # Step 3: Show game odds (moneyline, spread, total)
+        home = selected_game.get("home_team", "Home")
+        away = selected_game.get("away_team", "Away")
+        start_time = selected_game.get("commence_time", "TBD")
+        
+        print(f"\n2. GAME ODDS: {away} @ {home}")
+        print(f"   Start Time: {start_time}")
+        print("   " + "=" * 50)
+        
+        self.display_game_odds(selected_game, ["h2h", "spreads", "totals"])
+        
+        # Step 4: Get player props for this specific game
+        print(f"\n3. Getting player props for this game...")
+        
+        event_id = selected_game.get("id")
+        if not event_id:
+            print("No event ID found for this game")
+            input("Press Enter to continue...")
+            return
+        
+        # Use sport-specific markets
+        if sport == "baseball":
+            markets = "batter_hits,batter_home_runs,batter_total_bases,pitcher_strikeouts"
+        elif sport == "football":
+            markets = "player_pass_yds,player_rush_yds,player_receptions,player_pass_tds"
+        elif sport == "hockey":
+            markets = "player_points,player_assists,player_shots_on_goal"
+        elif sport == "soccer":
+            markets = "player_shots,player_goals,player_assists"
+        else:
+            # Basketball
+            markets = "player_points,player_rebounds,player_assists,player_threes"
+        
+        # Try to get player props
+        props_data = None
+        
+        for odds_key in league_info['odds_keys']:
+            success, result = self.make_request("POST", "/odds/event-odds", {
+                "sport": odds_key,
+                "event_id": event_id,
+                "regions": "us",
+                "markets": markets,
+                "odds_format": "american"
+            })
+            
+            if success and result:
+                if isinstance(result, dict) and "data" in result:
+                    props_data = result["data"]
+                else:
+                    props_data = result
+                    
+                if props_data and props_data.get("bookmakers"):
+                    print(f"   Found player props using {odds_key}")
+                    break
+                    
+        if not props_data or not props_data.get("bookmakers"):
+            print("No player props available for this game")
+            input("Press Enter to continue...")
+            return
+        
+        # Step 5: Extract all unique players
+        all_players = {}  # player_name: {props: [...], books: [...]}
+        
+        for bookmaker in props_data.get("bookmakers", []):
+            book_name = bookmaker.get("title", "Unknown")
+            
+            for market in bookmaker.get("markets", []):
+                market_key = market.get("key", "")
+                
+                for outcome in market.get("outcomes", []):
+                    player_name = outcome.get("description", "")
+                    if not player_name:
+                        continue
+                    
+                    if player_name not in all_players:
+                        all_players[player_name] = {"props": [], "books": set()}
+                    
+                    prop_info = {
+                        "market": market_key,
+                        "bet_type": outcome.get("name", ""),
+                        "line": outcome.get("point", ""),
+                        "odds": outcome.get("price", "N/A"),
+                        "bookmaker": book_name
+                    }
+                    
+                    all_players[player_name]["props"].append(prop_info)
+                    all_players[player_name]["books"].add(book_name)
+        
+        if not all_players:
+            print("No player props found")
+            input("Press Enter to continue...")
+            return
+        
+        # Step 6: Show players and let user select
+        players_list = sorted(all_players.keys())
+        print(f"\n4. PLAYERS WITH PROPS ({len(players_list)} found):")
+        
+        for i, player in enumerate(players_list, 1):
+            prop_count = len(all_players[player]["props"])
+            books = ", ".join(list(all_players[player]["books"])[:2])
+            print(f"  {i}. {player} ({prop_count} props at {books})")
+        
+        print(f"\n{len(players_list) + 1}. Show props for all players")
+            
+        try:
+            choice = int(input(f"\nSelect player or option (1-{len(players_list) + 1}): "))
+            
+            if choice == len(players_list) + 1:
+                # Show all players' props
+                for player, player_data in all_players.items():
+                    print(f"\n=== {player.upper()} ===")
+                    for prop in player_data["props"]:
+                        market_label = self.get_market_label(prop["market"])
+                        print(f"  {market_label}: {prop['bet_type']} {prop['line']} at {prop['odds']} ({prop['bookmaker']})")
+                input("Press Enter to continue...")
+                return
+                
+            elif 1 <= choice <= len(players_list):
+                selected_player = players_list[choice - 1]
+                # Step 7: Show player props AND recent stats side by side
+                self.show_player_stats_vs_props(selected_player, all_players[selected_player], sport, league)
+            else:
+                print("Invalid selection")
+                
+        except ValueError:
+            print("Invalid input")
+        
+        input(f"\nPress Enter to continue...     (odds calls this session: {self.api_calls_count})")
+    
+    def show_player_stats_vs_props(self, player_name, player_data, sport, league):
+        """Show player's recent stats alongside their betting props"""
+        self.print_section(f"{player_name.upper()} - STATS vs PROPS")
+        
+        print(f"Manual value analysis for {player_name}")
+        print(f"Compare recent performance to betting lines")
+        
+        # Show props first
+        print(f"\n1. BETTING PROPS:")
+        props = player_data["props"]
+        
+        # Group props by market
+        props_by_market = {}
+        for prop in props:
+            market = prop["market"]
+            if market not in props_by_market:
+                props_by_market[market] = []
+            props_by_market[market].append(prop)
+        
+        for market, market_props in props_by_market.items():
+            market_label = self.get_market_label(market)
+            print(f"\n   {market_label}:")
+            
+            for prop in market_props:
+                bet_type = prop["bet_type"]
+                line = prop["line"]
+                odds = prop["odds"]
+                book = prop["bookmaker"]
+                print(f"      {bet_type} {line}: {odds} ({book})")
+        
+        # Try to get player stats
+        print(f"\n2. RECENT STATS:")
+        
+        # First try to match player to ESPN ID if using new system
+        sport_key_map = {
+            "basketball": "basketball_nba" if league == "nba" else "basketball_wnba",
+            "football": "americanfootball_nfl",
+            "baseball": "baseball_mlb",
+            "hockey": "icehockey_nhl"
+        }
+        
+        sport_key = sport_key_map.get(sport, f"{sport}_{league}")
+        
+        # Try player matching
+        match_success, match_result = self.make_request("POST", "/player/match", {
+            "odds_player_name": player_name,
+            "sport_key": sport_key
+        })
+        
+        recent_stats = None
+        if match_success and match_result.get("match_found"):
+            match = match_result.get("match", {})
+            espn_id = match.get("espn_id")
+            espn_name = match.get("espn_name")
+            team = match.get("team", "Unknown")
+            
+            print(f"   Matched: {player_name} -> {espn_name} (ID: {espn_id})")
+            print(f"   Team: {team}")
+            
+            # Get recent stats
+            stats_success, stats_result = self.make_request("POST", "/espn/player-stats", {
+                "sport": sport,
+                "league": league,
+                "player_id": espn_id,
+                "limit": 10
+            })
+            
+            if stats_success and stats_result.get("ok"):
+                recent_stats = stats_result.get("data", {})
+                recent_games = recent_stats.get("recent_games", {})
+                
+                if recent_games and "events" in recent_games:
+                    games = recent_games["events"]
+                    print(f"   Found {len(games)} recent games")
+                    
+                    # Show basic stats if available
+                    self.display_simplified_stats(games, sport)
+                else:
+                    print(f"   No recent games data available")
+            else:
+                print(f"   Could not get stats")
+        else:
+            print(f"   No ESPN match found for {player_name}")
+            print(f"   Manual stats lookup needed")
+        
+        print(f"\n3. VALUE ANALYSIS:")
+        print(f"   Compare the recent averages above to the betting lines")
+        print(f"   Look for lines significantly below recent performance")
+        
+    def display_simplified_stats(self, games, sport):
+        """Display simplified recent stats for manual comparison"""
+        if not games:
+            return
+            
+        # Track stats across games
+        stat_totals = {}
+        valid_games = 0
+        
+        for game in games[:10]:  # Last 10 games
+            stats = game.get("statistics", [])
+            if not isinstance(stats, list):
+                continue
+                
+            valid_games += 1
+            
+            for stat in stats:
+                if not isinstance(stat, dict):
+                    continue
+                    
+                stat_name = stat.get("name", "").lower()
+                stat_value = stat.get("value", 0)
+                
+                try:
+                    stat_value = float(stat_value)
+                except:
+                    continue
+                
+                # Map stat names to common categories based on sport
+                key = None
+                if sport == "baseball":
+                    if "hits" in stat_name:
+                        key = "hits"
+                    elif "home runs" in stat_name or "homeruns" in stat_name:
+                        key = "home_runs"
+                    elif "rbi" in stat_name:
+                        key = "rbis"
+                    elif "strikeouts" in stat_name:
+                        key = "strikeouts"
+                    elif "total bases" in stat_name:
+                        key = "total_bases"
+                elif sport in ["basketball"]:
+                    if "points" in stat_name:
+                        key = "points"
+                    elif "rebounds" in stat_name:
+                        key = "rebounds"
+                    elif "assists" in stat_name:
+                        key = "assists"
+                elif sport == "football":
+                    if "passing yards" in stat_name:
+                        key = "pass_yds"
+                    elif "rushing yards" in stat_name:
+                        key = "rush_yds"
+                    elif "receptions" in stat_name:
+                        key = "receptions"
+                
+                if key:
+                    if key not in stat_totals:
+                        stat_totals[key] = []
+                    stat_totals[key].append(stat_value)
+        
+        if stat_totals and valid_games > 0:
+            print(f"   Recent averages ({valid_games} games):")
+            for key, values in stat_totals.items():
+                if values:
+                    avg = sum(values) / len(values)
+                    print(f"      {key.replace('_', ' ').title()}: {avg:.1f}")
+        else:
+            print(f"   Could not extract key stats - manual lookup recommended")
     
     def value_betting_analysis(self):
         """Analyze player props for value betting opportunities"""
