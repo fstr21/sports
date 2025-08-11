@@ -46,22 +46,31 @@ The system follows this data pipeline:
 - **Smart ESPN mapping** - Direct sport/league to ESPN URL path mapping
 - **Roster integration** - ESPN roster API calls for player matching (when needed)
 
-### 🚫 Current Blocker: MCP Odds API Integration Issue
-**Problem**: FastMCP server requires proper JSON-RPC session initialization before tool calls
+### 🚫 Current Blocker: MCP Protocol Communication Issue
+**IMPORTANT DISCOVERY**: The Wagyu Sports MCP server on Railway is working perfectly! 
+- **Real Problem**: We're using wrong communication protocol
 - **Error**: `"Bad Request: Missing session ID"` 
-- **Root Cause**: MCP is a stateful protocol expecting session-based communication
-- **What We Tried**: Simple HTTP POST calls to MCP endpoints
-- **What MCP Expects**: 
-  1. Initialize session with `{"jsonrpc": "2.0", "method": "initialize"}`
-  2. Then make tool calls with session context
+- **Root Cause**: We're making simple HTTP calls to a server that expects proper MCP JSON-RPC protocol
+- **What We Tried**: Simple HTTP POST calls like `requests.post("/odds/get-odds")`
+- **What MCP Actually Expects**: Proper JSON-RPC format with session handling
 
 **Current ESPN Status**: ✅ **FULLY WORKING** - 11 MLB games fetched successfully today
-**Current Odds Status**: ❌ **BLOCKED** - Cannot access MCP odds tools without proper protocol
+**Current Odds Status**: ❌ **BLOCKED** - We're not "speaking MCP language" correctly
 
-### 🔄 Next Actions Needed
-**Option 1**: Implement proper MCP client protocol (complex)
-**Option 2**: Add simple HTTP wrapper to MCP server (easier) 
-**Option 3**: Direct Odds API calls if keys available (bypasses MCP)
+### 📚 NEXT SESSION: Learn Proper MCP Protocol
+**Critical Information Needed**: Wagyu Sports MCP documentation
+- **Location**: https://github.com/hrgarber/wagyu_mcp_hackathon/tree/HEAD/wagyu_sports
+- **What Claude Needs to Learn**:
+  1. **Exact tool names** in Wagyu server (is it `getOdds`? `get_odds`? something else?)
+  2. **Tool parameters** and expected input formats
+  3. **Working MCP call examples** with proper JSON-RPC format
+  4. **Session handling** requirements for Wagyu implementation
+  5. **Authentication flow** specifics
+
+### 🔄 Next Actions Needed (Updated Priority)
+**Option 1**: Learn proper MCP protocol for Wagyu server (PREFERRED - server is working!)
+**Option 2**: Add simple HTTP wrapper to MCP server (fallback option)
+**Option 3**: Direct Odds API calls if keys available (bypasses MCP entirely)
 
 ### ⏳ Next Steps (After Odds Fix)
 1. Complete odds integration pipeline
