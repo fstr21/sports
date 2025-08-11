@@ -897,7 +897,8 @@ async def health_check():
         "services": {
             "sports_ai": SPORTS_AI_AVAILABLE,
             "odds": odds_server is not None,
-            "openrouter": OPENROUTER_API_KEY is not None
+            "openrouter": OPENROUTER_API_KEY is not None,
+            "player_matcher": player_matcher is not None
         }
     }
 
