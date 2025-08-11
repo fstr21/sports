@@ -1452,17 +1452,25 @@ class SportsTestInterface:
             })
             
             if stats_success and stats_result.get("ok"):
-                recent_stats = stats_result.get("data", {})
-                recent_games = recent_stats.get("recent_games", {})
+                player_stats_data = stats_result.get("data", {})
                 
-                if recent_games and "events" in recent_games:
-                    games = recent_games["events"]
-                    print(f"   Found {len(games)} recent games")
-                    
-                    # Show basic stats if available
-                    self.display_simplified_stats(games, sport)
+                # Use parsed statistics from server instead of raw game data
+                parsed_stats = player_stats_data.get("parsed_statistics", {})
+                
+                if parsed_stats:
+                    print(f"   Season Statistics:")
+                    # Display stats relevant to the sport and betting props
+                    self.display_parsed_season_stats(parsed_stats, sport)
                 else:
-                    print(f"   No recent games data available")
+                    print(f"   No parsed statistics available")
+                    # Fallback to trying game-by-game parsing
+                    recent_games = player_stats_data.get("recent_games", {})
+                    if recent_games and "events" in recent_games:
+                        games = recent_games["events"]
+                        print(f"   Found {len(games)} recent games")
+                        self.display_simplified_stats(games, sport)
+                    else:
+                        print(f"   No recent games data available")
             else:
                 print(f"   Could not get stats")
         else:
@@ -1470,9 +1478,65 @@ class SportsTestInterface:
             print(f"   Manual stats lookup needed")
         
         print(f"\n3. VALUE ANALYSIS:")
-        print(f"   Compare the recent averages above to the betting lines")
+        print(f"   Compare the season averages above to the betting lines")
         print(f"   Look for lines significantly below recent performance")
         
+    def display_parsed_season_stats(self, parsed_stats, sport):
+        """Display season statistics that are already parsed by the server"""
+        if not parsed_stats:
+            return
+            
+        # Map server's parsed stat names to betting-relevant categories
+        relevant_stats = {}
+        
+        for stat_name, stat_value in parsed_stats.items():
+            stat_lower = stat_name.lower()
+            
+            if sport == "baseball":
+                if "hits" in stat_lower:
+                    relevant_stats["Hits"] = stat_value
+                elif "home runs" in stat_lower or "hr" in stat_lower:
+                    relevant_stats["Home Runs"] = stat_value
+                elif "rbi" in stat_lower:
+                    relevant_stats["RBIs"] = stat_value
+                elif "runs" in stat_lower and "home" not in stat_lower:
+                    relevant_stats["Runs"] = stat_value
+                elif "total bases" in stat_lower or "tb" in stat_lower:
+                    relevant_stats["Total Bases"] = stat_value
+                elif "strikeouts" in stat_lower and "pitcher" not in stat_lower:
+                    relevant_stats["Strikeouts"] = stat_value
+            elif sport == "basketball":
+                if "points" in stat_lower:
+                    relevant_stats["Points"] = stat_value
+                elif "rebounds" in stat_lower:
+                    relevant_stats["Rebounds"] = stat_value
+                elif "assists" in stat_lower:
+                    relevant_stats["Assists"] = stat_value
+            elif sport == "football":
+                if "passing yards" in stat_lower:
+                    relevant_stats["Passing Yards"] = stat_value
+                elif "rushing yards" in stat_lower:
+                    relevant_stats["Rushing Yards"] = stat_value
+                elif "receptions" in stat_lower:
+                    relevant_stats["Receptions"] = stat_value
+        
+        if relevant_stats:
+            for stat_name, stat_value in relevant_stats.items():
+                try:
+                    # Try to format as number if possible
+                    if '.' in str(stat_value):
+                        formatted_value = f"{float(stat_value):.1f}"
+                    else:
+                        formatted_value = str(stat_value)
+                    print(f"      {stat_name}: {formatted_value}")
+                except:
+                    print(f"      {stat_name}: {stat_value}")
+        else:
+            # Show all parsed stats if we can't categorize them
+            print(f"      All available stats:")
+            for stat_name, stat_value in parsed_stats.items():
+                print(f"        {stat_name}: {stat_value}")
+    
     def display_simplified_stats(self, games, sport):
         """Display simplified recent stats for manual comparison"""
         if not games:
@@ -1481,6 +1545,7 @@ class SportsTestInterface:
         # Track stats across games
         stat_totals = {}
         valid_games = 0
+        all_stat_names = []  # For debugging
         
         for game in games[:10]:  # Last 10 games
             stats = game.get("statistics", [])
@@ -1496,6 +1561,10 @@ class SportsTestInterface:
                 stat_name = stat.get("name", "").lower()
                 stat_value = stat.get("value", 0)
                 
+                # Collect all stat names for debugging
+                if stat_name not in all_stat_names:
+                    all_stat_names.append(stat_name)
+                
                 try:
                     stat_value = float(stat_value)
                 except:
@@ -1504,16 +1573,25 @@ class SportsTestInterface:
                 # Map stat names to common categories based on sport
                 key = None
                 if sport == "baseball":
-                    if "hits" in stat_name:
+                    # More flexible matching for baseball stats
+                    if any(x in stat_name for x in ["hits", "h"]) and "home" not in stat_name:
                         key = "hits"
-                    elif "home runs" in stat_name or "homeruns" in stat_name:
+                    elif any(x in stat_name for x in ["home runs", "homeruns", "hr", "home run"]):
                         key = "home_runs"
-                    elif "rbi" in stat_name:
+                    elif any(x in stat_name for x in ["rbi", "runs batted in", "rbis"]):
                         key = "rbis"
-                    elif "strikeouts" in stat_name:
+                    elif any(x in stat_name for x in ["runs", "r"]) and "rbi" not in stat_name and "home" not in stat_name:
+                        key = "runs"
+                    elif any(x in stat_name for x in ["strikeouts", "so", "k"]) and "pitcher" not in stat_name:
                         key = "strikeouts"
-                    elif "total bases" in stat_name:
+                    elif any(x in stat_name for x in ["total bases", "tb"]):
                         key = "total_bases"
+                    elif any(x in stat_name for x in ["doubles", "2b"]):
+                        key = "doubles"
+                    elif any(x in stat_name for x in ["triples", "3b"]):
+                        key = "triples"
+                    elif any(x in stat_name for x in ["stolen bases", "sb"]):
+                        key = "stolen_bases"
                 elif sport in ["basketball"]:
                     if "points" in stat_name:
                         key = "points"
@@ -1542,6 +1620,11 @@ class SportsTestInterface:
                     print(f"      {key.replace('_', ' ').title()}: {avg:.1f}")
         else:
             print(f"   Could not extract key stats - manual lookup recommended")
+            # Show available stat names for debugging
+            if all_stat_names:
+                print(f"   Available stat names: {', '.join(sorted(set(all_stat_names))[:10])}")
+            else:
+                print(f"   No stat names found in recent games")
     
     def value_betting_analysis(self):
         """Analyze player props for value betting opportunities"""
