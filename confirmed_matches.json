@@ -43,6 +43,36 @@
       "verified_by": "manual",
       "verified_at": "2025-08-11T12:00:00Z",
       "last_seen": "2025-08-11T12:00:00Z"
+    },
+    "Bryce Harper": {
+      "espn_id": "30951",
+      "espn_name": "Bryce Harper",
+      "team": "Philadelphia Phillies",
+      "position": "1B",
+      "confidence": 1.0,
+      "verified_by": "manual",
+      "verified_at": "2025-08-11T08:00:00Z",
+      "last_seen": "2025-08-11T08:00:00Z"
+    },
+    "Trea Turner": {
+      "espn_id": "33912",
+      "espn_name": "Trea Turner",
+      "team": "Philadelphia Phillies",
+      "position": "SS",
+      "confidence": 1.0,
+      "verified_by": "manual",
+      "verified_at": "2025-08-11T08:00:00Z",
+      "last_seen": "2025-08-11T08:00:00Z"
+    },
+    "Nick Castellanos": {
+      "espn_id": "31097",
+      "espn_name": "Nick Castellanos",
+      "team": "Philadelphia Phillies",
+      "position": "RF",
+      "confidence": 1.0,
+      "verified_by": "manual",
+      "verified_at": "2025-08-11T08:00:00Z",
+      "last_seen": "2025-08-11T08:00:00Z"
     }
   }
 }
