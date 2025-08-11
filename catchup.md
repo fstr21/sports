@@ -1,5 +1,77 @@
-I am building system that will eventually turn into a discord bot and later a webapp that has the goal of recommending bets and presenting them to our subscribers. for right now my idea for the workflow is as follows fetch games for the day through the espn mcp, which gives us the teams, find the players per the teams, find the props for the players through the odds api mcp   (both mcp are hosted on our railway), find the  comparable stats for the last 5 games for the players for the comparible props(mlb hits, strikeouts - nfl qb passing yards etc etc)     run some calculations, format and present to the users,   now our mcp are hosted on railway so they are remote accessable,  our connection to the teams and players and props are file based and our players have player ids and teams have team ids, so we will have a system of connecting the 2.   we have a on goin script we are trying to work on where we are doing extensive testing tryinng to fetch the games, teams, players, props, stats etc, we are pretty close, we are just missing the stats for right now. the script is  C:\Users\fstr2\Desktop\sports\interactive_sports_test.py
+# Sports Betting Recommendation System
 
-we are using espn for all of our stats and players data like that then we are only useing the odds mcp from the-odds-api for our odds data.  one of the problems we are having is different sports have different endpoitns for data like stats so we are trying to solve it one sport by one sport 
+## Project Overview
+I am building a sports betting recommendation system that will eventually become:
+1. **Discord bot** - For initial subscriber recommendations
+2. **Web application** - For broader user access
 
-please look at the railway mcp set up and lets continue working ...confirm that you have read this and ask me what we are currentnly working on
+## Core Workflow
+The system follows this data pipeline:
+
+1. **Fetch Daily Games** - ESPN MCP gets today's games and teams
+2. **Get Player Props** - Odds API MCP fetches betting lines for players
+3. **Collect Player Stats** - ESPN provides last 5 games stats for relevant metrics
+4. **Calculate Value** - Compare recent performance vs betting lines
+5. **Present Recommendations** - Format and deliver to subscribers
+
+## Technical Architecture
+
+### Data Sources
+- **ESPN API** - Games, teams, players, statistics
+- **The Odds API** - Betting lines and player props
+- Both APIs accessed via **MCP servers hosted on Railway**
+
+### Data Storage
+- **File-based connections** between teams and players
+- **Player IDs and Team IDs** stored locally for mapping
+- **Reference directories**: 
+  - `C:\Users\fstr2\Desktop\sports\espn ids\` 
+  - `C:\Users\fstr2\Desktop\sports\stats\`
+
+### Current Challenges
+- **Different sports have different API endpoints** for statistics
+- **Solving sport-by-sport** to handle varying data structures
+- **Player matching** between ESPN and betting sites
+
+## Current Status (Updated August 2024)
+
+### ✅ Completed
+- **MCP servers deployed** on Railway and accessible remotely
+- **100% MCP integration** - All ESPN and Odds API calls through Railway server
+- **Interactive testing script** with league selection menu
+- **Game fetching** with event IDs for MLB, NBA, WNBA, MLS, EPL, NFL, NHL
+- **Eastern Time focus** - all times displayed in ET
+- **Clean project structure** - removed complex testing code, focused on step-by-step approach
+- **Odds integration** - Full betting odds (moneylines, spreads, totals) with team matching
+- **API call tracking** - Monitor Odds API usage with running counter
+- **Complete game + odds pipeline** - Games matched with betting lines from multiple sportsbooks
+- **Player props integration** - Direct game selection with sport-specific prop markets
+- **Smart data reuse** - Event ID matching from existing odds data (no extra API calls)
+
+### 🔄 In Progress  
+- **Testing complete pipeline** across active leagues (MLB, WNBA focus)
+- **Validating player props display** for different sports
+
+### ⏳ Next Steps
+1. Integrate player statistics collection (ESPN MCP)
+2. Build player matching system (ESPN players ↔ Odds API players)
+3. Add value calculation algorithms (recent stats vs betting lines)
+4. Create recommendation engine
+5. Build automated daily analysis pipeline
+
+## Testing Script
+Primary development happens in: `C:\Users\fstr2\Desktop\sports\interactive_sports_test.py`
+
+**Complete 3-Step Pipeline:**
+1. **Games**: ESPN MCP → Today's games with Eastern Time
+2. **Odds**: Odds API MCP → Moneylines, spreads, totals for matched games  
+3. **Player Props**: Direct game selection → Sport-specific prop markets
+
+**Key Features:**
+- **Interactive league selection** (MLB, NBA, WNBA, MLS, EPL, NFL, NHL)
+- **Direct game selection** - Type game number to view player props
+- **Sport-specific markets** - MLB (hits, HRs, Ks), WNBA (points, rebounds, assists, 3PM)
+- **Smart data reuse** - Event ID matching from existing odds data
+- **100% MCP integration** - All API calls through Railway server
+- **API usage tracking** - Running counter for cost management
+- **Eastern Time display** - All game times converted to ET
