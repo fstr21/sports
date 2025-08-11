@@ -393,109 +393,234 @@ def parse_espn_statistics(splits_data, sport):
     
     return stats_found
 
-async def get_player_stats_wrapper(sport: str, league: str, player_id: str, season: str = None, limit: int = 10) -> dict:
-    """Get player stats using ESPN Core API with proper $ref link following and sport-specific parsing."""
+async def get_player_recent_games_stats(sport: str, league: str, player_id: str, games_limit: int = 5) -> dict:
+    """Get player's recent game-by-game stats using eventlog approach (like WNBA implementation)"""
     try:
-        # Build ESPN Core API URL
         base_url = f"https://sports.core.api.espn.com/v2/sports/{sport}/leagues/{league}/athletes/{player_id}"
         
         async with httpx.AsyncClient() as client:
-            # Get base player profile
-            response = await client.get(base_url, timeout=15.0)
+            # Get player profile first
+            profile_response = await client.get(base_url, timeout=15.0)
+            if profile_response.status_code != 200:
+                return {"ok": False, "message": f"Player profile error: {profile_response.status_code}"}
             
-            if response.status_code != 200:
-                return {
-                    "ok": False,
-                    "message": f"ESPN API error: {response.status_code}",
-                    "data": None
-                }
+            player_data = profile_response.json()
             
-            player_data = response.json()
+            # Get eventlog (game history) - this is the key difference
+            eventlog_url = f"{base_url}/eventlog"
+            print(f"[DEBUG] Fetching eventlog from: {eventlog_url}")
             
-            # Get season statistics (most reliable for totals)
-            season_stats = {}
-            parsed_stats = {}
+            all_events = []
+            page = 1
+            max_pages = 3  # Limit to avoid too many API calls
             
-            if "statistics" in player_data and isinstance(player_data["statistics"], dict):
-                stats_ref = player_data["statistics"].get("$ref")
-                if stats_ref:
-                    stats_url = f"{stats_ref}"
-                    if season:
-                        stats_url += f"?season={season}"
-                        
-                    stats_response = await client.get(stats_url, timeout=15.0)
-                    if stats_response.status_code == 200:
-                        season_data = stats_response.json()
-                        
-                        # Parse the nested splits structure
-                        if "splits" in season_data:
-                            splits = season_data["splits"]
-                            print(f"[DEBUG] Found splits data for {sport}, parsing...")
-                            parsed_stats = parse_espn_statistics(splits, sport)
-                            print(f"[DEBUG] Parsed {len(parsed_stats)} statistics: {list(parsed_stats.keys())}")
-                        else:
-                            print(f"[DEBUG] No splits data found in season_data keys: {list(season_data.keys())}")
-            
-            # Get recent games for context (optional)
-            recent_games_data = []
-            if "statisticslog" in player_data and isinstance(player_data["statisticslog"], dict):
-                log_ref = player_data["statisticslog"].get("$ref")
-                if log_ref:
-                    log_url = f"{log_ref}?limit={min(limit, 5)}"  # Limit to 5 for performance
+            # Get all eventlog pages (games are chronological, need recent ones)
+            while page <= max_pages:
+                page_url = eventlog_url if page == 1 else f"{eventlog_url}?page={page}"
+                eventlog_response = await client.get(page_url, timeout=15.0)
+                
+                if eventlog_response.status_code != 200:
+                    print(f"[DEBUG] Eventlog page {page} failed: {eventlog_response.status_code}")
+                    break
+                
+                eventlog_data = eventlog_response.json()
+                events = eventlog_data.get("events", {})
+                
+                if isinstance(events, dict) and "items" in events:
+                    page_events = events["items"]
+                    all_events.extend(page_events)
+                    print(f"[DEBUG] Page {page}: Found {len(page_events)} events")
                     
-                    gamelog_response = await client.get(log_url, timeout=15.0)
-                    if gamelog_response.status_code == 200:
-                        gamelog_data = gamelog_response.json()
-                        recent_games_data = gamelog_data.get("entries", [])
+                    # Check if there are more pages
+                    if events.get("pageIndex", 1) >= events.get("pageCount", 1):
+                        break
+                    page += 1
+                else:
+                    break
             
-            # Ensure parsed_stats is populated
-            if not parsed_stats and 'season_data' in locals() and season_data:
-                if "splits" in season_data:
-                    parsed_stats = parse_espn_statistics(season_data["splits"], sport)
+            print(f"[DEBUG] Total events collected: {len(all_events)}")
             
-            # Format response to match expected structure  
-            result_data = {
-                "player_profile": {
-                    "athlete": {
-                        "id": player_data.get("id"),
-                        "displayName": player_data.get("displayName", "Unknown"),
-                        "position": player_data.get("position", {}),
-                        "height": player_data.get("displayHeight", "Unknown"),
-                        "weight": player_data.get("displayWeight", "Unknown"),
-                        "age": player_data.get("age"),
-                        "team": player_data.get("team", {}),
-                        # Add parsed stats to athlete profile for easy access
-                        "season_stats": parsed_stats
+            # Process each event to get game details and stats
+            games_with_stats = []
+            
+            for i, event_item in enumerate(all_events):
+                if len(games_with_stats) >= games_limit:
+                    break
+                    
+                try:
+                    # Get event details
+                    event_ref = event_item.get("event", {}).get("$ref")
+                    stats_ref = event_item.get("statistics", {}).get("$ref")
+                    
+                    if not event_ref or not stats_ref:
+                        continue
+                    
+                    # Fetch game details and player stats
+                    event_response = await client.get(event_ref, timeout=10.0)
+                    stats_response = await client.get(stats_ref, timeout=10.0)
+                    
+                    if event_response.status_code != 200 or stats_response.status_code != 200:
+                        continue
+                    
+                    event_data = event_response.json()
+                    stats_data = stats_response.json()
+                    
+                    # Extract game info
+                    game_info = {
+                        "event_id": event_data.get("id"),
+                        "date": event_data.get("date"),
+                        "competitors": event_data.get("competitions", [{}])[0].get("competitors", []),
+                        "stats": {}
                     }
-                },
-                "recent_games": {
-                    "events": recent_games_data
-                },
-                "season_stats": season_data if 'season_data' in locals() else {},
-                "parsed_statistics": parsed_stats,
-                "basketball_specification_stats": parsed_stats if sport == "basketball" else {},
-                "sport": sport,
-                "league": league,
-                "player_id": player_id,
-                "games_requested": limit,
-                "debug_info": {
-                    "has_season_data": 'season_data' in locals(),
-                    "has_splits": 'season_data' in locals() and season_data and "splits" in season_data,
-                    "parsed_stats_count": len(parsed_stats)
-                }
-            }
+                    
+                    # Parse player stats for this game
+                    if "splits" in stats_data:
+                        game_stats = parse_espn_statistics(stats_data["splits"], sport)
+                        game_info["stats"] = game_stats
+                    
+                    # Convert date to Eastern time
+                    if game_info["date"]:
+                        try:
+                            from datetime import datetime
+                            import pytz
+                            utc_dt = datetime.fromisoformat(game_info["date"].replace('Z', '+00:00'))
+                            eastern = pytz.timezone('US/Eastern')
+                            et_dt = utc_dt.astimezone(eastern)
+                            game_info["eastern_time"] = et_dt.strftime("%m/%d %I:%M %p ET")
+                            game_info["datetime_obj"] = et_dt
+                        except:
+                            game_info["eastern_time"] = game_info["date"]
+                            game_info["datetime_obj"] = datetime.now()
+                    
+                    games_with_stats.append(game_info)
+                    print(f"[DEBUG] Processed game {len(games_with_stats)}: {game_info.get('eastern_time', 'Unknown date')}")
+                    
+                except Exception as e:
+                    print(f"[DEBUG] Error processing event {i}: {e}")
+                    continue
+            
+            # Sort by date (most recent first)
+            games_with_stats.sort(key=lambda x: x.get("datetime_obj", datetime.min), reverse=True)
+            recent_games = games_with_stats[:games_limit]
+            
+            # Calculate 5-game averages
+            averages = calculate_recent_averages(recent_games, sport)
             
             return {
                 "ok": True,
-                "data": result_data
+                "data": {
+                    "player_info": {
+                        "id": player_data.get("id"),
+                        "name": player_data.get("displayName", "Unknown"),
+                        "team": player_data.get("team", {}).get("displayName", "Unknown"),
+                        "position": player_data.get("position", {}).get("displayName", "Unknown")
+                    },
+                    "recent_games": recent_games,
+                    "five_game_averages": averages,
+                    "games_found": len(recent_games),
+                    "sport": sport,
+                    "league": league
+                }
             }
             
     except Exception as e:
         return {
             "ok": False,
-            "message": f"Error fetching player stats: {str(e)}",
+            "message": f"Error fetching recent games: {str(e)}"
+        }
+
+def calculate_recent_averages(games: list, sport: str) -> dict:
+    """Calculate averages from recent games based on sport"""
+    if not games:
+        return {}
+    
+    # Define key stats by sport
+    key_stats = {
+        "basketball": ["points", "rebounds", "assists", "threepointfieldgoalsmade"],
+        "baseball": ["hits", "homeruns", "rbis", "runs", "strikeouts"],
+        "football": ["passingyards", "rushingyards", "receptions", "passingtouchdowns"],
+        "hockey": ["points", "assists", "shots", "saves"],
+        "soccer": ["shots", "goals", "assists"]
+    }
+    
+    stats_to_average = key_stats.get(sport, ["points", "rebounds", "assists"])
+    averages = {}
+    
+    for stat in stats_to_average:
+        values = []
+        for game in games:
+            game_stats = game.get("stats", {})
+            if stat in game_stats and isinstance(game_stats[stat], (int, float)):
+                values.append(game_stats[stat])
+        
+        if values:
+            averages[stat] = round(sum(values) / len(values), 1)
+        else:
+            averages[stat] = 0.0
+    
+    return averages
+
+async def get_player_stats_wrapper(sport: str, league: str, player_id: str, season: str = None, limit: int = 5) -> dict:
+    """Get player stats - now prioritizes recent game-by-game stats over season averages"""
+    try:
+        # First try to get recent games stats (the new approach)
+        recent_stats_result = await get_player_recent_games_stats(sport, league, player_id, limit)
+        
+        if recent_stats_result.get("ok") and recent_stats_result.get("data", {}).get("recent_games"):
+            print(f"[INFO] Successfully got {len(recent_stats_result['data']['recent_games'])} recent games")
+            return recent_stats_result
+        
+        # Fallback to season stats if recent games failed
+        print(f"[INFO] Recent games failed, falling back to season stats")
+        return await get_player_season_stats_fallback(sport, league, player_id, season)
+        
+    except Exception as e:
+        return {
+            "ok": False,
+            "message": f"Error in player stats wrapper: {str(e)}",
             "data": None
         }
+
+async def get_player_season_stats_fallback(sport: str, league: str, player_id: str, season: str = None) -> dict:
+    """Fallback to season stats if recent games approach fails"""
+    try:
+        base_url = f"https://sports.core.api.espn.com/v2/sports/{sport}/leagues/{league}/athletes/{player_id}"
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.get(base_url, timeout=15.0)
+            
+            if response.status_code != 200:
+                return {"ok": False, "message": f"ESPN API error: {response.status_code}"}
+            
+            player_data = response.json()
+            parsed_stats = {}
+            
+            # Get season statistics
+            if "statistics" in player_data and isinstance(player_data["statistics"], dict):
+                stats_ref = player_data["statistics"].get("$ref")
+                if stats_ref:
+                    stats_response = await client.get(stats_ref, timeout=15.0)
+                    if stats_response.status_code == 200:
+                        season_data = stats_response.json()
+                        if "splits" in season_data:
+                            parsed_stats = parse_espn_statistics(season_data["splits"], sport)
+            
+            return {
+                "ok": True,
+                "data": {
+                    "player_info": {
+                        "id": player_data.get("id"),
+                        "name": player_data.get("displayName", "Unknown"),
+                        "team": player_data.get("team", {}).get("displayName", "Unknown")
+                    },
+                    "season_stats": parsed_stats,
+                    "fallback_mode": True,
+                    "message": "Using season averages (recent games unavailable)"
+                }
+            }
+            
+    except Exception as e:
+        return {"ok": False, "message": f"Season stats fallback error: {str(e)}"}
 
 SPORTS_AI_AVAILABLE = True
 print("[OK] Sports AI MCP wrappers created dynamically")

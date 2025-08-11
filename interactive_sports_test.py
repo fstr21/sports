@@ -1565,69 +1565,92 @@ class SportsTestInterface:
                 print(f"        {stat_name}: {stat_value}")
     
     def display_recent_games_stats(self, player_stats_data, sport):
-        """Display recent 5 games statistics like in MLB_Random_5_Players_Stats.json"""
-        recent_games = player_stats_data.get("recent_games", {})
+        """Display recent 5 games statistics - updated for new server format"""
         
-        if not recent_games or "events" not in recent_games:
-            return False
-            
-        games = recent_games["events"]
-        if not games:
-            return False
-            
-        # Track stats across games for averaging
-        stat_totals = {}
-        valid_games = 0
+        # Check for new format (recent_games as list)
+        recent_games = player_stats_data.get("recent_games", [])
+        five_game_averages = player_stats_data.get("five_game_averages", {})
         
-        for game in games[:5]:  # Last 5 games
-            stats = game.get("statistics", [])
-            if not isinstance(stats, list) or not stats:
-                continue
+        if isinstance(recent_games, list) and recent_games:
+            print(f"✅ RECENT {len(recent_games)} GAMES PERFORMANCE:")
+            
+            # Display individual games
+            for i, game in enumerate(recent_games, 1):
+                game_stats = game.get("stats", {})
+                eastern_time = game.get("eastern_time", "Unknown date")
+                competitors = game.get("competitors", [])
                 
-            valid_games += 1
+                # Try to get opponent info
+                opponent = "vs Unknown"
+                if len(competitors) >= 2:
+                    home_team = competitors[0].get("team", {}).get("displayName", "Home")
+                    away_team = competitors[1].get("team", {}).get("displayName", "Away") 
+                    opponent = f"vs {home_team}"  # Simplified for display
+                
+                print(f"  Game {i} ({eastern_time}) {opponent}:")
+                
+                # Display key stats based on sport
+                if sport == "baseball":
+                    hits = game_stats.get("hits", 0)
+                    hrs = game_stats.get("homeruns", 0) 
+                    rbis = game_stats.get("rbis", 0)
+                    runs = game_stats.get("runs", 0)
+                    print(f"    {hits} hits, {hrs} HR, {rbis} RBI, {runs} runs")
+                elif sport == "basketball":
+                    pts = game_stats.get("points", 0)
+                    reb = game_stats.get("rebounds", 0)
+                    ast = game_stats.get("assists", 0)
+                    threes = game_stats.get("threepointfieldgoalsmade", 0)
+                    print(f"    {pts} pts, {reb} reb, {ast} ast, {threes} 3PM")
+                elif sport == "football":
+                    pass_yds = game_stats.get("passingyards", 0)
+                    rush_yds = game_stats.get("rushingyards", 0)
+                    rec = game_stats.get("receptions", 0)
+                    tds = game_stats.get("passingtouchdowns", 0)
+                    print(f"    {pass_yds} pass yds, {rush_yds} rush yds, {rec} rec, {tds} TD")
+                else:
+                    # Generic display
+                    key_stats = list(game_stats.items())[:4]  # Show first 4 stats
+                    stats_str = ", ".join([f"{k}: {v}" for k, v in key_stats])
+                    print(f"    {stats_str}")
             
-            # Look for the batting stats structure
-            for stat_group in stats:
-                if isinstance(stat_group, dict):
-                    # Check if this has actual stat values (not $ref URLs)
-                    stats_data = stat_group.get("stats", {})
-                    if isinstance(stats_data, dict) and stats_data:
-                        batting_stats = stats_data.get("batting", {})
-                        if isinstance(batting_stats, dict):
-                            # Process batting stats
-                            for stat_name, stat_value in batting_stats.items():
-                                if stat_name in ["Hits", "Home Runs", "Runs Batted In", "Runs", "At Bats", "Strikeouts"]:
-                                    try:
-                                        value = float(stat_value)
-                                        if stat_name not in stat_totals:
-                                            stat_totals[stat_name] = []
-                                        stat_totals[stat_name].append(value)
-                                    except:
-                                        continue
-        
-        if stat_totals and valid_games > 0:
-            print(f"      Recent {valid_games} games averages:")
-            # Calculate and display averages
-            key_stats = ["Hits", "Home Runs", "Runs Batted In", "Runs", "At Bats"]
-            for stat_name in key_stats:
-                if stat_name in stat_totals:
-                    values = stat_totals[stat_name]
-                    avg = sum(values) / len(values)
-                    if stat_name in ["Hits", "Home Runs", "Runs Batted In", "Runs"]:
-                        print(f"        {stat_name}: {avg:.1f} per game")
-                    else:
-                        print(f"        {stat_name}: {avg:.1f}")
+            # Display 5-game averages
+            if five_game_averages:
+                print(f"\n📊 {len(recent_games)}-GAME AVERAGES:")
+                if sport == "baseball":
+                    hits_avg = five_game_averages.get("hits", 0)
+                    hr_avg = five_game_averages.get("homeruns", 0)
+                    rbi_avg = five_game_averages.get("rbis", 0)
+                    runs_avg = five_game_averages.get("runs", 0)
+                    print(f"  Hits: {hits_avg} per game")
+                    print(f"  Home Runs: {hr_avg} per game") 
+                    print(f"  RBIs: {rbi_avg} per game")
+                    print(f"  Runs: {runs_avg} per game")
+                elif sport == "basketball":
+                    pts_avg = five_game_averages.get("points", 0)
+                    reb_avg = five_game_averages.get("rebounds", 0)
+                    ast_avg = five_game_averages.get("assists", 0)
+                    threes_avg = five_game_averages.get("threepointfieldgoalsmade", 0)
+                    print(f"  Points: {pts_avg} per game")
+                    print(f"  Rebounds: {reb_avg} per game")
+                    print(f"  Assists: {ast_avg} per game")
+                    print(f"  3-Pointers: {threes_avg} per game")
+                else:
+                    # Generic averages display
+                    for stat_name, avg_value in five_game_averages.items():
+                        print(f"  {stat_name.title()}: {avg_value} per game")
             
-            # Calculate some derived stats
-            if "Hits" in stat_totals and "At Bats" in stat_totals:
-                hits_total = sum(stat_totals["Hits"])
-                ab_total = sum(stat_totals["At Bats"])
-                if ab_total > 0:
-                    avg_batting = hits_total / ab_total
-                    print(f"        Batting Average: {avg_batting:.3f}")
             return True
-        else:
-            return False
+        
+        # Fallback to old format check
+        old_recent_games = player_stats_data.get("recent_games", {})
+        if isinstance(old_recent_games, dict) and "events" in old_recent_games:
+            games = old_recent_games["events"]
+            if games:
+                print("❌ Using season averages (recent games format not supported)")
+                return False
+        
+        return False
     
     def display_season_as_per_game_averages(self, parsed_stats, sport):
         """Convert season totals to estimated per-game averages"""
