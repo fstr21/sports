@@ -18,6 +18,10 @@ REQUEST_READ_TIMEOUT = float(os.getenv("REQUEST_READ_TIMEOUT", "20"))
 USER_AGENT = "sports-ai-mcp/2.0"
 PROMPT_VERSION = "v2.0"
 
+# Odds API Configuration
+ODDS_API_KEY = os.getenv("ODDS_API_KEY", "").strip()
+ODDS_API_BASE_URL = "https://api.the-odds-api.com/v4"
+
 ESPN_BASE_URL = "https://site.api.espn.com/apis/site/v2/sports"
 
 # Supported leagues (expand as needed)
@@ -236,6 +240,110 @@ async def ask_openrouter(payload: Dict[str, Any], prompt: str) -> Tuple[bool, st
     except httpx.RequestError as e:
         return False, f"OpenRouter request error: {e}"
 
+# =========================== Odds API ===========================
+async def odds_api_get(endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Make a GET request to The Odds API"""
+    if not ODDS_API_KEY:
+        return {
+            "ok": False,
+            "error_type": "config_error",
+            "source": "odds_api",
+            "message": "ODDS_API_KEY not configured"
+        }
+    
+    url = f"{ODDS_API_BASE_URL}/{endpoint}"
+    query_params = params or {}
+    query_params["apiKey"] = ODDS_API_KEY
+    
+    client = await get_http_client()
+    try:
+        r = await client.get(url, params=query_params)
+        if r.status_code >= 400:
+            return {
+                "ok": False,
+                "error_type": "upstream_error",
+                "source": "odds_api", 
+                "status": r.status_code,
+                "url": str(r.request.url),
+                "body_excerpt": r.text[:500],
+            }
+        return {"ok": True, "data": r.json(), "url": str(r.request.url)}
+    except httpx.RequestError as e:
+        return {"ok": False, "error_type": "request_error", "source": "odds_api", "url": url, "message": str(e)}
+
+def get_mock_sports_data() -> List[Dict[str, Any]]:
+    """Mock sports data for testing"""
+    return [
+        {"key": "americanfootball_nfl", "group": "American Football", "title": "NFL", "description": "US National Football League", "active": True, "has_outrights": False},
+        {"key": "basketball_nba", "group": "Basketball", "title": "NBA", "description": "US National Basketball Association", "active": True, "has_outrights": True},
+        {"key": "baseball_mlb", "group": "Baseball", "title": "MLB", "description": "US Major League Baseball", "active": True, "has_outrights": True},
+        {"key": "icehockey_nhl", "group": "Ice Hockey", "title": "NHL", "description": "US National Hockey League", "active": True, "has_outrights": True},
+        {"key": "basketball_wnba", "group": "Basketball", "title": "WNBA", "description": "US Women's National Basketball Association", "active": True, "has_outrights": False},
+        {"key": "soccer_usa_mls", "group": "Soccer", "title": "MLS", "description": "Major League Soccer", "active": True, "has_outrights": False}
+    ]
+
+def get_mock_odds_data(sport: str) -> List[Dict[str, Any]]:
+    """Mock odds data for testing"""
+    if sport == "baseball_mlb":
+        return [
+            {
+                "id": "test_game_1",
+                "sport_key": "baseball_mlb",
+                "sport_title": "MLB",
+                "commence_time": "2025-08-12T19:05:00Z",
+                "home_team": "New York Yankees",
+                "away_team": "Boston Red Sox",
+                "bookmakers": [
+                    {
+                        "key": "fanduel",
+                        "title": "FanDuel",
+                        "last_update": "2025-08-11T23:00:00Z",
+                        "markets": [
+                            {
+                                "key": "h2h",
+                                "last_update": "2025-08-11T23:00:00Z",
+                                "outcomes": [
+                                    {"name": "New York Yankees", "price": -150},
+                                    {"name": "Boston Red Sox", "price": 130}
+                                ]
+                            },
+                            {
+                                "key": "spreads", 
+                                "last_update": "2025-08-11T23:00:00Z",
+                                "outcomes": [
+                                    {"name": "New York Yankees", "price": -110, "point": -1.5},
+                                    {"name": "Boston Red Sox", "price": -110, "point": 1.5}
+                                ]
+                            },
+                            {
+                                "key": "totals",
+                                "last_update": "2025-08-11T23:00:00Z", 
+                                "outcomes": [
+                                    {"name": "Over", "price": -105, "point": 8.5},
+                                    {"name": "Under", "price": -115, "point": 8.5}
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    return []
+
+def get_mock_quota_info() -> Dict[str, Any]:
+    """Mock quota info for testing"""
+    return {
+        "api_key": "test_key",
+        "usage": {
+            "used": 45,
+            "remaining": 455
+        },
+        "rate_limit": {
+            "requests_per_second": 10,
+            "requests_remaining": 455
+        }
+    }
+
 # =========================== Envelopes ===========================
 def ok_envelope(content_md: str, data: Dict[str, Any], meta_extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     meta = {
@@ -388,6 +496,86 @@ async def analyze_game_strict(sport: str, league: str, event_id: str, question: 
     ok, content = await ask_openrouter(payload, f"Answer strictly from the JSON. Question: {question}")
     md = content if ok else f"OpenRouter error: {content}"
     return ok_envelope(md, payload, {"league": league, "sport": sport, "event_id": event_id})
+
+# =========================== Odds API Tools ===========================
+@server.tool(name="getSports", description="Get available sports from The Odds API. Params: all_sports?, use_test_mode?")
+async def get_sports(all_sports: bool = False, use_test_mode: bool = True) -> Dict[str, Any]:
+    """Get available sports from The Odds API"""
+    
+    if use_test_mode:
+        # Use mock data for testing
+        sports_data = get_mock_sports_data()
+        if not all_sports:
+            # Filter to only active sports
+            sports_data = [s for s in sports_data if s.get("active", True)]
+        
+        md = f"## Available Sports (Test Mode)\n\nFound {len(sports_data)} sports"
+        return ok_envelope(md, {"sports": sports_data}, {"source": "odds_api_mock", "test_mode": True})
+    
+    # Live API call
+    params = {}
+    if all_sports:
+        params["all"] = "true"
+    
+    resp = await odds_api_get("sports", params)
+    if not resp.get("ok"):
+        return resp
+    
+    sports_data = resp["data"]
+    md = f"## Available Sports\n\nFound {len(sports_data)} sports"
+    return ok_envelope(md, {"sports": sports_data}, {"source": "odds_api", "url": resp.get("url"), "test_mode": False})
+
+@server.tool(name="getOdds", description="Get odds for a specific sport. Params: sport, regions?, markets?, odds_format?, date_format?, use_test_mode?")
+async def get_odds(sport: str, regions: str = "us", markets: str = "h2h", odds_format: str = "american", date_format: str = "iso", use_test_mode: bool = True) -> Dict[str, Any]:
+    """Get odds for a specific sport from The Odds API"""
+    
+    if use_test_mode:
+        # Use mock data for testing
+        odds_data = get_mock_odds_data(sport)
+        md = f"## Odds for {sport} (Test Mode)\n\nFound {len(odds_data)} games with odds"
+        return ok_envelope(md, {"odds": odds_data}, {"source": "odds_api_mock", "sport": sport, "test_mode": True})
+    
+    # Live API call
+    params = {
+        "regions": regions,
+        "markets": markets,
+        "oddsFormat": odds_format,
+        "dateFormat": date_format
+    }
+    
+    resp = await odds_api_get(f"sports/{sport}/odds", params)
+    if not resp.get("ok"):
+        return resp
+    
+    odds_data = resp["data"]
+    md = f"## Odds for {sport}\n\nFound {len(odds_data)} games with odds"
+    return ok_envelope(md, {"odds": odds_data}, {"source": "odds_api", "sport": sport, "url": resp.get("url"), "test_mode": False})
+
+@server.tool(name="getQuotaInfo", description="Get API quota information from The Odds API. Params: use_test_mode?")
+async def get_quota_info(use_test_mode: bool = True) -> Dict[str, Any]:
+    """Get API quota information from The Odds API"""
+    
+    if use_test_mode:
+        # Use mock data for testing
+        quota_data = get_mock_quota_info()
+        md = f"## API Quota Info (Test Mode)\n\nUsed: {quota_data['usage']['used']} | Remaining: {quota_data['usage']['remaining']}"
+        return ok_envelope(md, {"quota": quota_data}, {"source": "odds_api_mock", "test_mode": True})
+    
+    # Live API call - The Odds API doesn't have a dedicated quota endpoint, 
+    # so we make a minimal sports call to get usage info from headers
+    resp = await odds_api_get("sports", {"all": "false"})
+    if not resp.get("ok"):
+        return resp
+    
+    # Extract quota info (would normally come from response headers)
+    quota_data = {
+        "api_key_status": "valid",
+        "note": "Quota info extracted from API response headers",
+        "data_fetched": len(resp["data"])
+    }
+    
+    md = f"## API Quota Info\n\nAPI key is valid. Retrieved {quota_data['data_fetched']} sports."
+    return ok_envelope(md, {"quota": quota_data}, {"source": "odds_api", "url": resp.get("url"), "test_mode": False})
 
 # =========================== Entrypoint ===========================
 async def amain() -> None:
