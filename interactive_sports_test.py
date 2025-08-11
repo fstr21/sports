@@ -174,11 +174,15 @@ class SportsTestInterface:
                 print("9. Search for Specific Player")
                 print("10. Full Daily Intelligence Report")
                 print("11. Available Sports from Odds API")
+                print("\n🎯 VALUE BETTING:")
+                print("12. Value Betting Analysis") 
+                print("13. Player Matching Review")
+                print("14. Confirm Player Matches")
             
             print("\nOTHER:")
             print("0. Quit")
             
-            max_option = 11 if self.current_sport_league else 1
+            max_option = 14 if self.current_sport_league else 1
             choice = input(f"\nSelect option (0-{max_option}): ").strip()
             
             if choice == '0':
@@ -206,6 +210,12 @@ class SportsTestInterface:
                     self.daily_intelligence()
                 elif choice == '11':
                     self.show_available_odds_sports()
+                elif choice == '12':
+                    self.value_betting_analysis()
+                elif choice == '13':
+                    self.player_matching_review()
+                elif choice == '14':
+                    self.confirm_player_matches()
                 else:
                     print("Invalid choice.")
             else:
@@ -1197,6 +1207,292 @@ class SportsTestInterface:
             print(f"Failed to get sports list: {result}")
         
         input(f"\nPress Enter to continue...     (odds calls this session: {self.api_calls_count})")
+    
+    def value_betting_analysis(self):
+        """Analyze player props for value betting opportunities"""
+        sport, league = self.current_sport_league
+        league_info = self.available_leagues[sport][league]
+        
+        self.print_section(f"🎯 {league_info['name'].upper()} VALUE BETTING ANALYSIS")
+        
+        # Get sport key for odds API
+        sport_key = league_info['odds_keys'][0]  # Use primary odds key
+        
+        print(f"🔍 Analyzing {league_info['name']} player props vs recent performance...")
+        print(f"📊 Using sport key: {sport_key}")
+        
+        # Set sport-specific player markets
+        if sport == "baseball":
+            markets = "batter_hits,batter_home_runs,batter_total_bases,pitcher_strikeouts"
+        elif sport == "football":
+            markets = "player_pass_yds,player_rush_yds,player_receptions,player_pass_tds,player_rush_tds"
+        elif sport == "hockey":
+            markets = "player_points,player_assists,player_shots_on_goal"
+        elif sport == "soccer":
+            markets = "player_shots,player_shots_on_target,player_goals,player_assists"
+        else:
+            # Basketball (NBA, WNBA)
+            markets = "player_points,player_rebounds,player_assists,player_threes"
+        
+        print(f"🎯 Analyzing markets: {markets.replace(',', ', ')}")
+        
+        # Get value analysis from API
+        success, result = self.make_request("POST", "/value-betting/analyze", {
+            "sport_key": sport_key,
+            "player_markets": markets,
+            "min_confidence": 0.8,
+            "value_threshold": 1.1,  # Need 10% edge
+            "regions": "us",
+            "odds_format": "american"
+        })
+        
+        if success and result.get("status") == "success":
+            value_bets = result.get("value_bets", [])
+            unmatched_players = result.get("unmatched_players", [])
+            analysis_params = result.get("analysis_params", {})
+            
+            print(f"\n📈 ANALYSIS RESULTS:")
+            print(f"   Min Confidence: {analysis_params.get('min_confidence', 0.8)}")
+            print(f"   Value Threshold: {analysis_params.get('value_threshold', 1.1)}")
+            print(f"   Markets: {analysis_params.get('markets', 'N/A')}")
+            
+            # Display value bets
+            if value_bets:
+                print(f"\n✅ FOUND {len(value_bets)} VALUE BETS:")
+                print("=" * 60)
+                
+                for i, bet in enumerate(value_bets, 1):
+                    player_name = bet.get("player_name", "Unknown")
+                    espn_name = bet.get("espn_name", "Unknown") 
+                    market = bet.get("market", "unknown")
+                    betting_line = bet.get("betting_line", 0)
+                    odds = bet.get("odds", "N/A")
+                    bookmaker = bet.get("bookmaker", "Unknown")
+                    team = bet.get("team", "Unknown")
+                    position = bet.get("position", "")
+                    
+                    value_analysis = bet.get("value_analysis", {})
+                    recent_avg = value_analysis.get("recent_average", 0)
+                    difference = value_analysis.get("difference", 0)
+                    percentage_above = value_analysis.get("percentage_above", 0)
+                    confidence = value_analysis.get("confidence", "unknown")
+                    games_analyzed = value_analysis.get("games_analyzed", 0)
+                    
+                    # Format market display
+                    market_display = self.get_market_label(market)
+                    
+                    print(f"\n{i}. 🏆 {espn_name} ({team})")
+                    if position:
+                        print(f"   Position: {position}")
+                    print(f"   📊 Market: {market_display}")
+                    print(f"   🎯 Bet: Over {betting_line} at {odds} ({bookmaker})")
+                    print(f"   📈 Recent Average: {recent_avg} ({games_analyzed} games)")
+                    print(f"   💡 Edge: +{difference} ({percentage_above:+.1f}% above line)")
+                    print(f"   🎪 Confidence: {confidence.upper()}")
+                    
+                    # Game context if available
+                    game_info = bet.get("game", {})
+                    if game_info.get("home_team") and game_info.get("away_team"):
+                        home = game_info["home_team"]
+                        away = game_info["away_team"]
+                        print(f"   🏟️  Game: {away} @ {home}")
+            else:
+                print(f"\n❌ NO VALUE BETS FOUND")
+                print("   All player props appear to be fairly priced or overpriced")
+                
+            # Display unmatched players  
+            if unmatched_players:
+                print(f"\n🤔 UNMATCHED PLAYERS ({len(unmatched_players)}):")
+                print("   (These players need manual matching review)")
+                print("-" * 50)
+                
+                for i, unmatched in enumerate(unmatched_players[:10], 1):  # Show first 10
+                    player_name = unmatched.get("player_name", "Unknown")
+                    match_result = unmatched.get("match_result")
+                    game_info = unmatched.get("game", {})
+                    
+                    if match_result:
+                        confidence = match_result.get("confidence", 0)
+                        espn_name = match_result.get("espn_name", "Unknown")
+                        print(f"   {i}. {player_name} → {espn_name} ({confidence:.0%} confidence)")
+                    else:
+                        print(f"   {i}. {player_name} → No ESPN match found")
+                        
+                    if game_info.get("home_team") and game_info.get("away_team"):
+                        print(f"      Game: {game_info['away_team']} @ {game_info['home_team']}")
+                
+                if len(unmatched_players) > 10:
+                    print(f"   ... and {len(unmatched_players) - 10} more")
+                    
+                print(f"\n💡 Use menu option 13 (Player Matching Review) to confirm matches")
+                
+        else:
+            error_msg = result.get("message", "Unknown error") if isinstance(result, dict) else str(result)
+            print(f"\n❌ Analysis failed: {error_msg}")
+            
+        input(f"\nPress Enter to continue...     (odds calls this session: {self.api_calls_count})")
+    
+    def player_matching_review(self):
+        """Review and confirm pending player matches"""
+        self.print_section("🔍 PLAYER MATCHING REVIEW")
+        
+        print("📋 Getting pending player matches...")
+        success, result = self.make_request("GET", "/player/pending")
+        
+        if success and result.get("status") == "success":
+            pending_matches = result.get("pending_matches", {})
+            stats = result.get("stats", {})
+            
+            print(f"\n📊 MATCH STATISTICS:")
+            print(f"   ✅ Confirmed matches: {stats.get('confirmed_matches', 0)}")
+            print(f"   ⏳ Pending matches: {stats.get('pending_matches', 0)}")
+            print(f"   🏆 Sports covered: {', '.join(stats.get('sports_covered', []))}")
+            
+            if not pending_matches:
+                print(f"\n🎉 No pending matches to review!")
+                print("   All player matches have been confirmed.")
+                input(f"\nPress Enter to continue...")
+                return
+            
+            # Display pending matches by sport
+            total_pending = 0
+            for sport_key, players in pending_matches.items():
+                if not players:
+                    continue
+                    
+                sport_display = sport_key.replace("_", " ").title()
+                print(f"\n🏈 {sport_display}:")
+                print("-" * 40)
+                
+                for i, (odds_name, match_info) in enumerate(players.items(), 1):
+                    espn_name = match_info.get("espn_name", "Unknown")
+                    espn_id = match_info.get("espn_id", "Unknown")
+                    team = match_info.get("team", "Unknown Team")
+                    position = match_info.get("position", "")
+                    confidence = match_info.get("confidence", 0)
+                    status = match_info.get("status", "pending")
+                    
+                    if status == "rejected":
+                        continue  # Skip rejected matches
+                    
+                    total_pending += 1
+                    print(f"   {total_pending}. \"{odds_name}\" → {espn_name} (ID: {espn_id})")
+                    print(f"      Team: {team}")
+                    if position:
+                        print(f"      Position: {position}")
+                    print(f"      Confidence: {confidence:.0%}")
+            
+            if total_pending == 0:
+                print(f"\n✅ All matches have been processed!")
+            else:
+                print(f"\n💡 Found {total_pending} pending matches")
+                print("   Use menu option 14 (Confirm Player Matches) to confirm them")
+                
+        else:
+            error_msg = result.get("message", "Unknown error") if isinstance(result, dict) else str(result)
+            print(f"\n❌ Failed to get pending matches: {error_msg}")
+            
+        input(f"\nPress Enter to continue...")
+    
+    def confirm_player_matches(self):
+        """Confirm or reject pending player matches"""
+        self.print_section("✅ CONFIRM PLAYER MATCHES")
+        
+        # Get pending matches first
+        success, result = self.make_request("GET", "/player/pending")
+        
+        if not success or result.get("status") != "success":
+            print("❌ Could not retrieve pending matches")
+            input("Press Enter to continue...")
+            return
+            
+        pending_matches = result.get("pending_matches", {})
+        
+        # Collect all pending matches
+        all_matches = []
+        for sport_key, players in pending_matches.items():
+            for odds_name, match_info in players.items():
+                if match_info.get("status") != "rejected":
+                    all_matches.append({
+                        "sport_key": sport_key,
+                        "odds_name": odds_name,
+                        "match_info": match_info
+                    })
+        
+        if not all_matches:
+            print("🎉 No pending matches to confirm!")
+            input("Press Enter to continue...")
+            return
+            
+        print(f"📋 Found {len(all_matches)} pending matches to review:")
+        print("=" * 60)
+        
+        # Display matches for confirmation
+        for i, match in enumerate(all_matches, 1):
+            sport_key = match["sport_key"]
+            odds_name = match["odds_name"]
+            match_info = match["match_info"]
+            
+            espn_name = match_info.get("espn_name", "Unknown")
+            espn_id = match_info.get("espn_id", "Unknown")
+            team = match_info.get("team", "Unknown")
+            position = match_info.get("position", "")
+            confidence = match_info.get("confidence", 0)
+            
+            sport_display = sport_key.replace("_", " ").title()
+            
+            print(f"\n{i}. {sport_display}")
+            print(f"   Odds Name: \"{odds_name}\"")
+            print(f"   ESPN Match: {espn_name} (ID: {espn_id})")
+            print(f"   Team: {team}")
+            if position:
+                print(f"   Position: {position}")
+            print(f"   Confidence: {confidence:.0%}")
+            
+            # Ask for confirmation
+            while True:
+                choice = input(f"   ✅ Confirm this match? (y/n/s=skip): ").lower().strip()
+                
+                if choice == 'y':
+                    # Confirm the match
+                    success, result = self.make_request("POST", "/player/confirm", {
+                        "odds_player_name": odds_name,
+                        "sport_key": sport_key,
+                        "espn_id": espn_id,
+                        "verified_by": "interactive_client"
+                    })
+                    
+                    if success and result.get("status") == "success":
+                        print(f"   ✅ Confirmed: {odds_name} → {espn_name}")
+                    else:
+                        error_msg = result.get("message", "Unknown error") if isinstance(result, dict) else str(result)
+                        print(f"   ❌ Failed to confirm: {error_msg}")
+                    break
+                    
+                elif choice == 'n':
+                    # Reject the match
+                    success, result = self.make_request("POST", "/player/reject", {
+                        "odds_player_name": odds_name,
+                        "sport_key": sport_key
+                    })
+                    
+                    if success:
+                        print(f"   ❌ Rejected match for {odds_name}")
+                    else:
+                        print(f"   ⚠️  Could not reject match (continuing anyway)")
+                    break
+                    
+                elif choice == 's':
+                    print(f"   ⏭️  Skipped {odds_name}")
+                    break
+                    
+                else:
+                    print("   Please enter 'y' (yes), 'n' (no), or 's' (skip)")
+        
+        print(f"\n🎉 Match confirmation complete!")
+        print("   Confirmed matches will be used in future value betting analysis")
+        
+        input(f"\nPress Enter to continue...")
     
     def run(self):
         """Main interface loop"""

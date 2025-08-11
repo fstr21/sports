@@ -1,0 +1,122 @@
+[
+    {
+        "id": "4001679",
+        "name": "Julie Allemand",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "29",
+        "height": "5' 8\"",
+        "weight_lbs": "147 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4703794",
+        "name": "Sarah Ashlee Barker",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 0\"",
+        "weight_lbs": "--",
+        "college": "Alabama"
+    },
+    {
+        "id": "4433404",
+        "name": "Cameron Brink",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 4\"",
+        "weight_lbs": "170 lbs",
+        "college": "Stanford"
+    },
+    {
+        "id": "4398764",
+        "name": "Rae Burrell",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 2\"",
+        "weight_lbs": "168 lbs",
+        "college": "Tennessee"
+    },
+    {
+        "id": "2284331",
+        "name": "Emma Cannon",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "36",
+        "height": "6' 2\"",
+        "weight_lbs": "190 lbs",
+        "college": "UCF"
+    },
+    {
+        "id": "4433795",
+        "name": "Sania Feagin",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 3\"",
+        "weight_lbs": "--",
+        "college": "South Carolina"
+    },
+    {
+        "id": "2566106",
+        "name": "Dearica Hamby",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "31",
+        "height": "6' 3\"",
+        "weight_lbs": "189 lbs",
+        "college": "Wake Forest"
+    },
+    {
+        "id": "4433630",
+        "name": "Rickea Jackson",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 2\"",
+        "weight_lbs": "175 lbs",
+        "college": "Tennessee"
+    },
+    {
+        "id": "5105752",
+        "name": "Alissa Pili",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "5' 11\"",
+        "weight_lbs": "235 lbs",
+        "college": "Utah"
+    },
+    {
+        "id": "3065570",
+        "name": "Kelsey Plum",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "30",
+        "height": "5' 8\"",
+        "weight_lbs": "145 lbs",
+        "college": "Washington"
+    },
+    {
+        "id": "3142010",
+        "name": "Azura Stevens",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "29",
+        "height": "6' 6\"",
+        "weight_lbs": "180 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "2566110",
+        "name": "Julie Vanloo",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "32",
+        "height": "5' 8\"",
+        "weight_lbs": "--",
+        "college": "Iowa State"
+    }
+]

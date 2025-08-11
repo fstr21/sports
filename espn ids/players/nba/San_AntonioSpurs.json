@@ -1,0 +1,182 @@
+[
+    {
+        "id": "6578",
+        "name": "Harrison Barnes",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "33",
+        "height": "6' 8\"",
+        "weight_lbs": "225 lbs",
+        "college": "North Carolina"
+    },
+    {
+        "id": "6427",
+        "name": "Bismack Biyombo",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "32",
+        "height": "6' 8\"",
+        "weight_lbs": "255 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5061568",
+        "name": "Carter Bryant",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "19",
+        "height": "6' 8\"",
+        "weight_lbs": "220 lbs",
+        "college": "Arizona"
+    },
+    {
+        "id": "4845367",
+        "name": "Stephon Castle",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 6\"",
+        "weight_lbs": "215 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "4592479",
+        "name": "Julian Champagnie",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 7\"",
+        "weight_lbs": "217 lbs",
+        "college": "St. John's"
+    },
+    {
+        "id": "4397107",
+        "name": "David Duke Jr.",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 4\"",
+        "weight_lbs": "204 lbs",
+        "college": "Providence"
+    },
+    {
+        "id": "4066259",
+        "name": "De'Aaron Fox",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "27",
+        "height": "6' 3\"",
+        "weight_lbs": "185 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "5037871",
+        "name": "Dylan Harper",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "19",
+        "height": "6' 6\"",
+        "weight_lbs": "215 lbs",
+        "college": "Rutgers"
+    },
+    {
+        "id": "4433618",
+        "name": "Harrison Ingram",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 5\"",
+        "weight_lbs": "230 lbs",
+        "college": "North Carolina"
+    },
+    {
+        "id": "4395723",
+        "name": "Keldon Johnson",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "25",
+        "height": "6' 5\"",
+        "weight_lbs": "220 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "3064560",
+        "name": "Luke Kornet",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "30",
+        "height": "7' 1\"",
+        "weight_lbs": "250 lbs",
+        "college": "Vanderbilt"
+    },
+    {
+        "id": "3134916",
+        "name": "Jordan McLaughlin",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "29",
+        "height": "6' 0\"",
+        "weight_lbs": "185 lbs",
+        "college": "USC"
+    },
+    {
+        "id": "5177362",
+        "name": "Riley Minix",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 7\"",
+        "weight_lbs": "230 lbs",
+        "college": "Morehead State"
+    },
+    {
+        "id": "2489663",
+        "name": "Kelly Olynyk",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "34",
+        "height": "6' 11\"",
+        "weight_lbs": "240 lbs",
+        "college": "Gonzaga"
+    },
+    {
+        "id": "4610139",
+        "name": "Jeremy Sochan",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 8\"",
+        "weight_lbs": "230 lbs",
+        "college": "Baylor"
+    },
+    {
+        "id": "4395630",
+        "name": "Devin Vassell",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "24",
+        "height": "6' 5\"",
+        "weight_lbs": "205 lbs",
+        "college": "Florida State"
+    },
+    {
+        "id": "4066317",
+        "name": "Lindy Waters III",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "28",
+        "height": "6' 6\"",
+        "weight_lbs": "210 lbs",
+        "college": "Oklahoma State"
+    },
+    {
+        "id": "5104157",
+        "name": "Victor Wembanyama",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "21",
+        "height": "7' 3\"",
+        "weight_lbs": "235 lbs",
+        "college": "--"
+    }
+]

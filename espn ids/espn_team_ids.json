@@ -1,0 +1,956 @@
+{
+    "MLS": {
+        "url": "https://www.espn.com/soccer/teams/_/league/usa.1",
+        "sport_type": "soccer",
+        "teams": {
+            "Atlanta United FC": {
+                "id": "18418",
+                "url": "https://www.espn.com/soccer/team/_/id/18418/atlanta-united-fc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/18418"
+            },
+            "Austin FC": {
+                "id": "20906",
+                "url": "https://www.espn.com/soccer/team/_/id/20906/austin-fc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/20906"
+            },
+            "CF Montréal": {
+                "id": "9720",
+                "url": "https://www.espn.com/soccer/team/_/id/9720/cf-montreal",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/9720"
+            },
+            "Charlotte FC": {
+                "id": "21300",
+                "url": "https://www.espn.com/soccer/team/_/id/21300/charlotte-fc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/21300"
+            },
+            "Chicago Fire FC": {
+                "id": "182",
+                "url": "https://www.espn.com/soccer/team/_/id/182/chicago-fire-fc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/182"
+            },
+            "Colorado Rapids": {
+                "id": "184",
+                "url": "https://www.espn.com/soccer/team/_/id/184/colorado-rapids",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/184"
+            },
+            "Columbus Crew": {
+                "id": "183",
+                "url": "https://www.espn.com/soccer/team/_/id/183/columbus-crew",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/183"
+            },
+            "D.C. United": {
+                "id": "193",
+                "url": "https://www.espn.com/soccer/team/_/id/193/dc-united",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/193"
+            },
+            "FC Cincinnati": {
+                "id": "18267",
+                "url": "https://www.espn.com/soccer/team/_/id/18267/fc-cincinnati",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/18267"
+            },
+            "FC Dallas": {
+                "id": "185",
+                "url": "https://www.espn.com/soccer/team/_/id/185/fc-dallas",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/185"
+            },
+            "Houston Dynamo FC": {
+                "id": "6077",
+                "url": "https://www.espn.com/soccer/team/_/id/6077/houston-dynamo-fc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/6077"
+            },
+            "Inter Miami CF": {
+                "id": "20232",
+                "url": "https://www.espn.com/soccer/team/_/id/20232/inter-miami-cf",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/20232"
+            },
+            "LA Galaxy": {
+                "id": "187",
+                "url": "https://www.espn.com/soccer/team/_/id/187/la-galaxy",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/187"
+            },
+            "LAFC": {
+                "id": "18966",
+                "url": "https://www.espn.com/soccer/team/_/id/18966/lafc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/18966"
+            },
+            "Minnesota United FC": {
+                "id": "17362",
+                "url": "https://www.espn.com/soccer/team/_/id/17362/minnesota-united-fc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/17362"
+            },
+            "Nashville SC": {
+                "id": "18986",
+                "url": "https://www.espn.com/soccer/team/_/id/18986/nashville-sc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/18986"
+            },
+            "New England Revolution": {
+                "id": "189",
+                "url": "https://www.espn.com/soccer/team/_/id/189/new-england-revolution",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/189"
+            },
+            "New York City FC": {
+                "id": "17606",
+                "url": "https://www.espn.com/soccer/team/_/id/17606/new-york-city-fc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/17606"
+            },
+            "New York Red Bulls": {
+                "id": "190",
+                "url": "https://www.espn.com/soccer/team/_/id/190/new-york-red-bulls",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/190"
+            },
+            "Orlando City SC": {
+                "id": "12011",
+                "url": "https://www.espn.com/soccer/team/_/id/12011/orlando-city-sc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/12011"
+            },
+            "Philadelphia Union": {
+                "id": "10739",
+                "url": "https://www.espn.com/soccer/team/_/id/10739/philadelphia-union",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/10739"
+            },
+            "Portland Timbers": {
+                "id": "9723",
+                "url": "https://www.espn.com/soccer/team/_/id/9723/portland-timbers",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/9723"
+            },
+            "Real Salt Lake": {
+                "id": "4771",
+                "url": "https://www.espn.com/soccer/team/_/id/4771/real-salt-lake",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/4771"
+            },
+            "San Diego FC": {
+                "id": "22529",
+                "url": "https://www.espn.com/soccer/team/_/id/22529/san-diego-fc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/22529"
+            },
+            "San Jose Earthquakes": {
+                "id": "191",
+                "url": "https://www.espn.com/soccer/team/_/id/191/san-jose-earthquakes",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/191"
+            },
+            "Seattle Sounders FC": {
+                "id": "9726",
+                "url": "https://www.espn.com/soccer/team/_/id/9726/seattle-sounders-fc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/9726"
+            },
+            "Sporting Kansas City": {
+                "id": "186",
+                "url": "https://www.espn.com/soccer/team/_/id/186/sporting-kansas-city",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/186"
+            },
+            "St. Louis CITY SC": {
+                "id": "21812",
+                "url": "https://www.espn.com/soccer/team/_/id/21812/st-louis-city-sc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/21812"
+            },
+            "Toronto FC": {
+                "id": "7318",
+                "url": "https://www.espn.com/soccer/team/_/id/7318/toronto-fc",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/7318"
+            },
+            "Vancouver Whitecaps": {
+                "id": "9727",
+                "url": "https://www.espn.com/soccer/team/_/id/9727/vancouver-whitecaps",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/9727"
+            }
+        },
+        "count": 30
+    },
+    "EPL": {
+        "url": "https://www.espn.com/soccer/teams/_/league/eng.1",
+        "sport_type": "soccer",
+        "teams": {
+            "AFC Bournemouth": {
+                "id": "349",
+                "url": "https://www.espn.com/soccer/team/_/id/349/afc-bournemouth",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/349"
+            },
+            "Arsenal": {
+                "id": "359",
+                "url": "https://www.espn.com/soccer/team/_/id/359/arsenal",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/359"
+            },
+            "Aston Villa": {
+                "id": "362",
+                "url": "https://www.espn.com/soccer/team/_/id/362/aston-villa",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/362"
+            },
+            "Brentford": {
+                "id": "337",
+                "url": "https://www.espn.com/soccer/team/_/id/337/brentford",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/337"
+            },
+            "Brighton & Hove Albion": {
+                "id": "331",
+                "url": "https://www.espn.com/soccer/team/_/id/331/brighton-hove-albion",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/331"
+            },
+            "Burnley": {
+                "id": "379",
+                "url": "https://www.espn.com/soccer/team/_/id/379/burnley",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/379"
+            },
+            "Chelsea": {
+                "id": "363",
+                "url": "https://www.espn.com/soccer/team/_/id/363/chelsea",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/363"
+            },
+            "Crystal Palace": {
+                "id": "384",
+                "url": "https://www.espn.com/soccer/team/_/id/384/crystal-palace",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/384"
+            },
+            "Everton": {
+                "id": "368",
+                "url": "https://www.espn.com/soccer/team/_/id/368/everton",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/368"
+            },
+            "Fulham": {
+                "id": "370",
+                "url": "https://www.espn.com/soccer/team/_/id/370/fulham",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/370"
+            },
+            "Leeds United": {
+                "id": "357",
+                "url": "https://www.espn.com/soccer/team/_/id/357/leeds-united",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/357"
+            },
+            "Liverpool": {
+                "id": "364",
+                "url": "https://www.espn.com/soccer/team/_/id/364/liverpool",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/364"
+            },
+            "Manchester City": {
+                "id": "382",
+                "url": "https://www.espn.com/soccer/team/_/id/382/manchester-city",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/382"
+            },
+            "Manchester United": {
+                "id": "360",
+                "url": "https://www.espn.com/soccer/team/_/id/360/manchester-united",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/360"
+            },
+            "Newcastle United": {
+                "id": "361",
+                "url": "https://www.espn.com/soccer/team/_/id/361/newcastle-united",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/361"
+            },
+            "Nottingham Forest": {
+                "id": "393",
+                "url": "https://www.espn.com/soccer/team/_/id/393/nottingham-forest",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/393"
+            },
+            "Sunderland": {
+                "id": "366",
+                "url": "https://www.espn.com/soccer/team/_/id/366/sunderland",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/366"
+            },
+            "Tottenham Hotspur": {
+                "id": "367",
+                "url": "https://www.espn.com/soccer/team/_/id/367/tottenham-hotspur",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/367"
+            },
+            "West Ham United": {
+                "id": "371",
+                "url": "https://www.espn.com/soccer/team/_/id/371/west-ham-united",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/371"
+            },
+            "Wolverhampton Wanderers": {
+                "id": "380",
+                "url": "https://www.espn.com/soccer/team/_/id/380/wolverhampton-wanderers",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/380"
+            }
+        },
+        "count": 20
+    },
+    "La Liga": {
+        "url": "https://www.espn.com/soccer/teams/_/league/esp.1",
+        "sport_type": "soccer",
+        "teams": {
+            "Alavés": {
+                "id": "96",
+                "url": "https://www.espn.com/soccer/team/_/id/96/alaves",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/96"
+            },
+            "Athletic Club": {
+                "id": "93",
+                "url": "https://www.espn.com/soccer/team/_/id/93/athletic-club",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/93"
+            },
+            "Atlético Madrid": {
+                "id": "1068",
+                "url": "https://www.espn.com/soccer/team/_/id/1068/atletico-madrid",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/1068"
+            },
+            "Barcelona": {
+                "id": "83",
+                "url": "https://www.espn.com/soccer/team/_/id/83/barcelona",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/83"
+            },
+            "Celta Vigo": {
+                "id": "85",
+                "url": "https://www.espn.com/soccer/team/_/id/85/celta-vigo",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/85"
+            },
+            "Elche": {
+                "id": "3751",
+                "url": "https://www.espn.com/soccer/team/_/id/3751/elche",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/3751"
+            },
+            "Espanyol": {
+                "id": "88",
+                "url": "https://www.espn.com/soccer/team/_/id/88/espanyol",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/88"
+            },
+            "Getafe": {
+                "id": "2922",
+                "url": "https://www.espn.com/soccer/team/_/id/2922/getafe",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/2922"
+            },
+            "Girona": {
+                "id": "9812",
+                "url": "https://www.espn.com/soccer/team/_/id/9812/girona",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/9812"
+            },
+            "Levante": {
+                "id": "1538",
+                "url": "https://www.espn.com/soccer/team/_/id/1538/levante",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/1538"
+            },
+            "Mallorca": {
+                "id": "84",
+                "url": "https://www.espn.com/soccer/team/_/id/84/mallorca",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/84"
+            },
+            "Osasuna": {
+                "id": "97",
+                "url": "https://www.espn.com/soccer/team/_/id/97/osasuna",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/97"
+            },
+            "Rayo Vallecano": {
+                "id": "101",
+                "url": "https://www.espn.com/soccer/team/_/id/101/rayo-vallecano",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/101"
+            },
+            "Real Betis": {
+                "id": "244",
+                "url": "https://www.espn.com/soccer/team/_/id/244/real-betis",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/244"
+            },
+            "Real Madrid": {
+                "id": "86",
+                "url": "https://www.espn.com/soccer/team/_/id/86/real-madrid",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/86"
+            },
+            "Real Oviedo": {
+                "id": "92",
+                "url": "https://www.espn.com/soccer/team/_/id/92/real-oviedo",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/92"
+            },
+            "Real Sociedad": {
+                "id": "89",
+                "url": "https://www.espn.com/soccer/team/_/id/89/real-sociedad",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/89"
+            },
+            "Sevilla": {
+                "id": "243",
+                "url": "https://www.espn.com/soccer/team/_/id/243/sevilla",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/243"
+            },
+            "Valencia": {
+                "id": "94",
+                "url": "https://www.espn.com/soccer/team/_/id/94/valencia",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/94"
+            },
+            "Villarreal": {
+                "id": "102",
+                "url": "https://www.espn.com/soccer/team/_/id/102/villarreal",
+                "squad_url": "https://www.espn.com/soccer/team/squad/_/id/102"
+            }
+        },
+        "count": 20
+    },
+    "NBA": {
+        "url": "https://www.espn.com/nba/teams",
+        "sport_type": "basketball",
+        "teams": {
+            "Atlanta Hawks": {
+                "id": "1",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/atlanta-hawks/atlanta-hawks"
+            },
+            "Boston Celtics": {
+                "id": "2",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/boston-celtics/boston-celtics"
+            },
+            "Brooklyn Nets": {
+                "id": "17",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/brooklyn-nets/brooklyn-nets"
+            },
+            "Charlotte Hornets": {
+                "id": "30",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/charlotte-hornets/charlotte-hornets"
+            },
+            "Chicago Bulls": {
+                "id": "4",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/chicago-bulls/chicago-bulls"
+            },
+            "Cleveland Cavaliers": {
+                "id": "5",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/cleveland-cavaliers/cleveland-cavaliers"
+            },
+            "Dallas Mavericks": {
+                "id": "6",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/dallas-mavericks/dallas-mavericks"
+            },
+            "Denver Nuggets": {
+                "id": "7",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/denver-nuggets/denver-nuggets"
+            },
+            "Detroit Pistons": {
+                "id": "8",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/detroit-pistons/detroit-pistons"
+            },
+            "Golden State Warriors": {
+                "id": "9",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/golden-state-warriors/golden-state-warriors"
+            },
+            "Houston Rockets": {
+                "id": "10",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/houston-rockets/houston-rockets"
+            },
+            "Indiana Pacers": {
+                "id": "11",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/indiana-pacers/indiana-pacers"
+            },
+            "LA Clippers": {
+                "id": "12",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/la-clippers/la-clippers"
+            },
+            "Los Angeles Lakers": {
+                "id": "13",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/los-angeles-lakers/los-angeles-lakers"
+            },
+            "Memphis Grizzlies": {
+                "id": "29",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/memphis-grizzlies/memphis-grizzlies"
+            },
+            "Miami Heat": {
+                "id": "14",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/miami-heat/miami-heat"
+            },
+            "Milwaukee Bucks": {
+                "id": "15",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/milwaukee-bucks/milwaukee-bucks"
+            },
+            "Minnesota Timberwolves": {
+                "id": "16",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/minnesota-timberwolves/minnesota-timberwolves"
+            },
+            "New Orleans Pelicans": {
+                "id": "3",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/new-orleans-pelicans/new-orleans-pelicans"
+            },
+            "New York Knicks": {
+                "id": "18",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/new-york-knicks/new-york-knicks"
+            },
+            "Oklahoma City Thunder": {
+                "id": "25",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/oklahoma-city-thunder/oklahoma-city-thunder"
+            },
+            "Orlando Magic": {
+                "id": "19",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/orlando-magic/orlando-magic"
+            },
+            "Philadelphia 76ers": {
+                "id": "20",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/philadelphia-76ers/philadelphia-76ers"
+            },
+            "Phoenix Suns": {
+                "id": "21",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/phoenix-suns/phoenix-suns"
+            },
+            "Portland Trail Blazers": {
+                "id": "22",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/portland-trail-blazers/portland-trail-blazers"
+            },
+            "Sacramento Kings": {
+                "id": "23",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/sacramento-kings/sacramento-kings"
+            },
+            "San Antonio Spurs": {
+                "id": "24",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/san-antonio-spurs/san-antonio-spurs"
+            },
+            "Toronto Raptors": {
+                "id": "28",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/toronto-raptors/toronto-raptors"
+            },
+            "Utah Jazz": {
+                "id": "26",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/utah-jazz/utah-jazz"
+            },
+            "Washington Wizards": {
+                "id": "27",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/washington-wizards/washington-wizards"
+            }
+        },
+        "count": 30
+    },
+    "WNBA": {
+        "url": "https://www.espn.com/wnba/teams",
+        "sport_type": "basketball",
+        "teams": {
+            "Atlanta Dream": {
+                "id": "20",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/atlanta-dream/atlanta-dream"
+            },
+            "Chicago Sky": {
+                "id": "19",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/chicago-sky/chicago-sky"
+            },
+            "Connecticut SUN": {
+                "id": "18",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/connecticut-sun/connecticut-sun"
+            },
+            "Dallas Wings": {
+                "id": "3",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/dallas-wings/dallas-wings"
+            },
+            "Golden State Valkyries": {
+                "id": "129689",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/golden-state-valkyries/golden-state-valkyries"
+            },
+            "Indiana Fever": {
+                "id": "5",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/indiana-fever/indiana-fever"
+            },
+            "Las Vegas Aces": {
+                "id": "17",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/las-vegas-aces/las-vegas-aces"
+            },
+            "Los Angeles Sparks": {
+                "id": "6",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/los-angeles-sparks/los-angeles-sparks"
+            },
+            "Minnesota Lynx": {
+                "id": "8",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/minnesota-lynx/minnesota-lynx"
+            },
+            "New York Liberty": {
+                "id": "9",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/new-york-liberty/new-york-liberty"
+            },
+            "Phoenix Mercury": {
+                "id": "11",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/phoenix-mercury/phoenix-mercury"
+            },
+            "Seattle Storm": {
+                "id": "14",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/seattle-storm/seattle-storm"
+            },
+            "Washington Mystics": {
+                "id": "16",
+                "url": "https://www.espn.com/basketball/team/roster/_/name/washington-mystics/washington-mystics"
+            }
+        },
+        "count": 13
+    },
+    "NHL": {
+        "url": "https://www.espn.com/nhl/teams",
+        "sport_type": "hockey",
+        "teams": {
+            "Anaheim Ducks": {
+                "id": "25",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/anaheim-ducks/anaheim-ducks"
+            },
+            "Boston Bruins": {
+                "id": "1",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/boston-bruins/boston-bruins"
+            },
+            "Buffalo Sabres": {
+                "id": "2",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/buffalo-sabres/buffalo-sabres"
+            },
+            "Calgary Flames": {
+                "id": "3",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/calgary-flames/calgary-flames"
+            },
+            "Carolina Hurricanes": {
+                "id": "7",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/carolina-hurricanes/carolina-hurricanes"
+            },
+            "Chicago Blackhawks": {
+                "id": "4",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/chicago-blackhawks/chicago-blackhawks"
+            },
+            "Colorado Avalanche": {
+                "id": "17",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/colorado-avalanche/colorado-avalanche"
+            },
+            "Columbus Blue Jackets": {
+                "id": "29",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/columbus-blue-jackets/columbus-blue-jackets"
+            },
+            "Dallas Stars": {
+                "id": "9",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/dallas-stars/dallas-stars"
+            },
+            "Detroit Red Wings": {
+                "id": "5",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/detroit-red-wings/detroit-red-wings"
+            },
+            "Edmonton Oilers": {
+                "id": "6",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/edmonton-oilers/edmonton-oilers"
+            },
+            "Florida Panthers": {
+                "id": "26",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/florida-panthers/florida-panthers"
+            },
+            "Los Angeles Kings": {
+                "id": "8",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/los-angeles-kings/los-angeles-kings"
+            },
+            "Minnesota Wild": {
+                "id": "30",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/minnesota-wild/minnesota-wild"
+            },
+            "Montreal Canadiens": {
+                "id": "10",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/montreal-canadiens/montreal-canadiens"
+            },
+            "Nashville Predators": {
+                "id": "27",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/nashville-predators/nashville-predators"
+            },
+            "New Jersey Devils": {
+                "id": "11",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/new-jersey-devils/new-jersey-devils"
+            },
+            "New York Islanders": {
+                "id": "12",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/new-york-islanders/new-york-islanders"
+            },
+            "New York Rangers": {
+                "id": "13",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/new-york-rangers/new-york-rangers"
+            },
+            "Ottawa Senators": {
+                "id": "14",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/ottawa-senators/ottawa-senators"
+            },
+            "Philadelphia Flyers": {
+                "id": "15",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/philadelphia-flyers/philadelphia-flyers"
+            },
+            "Pittsburgh Penguins": {
+                "id": "16",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/pittsburgh-penguins/pittsburgh-penguins"
+            },
+            "San Jose Sharks": {
+                "id": "18",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/san-jose-sharks/san-jose-sharks"
+            },
+            "Seattle Kraken": {
+                "id": "124292",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/seattle-kraken/seattle-kraken"
+            },
+            "St. Louis Blues": {
+                "id": "19",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/st-louis-blues/st.-louis-blues"
+            },
+            "Tampa Bay Lightning": {
+                "id": "20",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/tampa-bay-lightning/tampa-bay-lightning"
+            },
+            "Toronto Maple Leafs": {
+                "id": "21",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/toronto-maple-leafs/toronto-maple-leafs"
+            },
+            "Utah Mammoth": {
+                "id": "129764",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/utah-mammoth/utah-mammoth"
+            },
+            "Vancouver Canucks": {
+                "id": "22",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/vancouver-canucks/vancouver-canucks"
+            },
+            "Vegas Golden Knights": {
+                "id": "37",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/vegas-golden-knights/vegas-golden-knights"
+            },
+            "Washington Capitals": {
+                "id": "23",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/washington-capitals/washington-capitals"
+            },
+            "Winnipeg Jets": {
+                "id": "28",
+                "url": "https://www.espn.com/hockey/team/roster/_/name/winnipeg-jets/winnipeg-jets"
+            }
+        },
+        "count": 32
+    },
+    "NFL": {
+        "url": "https://www.espn.com/nfl/teams",
+        "sport_type": "football",
+        "teams": {
+            "Arizona Cardinals": {
+                "id": "22",
+                "url": "https://www.espn.com/football/team/roster/_/name/arizona-cardinals/arizona-cardinals"
+            },
+            "Atlanta Falcons": {
+                "id": "1",
+                "url": "https://www.espn.com/football/team/roster/_/name/atlanta-falcons/atlanta-falcons"
+            },
+            "Baltimore Ravens": {
+                "id": "33",
+                "url": "https://www.espn.com/football/team/roster/_/name/baltimore-ravens/baltimore-ravens"
+            },
+            "Buffalo Bills": {
+                "id": "2",
+                "url": "https://www.espn.com/football/team/roster/_/name/buffalo-bills/buffalo-bills"
+            },
+            "Carolina Panthers": {
+                "id": "29",
+                "url": "https://www.espn.com/football/team/roster/_/name/carolina-panthers/carolina-panthers"
+            },
+            "Chicago Bears": {
+                "id": "3",
+                "url": "https://www.espn.com/football/team/roster/_/name/chicago-bears/chicago-bears"
+            },
+            "Cincinnati Bengals": {
+                "id": "4",
+                "url": "https://www.espn.com/football/team/roster/_/name/cincinnati-bengals/cincinnati-bengals"
+            },
+            "Cleveland Browns": {
+                "id": "5",
+                "url": "https://www.espn.com/football/team/roster/_/name/cleveland-browns/cleveland-browns"
+            },
+            "Dallas Cowboys": {
+                "id": "6",
+                "url": "https://www.espn.com/football/team/roster/_/name/dallas-cowboys/dallas-cowboys"
+            },
+            "Denver Broncos": {
+                "id": "7",
+                "url": "https://www.espn.com/football/team/roster/_/name/denver-broncos/denver-broncos"
+            },
+            "Detroit Lions": {
+                "id": "8",
+                "url": "https://www.espn.com/football/team/roster/_/name/detroit-lions/detroit-lions"
+            },
+            "Green Bay Packers": {
+                "id": "9",
+                "url": "https://www.espn.com/football/team/roster/_/name/green-bay-packers/green-bay-packers"
+            },
+            "Houston Texans": {
+                "id": "34",
+                "url": "https://www.espn.com/football/team/roster/_/name/houston-texans/houston-texans"
+            },
+            "Indianapolis Colts": {
+                "id": "11",
+                "url": "https://www.espn.com/football/team/roster/_/name/indianapolis-colts/indianapolis-colts"
+            },
+            "Jacksonville Jaguars": {
+                "id": "30",
+                "url": "https://www.espn.com/football/team/roster/_/name/jacksonville-jaguars/jacksonville-jaguars"
+            },
+            "Kansas City Chiefs": {
+                "id": "12",
+                "url": "https://www.espn.com/football/team/roster/_/name/kansas-city-chiefs/kansas-city-chiefs"
+            },
+            "Las Vegas Raiders": {
+                "id": "13",
+                "url": "https://www.espn.com/football/team/roster/_/name/las-vegas-raiders/las-vegas-raiders"
+            },
+            "Los Angeles Chargers": {
+                "id": "24",
+                "url": "https://www.espn.com/football/team/roster/_/name/los-angeles-chargers/los-angeles-chargers"
+            },
+            "Los Angeles Rams": {
+                "id": "14",
+                "url": "https://www.espn.com/football/team/roster/_/name/los-angeles-rams/los-angeles-rams"
+            },
+            "Miami Dolphins": {
+                "id": "15",
+                "url": "https://www.espn.com/football/team/roster/_/name/miami-dolphins/miami-dolphins"
+            },
+            "Minnesota Vikings": {
+                "id": "16",
+                "url": "https://www.espn.com/football/team/roster/_/name/minnesota-vikings/minnesota-vikings"
+            },
+            "New England Patriots": {
+                "id": "17",
+                "url": "https://www.espn.com/football/team/roster/_/name/new-england-patriots/new-england-patriots"
+            },
+            "New Orleans Saints": {
+                "id": "18",
+                "url": "https://www.espn.com/football/team/roster/_/name/new-orleans-saints/new-orleans-saints"
+            },
+            "New York Giants": {
+                "id": "19",
+                "url": "https://www.espn.com/football/team/roster/_/name/new-york-giants/new-york-giants"
+            },
+            "New York Jets": {
+                "id": "20",
+                "url": "https://www.espn.com/football/team/roster/_/name/new-york-jets/new-york-jets"
+            },
+            "Philadelphia Eagles": {
+                "id": "21",
+                "url": "https://www.espn.com/football/team/roster/_/name/philadelphia-eagles/philadelphia-eagles"
+            },
+            "Pittsburgh Steelers": {
+                "id": "23",
+                "url": "https://www.espn.com/football/team/roster/_/name/pittsburgh-steelers/pittsburgh-steelers"
+            },
+            "San Francisco 49ers": {
+                "id": "25",
+                "url": "https://www.espn.com/football/team/roster/_/name/san-francisco-49ers/san-francisco-49ers"
+            },
+            "Seattle Seahawks": {
+                "id": "26",
+                "url": "https://www.espn.com/football/team/roster/_/name/seattle-seahawks/seattle-seahawks"
+            },
+            "Tampa Bay Buccaneers": {
+                "id": "27",
+                "url": "https://www.espn.com/football/team/roster/_/name/tampa-bay-buccaneers/tampa-bay-buccaneers"
+            },
+            "Tennessee Titans": {
+                "id": "10",
+                "url": "https://www.espn.com/football/team/roster/_/name/tennessee-titans/tennessee-titans"
+            },
+            "Washington Commanders": {
+                "id": "28",
+                "url": "https://www.espn.com/football/team/roster/_/name/washington-commanders/washington-commanders"
+            }
+        },
+        "count": 32
+    },
+    "MLB": {
+        "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams",
+        "sport_type": "baseball",
+        "teams": {
+            "Arizona Diamondbacks": {
+                "id": "29",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/arizona-diamondbacks/arizona-diamondbacks"
+            },
+            "Athletics": {
+                "id": "11",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/athletics/athletics"
+            },
+            "Atlanta Braves": {
+                "id": "15",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/atlanta-braves/atlanta-braves"
+            },
+            "Baltimore Orioles": {
+                "id": "1",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/baltimore-orioles/baltimore-orioles"
+            },
+            "Boston Red Sox": {
+                "id": "2",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/boston-red-sox/boston-red-sox"
+            },
+            "Chicago Cubs": {
+                "id": "16",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/chicago-cubs/chicago-cubs"
+            },
+            "Chicago White Sox": {
+                "id": "4",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/chicago-white-sox/chicago-white-sox"
+            },
+            "Cincinnati Reds": {
+                "id": "17",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/cincinnati-reds/cincinnati-reds"
+            },
+            "Cleveland Guardians": {
+                "id": "5",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/cleveland-guardians/cleveland-guardians"
+            },
+            "Colorado Rockies": {
+                "id": "27",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/colorado-rockies/colorado-rockies"
+            },
+            "Detroit Tigers": {
+                "id": "6",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/detroit-tigers/detroit-tigers"
+            },
+            "Houston Astros": {
+                "id": "18",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/houston-astros/houston-astros"
+            },
+            "Kansas City Royals": {
+                "id": "7",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/kansas-city-royals/kansas-city-royals"
+            },
+            "Los Angeles Angels": {
+                "id": "3",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/los-angeles-angels/los-angeles-angels"
+            },
+            "Los Angeles Dodgers": {
+                "id": "19",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/los-angeles-dodgers/los-angeles-dodgers"
+            },
+            "Miami Marlins": {
+                "id": "28",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/miami-marlins/miami-marlins"
+            },
+            "Milwaukee Brewers": {
+                "id": "8",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/milwaukee-brewers/milwaukee-brewers"
+            },
+            "Minnesota Twins": {
+                "id": "9",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/minnesota-twins/minnesota-twins"
+            },
+            "New York Mets": {
+                "id": "21",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/new-york-mets/new-york-mets"
+            },
+            "New York Yankees": {
+                "id": "10",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/new-york-yankees/new-york-yankees"
+            },
+            "Philadelphia Phillies": {
+                "id": "22",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/philadelphia-phillies/philadelphia-phillies"
+            },
+            "Pittsburgh Pirates": {
+                "id": "23",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/pittsburgh-pirates/pittsburgh-pirates"
+            },
+            "San Diego Padres": {
+                "id": "25",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/san-diego-padres/san-diego-padres"
+            },
+            "San Francisco Giants": {
+                "id": "26",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/san-francisco-giants/san-francisco-giants"
+            },
+            "Seattle Mariners": {
+                "id": "12",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/seattle-mariners/seattle-mariners"
+            },
+            "St. Louis Cardinals": {
+                "id": "24",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/st-louis-cardinals/st.-louis-cardinals"
+            },
+            "Tampa Bay Rays": {
+                "id": "30",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/tampa-bay-rays/tampa-bay-rays"
+            },
+            "Texas Rangers": {
+                "id": "13",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/texas-rangers/texas-rangers"
+            },
+            "Toronto Blue Jays": {
+                "id": "14",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/toronto-blue-jays/toronto-blue-jays"
+            },
+            "Washington Nationals": {
+                "id": "20",
+                "url": "https://www.espn.com/baseball/team/roster/_/name/washington-nationals/washington-nationals"
+            }
+        },
+        "count": 30
+    }
+}

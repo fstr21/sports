@@ -1,0 +1,127 @@
+{
+  "scrape_date": "2025-08-11T01:16:00.000000",
+  "total_teams": 30,
+  "total_players": 946,
+  "teams": {
+    "atlanta_united_fc": {
+      "players": 31,
+      "team_name": "Atlanta United FC"
+    },
+    "austin_fc": {
+      "players": 28,
+      "team_name": "Austin FC"
+    },
+    "cf_montréal": {
+      "players": 27,
+      "team_name": "CF Montréal"
+    },
+    "charlotte_fc": {
+      "players": 30,
+      "team_name": "Charlotte FC"
+    },
+    "chicago_fire_fc": {
+      "players": 35,
+      "team_name": "Chicago Fire FC"
+    },
+    "colorado_rapids": {
+      "players": 26,
+      "team_name": "Colorado Rapids"
+    },
+    "columbus_crew": {
+      "players": 31,
+      "team_name": "Columbus Crew"
+    },
+    "dc_united": {
+      "players": 25,
+      "team_name": "D.C. United"
+    },
+    "fc_cincinnati": {
+      "players": 33,
+      "team_name": "FC Cincinnati"
+    },
+    "fc_dallas": {
+      "players": 34,
+      "team_name": "FC Dallas"
+    },
+    "houston_dynamo_fc": {
+      "players": 33,
+      "team_name": "Houston Dynamo FC"
+    },
+    "inter_miami_cf": {
+      "players": 29,
+      "team_name": "Inter Miami CF"
+    },
+    "la_galaxy": {
+      "players": 28,
+      "team_name": "LA Galaxy"
+    },
+    "lafc": {
+      "players": 35,
+      "team_name": "LAFC"
+    },
+    "minnesota_united_fc": {
+      "players": 31,
+      "team_name": "Minnesota United FC"
+    },
+    "nashville_sc": {
+      "players": 32,
+      "team_name": "Nashville SC"
+    },
+    "new_england_revolution": {
+      "players": 37,
+      "team_name": "New England Revolution"
+    },
+    "new_york_city_fc": {
+      "players": 31,
+      "team_name": "New York City FC"
+    },
+    "new_york_red_bulls": {
+      "players": 38,
+      "team_name": "New York Red Bulls"
+    },
+    "orlando_city_sc": {
+      "players": 36,
+      "team_name": "Orlando City SC"
+    },
+    "philadelphia_union": {
+      "players": 31,
+      "team_name": "Philadelphia Union"
+    },
+    "portland_timbers": {
+      "players": 30,
+      "team_name": "Portland Timbers"
+    },
+    "real_salt_lake": {
+      "players": 40,
+      "team_name": "Real Salt Lake"
+    },
+    "san_diego_fc": {
+      "players": 29,
+      "team_name": "San Diego FC"
+    },
+    "san_jose_earthquakes": {
+      "players": 34,
+      "team_name": "San Jose Earthquakes"
+    },
+    "seattle_sounders_fc": {
+      "players": 31,
+      "team_name": "Seattle Sounders FC"
+    },
+    "sporting_kansas_city": {
+      "players": 25,
+      "team_name": "Sporting Kansas City"
+    },
+    "st_louis_city_sc": {
+      "players": 35,
+      "team_name": "St. Louis CITY SC"
+    },
+    "toronto_fc": {
+      "players": 30,
+      "team_name": "Toronto FC"
+    },
+    "vancouver_whitecaps": {
+      "players": 35,
+      "team_name": "Vancouver Whitecaps"
+    }
+  }
+}

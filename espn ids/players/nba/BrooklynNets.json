@@ -1,0 +1,162 @@
+[
+    {
+        "id": "4278067",
+        "name": "Nic Claxton",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "26",
+        "height": "6' 11\"",
+        "weight_lbs": "215 lbs",
+        "college": "Georgia"
+    },
+    {
+        "id": "4712896",
+        "name": "Noah Clowney",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 9\"",
+        "weight_lbs": "210 lbs",
+        "college": "Alabama"
+    },
+    {
+        "id": "5175643",
+        "name": "Egor Demin",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "19",
+        "height": "6' 8\"",
+        "weight_lbs": "200 lbs",
+        "college": "BYU"
+    },
+    {
+        "id": "4432887",
+        "name": "Tyson Etienne",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 2\"",
+        "weight_lbs": "200 lbs",
+        "college": "Wichita State"
+    },
+    {
+        "id": "4597865",
+        "name": "Tosan Evbuomwan",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 7\"",
+        "weight_lbs": "217 lbs",
+        "college": "Princeton"
+    },
+    {
+        "id": "4432192",
+        "name": "Keon Johnson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 5\"",
+        "weight_lbs": "185 lbs",
+        "college": "Tennessee"
+    },
+    {
+        "id": "3907823",
+        "name": "Terance Mann",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 5\"",
+        "weight_lbs": "215 lbs",
+        "college": "Florida State"
+    },
+    {
+        "id": "4397179",
+        "name": "Tyrese Martin",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "6' 6\"",
+        "weight_lbs": "215 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "4278104",
+        "name": "Michael Porter Jr.",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "27",
+        "height": "6' 10\"",
+        "weight_lbs": "218 lbs",
+        "college": "Missouri"
+    },
+    {
+        "id": "5037873",
+        "name": "Drake Powell",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "19",
+        "height": "6' 5\"",
+        "weight_lbs": "200 lbs",
+        "college": "North Carolina"
+    },
+    {
+        "id": "5242502",
+        "name": "Ben Saraf",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "19",
+        "height": "6' 5\"",
+        "weight_lbs": "--",
+        "college": "--"
+    },
+    {
+        "id": "4431695",
+        "name": "Drew Timme",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 10\"",
+        "weight_lbs": "235 lbs",
+        "college": "Gonzaga"
+    },
+    {
+        "id": "5279130",
+        "name": "Nolan Traore",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "19",
+        "height": "6' 3\"",
+        "weight_lbs": "175 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4432735",
+        "name": "Dariq Whitehead",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 6\"",
+        "weight_lbs": "220 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4431714",
+        "name": "Jalen Wilson",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 6\"",
+        "weight_lbs": "220 lbs",
+        "college": "Kansas"
+    },
+    {
+        "id": "5107173",
+        "name": "Danny Wolf",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "7' 0\"",
+        "weight_lbs": "254 lbs",
+        "college": "Michigan"
+    }
+]

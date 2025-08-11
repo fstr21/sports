@@ -1,0 +1,112 @@
+[
+    {
+        "id": "4433633",
+        "name": "Kierstan Bell",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 1\"",
+        "weight_lbs": "176 lbs",
+        "college": "Florida Gulf Coast"
+    },
+    {
+        "id": "4281190",
+        "name": "Dana Evans",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "27",
+        "height": "5' 6\"",
+        "weight_lbs": "145 lbs",
+        "college": "Louisville"
+    },
+    {
+        "id": "2529122",
+        "name": "Chelsea Gray",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "32",
+        "height": "5' 11\"",
+        "weight_lbs": "170 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "3934218",
+        "name": "Megan Gustafson",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "28",
+        "height": "6' 4\"",
+        "weight_lbs": "195 lbs",
+        "college": "Iowa"
+    },
+    {
+        "id": "2987869",
+        "name": "Jewell Loyd",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "31",
+        "height": "5' 11\"",
+        "weight_lbs": "175 lbs",
+        "college": "Notre Dame"
+    },
+    {
+        "id": "4597509",
+        "name": "Aaliyah Nye",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 0\"",
+        "weight_lbs": "--",
+        "college": "Alabama"
+    },
+    {
+        "id": "2529458",
+        "name": "Cheyenne Parker-Tyus",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "32",
+        "height": "6' 4\"",
+        "weight_lbs": "193 lbs",
+        "college": "Middle Tennessee"
+    },
+    {
+        "id": "4398776",
+        "name": "NaLyssa Smith",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 4\"",
+        "weight_lbs": "185 lbs",
+        "college": "Baylor"
+    },
+    {
+        "id": "2590093",
+        "name": "Kiah Stokes",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "32",
+        "height": "6' 3\"",
+        "weight_lbs": "191 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "3149391",
+        "name": "A'ja Wilson",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "29",
+        "height": "6' 4\"",
+        "weight_lbs": "195 lbs",
+        "college": "South Carolina"
+    },
+    {
+        "id": "4065870",
+        "name": "Jackie Young",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "27",
+        "height": "6' 0\"",
+        "weight_lbs": "165 lbs",
+        "college": "Notre Dame"
+    }
+]

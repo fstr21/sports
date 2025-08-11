@@ -1,0 +1,192 @@
+[
+    {
+        "id": "4432573",
+        "name": "Paolo Banchero",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "22",
+        "height": "6' 10\"",
+        "weight_lbs": "250 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4066320",
+        "name": "Desmond Bane",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "27",
+        "height": "6' 5\"",
+        "weight_lbs": "215 lbs",
+        "college": "TCU"
+    },
+    {
+        "id": "4348700",
+        "name": "Goga Bitadze",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "26",
+        "height": "6' 10\"",
+        "weight_lbs": "250 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4712849",
+        "name": "Anthony Black",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 7\"",
+        "weight_lbs": "200 lbs",
+        "college": "Arkansas"
+    },
+    {
+        "id": "4277847",
+        "name": "Wendell Carter Jr.",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "26",
+        "height": "6' 10\"",
+        "weight_lbs": "270 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4702382",
+        "name": "Tristan da Silva",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 8\"",
+        "weight_lbs": "217 lbs",
+        "college": "Colorado"
+    },
+    {
+        "id": "4433623",
+        "name": "Caleb Houstan",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 8\"",
+        "weight_lbs": "205 lbs",
+        "college": "Michigan"
+    },
+    {
+        "id": "5105806",
+        "name": "Jett Howard",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 6\"",
+        "weight_lbs": "215 lbs",
+        "college": "Michigan"
+    },
+    {
+        "id": "4065654",
+        "name": "Jonathan Isaac",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "27",
+        "height": "6' 10\"",
+        "weight_lbs": "230 lbs",
+        "college": "Florida State"
+    },
+    {
+        "id": "3135046",
+        "name": "Tyus Jones",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "29",
+        "height": "6' 1\"",
+        "weight_lbs": "196 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "6446",
+        "name": "Cory Joseph",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "33",
+        "height": "6' 2\"",
+        "weight_lbs": "200 lbs",
+        "college": "Texas"
+    },
+    {
+        "id": "4397071",
+        "name": "Mac McClung",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "6' 2\"",
+        "weight_lbs": "185 lbs",
+        "college": "Texas Tech"
+    },
+    {
+        "id": "5214637",
+        "name": "Noah Penda",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "20",
+        "height": "6' 7\"",
+        "weight_lbs": "198 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4409222",
+        "name": "Trevelin Queen",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 5\"",
+        "weight_lbs": "190 lbs",
+        "college": "New Mexico State"
+    },
+    {
+        "id": "5239561",
+        "name": "Jase Richardson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "19",
+        "height": "6' 3\"",
+        "weight_lbs": "185 lbs",
+        "college": "Michigan State"
+    },
+    {
+        "id": "4432165",
+        "name": "Jalen Suggs",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "24",
+        "height": "6' 5\"",
+        "weight_lbs": "205 lbs",
+        "college": "Gonzaga"
+    },
+    {
+        "id": "4278516",
+        "name": "Ethan Thompson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "6' 5\"",
+        "weight_lbs": "195 lbs",
+        "college": "Oregon State"
+    },
+    {
+        "id": "4566434",
+        "name": "Franz Wagner",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "23",
+        "height": "6' 10\"",
+        "weight_lbs": "220 lbs",
+        "college": "Michigan"
+    },
+    {
+        "id": "3150844",
+        "name": "Moritz Wagner",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "28",
+        "height": "6' 11\"",
+        "weight_lbs": "245 lbs",
+        "college": "Michigan"
+    }
+]

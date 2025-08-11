@@ -1,0 +1,212 @@
+[
+    {
+        "id": "4431679",
+        "name": "Precious Achiuwa",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "25",
+        "height": "6' 8\"",
+        "weight_lbs": "243 lbs",
+        "college": "Memphis"
+    },
+    {
+        "id": "3934719",
+        "name": "OG Anunoby",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "28",
+        "height": "6' 7\"",
+        "weight_lbs": "240 lbs",
+        "college": "Indiana"
+    },
+    {
+        "id": "4432179",
+        "name": "MarJon Beauchamp",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 7\"",
+        "weight_lbs": "199 lbs",
+        "college": "--"
+    },
+    {
+        "id": "3147657",
+        "name": "Mikal Bridges",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "28",
+        "height": "6' 6\"",
+        "weight_lbs": "209 lbs",
+        "college": "Villanova"
+    },
+    {
+        "id": "3934672",
+        "name": "Jalen Brunson",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "28",
+        "height": "6' 2\"",
+        "weight_lbs": "190 lbs",
+        "college": "Villanova"
+    },
+    {
+        "id": "2528426",
+        "name": "Jordan Clarkson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "33",
+        "height": "6' 3\"",
+        "weight_lbs": "194 lbs",
+        "college": "Missouri"
+    },
+    {
+        "id": "5211983",
+        "name": "Pacome Dadiet",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 8\"",
+        "weight_lbs": "210 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5289900",
+        "name": "Mohamed Diawara",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "20",
+        "height": "6' 8\"",
+        "weight_lbs": "--",
+        "college": "--"
+    },
+    {
+        "id": "3062679",
+        "name": "Josh Hart",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "30",
+        "height": "6' 4\"",
+        "weight_lbs": "215 lbs",
+        "college": "Villanova"
+    },
+    {
+        "id": "4871141",
+        "name": "Ariel Hukporti",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "23",
+        "height": "6' 11\"",
+        "weight_lbs": "246 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4433225",
+        "name": "Tyler Kolek",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 3\"",
+        "weight_lbs": "195 lbs",
+        "college": "Marquette"
+    },
+    {
+        "id": "4431823",
+        "name": "Miles McBride",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "24",
+        "height": "6' 1\"",
+        "weight_lbs": "195 lbs",
+        "college": "West Virginia"
+    },
+    {
+        "id": "4411057",
+        "name": "Kevin McCullar Jr.",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 6\"",
+        "weight_lbs": "210 lbs",
+        "college": "Kansas"
+    },
+    {
+        "id": "3064230",
+        "name": "Cameron Payne",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "31",
+        "height": "6' 3\"",
+        "weight_lbs": "183 lbs",
+        "college": "Murray State"
+    },
+    {
+        "id": "4351852",
+        "name": "Mitchell Robinson",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "27",
+        "height": "7' 0\"",
+        "weight_lbs": "240 lbs",
+        "college": "--"
+    },
+    {
+        "id": "3914044",
+        "name": "Landry Shamet",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 4\"",
+        "weight_lbs": "190 lbs",
+        "college": "Wichita State"
+    },
+    {
+        "id": "3136195",
+        "name": "Karl-Anthony Towns",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "29",
+        "height": "7' 0\"",
+        "weight_lbs": "248 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "3033",
+        "name": "P.J. Tucker",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "40",
+        "height": "6' 5\"",
+        "weight_lbs": "245 lbs",
+        "college": "Texas"
+    },
+    {
+        "id": "4431705",
+        "name": "Anton Watson",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 8\"",
+        "weight_lbs": "225 lbs",
+        "college": "Gonzaga"
+    },
+    {
+        "id": "3064447",
+        "name": "Delon Wright",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "33",
+        "height": "6' 5\"",
+        "weight_lbs": "185 lbs",
+        "college": "Utah"
+    },
+    {
+        "id": "4017844",
+        "name": "Guerschon Yabusele",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "29",
+        "height": "6' 8\"",
+        "weight_lbs": "265 lbs",
+        "college": "--"
+    }
+]

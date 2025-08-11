@@ -1,0 +1,138 @@
+League,Team,Team_ID,URL
+MLB,Arizona Diamondbacks,29,https://www.espn.com/baseball/team/roster/_/name/arizona-diamondbacks/arizona-diamondbacks
+MLB,Athletics,11,https://www.espn.com/baseball/team/roster/_/name/athletics/athletics
+MLB,Atlanta Braves,15,https://www.espn.com/baseball/team/roster/_/name/atlanta-braves/atlanta-braves
+MLB,Baltimore Orioles,1,https://www.espn.com/baseball/team/roster/_/name/baltimore-orioles/baltimore-orioles
+MLB,Boston Red Sox,2,https://www.espn.com/baseball/team/roster/_/name/boston-red-sox/boston-red-sox
+MLB,Chicago Cubs,16,https://www.espn.com/baseball/team/roster/_/name/chicago-cubs/chicago-cubs
+MLB,Chicago White Sox,4,https://www.espn.com/baseball/team/roster/_/name/chicago-white-sox/chicago-white-sox
+MLB,Cincinnati Reds,17,https://www.espn.com/baseball/team/roster/_/name/cincinnati-reds/cincinnati-reds
+MLB,Cleveland Guardians,5,https://www.espn.com/baseball/team/roster/_/name/cleveland-guardians/cleveland-guardians
+MLB,Colorado Rockies,27,https://www.espn.com/baseball/team/roster/_/name/colorado-rockies/colorado-rockies
+MLB,Detroit Tigers,6,https://www.espn.com/baseball/team/roster/_/name/detroit-tigers/detroit-tigers
+MLB,Houston Astros,18,https://www.espn.com/baseball/team/roster/_/name/houston-astros/houston-astros
+MLB,Kansas City Royals,7,https://www.espn.com/baseball/team/roster/_/name/kansas-city-royals/kansas-city-royals
+MLB,Los Angeles Angels,3,https://www.espn.com/baseball/team/roster/_/name/los-angeles-angels/los-angeles-angels
+MLB,Los Angeles Dodgers,19,https://www.espn.com/baseball/team/roster/_/name/los-angeles-dodgers/los-angeles-dodgers
+MLB,Miami Marlins,28,https://www.espn.com/baseball/team/roster/_/name/miami-marlins/miami-marlins
+MLB,Milwaukee Brewers,8,https://www.espn.com/baseball/team/roster/_/name/milwaukee-brewers/milwaukee-brewers
+MLB,Minnesota Twins,9,https://www.espn.com/baseball/team/roster/_/name/minnesota-twins/minnesota-twins
+MLB,New York Mets,21,https://www.espn.com/baseball/team/roster/_/name/new-york-mets/new-york-mets
+MLB,New York Yankees,10,https://www.espn.com/baseball/team/roster/_/name/new-york-yankees/new-york-yankees
+MLB,Philadelphia Phillies,22,https://www.espn.com/baseball/team/roster/_/name/philadelphia-phillies/philadelphia-phillies
+MLB,Pittsburgh Pirates,23,https://www.espn.com/baseball/team/roster/_/name/pittsburgh-pirates/pittsburgh-pirates
+MLB,San Diego Padres,25,https://www.espn.com/baseball/team/roster/_/name/san-diego-padres/san-diego-padres
+MLB,San Francisco Giants,26,https://www.espn.com/baseball/team/roster/_/name/san-francisco-giants/san-francisco-giants
+MLB,Seattle Mariners,12,https://www.espn.com/baseball/team/roster/_/name/seattle-mariners/seattle-mariners
+MLB,St. Louis Cardinals,24,https://www.espn.com/baseball/team/roster/_/name/st-louis-cardinals/st.-louis-cardinals
+MLB,Tampa Bay Rays,30,https://www.espn.com/baseball/team/roster/_/name/tampa-bay-rays/tampa-bay-rays
+MLB,Texas Rangers,13,https://www.espn.com/baseball/team/roster/_/name/texas-rangers/texas-rangers
+MLB,Toronto Blue Jays,14,https://www.espn.com/baseball/team/roster/_/name/toronto-blue-jays/toronto-blue-jays
+MLB,Washington Nationals,20,https://www.espn.com/baseball/team/roster/_/name/washington-nationals/washington-nationals
+NBA,Atlanta Hawks,1,https://www.espn.com/basketball/team/roster/_/name/atlanta-hawks/atlanta-hawks
+NBA,Boston Celtics,2,https://www.espn.com/basketball/team/roster/_/name/boston-celtics/boston-celtics
+NBA,Brooklyn Nets,17,https://www.espn.com/basketball/team/roster/_/name/brooklyn-nets/brooklyn-nets
+NBA,Charlotte Hornets,30,https://www.espn.com/basketball/team/roster/_/name/charlotte-hornets/charlotte-hornets
+NBA,Chicago Bulls,4,https://www.espn.com/basketball/team/roster/_/name/chicago-bulls/chicago-bulls
+NBA,Cleveland Cavaliers,5,https://www.espn.com/basketball/team/roster/_/name/cleveland-cavaliers/cleveland-cavaliers
+NBA,Dallas Mavericks,6,https://www.espn.com/basketball/team/roster/_/name/dallas-mavericks/dallas-mavericks
+NBA,Denver Nuggets,7,https://www.espn.com/basketball/team/roster/_/name/denver-nuggets/denver-nuggets
+NBA,Detroit Pistons,8,https://www.espn.com/basketball/team/roster/_/name/detroit-pistons/detroit-pistons
+NBA,Golden State Warriors,9,https://www.espn.com/basketball/team/roster/_/name/golden-state-warriors/golden-state-warriors
+NBA,Houston Rockets,10,https://www.espn.com/basketball/team/roster/_/name/houston-rockets/houston-rockets
+NBA,Indiana Pacers,11,https://www.espn.com/basketball/team/roster/_/name/indiana-pacers/indiana-pacers
+NBA,LA Clippers,12,https://www.espn.com/basketball/team/roster/_/name/la-clippers/la-clippers
+NBA,Los Angeles Lakers,13,https://www.espn.com/basketball/team/roster/_/name/los-angeles-lakers/los-angeles-lakers
+NBA,Memphis Grizzlies,29,https://www.espn.com/basketball/team/roster/_/name/memphis-grizzlies/memphis-grizzlies
+NBA,Miami Heat,14,https://www.espn.com/basketball/team/roster/_/name/miami-heat/miami-heat
+NBA,Milwaukee Bucks,15,https://www.espn.com/basketball/team/roster/_/name/milwaukee-bucks/milwaukee-bucks
+NBA,Minnesota Timberwolves,16,https://www.espn.com/basketball/team/roster/_/name/minnesota-timberwolves/minnesota-timberwolves
+NBA,New Orleans Pelicans,3,https://www.espn.com/basketball/team/roster/_/name/new-orleans-pelicans/new-orleans-pelicans
+NBA,New York Knicks,18,https://www.espn.com/basketball/team/roster/_/name/new-york-knicks/new-york-knicks
+NBA,Oklahoma City Thunder,25,https://www.espn.com/basketball/team/roster/_/name/oklahoma-city-thunder/oklahoma-city-thunder
+NBA,Orlando Magic,19,https://www.espn.com/basketball/team/roster/_/name/orlando-magic/orlando-magic
+NBA,Philadelphia 76ers,20,https://www.espn.com/basketball/team/roster/_/name/philadelphia-76ers/philadelphia-76ers
+NBA,Phoenix Suns,21,https://www.espn.com/basketball/team/roster/_/name/phoenix-suns/phoenix-suns
+NBA,Portland Trail Blazers,22,https://www.espn.com/basketball/team/roster/_/name/portland-trail-blazers/portland-trail-blazers
+NBA,Sacramento Kings,23,https://www.espn.com/basketball/team/roster/_/name/sacramento-kings/sacramento-kings
+NBA,San Antonio Spurs,24,https://www.espn.com/basketball/team/roster/_/name/san-antonio-spurs/san-antonio-spurs
+NBA,Toronto Raptors,28,https://www.espn.com/basketball/team/roster/_/name/toronto-raptors/toronto-raptors
+NBA,Utah Jazz,26,https://www.espn.com/basketball/team/roster/_/name/utah-jazz/utah-jazz
+NBA,Washington Wizards,27,https://www.espn.com/basketball/team/roster/_/name/washington-wizards/washington-wizards
+WNBA,Atlanta Dream,20,https://www.espn.com/basketball/team/roster/_/name/atlanta-dream/atlanta-dream
+WNBA,Chicago Sky,19,https://www.espn.com/basketball/team/roster/_/name/chicago-sky/chicago-sky
+WNBA,Connecticut SUN,18,https://www.espn.com/basketball/team/roster/_/name/connecticut-sun/connecticut-sun
+WNBA,Dallas Wings,3,https://www.espn.com/basketball/team/roster/_/name/dallas-wings/dallas-wings
+WNBA,Golden State Valkyries,129689,https://www.espn.com/basketball/team/roster/_/name/golden-state-valkyries/golden-state-valkyries
+WNBA,Indiana Fever,5,https://www.espn.com/basketball/team/roster/_/name/indiana-fever/indiana-fever
+WNBA,Las Vegas Aces,17,https://www.espn.com/basketball/team/roster/_/name/las-vegas-aces/las-vegas-aces
+WNBA,Los Angeles Sparks,6,https://www.espn.com/basketball/team/roster/_/name/los-angeles-sparks/los-angeles-sparks
+WNBA,Minnesota Lynx,8,https://www.espn.com/basketball/team/roster/_/name/minnesota-lynx/minnesota-lynx
+WNBA,New York Liberty,9,https://www.espn.com/basketball/team/roster/_/name/new-york-liberty/new-york-liberty
+WNBA,Phoenix Mercury,11,https://www.espn.com/basketball/team/roster/_/name/phoenix-mercury/phoenix-mercury
+WNBA,Seattle Storm,14,https://www.espn.com/basketball/team/roster/_/name/seattle-storm/seattle-storm
+WNBA,Washington Mystics,16,https://www.espn.com/basketball/team/roster/_/name/washington-mystics/washington-mystics
+NHL,Anaheim Ducks,25,https://www.espn.com/hockey/team/roster/_/name/anaheim-ducks/anaheim-ducks
+NHL,Boston Bruins,1,https://www.espn.com/hockey/team/roster/_/name/boston-bruins/boston-bruins
+NHL,Buffalo Sabres,2,https://www.espn.com/hockey/team/roster/_/name/buffalo-sabres/buffalo-sabres
+NHL,Calgary Flames,3,https://www.espn.com/hockey/team/roster/_/name/calgary-flames/calgary-flames
+NHL,Carolina Hurricanes,7,https://www.espn.com/hockey/team/roster/_/name/carolina-hurricanes/carolina-hurricanes
+NHL,Chicago Blackhawks,4,https://www.espn.com/hockey/team/roster/_/name/chicago-blackhawks/chicago-blackhawks
+NHL,Colorado Avalanche,17,https://www.espn.com/hockey/team/roster/_/name/colorado-avalanche/colorado-avalanche
+NHL,Columbus Blue Jackets,29,https://www.espn.com/hockey/team/roster/_/name/columbus-blue-jackets/columbus-blue-jackets
+NHL,Dallas Stars,9,https://www.espn.com/hockey/team/roster/_/name/dallas-stars/dallas-stars
+NHL,Detroit Red Wings,5,https://www.espn.com/hockey/team/roster/_/name/detroit-red-wings/detroit-red-wings
+NHL,Edmonton Oilers,6,https://www.espn.com/hockey/team/roster/_/name/edmonton-oilers/edmonton-oilers
+NHL,Florida Panthers,26,https://www.espn.com/hockey/team/roster/_/name/florida-panthers/florida-panthers
+NHL,Los Angeles Kings,8,https://www.espn.com/hockey/team/roster/_/name/los-angeles-kings/los-angeles-kings
+NHL,Minnesota Wild,30,https://www.espn.com/hockey/team/roster/_/name/minnesota-wild/minnesota-wild
+NHL,Montreal Canadiens,10,https://www.espn.com/hockey/team/roster/_/name/montreal-canadiens/montreal-canadiens
+NHL,Nashville Predators,27,https://www.espn.com/hockey/team/roster/_/name/nashville-predators/nashville-predators
+NHL,New Jersey Devils,11,https://www.espn.com/hockey/team/roster/_/name/new-jersey-devils/new-jersey-devils
+NHL,New York Islanders,12,https://www.espn.com/hockey/team/roster/_/name/new-york-islanders/new-york-islanders
+NHL,New York Rangers,13,https://www.espn.com/hockey/team/roster/_/name/new-york-rangers/new-york-rangers
+NHL,Ottawa Senators,14,https://www.espn.com/hockey/team/roster/_/name/ottawa-senators/ottawa-senators
+NHL,Philadelphia Flyers,15,https://www.espn.com/hockey/team/roster/_/name/philadelphia-flyers/philadelphia-flyers
+NHL,Pittsburgh Penguins,16,https://www.espn.com/hockey/team/roster/_/name/pittsburgh-penguins/pittsburgh-penguins
+NHL,San Jose Sharks,18,https://www.espn.com/hockey/team/roster/_/name/san-jose-sharks/san-jose-sharks
+NHL,Seattle Kraken,124292,https://www.espn.com/hockey/team/roster/_/name/seattle-kraken/seattle-kraken
+NHL,St. Louis Blues,19,https://www.espn.com/hockey/team/roster/_/name/st-louis-blues/st.-louis-blues
+NHL,Tampa Bay Lightning,20,https://www.espn.com/hockey/team/roster/_/name/tampa-bay-lightning/tampa-bay-lightning
+NHL,Toronto Maple Leafs,21,https://www.espn.com/hockey/team/roster/_/name/toronto-maple-leafs/toronto-maple-leafs
+NHL,Utah Mammoth,129764,https://www.espn.com/hockey/team/roster/_/name/utah-mammoth/utah-mammoth
+NHL,Vancouver Canucks,22,https://www.espn.com/hockey/team/roster/_/name/vancouver-canucks/vancouver-canucks
+NHL,Vegas Golden Knights,37,https://www.espn.com/hockey/team/roster/_/name/vegas-golden-knights/vegas-golden-knights
+NHL,Washington Capitals,23,https://www.espn.com/hockey/team/roster/_/name/washington-capitals/washington-capitals
+NHL,Winnipeg Jets,28,https://www.espn.com/hockey/team/roster/_/name/winnipeg-jets/winnipeg-jets
+NFL,Arizona Cardinals,22,https://www.espn.com/football/team/roster/_/name/arizona-cardinals/arizona-cardinals
+NFL,Atlanta Falcons,1,https://www.espn.com/football/team/roster/_/name/atlanta-falcons/atlanta-falcons
+NFL,Baltimore Ravens,33,https://www.espn.com/football/team/roster/_/name/baltimore-ravens/baltimore-ravens
+NFL,Buffalo Bills,2,https://www.espn.com/football/team/roster/_/name/buffalo-bills/buffalo-bills
+NFL,Carolina Panthers,29,https://www.espn.com/football/team/roster/_/name/carolina-panthers/carolina-panthers
+NFL,Chicago Bears,3,https://www.espn.com/football/team/roster/_/name/chicago-bears/chicago-bears
+NFL,Cincinnati Bengals,4,https://www.espn.com/football/team/roster/_/name/cincinnati-bengals/cincinnati-bengals
+NFL,Cleveland Browns,5,https://www.espn.com/football/team/roster/_/name/cleveland-browns/cleveland-browns
+NFL,Dallas Cowboys,6,https://www.espn.com/football/team/roster/_/name/dallas-cowboys/dallas-cowboys
+NFL,Denver Broncos,7,https://www.espn.com/football/team/roster/_/name/denver-broncos/denver-broncos
+NFL,Detroit Lions,8,https://www.espn.com/football/team/roster/_/name/detroit-lions/detroit-lions
+NFL,Green Bay Packers,9,https://www.espn.com/football/team/roster/_/name/green-bay-packers/green-bay-packers
+NFL,Houston Texans,34,https://www.espn.com/football/team/roster/_/name/houston-texans/houston-texans
+NFL,Indianapolis Colts,11,https://www.espn.com/football/team/roster/_/name/indianapolis-colts/indianapolis-colts
+NFL,Jacksonville Jaguars,30,https://www.espn.com/football/team/roster/_/name/jacksonville-jaguars/jacksonville-jaguars
+NFL,Kansas City Chiefs,12,https://www.espn.com/football/team/roster/_/name/kansas-city-chiefs/kansas-city-chiefs
+NFL,Las Vegas Raiders,13,https://www.espn.com/football/team/roster/_/name/las-vegas-raiders/las-vegas-raiders
+NFL,Los Angeles Chargers,24,https://www.espn.com/football/team/roster/_/name/los-angeles-chargers/los-angeles-chargers
+NFL,Los Angeles Rams,14,https://www.espn.com/football/team/roster/_/name/los-angeles-rams/los-angeles-rams
+NFL,Miami Dolphins,15,https://www.espn.com/football/team/roster/_/name/miami-dolphins/miami-dolphins
+NFL,Minnesota Vikings,16,https://www.espn.com/football/team/roster/_/name/minnesota-vikings/minnesota-vikings
+NFL,New England Patriots,17,https://www.espn.com/football/team/roster/_/name/new-england-patriots/new-england-patriots
+NFL,New Orleans Saints,18,https://www.espn.com/football/team/roster/_/name/new-orleans-saints/new-orleans-saints
+NFL,New York Giants,19,https://www.espn.com/football/team/roster/_/name/new-york-giants/new-york-giants
+NFL,New York Jets,20,https://www.espn.com/football/team/roster/_/name/new-york-jets/new-york-jets
+NFL,Philadelphia Eagles,21,https://www.espn.com/football/team/roster/_/name/philadelphia-eagles/philadelphia-eagles
+NFL,Pittsburgh Steelers,23,https://www.espn.com/football/team/roster/_/name/pittsburgh-steelers/pittsburgh-steelers
+NFL,San Francisco 49ers,25,https://www.espn.com/football/team/roster/_/name/san-francisco-49ers/san-francisco-49ers
+NFL,Seattle Seahawks,26,https://www.espn.com/football/team/roster/_/name/seattle-seahawks/seattle-seahawks
+NFL,Tampa Bay Buccaneers,27,https://www.espn.com/football/team/roster/_/name/tampa-bay-buccaneers/tampa-bay-buccaneers
+NFL,Tennessee Titans,10,https://www.espn.com/football/team/roster/_/name/tennessee-titans/tennessee-titans
+NFL,Washington Commanders,28,https://www.espn.com/football/team/roster/_/name/washington-commanders/washington-commanders

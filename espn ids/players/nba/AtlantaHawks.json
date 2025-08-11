@@ -1,0 +1,162 @@
+[
+    {
+        "id": "4278039",
+        "name": "Nickeil Alexander-Walker",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "26",
+        "height": "6' 5\"",
+        "weight_lbs": "205 lbs",
+        "college": "Virginia Tech"
+    },
+    {
+        "id": "4683736",
+        "name": "Kobe Bufkin",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 4\"",
+        "weight_lbs": "195 lbs",
+        "college": "Michigan"
+    },
+    {
+        "id": "4869342",
+        "name": "Dyson Daniels",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 7\"",
+        "weight_lbs": "199 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5144067",
+        "name": "Nikola Djurisic",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 7\"",
+        "weight_lbs": "209 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4712863",
+        "name": "Mouhamed Gueye",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 10\"",
+        "weight_lbs": "210 lbs",
+        "college": "Washington State"
+    },
+    {
+        "id": "4701230",
+        "name": "Jalen Johnson",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "23",
+        "height": "6' 8\"",
+        "weight_lbs": "219 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "3913174",
+        "name": "Luke Kennard",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "29",
+        "height": "6' 5\"",
+        "weight_lbs": "206 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4578893",
+        "name": "Vit Krejci",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 8\"",
+        "weight_lbs": "195 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5144071",
+        "name": "Eli John N'Diaye",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "21",
+        "height": "6' 8\"",
+        "weight_lbs": "209 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4873201",
+        "name": "Asa Newell",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "19",
+        "height": "6' 11\"",
+        "weight_lbs": "220 lbs",
+        "college": "Georgia"
+    },
+    {
+        "id": "4431680",
+        "name": "Onyeka Okongwu",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "24",
+        "height": "6' 10\"",
+        "weight_lbs": "240 lbs",
+        "college": "USC"
+    },
+    {
+        "id": "3102531",
+        "name": "Kristaps Porzingis",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "30",
+        "height": "7' 2\"",
+        "weight_lbs": "240 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5211175",
+        "name": "Zaccharie Risacher",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "20",
+        "height": "6' 8\"",
+        "weight_lbs": "200 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4592461",
+        "name": "Jacob Toppin",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 8\"",
+        "weight_lbs": "200 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4279118",
+        "name": "Keaton Wallace",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "6' 3\"",
+        "weight_lbs": "185 lbs",
+        "college": "UTSA"
+    },
+    {
+        "id": "4277905",
+        "name": "Trae Young",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "26",
+        "height": "6' 1\"",
+        "weight_lbs": "164 lbs",
+        "college": "Oklahoma"
+    }
+]

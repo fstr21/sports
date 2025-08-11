@@ -1,0 +1,182 @@
+[
+    {
+        "id": "5279133",
+        "name": "Joan Beringer",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "18",
+        "height": "6' 11\"",
+        "weight_lbs": "230 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4432247",
+        "name": "Jaylen Clark",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 4\"",
+        "weight_lbs": "205 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "3195",
+        "name": "Mike Conley",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "37",
+        "height": "6' 0\"",
+        "weight_lbs": "175 lbs",
+        "college": "Ohio State"
+    },
+    {
+        "id": "3934673",
+        "name": "Donte DiVincenzo",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 4\"",
+        "weight_lbs": "203 lbs",
+        "college": "Villanova"
+    },
+    {
+        "id": "4684275",
+        "name": "Rob Dillingham",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 3\"",
+        "weight_lbs": "175 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4594268",
+        "name": "Anthony Edwards",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "24",
+        "height": "6' 4\"",
+        "weight_lbs": "225 lbs",
+        "college": "Georgia"
+    },
+    {
+        "id": "4431816",
+        "name": "Jesse Edwards",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "25",
+        "height": "7' 0\"",
+        "weight_lbs": "236 lbs",
+        "college": "West Virginia"
+    },
+    {
+        "id": "4592699",
+        "name": "Enrique Freeman",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 7\"",
+        "weight_lbs": "225 lbs",
+        "college": "Akron"
+    },
+    {
+        "id": "3032976",
+        "name": "Rudy Gobert",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "33",
+        "height": "7' 1\"",
+        "weight_lbs": "258 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4592492",
+        "name": "Bones Hyland",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "24",
+        "height": "6' 2\"",
+        "weight_lbs": "169 lbs",
+        "college": "VCU"
+    },
+    {
+        "id": "2968436",
+        "name": "Joe Ingles",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "37",
+        "height": "6' 8\"",
+        "weight_lbs": "220 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4431671",
+        "name": "Jaden McDaniels",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "24",
+        "height": "6' 9\"",
+        "weight_lbs": "185 lbs",
+        "college": "Washington"
+    },
+    {
+        "id": "5044385",
+        "name": "Leonard Miller",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 10\"",
+        "weight_lbs": "220 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4592965",
+        "name": "Tristen Newton",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 5\"",
+        "weight_lbs": "190 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "3064514",
+        "name": "Julius Randle",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "30",
+        "height": "6' 9\"",
+        "weight_lbs": "250 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4396971",
+        "name": "Naz Reid",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "25",
+        "height": "6' 9\"",
+        "weight_lbs": "264 lbs",
+        "college": "LSU"
+    },
+    {
+        "id": "4432847",
+        "name": "Terrence Shannon Jr.",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 6\"",
+        "weight_lbs": "215 lbs",
+        "college": "Illinois"
+    },
+    {
+        "id": "5157587",
+        "name": "Rocco Zikarsky",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "19",
+        "height": "7' 2\"",
+        "weight_lbs": "227 lbs",
+        "college": "--"
+    }
+]

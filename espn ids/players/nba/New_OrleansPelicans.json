@@ -1,0 +1,222 @@
+[
+    {
+        "id": "4433268",
+        "name": "Trey Alexander",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 4\"",
+        "weight_lbs": "185 lbs",
+        "college": "Creighton"
+    },
+    {
+        "id": "4277869",
+        "name": "Jose Alvarado",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "27",
+        "height": "6' 0\"",
+        "weight_lbs": "179 lbs",
+        "college": "Georgia Tech"
+    },
+    {
+        "id": "4397136",
+        "name": "Saddiq Bey",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "26",
+        "height": "6' 7\"",
+        "weight_lbs": "215 lbs",
+        "college": "Villanova"
+    },
+    {
+        "id": "4432162",
+        "name": "Brandon Boston",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "23",
+        "height": "6' 6\"",
+        "weight_lbs": "188 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4431689",
+        "name": "Keion Brooks Jr.",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "25",
+        "height": "6' 7\"",
+        "weight_lbs": "210 lbs",
+        "college": "Washington"
+    },
+    {
+        "id": "4278572",
+        "name": "Jamal Cain",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "26",
+        "height": "6' 6\"",
+        "weight_lbs": "191 lbs",
+        "college": "Oakland"
+    },
+    {
+        "id": "4432180",
+        "name": "Hunter Dickinson",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "--",
+        "height": "7' 2\"",
+        "weight_lbs": "265 lbs",
+        "college": "Kansas"
+    },
+    {
+        "id": "5144091",
+        "name": "Jeremiah Fears",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "--",
+        "height": "6' 4\"",
+        "weight_lbs": "182 lbs",
+        "college": "Oklahoma"
+    },
+    {
+        "id": "4683750",
+        "name": "Jordan Hawkins",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 5\"",
+        "weight_lbs": "190 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "4277813",
+        "name": "Herbert Jones",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "26",
+        "height": "6' 7\"",
+        "weight_lbs": "206 lbs",
+        "college": "Alabama"
+    },
+    {
+        "id": "3950760",
+        "name": "Kylor Kelley",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "27",
+        "height": "7' 0\"",
+        "weight_lbs": "230 lbs",
+        "college": "Oregon State"
+    },
+    {
+        "id": "3155535",
+        "name": "Kevon Looney",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "29",
+        "height": "6' 9\"",
+        "weight_lbs": "222 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "4997538",
+        "name": "Karlo Matkovic",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "24",
+        "height": "6' 10\"",
+        "weight_lbs": "231 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5061589",
+        "name": "Yves Missi",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "21",
+        "height": "6' 11\"",
+        "weight_lbs": "235 lbs",
+        "college": "Baylor"
+    },
+    {
+        "id": "4397688",
+        "name": "Trey Murphy III",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "25",
+        "height": "6' 8\"",
+        "weight_lbs": "206 lbs",
+        "college": "Virginia"
+    },
+    {
+        "id": "3907497",
+        "name": "Dejounte Murray",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 4\"",
+        "weight_lbs": "180 lbs",
+        "college": "Washington"
+    },
+    {
+        "id": "2583639",
+        "name": "Elfrid Payton",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "31",
+        "height": "6' 3\"",
+        "weight_lbs": "195 lbs",
+        "college": "Louisiana"
+    },
+    {
+        "id": "4432185",
+        "name": "Micah Peavy",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "--",
+        "height": "6' 8\"",
+        "weight_lbs": "220 lbs",
+        "college": "Georgetown"
+    },
+    {
+        "id": "4277956",
+        "name": "Jordan Poole",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "26",
+        "height": "6' 4\"",
+        "weight_lbs": "194 lbs",
+        "college": "Michigan"
+    },
+    {
+        "id": "4869780",
+        "name": "Derik Queen",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "--",
+        "height": "6' 10\"",
+        "weight_lbs": "246 lbs",
+        "college": "Maryland"
+    },
+    {
+        "id": "4432813",
+        "name": "Jeremiah Robinson-Earl",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 8\"",
+        "weight_lbs": "240 lbs",
+        "college": "Villanova"
+    },
+    {
+        "id": "4395628",
+        "name": "Zion Williamson",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "25",
+        "height": "6' 6\"",
+        "weight_lbs": "284 lbs",
+        "college": "Duke"
+    }
+]

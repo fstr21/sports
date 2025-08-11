@@ -1,0 +1,122 @@
+[
+    {
+        "id": "3922628",
+        "name": "Kennedy Burke",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "28",
+        "height": "6' 1\"",
+        "weight_lbs": "182 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "2529137",
+        "name": "Natasha Cloud",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "33",
+        "height": "5' 10\"",
+        "weight_lbs": "160 lbs",
+        "college": "Saint Joseph's"
+    },
+    {
+        "id": "4683006",
+        "name": "Leonie Fiebich",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 4\"",
+        "weight_lbs": "--",
+        "college": "--"
+    },
+    {
+        "id": "2327695",
+        "name": "Rebekah Gardner",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "35",
+        "height": "6' 1\"",
+        "weight_lbs": "130 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "2566453",
+        "name": "Isabelle Harrison",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "31",
+        "height": "6' 3\"",
+        "weight_lbs": "183 lbs",
+        "college": "Tennessee"
+    },
+    {
+        "id": "4066533",
+        "name": "Sabrina Ionescu",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "27",
+        "height": "5' 11\"",
+        "weight_lbs": "165 lbs",
+        "college": "Oregon"
+    },
+    {
+        "id": "4038379",
+        "name": "Marine Johannes",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "30",
+        "height": "5' 10\"",
+        "weight_lbs": "134 lbs",
+        "college": "--"
+    },
+    {
+        "id": "2999101",
+        "name": "Jonquel Jones",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "31",
+        "height": "6' 6\"",
+        "weight_lbs": "215 lbs",
+        "college": "George Washington"
+    },
+    {
+        "id": "3027368",
+        "name": "Emma Meesseman",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "32",
+        "height": "6' 4\"",
+        "weight_lbs": "191 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4398768",
+        "name": "Nyara Sabally",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "25",
+        "height": "6' 5\"",
+        "weight_lbs": "204 lbs",
+        "college": "Oregon"
+    },
+    {
+        "id": "2998928",
+        "name": "Breanna Stewart",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "30",
+        "height": "6' 4\"",
+        "weight_lbs": "170 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "3099736",
+        "name": "Stephanie Talbot",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "31",
+        "height": "6' 2\"",
+        "weight_lbs": "192 lbs",
+        "college": "--"
+    }
+]

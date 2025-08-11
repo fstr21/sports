@@ -1,0 +1,122 @@
+[
+    {
+        "id": "4280877",
+        "name": "Chloe Bibby",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "27",
+        "height": "6' 2\"",
+        "weight_lbs": "194 lbs",
+        "college": "Maryland"
+    },
+    {
+        "id": "4432831",
+        "name": "Aliyah Boston",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 5\"",
+        "weight_lbs": "220 lbs",
+        "college": "South Carolina"
+    },
+    {
+        "id": "4433403",
+        "name": "Caitlin Clark",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 0\"",
+        "weight_lbs": "157 lbs",
+        "college": "Iowa"
+    },
+    {
+        "id": "1004",
+        "name": "Sydney Colson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "36",
+        "height": "5' 8\"",
+        "weight_lbs": "137 lbs",
+        "college": "Texas A&M"
+    },
+    {
+        "id": "3907781",
+        "name": "Sophie Cunningham",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "28",
+        "height": "6' 1\"",
+        "weight_lbs": "165 lbs",
+        "college": "Missouri"
+    },
+    {
+        "id": "2955898",
+        "name": "Damiris Dantas",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "32",
+        "height": "6' 4\"",
+        "weight_lbs": "214 lbs",
+        "college": "--"
+    },
+    {
+        "id": "2529130",
+        "name": "Natasha Howard",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "33",
+        "height": "6' 3\"",
+        "weight_lbs": "175 lbs",
+        "college": "Florida State"
+    },
+    {
+        "id": "4398829",
+        "name": "Lexie Hull",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 1\"",
+        "weight_lbs": "155 lbs",
+        "college": "Stanford"
+    },
+    {
+        "id": "4066553",
+        "name": "Aari McDonald",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "5' 6\"",
+        "weight_lbs": "141 lbs",
+        "college": "Arizona"
+    },
+    {
+        "id": "3142191",
+        "name": "Kelsey Mitchell",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "29",
+        "height": "5' 8\"",
+        "weight_lbs": "155 lbs",
+        "college": "Ohio State"
+    },
+    {
+        "id": "4433546",
+        "name": "Makayla Timpson",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 2\"",
+        "weight_lbs": "173 lbs",
+        "college": "Florida State"
+    },
+    {
+        "id": "3142086",
+        "name": "Brianna Turner",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "29",
+        "height": "6' 3\"",
+        "weight_lbs": "175 lbs",
+        "college": "Notre Dame"
+    }
+]

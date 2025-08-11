@@ -26,6 +26,7 @@ from typing import Dict, Any, Optional, List, Tuple
 import pytz
 
 from fastapi import FastAPI, HTTPException, Depends, Request
+from player_matcher import PlayerMatcher
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -582,9 +583,19 @@ if ODDS_AVAILABLE:
 ODDS_DIRECT_CLIENT = odds_client is not None
 ODDS_MCP_SERVER = odds_server is not None
 
+# Initialize player matcher
+try:
+    player_matcher = PlayerMatcher()
+    print(f"[INFO] Player matcher initialized successfully")
+    print(f"   Match stats: {player_matcher.get_match_stats()}")
+except Exception as e:
+    print(f"[WARNING] Player matcher initialization failed: {e}")
+    player_matcher = None
+
 print(f"[INFO] Odds systems available:")
 print(f"   Direct Client: {'Yes' if ODDS_DIRECT_CLIENT else 'No'}")
 print(f"   MCP Server: {'Yes' if ODDS_MCP_SERVER else 'No'}")
+print(f"   Player Matcher: {'Available' if player_matcher else 'Not Available'}")
 
 # Request/Response Models
 class ScoreboardRequest(BaseModel):
@@ -646,6 +657,25 @@ class DailyIntelligenceRequest(BaseModel):
 class NaturalLanguageRequest(BaseModel):
     question: str
     model: Optional[str] = "openai/gpt-4o-mini"
+
+class PlayerMatchRequest(BaseModel):
+    odds_player_name: str
+    sport_key: str
+
+class ConfirmMatchRequest(BaseModel):
+    odds_player_name: str
+    sport_key: str
+    espn_id: str
+    verified_by: Optional[str] = "manual"
+
+class ValueBettingRequest(BaseModel):
+    sport_key: str
+    date: Optional[str] = None
+    player_markets: Optional[str] = "player_points,player_rebounds,player_assists"
+    regions: Optional[str] = "us"
+    odds_format: Optional[str] = "american"
+    min_confidence: Optional[float] = 0.8
+    value_threshold: Optional[float] = 1.1  # 1.1 = player avg must be 10% above betting line
 
 class TeamStatsRequest(BaseModel):
     sport: str
@@ -1454,6 +1484,313 @@ async def natural_language_query(request: NaturalLanguageRequest, _: HTTPAuthori
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing natural language query: {str(e)}")
+
+def analyze_prop_value(market_key: str, betting_line: float, odds: int, player_stats: dict, threshold: float = 1.1) -> dict:
+    """
+    Analyze if a player prop bet offers value based on recent performance.
+    
+    Args:
+        market_key: The betting market (e.g., 'player_points')
+        betting_line: The betting line (e.g., 25.5 points)
+        odds: American odds (e.g., -110)
+        player_stats: Player's recent statistics
+        threshold: Multiplier for value (1.1 = player avg must be 10% above line)
+    
+    Returns:
+        Dict with value analysis
+    """
+    try:
+        # Map betting markets to stat keys
+        stat_mapping = {
+            'player_points': 'points',
+            'player_rebounds': 'rebounds', 
+            'player_assists': 'assists',
+            'player_threes': '3-point-field-goals-made',
+            'player_steals': 'steals',
+            'player_blocks': 'blocks'
+        }
+        
+        stat_key = stat_mapping.get(market_key.lower())
+        if not stat_key:
+            return {"is_value_bet": False, "reason": "Unsupported market type"}
+        
+        # Get recent average from player stats
+        recent_games = player_stats.get("recent_games", [])
+        if not recent_games:
+            return {"is_value_bet": False, "reason": "No recent games data"}
+        
+        # Calculate average from recent games
+        stat_values = []
+        for game in recent_games[:10]:  # Last 10 games
+            stats = game.get("stats", {})
+            if stat_key in stats:
+                stat_values.append(float(stats[stat_key]))
+        
+        if not stat_values:
+            return {"is_value_bet": False, "reason": f"No {stat_key} data found"}
+        
+        recent_avg = sum(stat_values) / len(stat_values)
+        
+        # Calculate value
+        required_avg = betting_line * threshold
+        is_value = recent_avg >= required_avg
+        
+        # Calculate implied probability from American odds
+        if odds > 0:
+            implied_prob = 100 / (odds + 100)
+        else:
+            implied_prob = abs(odds) / (abs(odds) + 100)
+        
+        return {
+            "is_value_bet": is_value,
+            "recent_average": round(recent_avg, 2),
+            "betting_line": betting_line,
+            "difference": round(recent_avg - betting_line, 2),
+            "percentage_above": round(((recent_avg - betting_line) / betting_line * 100), 1) if betting_line > 0 else 0,
+            "required_average": round(required_avg, 2),
+            "games_analyzed": len(stat_values),
+            "implied_probability": round(implied_prob * 100, 1),
+            "confidence": "high" if recent_avg >= required_avg * 1.2 else "medium" if is_value else "low"
+        }
+        
+    except Exception as e:
+        return {"is_value_bet": False, "reason": f"Analysis error: {str(e)}"}
+
+# Player Matching Endpoints
+@app.post("/player/match")
+async def match_player(request: PlayerMatchRequest, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
+    """Match a player name from odds API to ESPN ID."""
+    if not player_matcher:
+        raise HTTPException(status_code=503, detail="Player matcher not available")
+    
+    try:
+        match_result = player_matcher.match_player(request.odds_player_name, request.sport_key)
+        
+        if match_result:
+            return {
+                "status": "success",
+                "match_found": True,
+                "odds_player_name": request.odds_player_name,
+                "sport_key": request.sport_key,
+                "match": match_result
+            }
+        else:
+            return {
+                "status": "success", 
+                "match_found": False,
+                "odds_player_name": request.odds_player_name,
+                "sport_key": request.sport_key,
+                "message": "No match found in confirmed matches or ESPN rosters"
+            }
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error matching player: {str(e)}")
+
+@app.post("/player/confirm")
+async def confirm_player_match(request: ConfirmMatchRequest, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
+    """Confirm a pending player match."""
+    if not player_matcher:
+        raise HTTPException(status_code=503, detail="Player matcher not available")
+    
+    try:
+        success = player_matcher.confirm_match(
+            request.odds_player_name,
+            request.sport_key, 
+            request.espn_id,
+            request.verified_by
+        )
+        
+        if success:
+            return {
+                "status": "success",
+                "message": f"Match confirmed: {request.odds_player_name} -> ESPN ID {request.espn_id}",
+                "odds_player_name": request.odds_player_name,
+                "sport_key": request.sport_key,
+                "espn_id": request.espn_id
+            }
+        else:
+            return {
+                "status": "error",
+                "message": f"Could not confirm match - ESPN ID {request.espn_id} not found"
+            }
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error confirming match: {str(e)}")
+
+@app.get("/player/pending")
+async def get_pending_matches(sport_key: Optional[str] = None, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
+    """Get pending player matches for manual review."""
+    if not player_matcher:
+        raise HTTPException(status_code=503, detail="Player matcher not available")
+    
+    try:
+        pending_matches = player_matcher.get_pending_matches(sport_key)
+        match_stats = player_matcher.get_match_stats()
+        
+        return {
+            "status": "success",
+            "sport_key_filter": sport_key,
+            "pending_matches": pending_matches,
+            "stats": match_stats
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting pending matches: {str(e)}")
+
+@app.post("/player/reject")
+async def reject_player_match(request: PlayerMatchRequest, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
+    """Reject a pending player match."""
+    if not player_matcher:
+        raise HTTPException(status_code=503, detail="Player matcher not available")
+    
+    try:
+        success = player_matcher.reject_match(request.odds_player_name, request.sport_key)
+        
+        if success:
+            return {
+                "status": "success",
+                "message": f"Match rejected: {request.odds_player_name}",
+                "odds_player_name": request.odds_player_name,
+                "sport_key": request.sport_key
+            }
+        else:
+            return {
+                "status": "error",
+                "message": f"Could not reject match - not found in pending matches"
+            }
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error rejecting match: {str(e)}")
+
+@app.post("/value-betting/analyze")
+async def analyze_value_bets(request: ValueBettingRequest, _: HTTPAuthorizationCredentials = Depends(verify_api_key)):
+    """
+    Analyze player props for value betting opportunities by comparing
+    odds lines with recent player statistical performance.
+    """
+    if not player_matcher:
+        raise HTTPException(status_code=503, detail="Player matcher not available")
+    
+    if not SPORTS_AI_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Sports AI MCP not available")
+        
+    if not (ODDS_DIRECT_CLIENT or ODDS_MCP_SERVER):
+        raise HTTPException(status_code=503, detail="Odds API not available")
+    
+    try:
+        # Step 1: Get player props for today
+        props_request = PlayerPropsRequest(
+            sport=request.sport_key,
+            date=request.date,
+            player_markets=request.player_markets,
+            regions=request.regions,
+            odds_format=request.odds_format
+        )
+        
+        props_response = await odds_player_props(props_request, _)
+        
+        if props_response.get("status") != "success":
+            return {
+                "status": "error",
+                "message": "Could not fetch player props",
+                "details": props_response
+            }
+        
+        # Step 2: For each player prop, try to match to ESPN and analyze value
+        value_bets = []
+        unmatched_players = []
+        
+        for game in props_response.get("data", []):
+            game_info = {
+                "home_team": game.get("home_team", "Unknown"),
+                "away_team": game.get("away_team", "Unknown"),
+                "commence_time": game.get("commence_time", "")
+            }
+            
+            for bookmaker in game.get("player_props", []):
+                book_name = bookmaker.get("bookmaker", "Unknown")
+                
+                for market in bookmaker.get("markets", []):
+                    market_key = market.get("key", "")
+                    
+                    for outcome in market.get("outcomes", []):
+                        player_name = outcome.get("description", "")
+                        if not player_name:
+                            continue
+                            
+                        # Step 3: Match player to ESPN ID
+                        match_result = player_matcher.match_player(player_name, request.sport_key)
+                        
+                        if not match_result or match_result.get("confidence", 0) < request.min_confidence:
+                            unmatched_players.append({
+                                "player_name": player_name,
+                                "sport_key": request.sport_key,
+                                "match_result": match_result,
+                                "game": game_info
+                            })
+                            continue
+                        
+                        # Step 4: Get player stats for value analysis
+                        if match_result["source"] == "confirmed":
+                            try:
+                                # Map sport key to ESPN format
+                                if request.sport_key in player_matcher.ODDS_TO_ESPN_SPORT:
+                                    sport, league = player_matcher.ODDS_TO_ESPN_SPORT[request.sport_key]
+                                    
+                                    stats_result = await get_player_stats_wrapper(
+                                        sport=sport,
+                                        league=league,
+                                        player_id=match_result["espn_id"],
+                                        limit=10
+                                    )
+                                    
+                                    if stats_result.get("ok"):
+                                        # Step 5: Analyze value based on market
+                                        value_analysis = analyze_prop_value(
+                                            market_key=market_key,
+                                            betting_line=outcome.get("point"),
+                                            odds=outcome.get("price"),
+                                            player_stats=stats_result.get("data", {}),
+                                            threshold=request.value_threshold
+                                        )
+                                        
+                                        if value_analysis.get("is_value_bet"):
+                                            value_bets.append({
+                                                "player_name": player_name,
+                                                "espn_name": match_result["espn_name"],
+                                                "espn_id": match_result["espn_id"],
+                                                "team": match_result.get("team"),
+                                                "position": match_result.get("position"),
+                                                "market": market_key,
+                                                "betting_line": outcome.get("point"),
+                                                "odds": outcome.get("price"),
+                                                "bookmaker": book_name,
+                                                "game": game_info,
+                                                "value_analysis": value_analysis,
+                                                "match_confidence": match_result.get("confidence")
+                                            })
+                                            
+                            except Exception as e:
+                                print(f"[DEBUG] Error analyzing {player_name}: {e}")
+                                continue
+        
+        return {
+            "status": "success",
+            "sport_key": request.sport_key,
+            "date": request.date or "today",
+            "analysis_params": {
+                "min_confidence": request.min_confidence,
+                "value_threshold": request.value_threshold,
+                "markets": request.player_markets
+            },
+            "value_bets": value_bets,
+            "value_bets_count": len(value_bets),
+            "unmatched_players": unmatched_players,
+            "unmatched_count": len(unmatched_players)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error analyzing value bets: {str(e)}")
 
 # Error handlers
 @app.exception_handler(HTTPException)

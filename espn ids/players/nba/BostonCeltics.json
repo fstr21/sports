@@ -1,0 +1,172 @@
+[
+    {
+        "id": "3917376",
+        "name": "Jaylen Brown",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 6\"",
+        "weight_lbs": "223 lbs",
+        "college": "California"
+    },
+    {
+        "id": "4277951",
+        "name": "Luka Garza",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "26",
+        "height": "6' 10\"",
+        "weight_lbs": "243 lbs",
+        "college": "Iowa"
+    },
+    {
+        "id": "5175647",
+        "name": "Hugo Gonzalez",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "19",
+        "height": "6' 6\"",
+        "weight_lbs": "205 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5176420",
+        "name": "Hayden Gray",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 4\"",
+        "weight_lbs": "190 lbs",
+        "college": "UC San Diego"
+    },
+    {
+        "id": "4065804",
+        "name": "Sam Hauser",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "27",
+        "height": "6' 7\"",
+        "weight_lbs": "217 lbs",
+        "college": "Virginia"
+    },
+    {
+        "id": "5106035",
+        "name": "RJ Luis Jr.",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 7\"",
+        "weight_lbs": "215 lbs",
+        "college": "St. John's"
+    },
+    {
+        "id": "4687718",
+        "name": "Josh Minott",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 8\"",
+        "weight_lbs": "205 lbs",
+        "college": "Memphis"
+    },
+    {
+        "id": "4397104",
+        "name": "Miles Norris",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 7\"",
+        "weight_lbs": "220 lbs",
+        "college": "UC Santa Barbara"
+    },
+    {
+        "id": "4066354",
+        "name": "Payton Pritchard",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "27",
+        "height": "6' 1\"",
+        "weight_lbs": "195 lbs",
+        "college": "Oregon"
+    },
+    {
+        "id": "4397424",
+        "name": "Neemias Queta",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "26",
+        "height": "7' 0\"",
+        "weight_lbs": "248 lbs",
+        "college": "Utah State"
+    },
+    {
+        "id": "4593841",
+        "name": "Baylor Scheierman",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 6\"",
+        "weight_lbs": "205 lbs",
+        "college": "Creighton"
+    },
+    {
+        "id": "4701992",
+        "name": "Max Shulga",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 5\"",
+        "weight_lbs": "210 lbs",
+        "college": "VCU"
+    },
+    {
+        "id": "4351851",
+        "name": "Anfernee Simons",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "26",
+        "height": "6' 3\"",
+        "weight_lbs": "200 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4065648",
+        "name": "Jayson Tatum",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "27",
+        "height": "6' 8\"",
+        "weight_lbs": "210 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4277964",
+        "name": "Xavier Tillman",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "26",
+        "height": "6' 7\"",
+        "weight_lbs": "245 lbs",
+        "college": "Michigan State"
+    },
+    {
+        "id": "4683689",
+        "name": "Jordan Walsh",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 6\"",
+        "weight_lbs": "205 lbs",
+        "college": "Arkansas"
+    },
+    {
+        "id": "3078576",
+        "name": "Derrick White",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "31",
+        "height": "6' 4\"",
+        "weight_lbs": "190 lbs",
+        "college": "Colorado"
+    }
+]

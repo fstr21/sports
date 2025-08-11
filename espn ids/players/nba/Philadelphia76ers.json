@@ -1,0 +1,232 @@
+[
+    {
+        "id": "4433147",
+        "name": "Marcus Bagley",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 6\"",
+        "weight_lbs": "217 lbs",
+        "college": "Arizona State"
+    },
+    {
+        "id": "4870562",
+        "name": "Dominick Barlow",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 8\"",
+        "weight_lbs": "215 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5105637",
+        "name": "Adem Bona",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "22",
+        "height": "6' 10\"",
+        "weight_lbs": "235 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "4278031",
+        "name": "Oshae Brissett",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "27",
+        "height": "6' 7\"",
+        "weight_lbs": "210 lbs",
+        "college": "Syracuse"
+    },
+    {
+        "id": "4433569",
+        "name": "Johni Broome",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 10\"",
+        "weight_lbs": "240 lbs",
+        "college": "Auburn"
+    },
+    {
+        "id": "4066786",
+        "name": "Jeff Dowtin Jr.",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "28",
+        "height": "6' 3\"",
+        "weight_lbs": "177 lbs",
+        "college": "Rhode Island"
+    },
+    {
+        "id": "6585",
+        "name": "Andre Drummond",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "32",
+        "height": "6' 11\"",
+        "weight_lbs": "279 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "5124612",
+        "name": "VJ Edgecombe",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 5\"",
+        "weight_lbs": "180 lbs",
+        "college": "Baylor"
+    },
+    {
+        "id": "4711297",
+        "name": "Justin Edwards",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 7\"",
+        "weight_lbs": "203 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "3059318",
+        "name": "Joel Embiid",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "31",
+        "height": "7' 0\"",
+        "weight_lbs": "280 lbs",
+        "college": "Kansas"
+    },
+    {
+        "id": "4251",
+        "name": "Paul George",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "35",
+        "height": "6' 8\"",
+        "weight_lbs": "220 lbs",
+        "college": "Fresno State"
+    },
+    {
+        "id": "3431",
+        "name": "Eric Gordon",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "36",
+        "height": "6' 3\"",
+        "weight_lbs": "215 lbs",
+        "college": "Indiana"
+    },
+    {
+        "id": "4397014",
+        "name": "Quentin Grimes",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "25",
+        "height": "6' 4\"",
+        "weight_lbs": "210 lbs",
+        "college": "Houston"
+    },
+    {
+        "id": "4433626",
+        "name": "Jalen Hood-Schifino",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 5\"",
+        "weight_lbs": "210 lbs",
+        "college": "Indiana"
+    },
+    {
+        "id": "3012",
+        "name": "Kyle Lowry",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "39",
+        "height": "6' 0\"",
+        "weight_lbs": "196 lbs",
+        "college": "Villanova"
+    },
+    {
+        "id": "4431678",
+        "name": "Tyrese Maxey",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "24",
+        "height": "6' 2\"",
+        "weight_lbs": "200 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4683778",
+        "name": "Jared McCain",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 3\"",
+        "weight_lbs": "195 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4897404",
+        "name": "Igor Milicic Jr.",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "--",
+        "height": "6' 10\"",
+        "weight_lbs": "225 lbs",
+        "college": "Tennessee"
+    },
+    {
+        "id": "3133603",
+        "name": "Kelly Oubre Jr.",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "29",
+        "height": "6' 8\"",
+        "weight_lbs": "203 lbs",
+        "college": "Kansas"
+    },
+    {
+        "id": "4433281",
+        "name": "Hunter Sallis",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 5\"",
+        "weight_lbs": "185 lbs",
+        "college": "Wake Forest"
+    },
+    {
+        "id": "4432446",
+        "name": "Jabari Walker",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 7\"",
+        "weight_lbs": "237 lbs",
+        "college": "Colorado"
+    },
+    {
+        "id": "4277890",
+        "name": "Lonnie Walker IV",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "6' 4\"",
+        "weight_lbs": "205 lbs",
+        "college": "Miami"
+    },
+    {
+        "id": "4431675",
+        "name": "Trendon Watford",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "24",
+        "height": "6' 8\"",
+        "weight_lbs": "237 lbs",
+        "college": "LSU"
+    }
+]

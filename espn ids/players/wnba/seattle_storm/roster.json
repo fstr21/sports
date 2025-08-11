@@ -1,0 +1,112 @@
+[
+    {
+        "id": "3058892",
+        "name": "Lexie Brown",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "30",
+        "height": "5' 9\"",
+        "weight_lbs": "162 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "2491205",
+        "name": "Skylar Diggins",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "35",
+        "height": "5' 9\"",
+        "weight_lbs": "140 lbs",
+        "college": "Notre Dame"
+    },
+    {
+        "id": "4433643",
+        "name": "Mackenzie Holmes",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 3\"",
+        "weight_lbs": "--",
+        "college": "Indiana"
+    },
+    {
+        "id": "4420318",
+        "name": "Ezi Magbegor",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 4\"",
+        "weight_lbs": "181 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5220150",
+        "name": "Dominique Malonga",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "19",
+        "height": "6' 6\"",
+        "weight_lbs": "--",
+        "college": "--"
+    },
+    {
+        "id": "2984741",
+        "name": "Tiffany Mitchell",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "30",
+        "height": "5' 9\"",
+        "weight_lbs": "169 lbs",
+        "college": "South Carolina"
+    },
+    {
+        "id": "1068",
+        "name": "Nneka Ogwumike",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "35",
+        "height": "6' 2\"",
+        "weight_lbs": "190 lbs",
+        "college": "Stanford"
+    },
+    {
+        "id": "3917453",
+        "name": "Katie Lou Samuelson",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "28",
+        "height": "6' 3\"",
+        "weight_lbs": "163 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "2988756",
+        "name": "Brittney Sykes",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "31",
+        "height": "5' 9\"",
+        "weight_lbs": "154 lbs",
+        "college": "Syracuse"
+    },
+    {
+        "id": "2491214",
+        "name": "Erica Wheeler",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "34",
+        "height": "5' 7\"",
+        "weight_lbs": "143 lbs",
+        "college": "Rutgers"
+    },
+    {
+        "id": "3142328",
+        "name": "Gabby Williams",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "28",
+        "height": "5' 11\"",
+        "weight_lbs": "170 lbs",
+        "college": "UConn"
+    }
+]

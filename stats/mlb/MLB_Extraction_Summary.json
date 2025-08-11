@@ -1,0 +1,17 @@
+{
+  "extraction_summary": {
+    "extraction_date": "2025-08-10T23:02:57.946112",
+    "total_players_attempted": 5,
+    "successful_extractions": 5,
+    "total_games_extracted": 22,
+    "players_with_stats": [
+      "Lourdes Gurriel Jr.",
+      "Luis Robert Jr.",
+      "Kyle Karros",
+      "Rafael Marchan",
+      "Corey Seager"
+    ],
+    "api_pattern_used": "eventlog (same as WNBA)",
+    "working_endpoint_pattern": "https://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/athletes/{player_id}/eventlog"
+  }
+}

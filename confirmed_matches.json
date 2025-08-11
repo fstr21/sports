@@ -1,0 +1,48 @@
+{
+  "basketball_nba": {
+    "LeBron James": {
+      "espn_id": "1966",
+      "espn_name": "LeBron James",
+      "team": "Los Angeles Lakers",
+      "position": "F",
+      "confidence": 1.0,
+      "verified_by": "manual",
+      "verified_at": "2025-08-11T12:00:00Z",
+      "last_seen": "2025-08-11T12:00:00Z"
+    },
+    "Stephen Curry": {
+      "espn_id": "3975",
+      "espn_name": "Stephen Curry", 
+      "team": "Golden State Warriors",
+      "position": "PG",
+      "confidence": 1.0,
+      "verified_by": "manual",
+      "verified_at": "2025-08-11T12:00:00Z",
+      "last_seen": "2025-08-11T12:00:00Z"
+    }
+  },
+  "americanfootball_nfl": {
+    "Patrick Mahomes": {
+      "espn_id": "3139477",
+      "espn_name": "Patrick Mahomes",
+      "team": "Kansas City Chiefs",
+      "position": "QB", 
+      "confidence": 1.0,
+      "verified_by": "manual",
+      "verified_at": "2025-08-11T12:00:00Z",
+      "last_seen": "2025-08-11T12:00:00Z"
+    }
+  },
+  "baseball_mlb": {
+    "Kyle Schwarber": {
+      "espn_id": "33712",
+      "espn_name": "Kyle Schwarber",
+      "team": "Philadelphia Phillies",
+      "position": "LF",
+      "confidence": 1.0,
+      "verified_by": "manual",
+      "verified_at": "2025-08-11T12:00:00Z",
+      "last_seen": "2025-08-11T12:00:00Z"
+    }
+  }
+}

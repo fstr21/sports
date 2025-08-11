@@ -1,0 +1,127 @@
+{
+  "scrape_date": "2025-08-10T22:52:59.121712",
+  "total_teams": 30,
+  "total_players": 786,
+  "teams": {
+    "ChicagoWhite_Sox": {
+      "players": 25,
+      "abbreviation": "chw"
+    },
+    "ClevelandGuardians": {
+      "players": 27,
+      "abbreviation": "cle"
+    },
+    "DetroitTigers": {
+      "players": 26,
+      "abbreviation": "det"
+    },
+    "Kansas_CityRoyals": {
+      "players": 26,
+      "abbreviation": "kc"
+    },
+    "MinnesotaTwins": {
+      "players": 25,
+      "abbreviation": "min"
+    },
+    "BaltimoreOrioles": {
+      "players": 26,
+      "abbreviation": "bal"
+    },
+    "BostonRed_Sox": {
+      "players": 26,
+      "abbreviation": "bos"
+    },
+    "New_YorkYankees": {
+      "players": 26,
+      "abbreviation": "nyy"
+    },
+    "Tampa_BayRays": {
+      "players": 27,
+      "abbreviation": "tb"
+    },
+    "TorontoBlue_Jays": {
+      "players": 26,
+      "abbreviation": "tor"
+    },
+    "Athletics": {
+      "players": 26,
+      "abbreviation": "ath"
+    },
+    "HoustonAstros": {
+      "players": 26,
+      "abbreviation": "hou"
+    },
+    "Los_AngelesAngels": {
+      "players": 25,
+      "abbreviation": "laa"
+    },
+    "SeattleMariners": {
+      "players": 26,
+      "abbreviation": "sea"
+    },
+    "TexasRangers": {
+      "players": 25,
+      "abbreviation": "tex"
+    },
+    "ChicagoCubs": {
+      "players": 26,
+      "abbreviation": "chc"
+    },
+    "CincinnatiReds": {
+      "players": 26,
+      "abbreviation": "cin"
+    },
+    "MilwaukeeBrewers": {
+      "players": 27,
+      "abbreviation": "mil"
+    },
+    "PittsburghPirates": {
+      "players": 27,
+      "abbreviation": "pit"
+    },
+    "St._LouisCardinals": {
+      "players": 27,
+      "abbreviation": "stl"
+    },
+    "AtlantaBraves": {
+      "players": 26,
+      "abbreviation": "atl"
+    },
+    "MiamiMarlins": {
+      "players": 26,
+      "abbreviation": "mia"
+    },
+    "New_YorkMets": {
+      "players": 26,
+      "abbreviation": "nym"
+    },
+    "PhiladelphiaPhillies": {
+      "players": 28,
+      "abbreviation": "phi"
+    },
+    "WashingtonNationals": {
+      "players": 26,
+      "abbreviation": "wsh"
+    },
+    "ArizonaDiamondbacks": {
+      "players": 26,
+      "abbreviation": "ari"
+    },
+    "ColoradoRockies": {
+      "players": 29,
+      "abbreviation": "col"
+    },
+    "Los_AngelesDodgers": {
+      "players": 26,
+      "abbreviation": "lad"
+    },
+    "San_DiegoPadres": {
+      "players": 26,
+      "abbreviation": "sd"
+    },
+    "San_FranciscoGiants": {
+      "players": 26,
+      "abbreviation": "sf"
+    }
+  }
+}

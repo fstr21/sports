@@ -1,0 +1,182 @@
+[
+    {
+        "id": "4684208",
+        "name": "Brooks Barnhizer",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 6\"",
+        "weight_lbs": "230 lbs",
+        "college": "Northwestern"
+    },
+    {
+        "id": "4592435",
+        "name": "Branden Carlson",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "26",
+        "height": "7' 0\"",
+        "weight_lbs": "220 lbs",
+        "college": "Utah"
+    },
+    {
+        "id": "2991350",
+        "name": "Alex Caruso",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "31",
+        "height": "6' 5\"",
+        "weight_lbs": "186 lbs",
+        "college": "Texas A&M"
+    },
+    {
+        "id": "4997526",
+        "name": "Ousmane Dieng",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 9\"",
+        "weight_lbs": "185 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4397020",
+        "name": "Luguentz Dort",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "6' 4\"",
+        "weight_lbs": "220 lbs",
+        "college": "Arizona State"
+    },
+    {
+        "id": "4432971",
+        "name": "Alex Ducas",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 7\"",
+        "weight_lbs": "220 lbs",
+        "college": "Saint Mary's"
+    },
+    {
+        "id": "4278073",
+        "name": "Shai Gilgeous-Alexander",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "27",
+        "height": "6' 6\"",
+        "weight_lbs": "195 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4222252",
+        "name": "Isaiah Hartenstein",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "27",
+        "height": "7' 0\"",
+        "weight_lbs": "250 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4433255",
+        "name": "Chet Holmgren",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "23",
+        "height": "7' 1\"",
+        "weight_lbs": "208 lbs",
+        "college": "Gonzaga"
+    },
+    {
+        "id": "4395702",
+        "name": "Isaiah Joe",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "26",
+        "height": "6' 3\"",
+        "weight_lbs": "165 lbs",
+        "college": "Arkansas"
+    },
+    {
+        "id": "4900671",
+        "name": "Ajay Mitchell",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 5\"",
+        "weight_lbs": "190 lbs",
+        "college": "UC Santa Barbara"
+    },
+    {
+        "id": "5061603",
+        "name": "Thomas Sorber",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "19",
+        "height": "6' 10\"",
+        "weight_lbs": "255 lbs",
+        "college": "Georgetown"
+    },
+    {
+        "id": "5159925",
+        "name": "Nikola Topic",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 6\"",
+        "weight_lbs": "200 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4683692",
+        "name": "Cason Wallace",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 3\"",
+        "weight_lbs": "195 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4397183",
+        "name": "Aaron Wiggins",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "26",
+        "height": "6' 5\"",
+        "weight_lbs": "190 lbs",
+        "college": "Maryland"
+    },
+    {
+        "id": "4593803",
+        "name": "Jalen Williams",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 5\"",
+        "weight_lbs": "211 lbs",
+        "college": "Santa Clara"
+    },
+    {
+        "id": "4432823",
+        "name": "Jaylin Williams",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 9\"",
+        "weight_lbs": "240 lbs",
+        "college": "Arkansas"
+    },
+    {
+        "id": "3133626",
+        "name": "Kenrich Williams",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "30",
+        "height": "6' 6\"",
+        "weight_lbs": "210 lbs",
+        "college": "TCU"
+    }
+]
