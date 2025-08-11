@@ -19,6 +19,3 @@ schedule>=1.2.0
 mcp
 fastmcp
 pytz>=2023.3
-
-# Player matching for value betting
-difflib  # Built-in module for fuzzy matching
