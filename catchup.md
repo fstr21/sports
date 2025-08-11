@@ -33,45 +33,82 @@ The system follows this data pipeline:
 - **Solving sport-by-sport** to handle varying data structures
 - **Player matching** between ESPN and betting sites
 
-## Current Status (Updated August 2024)
+## Current Status (Updated August 11, 2024)
 
 ### ✅ Completed
 - **MCP servers deployed** on Railway and accessible remotely
-- **100% MCP integration** - All ESPN and Odds API calls through Railway server
-- **Interactive testing script** with league selection menu
+- **ESPN Direct API Integration** - Bypassed MCP issues, direct ESPN API calls working perfectly
+- **Interactive testing script** with league selection menu  
 - **Game fetching** with event IDs for MLB, NBA, WNBA, MLS, EPL, NFL, NHL
 - **Eastern Time focus** - all times displayed in ET
 - **Clean project structure** - removed complex testing code, focused on step-by-step approach
-- **Odds integration** - Full betting odds (moneylines, spreads, totals) with team matching
-- **API call tracking** - Monitor Odds API usage with running counter
-- **Complete game + odds pipeline** - Games matched with betting lines from multiple sportsbooks
-- **Player props integration** - Direct game selection with sport-specific prop markets
-- **Smart data reuse** - Event ID matching from existing odds data (no extra API calls)
+- **Full ESPN functionality** - Today's games, team info, event IDs, proper time formatting
+- **Smart ESPN mapping** - Direct sport/league to ESPN URL path mapping
+- **Roster integration** - ESPN roster API calls for player matching (when needed)
 
-### 🔄 In Progress  
-- **Testing complete pipeline** across active leagues (MLB, WNBA focus)
-- **Validating player props display** for different sports
+### 🚫 Current Blocker: MCP Odds API Integration Issue
+**Problem**: FastMCP server requires proper JSON-RPC session initialization before tool calls
+- **Error**: `"Bad Request: Missing session ID"` 
+- **Root Cause**: MCP is a stateful protocol expecting session-based communication
+- **What We Tried**: Simple HTTP POST calls to MCP endpoints
+- **What MCP Expects**: 
+  1. Initialize session with `{"jsonrpc": "2.0", "method": "initialize"}`
+  2. Then make tool calls with session context
 
-### ⏳ Next Steps
-1. Integrate player statistics collection (ESPN MCP)
-2. Build player matching system (ESPN players ↔ Odds API players)
-3. Add value calculation algorithms (recent stats vs betting lines)
-4. Create recommendation engine
-5. Build automated daily analysis pipeline
+**Current ESPN Status**: ✅ **FULLY WORKING** - 11 MLB games fetched successfully today
+**Current Odds Status**: ❌ **BLOCKED** - Cannot access MCP odds tools without proper protocol
 
-## Testing Script
+### 🔄 Next Actions Needed
+**Option 1**: Implement proper MCP client protocol (complex)
+**Option 2**: Add simple HTTP wrapper to MCP server (easier) 
+**Option 3**: Direct Odds API calls if keys available (bypasses MCP)
+
+### ⏳ Next Steps (After Odds Fix)
+1. Complete odds integration pipeline
+2. Test player props functionality 
+3. Build player matching system (ESPN players ↔ Odds API players)
+4. Add value calculation algorithms (recent stats vs betting lines)
+5. Create recommendation engine
+
+## Testing Script: `interactive_sports_test.py`
 Primary development happens in: `C:\Users\fstr2\Desktop\sports\interactive_sports_test.py`
 
-**Complete 3-Step Pipeline:**
-1. **Games**: ESPN MCP → Today's games with Eastern Time
-2. **Odds**: Odds API MCP → Moneylines, spreads, totals for matched games  
-3. **Player Props**: Direct game selection → Sport-specific prop markets
+### Current Implementation Status
 
-**Key Features:**
-- **Interactive league selection** (MLB, NBA, WNBA, MLS, EPL, NFL, NHL)
-- **Direct game selection** - Type game number to view player props
-- **Sport-specific markets** - MLB (hits, HRs, Ks), WNBA (points, rebounds, assists, 3PM)
-- **Smart data reuse** - Event ID matching from existing odds data
-- **100% MCP integration** - All API calls through Railway server
-- **API usage tracking** - Running counter for cost management
-- **Eastern Time display** - All game times converted to ET
+**✅ Working Pipeline (ESPN Direct):**
+1. **Games**: Direct ESPN API → Today's games with Eastern Time ✅
+2. **Rosters**: Direct ESPN API → Player data for matching ✅  
+3. **Odds**: MCP Server → **BLOCKED by session issue** ❌
+4. **Player Props**: MCP Server → **BLOCKED by session issue** ❌
+
+### Key Functions & Architecture
+
+**✅ Working Functions:**
+- `make_espn_scoreboard_request()` - Direct ESPN scoreboard API calls
+- `make_espn_roster_request()` - Direct ESPN roster API calls  
+- `fetch_games()` - Game fetching with proper formatting
+- `format_time_eastern()` - Time zone conversion to ET
+- League selection and user interface
+
+**❌ Blocked Functions:**
+- `fetch_odds_for_games()` - Tries to call `/odds/get-odds` → 404 error
+- `fetch_player_props_for_game()` - Tries to call `/odds/event-odds` → 404 error
+- All MCP-dependent odds functionality
+
+### Current Data Flow
+```
+User Input → League Selection → ESPN Direct API → Games Retrieved ✅
+                                              ↓
+                              MCP Odds Server → SESSION ERROR ❌
+```
+
+**Key Features (Working):**
+- **Interactive league selection** (MLB, NBA, WNBA, MLS, EPL, NFL, NHL) ✅
+- **Eastern Time display** - All game times converted to ET ✅
+- **Event ID extraction** - Full game metadata with ESPN event IDs ✅
+- **Team and matchup formatting** - Clean display of games ✅
+
+**Key Features (Blocked):**
+- **Odds integration** - Cannot access MCP odds tools ❌
+- **Player props** - Cannot fetch betting lines ❌
+- **Game + odds matching** - ESPN games can't be matched with betting data ❌

@@ -90,10 +90,17 @@ def make_request(method, endpoint, data=None):
         odds_api_calls += 1
     
     try:
-        if method.upper() == "GET":
-            response = requests.get(f"{RAILWAY_URL}{endpoint}", headers=headers, timeout=30)
+        # Handle ESPN API calls directly
+        if endpoint == "/espn/scoreboard":
+            return make_espn_scoreboard_request(data["sport"], data["league"])
+        elif endpoint == "/espn/roster":
+            return make_espn_roster_request(data["sport"], data["league"], data["team_id"])
         else:
-            response = requests.post(f"{RAILWAY_URL}{endpoint}", headers=headers, json=data, timeout=30)
+            # Handle other endpoints (odds API)
+            if method.upper() == "GET":
+                response = requests.get(f"{RAILWAY_URL}{endpoint}", headers=headers, timeout=30)
+            else:
+                response = requests.post(f"{RAILWAY_URL}{endpoint}", headers=headers, json=data, timeout=30)
         
         if response.status_code == 200:
             return True, response.json()
@@ -101,6 +108,79 @@ def make_request(method, endpoint, data=None):
             return False, f"HTTP {response.status_code}: {response.text[:200]}"
     except Exception as e:
         return False, f"Request failed: {str(e)}"
+
+def make_espn_scoreboard_request(sport, league):
+    """Make direct ESPN scoreboard request"""
+    try:
+        # Map our league codes to ESPN URLs
+        espn_path_map = {
+            ("baseball", "mlb"): "/baseball/mlb/scoreboard",
+            ("basketball", "nba"): "/basketball/nba/scoreboard", 
+            ("basketball", "wnba"): "/basketball/wnba/scoreboard",
+            ("football", "nfl"): "/football/nfl/scoreboard",
+            ("hockey", "nhl"): "/hockey/nhl/scoreboard",
+            ("soccer", "usa.1"): "/soccer/usa.1/scoreboard",
+            ("soccer", "eng.1"): "/soccer/eng.1/scoreboard"
+        }
+        
+        espn_path = espn_path_map.get((sport, league))
+        if not espn_path:
+            return False, f"Unsupported league: {sport}/{league}"
+        
+        url = f"https://site.api.espn.com/apis/site/v2/sports{espn_path}"
+        response = requests.get(url, timeout=30)
+        
+        if response.status_code == 200:
+            data = response.json()
+            events = data.get("events", [])
+            
+            # Convert ESPN format to our expected format
+            return True, {
+                "ok": True,
+                "data": {
+                    "scoreboard": events  # ESPN events are already in the right format
+                }
+            }
+        else:
+            return False, f"ESPN API error: {response.status_code}"
+            
+    except Exception as e:
+        return False, f"ESPN request failed: {str(e)}"
+
+def make_espn_roster_request(sport, league, team_id):
+    """Make direct ESPN roster request"""
+    try:
+        # ESPN roster URL format
+        espn_path_map = {
+            ("baseball", "mlb"): "/baseball/mlb",
+            ("basketball", "nba"): "/basketball/nba", 
+            ("basketball", "wnba"): "/basketball/wnba",
+            ("football", "nfl"): "/football/nfl",
+            ("hockey", "nhl"): "/hockey/nhl",
+            ("soccer", "usa.1"): "/soccer/usa.1",
+            ("soccer", "eng.1"): "/soccer/eng.1"
+        }
+        
+        espn_path = espn_path_map.get((sport, league))
+        if not espn_path:
+            return False, f"Unsupported league: {sport}/{league}"
+        
+        url = f"https://site.api.espn.com/apis/site/v2/sports{espn_path}/teams/{team_id}/roster"
+        response = requests.get(url, timeout=30)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Convert ESPN format to our expected format
+            return True, {
+                "ok": True,
+                "data": data  # Return raw ESPN roster data
+            }
+        else:
+            return False, f"ESPN roster API error: {response.status_code}"
+            
+    except Exception as e:
+        return False, f"ESPN roster request failed: {str(e)}"
 
 def get_current_eastern_time():
     """Get current time in Eastern timezone"""
@@ -165,7 +245,7 @@ def fetch_games(league_config):
     
     if success and result.get("ok"):
         games = result.get("data", {}).get("scoreboard", [])
-        print(f"✅ SUCCESS: Found {len(games)} games")
+        print(f"SUCCESS: Found {len(games)} games")
         
         if games:
             print(f"\n{league_config['name']} Games Today:")
@@ -203,7 +283,7 @@ def fetch_games(league_config):
         
         return True, games
     else:
-        print(f"❌ FAILED: {result}")
+        print(f"FAILED: {result}")
         return False, None
 
 def fetch_odds_for_games(league_config, games):
@@ -222,7 +302,7 @@ def fetch_odds_for_games(league_config, games):
     })
     
     if not success:
-        print(f"❌ FAILED to get odds: {result}")
+        print(f"FAILED to get odds: {result}")
         return False, None, None
     
     # Extract odds games
@@ -233,7 +313,7 @@ def fetch_odds_for_games(league_config, games):
     else:
         odds_games = []
     
-    print(f"✅ Found odds for {len(odds_games)} games")
+    print(f"Found odds for {len(odds_games)} games")
     
     if not odds_games:
         print("No odds available for today's games")
@@ -275,7 +355,7 @@ def fetch_odds_for_games(league_config, games):
             }
             matched_games.append(combined_game)
     
-    print(f"✅ Successfully matched {len(matched_games)} games with odds")
+    print(f"Successfully matched {len(matched_games)} games with odds")
     
     # Display games with odds
     if matched_games:
@@ -480,10 +560,147 @@ def fetch_player_props_for_game(league_config, espn_game, odds_event_id):
         print("❌ No player props found in the data")
         return False, None
     
-    # Display players and their props
-    display_player_props(players_props, league_config["sport"])
+    # Fetch ESPN player IDs for matching
+    print(f"\n⏳ Fetching ESPN roster data...")
+    espn_players = fetch_espn_rosters_for_game(league_config, espn_game)
+    
+    # Display players and their props with ESPN IDs
+    display_player_props_with_espn_ids(players_props, espn_players, league_config["sport"])
     
     return True, players_props
+
+def fetch_espn_rosters_for_game(league_config, espn_game):
+    """Fetch ESPN roster data for both teams in the game"""
+    
+    competitions = espn_game.get("competitions", [{}])
+    competitors = competitions[0].get("competitors", [])
+    
+    if len(competitors) < 2:
+        print("❌ Could not find team data for roster lookup")
+        return {}
+    
+    away_team = competitors[1].get("team", {})
+    home_team = competitors[0].get("team", {})
+    
+    away_team_id = away_team.get("id")
+    home_team_id = home_team.get("id")
+    
+    espn_players = {}
+    
+    # Fetch roster for both teams
+    for team_name, team_id in [(away_team.get("displayName", "Away"), away_team_id), 
+                               (home_team.get("displayName", "Home"), home_team_id)]:
+        if not team_id:
+            continue
+            
+        print(f"   Fetching roster for {team_name} (ID: {team_id})...")
+        
+        success, result = make_request("POST", "/espn/roster", {
+            "sport": league_config["sport"],
+            "league": league_config["league"],
+            "team_id": str(team_id)
+        })
+        
+        if success and result.get("ok"):
+            roster_data = result.get("data", {})
+            athletes = roster_data.get("athletes", [])
+            
+            print(f"   ✅ Found {len(athletes)} players for {team_name}")
+            
+            for athlete in athletes:
+                player_data = athlete.get("athlete", {})
+                player_name = player_data.get("displayName", "")
+                player_id = player_data.get("id")
+                
+                if player_name and player_id:
+                    # Store both full name and variations for matching
+                    espn_players[player_name] = player_id
+                    
+                    # Also store first+last name for better matching
+                    name_parts = player_name.split()
+                    if len(name_parts) >= 2:
+                        first_last = f"{name_parts[0]} {name_parts[-1]}"
+                        espn_players[first_last] = player_id
+        else:
+            print(f"   ❌ Failed to get roster for {team_name}: {result}")
+    
+    print(f"   ✅ Total unique players found: {len(set(espn_players.values()))}")
+    return espn_players
+
+def match_player_name(betting_name, espn_players):
+    """Match betting site player name to ESPN player"""
+    
+    # Direct match first
+    if betting_name in espn_players:
+        return espn_players[betting_name]
+    
+    # Try case-insensitive match
+    betting_lower = betting_name.lower()
+    for espn_name, espn_id in espn_players.items():
+        if espn_name.lower() == betting_lower:
+            return espn_id
+    
+    # Try partial matches (last name)
+    betting_parts = betting_name.split()
+    if len(betting_parts) >= 2:
+        betting_last = betting_parts[-1].lower()
+        
+        for espn_name, espn_id in espn_players.items():
+            espn_parts = espn_name.split()
+            if len(espn_parts) >= 2 and espn_parts[-1].lower() == betting_last:
+                # Also check if first name matches or starts with same letter
+                betting_first = betting_parts[0].lower()
+                espn_first = espn_parts[0].lower()
+                if espn_first.startswith(betting_first[0]):
+                    return espn_id
+    
+    return None
+
+def display_player_props_with_espn_ids(players_props, espn_players, sport):
+    """Display formatted player props with ESPN player IDs"""
+    
+    print(f"\n📊 PLAYER PROPS WITH ESPN IDS:")
+    print("=" * 70)
+    
+    for i, (player_name, markets) in enumerate(sorted(players_props.items()), 1):
+        # Try to match with ESPN player
+        espn_id = match_player_name(player_name, espn_players)
+        
+        if espn_id:
+            print(f"\n{i}. {player_name} espn: {espn_id}")
+        else:
+            print(f"\n{i}. {player_name} espn: NOT FOUND")
+            
+        print("-" * 50)
+        
+        for market_key, props in markets.items():
+            market_label = get_market_label(market_key)
+            print(f"   {market_label}:")
+            
+            # Group by line value to show Over/Under together
+            lines = {}
+            for prop in props:
+                line = prop["line"]
+                if line not in lines:
+                    lines[line] = {"over": [], "under": []}
+                
+                side = prop["side"].lower()
+                if "over" in side:
+                    lines[line]["over"].append(prop)
+                elif "under" in side:
+                    lines[line]["under"].append(prop)
+            
+            for line, sides in lines.items():
+                if sides["over"] or sides["under"]:
+                    print(f"      Line {line}:")
+                    
+                    # Show Over props
+                    for prop in sides["over"]:
+                        print(f"        Over: {prop['odds']} ({prop['bookmaker']})")
+                    
+                    # Show Under props  
+                    for prop in sides["under"]:
+                        print(f"        Under: {prop['odds']} ({prop['bookmaker']})")
 
 def display_player_props(players_props, sport):
     """Display formatted player props"""
