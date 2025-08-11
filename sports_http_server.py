@@ -346,8 +346,9 @@ def parse_espn_statistics(splits_data, sport):
                 # Baseball: Hits, HRs, RBIs, Strikeouts, ERA, etc.
                 if name == "hits":
                     stats_found["hits"] = float(stat.get("value", 0))
-                elif "homeruns" in name.replace(" ", ""):
+                elif name.lower() == "homeruns":  # Exact match only
                     stats_found["homeruns"] = float(stat.get("value", 0))
+                    print(f"[DEBUG] Found homeruns: {name} = {stat.get('value', 0)}")
                 elif "rbi" in name.lower():  # This should catch "RBIs"
                     stats_found["rbis"] = float(stat.get("value", 0))
                 elif name == "runs" and "earned" not in name:  # More specific match
@@ -358,6 +359,9 @@ def parse_espn_statistics(splits_data, sport):
                     stats_found["era"] = float(stat.get("value", 0))
                 elif "walks" in name:
                     stats_found["walks"] = float(stat.get("value", 0))
+                # Debug: log any field with "home" in the name
+                elif "home" in name.lower():
+                    print(f"[DEBUG] Skipped home run field: {name} = {stat.get('value', 0)}")
             
             elif sport == "hockey":
                 # Hockey: Goals, Assists, Points, Shots, +/-, PIM, TOI
