@@ -363,9 +363,6 @@ def err(msg: str, **extra: Any) -> Dict[str, Any]:
 # =========================== MCP Server ===========================
 server = FastMCP("sports-ai-mcp")
 
-# Force tool registration by ensuring decorators run
-print(f"MCP Server initialized with name: {server.name}")
-
 @server.tool(name="getScoreboard", description="Get scoreboard for a league. Params: sport, league, dates?, limit?, week?, seasontype? (NFL/NCAAF only)")
 async def get_scoreboard(sport: str, league: str, dates: Optional[str] = None, limit: Optional[int] = None, week: Optional[int] = None, seasontype: Optional[int] = None) -> Dict[str, Any]:
     try:
