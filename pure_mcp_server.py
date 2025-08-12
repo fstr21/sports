@@ -389,14 +389,22 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
         events = eventlog_data.get("events", {})
         total_pages = events.get("pageCount", 1)
         
-        # Step 2: Get the last page (most recent games)
-        last_page_url = f"{eventlog_url}?page={total_pages}"
-        last_r = await client.get(last_page_url)
-        if last_r.status_code >= 400:
-            return {"ok": False, "error": f"ESPN Core API last page error {last_r.status_code}: {last_r.text[:200]}"}
+        # Step 2: Get MULTIPLE recent pages (ESPN eventlog: page 1 = oldest, page N = newest)
+        all_recent_events = []
         
-        last_page_data = last_r.json()
-        last_page_events = last_page_data.get("events", {}).get("items", [])
+        # Start from LAST page (most recent) and work backwards
+        pages_to_check = min(3, total_pages)  # Check last 3 pages to ensure we get recent games
+        
+        for page_num in range(total_pages, max(0, total_pages - pages_to_check), -1):
+            page_url = f"{eventlog_url}?page={page_num}"
+            page_r = await client.get(page_url)
+            
+            if page_r.status_code == 200:
+                page_data = page_r.json()
+                page_events = page_data.get("events", {}).get("items", [])
+                all_recent_events.extend(page_events)
+        
+        last_page_events = all_recent_events
         
         # Step 3: Process ALL games and sort by date to get most recent
         all_games_with_dates = []
