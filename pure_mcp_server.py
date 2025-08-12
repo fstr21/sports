@@ -427,14 +427,24 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                 
                 if game_date:
                     # Convert to datetime for sorting and future game filtering
-                    from datetime import datetime, timezone
+                    from datetime import datetime, timezone, timedelta
                     
                     try:
                         utc_dt = datetime.fromisoformat(game_date.replace('Z', '+00:00'))
-                        current_time = datetime.now(timezone.utc)
                         
-                        # Skip future games (games that haven't been played yet)
-                        if utc_dt > current_time:
+                        # Convert to Eastern time for proper game filtering (UTC-4 for EDT, UTC-5 for EST)
+                        # Using EDT (UTC-4) for August
+                        eastern_offset = timedelta(hours=-4)  # EDT offset
+                        eastern_tz = timezone(eastern_offset)
+                        
+                        current_time_eastern = datetime.now(eastern_tz)
+                        game_time_eastern = utc_dt.astimezone(eastern_tz)
+                        
+                        # Skip games scheduled for today that are likely in the future
+                        # Most MLB games start 7:00 PM ET or later, so if it's before 11 PM ET
+                        # on the same date, assume the game hasn't finished yet
+                        if (game_time_eastern.date() == current_time_eastern.date() and 
+                            current_time_eastern.hour < 23):  # Before 11 PM ET
                             continue
                         
                         # Get event ID for verification
