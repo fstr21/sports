@@ -398,10 +398,10 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
         last_page_data = last_r.json()
         last_page_events = last_page_data.get("events", {}).get("items", [])
         
-        # Step 3: Process recent games and get stats
-        games_with_stats = []
+        # Step 3: Process ALL games and sort by date to get most recent
+        all_games_with_dates = []
         
-        for event_item in last_page_events[:limit]:
+        for event_item in last_page_events:
             event_ref = event_item.get("event", {}).get("$ref")
             stats_ref = event_item.get("statistics", {}).get("$ref")
             
@@ -417,63 +417,78 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                 event_data = event_r.json()
                 game_date = event_data.get("date", "")
                 
-                # Get opponent info
-                competitors = event_data.get("competitions", [{}])[0].get("competitors", [])
-                opponent = "vs Unknown"
-                if len(competitors) >= 2:
-                    home_team = competitors[0].get("team", {}).get("displayName", "Home")
-                    away_team = competitors[1].get("team", {}).get("displayName", "Away")
-                    opponent = f"{away_team} @ {home_team}"
-                
-                # Get stats if available
-                game_stats = {}
-                if stats_ref:
-                    stats_r = await client.get(stats_ref)
-                    if stats_r.status_code == 200:
-                        stats_data = stats_r.json()
+                if game_date:
+                    # Convert to datetime for sorting (like your working example)
+                    from datetime import datetime
+                    
+                    try:
+                        utc_dt = datetime.fromisoformat(game_date.replace('Z', '+00:00'))
                         
-                        # Extract batting/player stats using your working pattern
-                        if "splits" in stats_data and "categories" in stats_data["splits"]:
-                            categories = stats_data["splits"]["categories"]
-                            
-                            for category in categories:
-                                category_name = category.get("name", "").lower()
-                                if category_name in ["batting", "passing", "rushing", "receiving", "goalkeeping"]:
-                                    category_stats = category.get("stats", [])
+                        # Get stats if available
+                        game_stats = {}
+                        if stats_ref:
+                            stats_r = await client.get(stats_ref)
+                            if stats_r.status_code == 200:
+                                stats_data = stats_r.json()
+                                
+                                # Extract batting/player stats using your working pattern
+                                if "splits" in stats_data and "categories" in stats_data["splits"]:
+                                    categories = stats_data["splits"]["categories"]
                                     
-                                    # Extract key stats
-                                    for stat in category_stats:
-                                        name = stat.get("name", "").lower()
-                                        value = stat.get("value", 0)
-                                        
-                                        # Map common stat names
-                                        if name == "hits":
-                                            game_stats["hits"] = value
-                                        elif name in ["homeruns", "home runs"]:
-                                            game_stats["homeruns"] = value
-                                        elif name == "rbis":
-                                            game_stats["rbis"] = value
-                                        elif name == "runs":
-                                            game_stats["runs"] = value
-                                        elif name == "strikeouts":
-                                            game_stats["strikeouts"] = value
-                                        elif name == "walks":
-                                            game_stats["walks"] = value
-                                        elif name == "points":
-                                            game_stats["points"] = value
-                                        elif name == "rebounds":
-                                            game_stats["rebounds"] = value
-                                        elif name == "assists":
-                                            game_stats["assists"] = value
-                
-                games_with_stats.append({
-                    "date": game_date,
-                    "opponent": opponent,
-                    "stats": game_stats
-                })
+                                    for category in categories:
+                                        category_name = category.get("name", "").lower()
+                                        if category_name in ["batting", "passing", "rushing", "receiving", "goalkeeping"]:
+                                            category_stats = category.get("stats", [])
+                                            
+                                            # Extract key stats
+                                            for stat in category_stats:
+                                                name = stat.get("name", "").lower()
+                                                value = stat.get("value", 0)
+                                                
+                                                # Map common stat names
+                                                if name == "hits":
+                                                    game_stats["hits"] = value
+                                                elif name in ["homeruns", "home runs"]:
+                                                    game_stats["homeruns"] = value
+                                                elif name == "rbis":
+                                                    game_stats["rbis"] = value
+                                                elif name == "runs":
+                                                    game_stats["runs"] = value
+                                                elif name == "strikeouts":
+                                                    game_stats["strikeouts"] = value
+                                                elif name == "walks":
+                                                    game_stats["walks"] = value
+                                                elif name == "points":
+                                                    game_stats["points"] = value
+                                                elif name == "rebounds":
+                                                    game_stats["rebounds"] = value
+                                                elif name == "assists":
+                                                    game_stats["assists"] = value
+                        
+                        all_games_with_dates.append({
+                            "datetime_obj": utc_dt,
+                            "date": game_date,
+                            "opponent": "Recent Game",  # Simplified as requested
+                            "stats": game_stats
+                        })
+                        
+                    except Exception:
+                        continue
                 
             except Exception as e:
                 continue
+        
+        # Sort by date (most recent first) - like your working example
+        all_games_with_dates.sort(key=lambda x: x["datetime_obj"], reverse=True)
+        
+        # Get the most recent games up to limit
+        games_with_stats = []
+        for game in all_games_with_dates[:limit]:
+            games_with_stats.append({
+                "date": game["date"],
+                "opponent": game["opponent"],
+                "stats": game["stats"]
+            })
         
         return {
             "ok": True,

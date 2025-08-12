@@ -719,8 +719,18 @@ def fetch_and_display_player_stats(espn_id, sport, market_key):
     print(f"        Game-by-game {get_market_label(market_key)}:")
     
     for i, game in enumerate(games_data[:10], 1):
-        date = game.get("date", "Unknown Date")[:10]  # YYYY-MM-DD format
-        opponent = game.get("opponent", "Unknown")
+        # Format date better for display
+        date_str = game.get("date", "Unknown Date")
+        try:
+            from datetime import datetime
+            if date_str != "Unknown Date":
+                dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                date = dt.strftime("%m/%d")  # MM/DD format
+            else:
+                date = "Unknown"
+        except:
+            date = date_str[:10] if len(date_str) >= 10 else date_str
+        
         game_stats = game.get("stats", {})
         
         # Find the specific stat in the game stats dictionary
@@ -745,7 +755,7 @@ def fetch_and_display_player_stats(espn_id, sport, market_key):
                     stat_value = game_stats[alt_name.lower()]
                     break
         
-        print(f"        Game {i}: {date} vs {opponent} - {stat_value}")
+        print(f"        Game {i}: {date} - {stat_value}")
         
         # Track for average calculation
         if stat_value != "N/A" and str(stat_value).replace(".", "").isdigit():
