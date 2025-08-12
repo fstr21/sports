@@ -426,14 +426,22 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                 game_date = event_data.get("date", "")
                 
                 if game_date:
-                    # Convert to datetime for sorting (like your working example)
-                    from datetime import datetime
+                    # Convert to datetime for sorting and future game filtering
+                    from datetime import datetime, timezone
                     
                     try:
                         utc_dt = datetime.fromisoformat(game_date.replace('Z', '+00:00'))
+                        current_time = datetime.now(timezone.utc)
+                        
+                        # Skip future games (games that haven't been played yet)
+                        if utc_dt > current_time:
+                            continue
+                        
+                        # Get event ID for verification
+                        event_id = event_data.get("id", "unknown")
                         
                         # Get stats if available
-                        game_stats = {}
+                        game_stats = {"event_id": event_id}  # Add event ID for verification
                         if stats_ref:
                             stats_r = await client.get(stats_ref)
                             if stats_r.status_code == 200:
