@@ -755,7 +755,11 @@ def fetch_and_display_player_stats(espn_id, sport, market_key):
                     stat_value = game_stats[alt_name.lower()]
                     break
         
-        print(f"        Game {i}: {date} - {stat_value}")
+        # Temporary debug info
+        debug_stats = game_stats.get("debug_all_stats", [])
+        debug_str = f" [DEBUG: {', '.join(debug_stats[:3])}...]" if debug_stats else ""
+        
+        print(f"        Game {i}: {date} - {stat_value}{debug_str}")
         
         # Track for average calculation
         if stat_value != "N/A" and str(stat_value).replace(".", "").isdigit():

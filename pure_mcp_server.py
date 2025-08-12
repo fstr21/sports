@@ -440,17 +440,22 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                                         if category_name in ["batting", "passing", "rushing", "receiving", "goalkeeping"]:
                                             category_stats = category.get("stats", [])
                                             
-                                            # Extract key stats
+                                            # Extract key stats using exact pattern from working example
                                             for stat in category_stats:
                                                 name = stat.get("name", "").lower()
                                                 value = stat.get("value", 0)
                                                 
-                                                # Map common stat names
+                                                # Debug: capture all stats to help troubleshoot
+                                                if "debug_all_stats" not in game_stats:
+                                                    game_stats["debug_all_stats"] = []
+                                                game_stats["debug_all_stats"].append(f"{name}:{value}")
+                                                
+                                                # Use exact matching from your working code
                                                 if name == "hits":
                                                     game_stats["hits"] = value
-                                                elif name in ["homeruns", "home runs"]:
+                                                elif name == "homeruns":  # ESPN uses "homeruns", not "home runs" 
                                                     game_stats["homeruns"] = value
-                                                elif name == "rbis":
+                                                elif name.lower() == "rbis":  # ESPN uses "RBIs"
                                                     game_stats["rbis"] = value
                                                 elif name == "runs":
                                                     game_stats["runs"] = value
@@ -481,40 +486,21 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
         # Sort by date (most recent first) - like your working example
         all_games_with_dates.sort(key=lambda x: x["datetime_obj"], reverse=True)
         
-        # Group by date and aggregate stats (for doubleheaders)
-        games_by_date = {}
+        # Simple deduplication by date and take most recent games
+        games_with_stats = []
+        seen_dates = set()
         
         for game in all_games_with_dates:
             date_key = game["datetime_obj"].strftime("%Y-%m-%d")
             
-            if date_key not in games_by_date:
-                games_by_date[date_key] = {
+            # Take first (most recent) game for each date
+            if date_key not in seen_dates and len(games_with_stats) < limit:
+                seen_dates.add(date_key)
+                games_with_stats.append({
                     "date": game["date"],
-                    "datetime_obj": game["datetime_obj"],
                     "opponent": game["opponent"],
-                    "stats": game["stats"].copy(),
-                    "game_count": 1
-                }
-            else:
-                # Aggregate stats for multiple games on same date (doubleheaders)
-                existing = games_by_date[date_key]
-                for stat_name, stat_value in game["stats"].items():
-                    if stat_name in existing["stats"]:
-                        existing["stats"][stat_name] += stat_value
-                    else:
-                        existing["stats"][stat_name] = stat_value
-                existing["game_count"] += 1
-        
-        # Sort by date and take most recent games
-        sorted_games = sorted(games_by_date.values(), key=lambda x: x["datetime_obj"], reverse=True)
-        
-        games_with_stats = []
-        for game in sorted_games[:limit]:
-            games_with_stats.append({
-                "date": game["date"],
-                "opponent": game["opponent"],
-                "stats": game["stats"]
-            })
+                    "stats": game["stats"]
+                })
         
         return {
             "ok": True,
