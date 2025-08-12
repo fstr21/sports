@@ -711,9 +711,8 @@ def fetch_and_display_player_stats(espn_id, sport, market_key):
         print("        No recent game data available")
         return
     
-    # Extract and display relevant stats
+    # Extract and display relevant stats using new data structure
     stat_name = stat_mapping.get(market_key, market_key)
-    game_stats = []
     total_stat = 0
     games_with_stat = 0
     
@@ -722,19 +721,29 @@ def fetch_and_display_player_stats(espn_id, sport, market_key):
     for i, game in enumerate(games_data[:10], 1):
         date = game.get("date", "Unknown Date")[:10]  # YYYY-MM-DD format
         opponent = game.get("opponent", "Unknown")
-        stats = game.get("stats", [])
+        game_stats = game.get("stats", {})
         
-        # Find the specific stat in the game stats
+        # Find the specific stat in the game stats dictionary
         stat_value = "N/A"
-        for stat_category in stats:
-            stat_stats = stat_category.get("stats", [])
-            for stat in stat_stats:
-                if stat.get("name", "").lower() == stat_name.lower() or \
-                   stat.get("abbreviation", "").lower() == stat_name.lower():
-                    stat_value = stat.get("value", "N/A")
+        
+        # Look for the stat using the mapped name
+        if stat_name.lower() in game_stats:
+            stat_value = game_stats[stat_name.lower()]
+        else:
+            # Try alternative names
+            alt_names = {
+                "hits": ["hits"],
+                "homeRuns": ["homeruns", "home runs"],
+                "strikeouts": ["strikeouts"],
+                "points": ["points"],
+                "rebounds": ["rebounds"],
+                "assists": ["assists"]
+            }
+            
+            for alt_name in alt_names.get(stat_name, [stat_name]):
+                if alt_name.lower() in game_stats:
+                    stat_value = game_stats[alt_name.lower()]
                     break
-            if stat_value != "N/A":
-                break
         
         print(f"        Game {i}: {date} vs {opponent} - {stat_value}")
         

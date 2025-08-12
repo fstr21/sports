@@ -364,58 +364,130 @@ async def handle_get_event_odds(args: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Get ESPN player statistics/game log"""
+    """Get ESPN player statistics using core API eventlog approach"""
     sport = args.get("sport", "")
     league = args.get("league", "")
     player_id = args.get("player_id", "")
-    stat_type = args.get("stat_type", "gamelog")  # gamelog, season, career
     limit = args.get("limit", 10)  # Default last 10 games
     
     if not player_id:
         return {"ok": False, "error": "player_id is required"}
     
-    # Build ESPN player stats path
-    if stat_type == "gamelog":
-        path = f"/{sport}/{league}/athletes/{player_id}/gamelog"
-    elif stat_type == "season":
-        path = f"/{sport}/{league}/athletes/{player_id}/statistics"
-    else:
-        path = f"/{sport}/{league}/athletes/{player_id}"
+    # Use ESPN Core API (like in your working example)
+    base_url = f"https://sports.core.api.espn.com/v2/sports/{sport}/leagues/{league}/athletes/{player_id}"
+    eventlog_url = f"{base_url}/eventlog"
     
-    # Add limit parameter for game logs
-    params = {}
-    if stat_type == "gamelog" and limit:
-        params["limit"] = limit
+    client = await get_http_client()
     
-    resp = await espn_get(path, params)
-    if not resp.get("ok"):
-        return resp
-    
-    player_data = resp["data"]
-    
-    # Extract game log statistics if available
-    games_data = []
-    if stat_type == "gamelog":
-        events = player_data.get("events", [])
-        for event in events[:limit]:
-            game_info = {
-                "date": event.get("date", ""),
-                "opponent": event.get("opponent", {}).get("displayName", "Unknown"),
-                "stats": event.get("stats", [])
-            }
-            games_data.append(game_info)
-    
-    return {
-        "ok": True,
-        "content_md": f"## Player Stats for {player_id}\n\nFound {len(games_data)} recent games",
-        "data": {
-            "player_id": player_id,
-            "stat_type": stat_type,
-            "games": games_data,
-            "raw_data": player_data
-        },
-        "meta": {"source": "espn", "sport": sport, "league": league, "player_id": player_id, "timestamp": now_iso()}
-    }
+    try:
+        # Step 1: Get eventlog to find total pages
+        r = await client.get(eventlog_url)
+        if r.status_code >= 400:
+            return {"ok": False, "error": f"ESPN Core API error {r.status_code}: {r.text[:200]}"}
+        
+        eventlog_data = r.json()
+        events = eventlog_data.get("events", {})
+        total_pages = events.get("pageCount", 1)
+        
+        # Step 2: Get the last page (most recent games)
+        last_page_url = f"{eventlog_url}?page={total_pages}"
+        last_r = await client.get(last_page_url)
+        if last_r.status_code >= 400:
+            return {"ok": False, "error": f"ESPN Core API last page error {last_r.status_code}: {last_r.text[:200]}"}
+        
+        last_page_data = last_r.json()
+        last_page_events = last_page_data.get("events", {}).get("items", [])
+        
+        # Step 3: Process recent games and get stats
+        games_with_stats = []
+        
+        for event_item in last_page_events[:limit]:
+            event_ref = event_item.get("event", {}).get("$ref")
+            stats_ref = event_item.get("statistics", {}).get("$ref")
+            
+            if not event_ref:
+                continue
+            
+            try:
+                # Get event details for date and opponent
+                event_r = await client.get(event_ref)
+                if event_r.status_code != 200:
+                    continue
+                
+                event_data = event_r.json()
+                game_date = event_data.get("date", "")
+                
+                # Get opponent info
+                competitors = event_data.get("competitions", [{}])[0].get("competitors", [])
+                opponent = "vs Unknown"
+                if len(competitors) >= 2:
+                    home_team = competitors[0].get("team", {}).get("displayName", "Home")
+                    away_team = competitors[1].get("team", {}).get("displayName", "Away")
+                    opponent = f"{away_team} @ {home_team}"
+                
+                # Get stats if available
+                game_stats = {}
+                if stats_ref:
+                    stats_r = await client.get(stats_ref)
+                    if stats_r.status_code == 200:
+                        stats_data = stats_r.json()
+                        
+                        # Extract batting/player stats using your working pattern
+                        if "splits" in stats_data and "categories" in stats_data["splits"]:
+                            categories = stats_data["splits"]["categories"]
+                            
+                            for category in categories:
+                                category_name = category.get("name", "").lower()
+                                if category_name in ["batting", "passing", "rushing", "receiving", "goalkeeping"]:
+                                    category_stats = category.get("stats", [])
+                                    
+                                    # Extract key stats
+                                    for stat in category_stats:
+                                        name = stat.get("name", "").lower()
+                                        value = stat.get("value", 0)
+                                        
+                                        # Map common stat names
+                                        if name == "hits":
+                                            game_stats["hits"] = value
+                                        elif name in ["homeruns", "home runs"]:
+                                            game_stats["homeruns"] = value
+                                        elif name == "rbis":
+                                            game_stats["rbis"] = value
+                                        elif name == "runs":
+                                            game_stats["runs"] = value
+                                        elif name == "strikeouts":
+                                            game_stats["strikeouts"] = value
+                                        elif name == "walks":
+                                            game_stats["walks"] = value
+                                        elif name == "points":
+                                            game_stats["points"] = value
+                                        elif name == "rebounds":
+                                            game_stats["rebounds"] = value
+                                        elif name == "assists":
+                                            game_stats["assists"] = value
+                
+                games_with_stats.append({
+                    "date": game_date,
+                    "opponent": opponent,
+                    "stats": game_stats
+                })
+                
+            except Exception as e:
+                continue
+        
+        return {
+            "ok": True,
+            "content_md": f"## Player Stats for {player_id}\n\nFound {len(games_with_stats)} recent games",
+            "data": {
+                "player_id": player_id,
+                "games": games_with_stats,
+                "total_games": len(games_with_stats)
+            },
+            "meta": {"source": "espn_core", "sport": sport, "league": league, "player_id": player_id, "timestamp": now_iso()}
+        }
+        
+    except Exception as e:
+        return {"ok": False, "error": f"ESPN Core API request failed: {str(e)}"}
 
 # MCP Tool registry
 TOOLS = {
