@@ -192,8 +192,9 @@ async def handle_get_team_roster(args: Dict[str, Any]) -> Dict[str, Any]:
         return {"ok": False, "error": "team_id is required"}
     
     try:
+        # Build roster path directly using the same pattern as teams
         path = resolve_route(sport, league, "teams")
-        # Remove the /teams suffix and add specific team path
+        # Remove the /teams suffix and add specific team roster path
         base_path = path.replace("/teams", "")
         roster_path = f"{base_path}/teams/{team_id}/roster"
     except ValueError as e:
@@ -362,6 +363,60 @@ async def handle_get_event_odds(args: Dict[str, Any]) -> Dict[str, Any]:
         "meta": {"source": "odds_api", "event_id": event_id, "test_mode": False, "timestamp": now_iso()}
     }
 
+async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get ESPN player statistics/game log"""
+    sport = args.get("sport", "")
+    league = args.get("league", "")
+    player_id = args.get("player_id", "")
+    stat_type = args.get("stat_type", "gamelog")  # gamelog, season, career
+    limit = args.get("limit", 10)  # Default last 10 games
+    
+    if not player_id:
+        return {"ok": False, "error": "player_id is required"}
+    
+    # Build ESPN player stats path
+    if stat_type == "gamelog":
+        path = f"/{sport}/{league}/athletes/{player_id}/gamelog"
+    elif stat_type == "season":
+        path = f"/{sport}/{league}/athletes/{player_id}/statistics"
+    else:
+        path = f"/{sport}/{league}/athletes/{player_id}"
+    
+    # Add limit parameter for game logs
+    params = {}
+    if stat_type == "gamelog" and limit:
+        params["limit"] = limit
+    
+    resp = await espn_get(path, params)
+    if not resp.get("ok"):
+        return resp
+    
+    player_data = resp["data"]
+    
+    # Extract game log statistics if available
+    games_data = []
+    if stat_type == "gamelog":
+        events = player_data.get("events", [])
+        for event in events[:limit]:
+            game_info = {
+                "date": event.get("date", ""),
+                "opponent": event.get("opponent", {}).get("displayName", "Unknown"),
+                "stats": event.get("stats", [])
+            }
+            games_data.append(game_info)
+    
+    return {
+        "ok": True,
+        "content_md": f"## Player Stats for {player_id}\n\nFound {len(games_data)} recent games",
+        "data": {
+            "player_id": player_id,
+            "stat_type": stat_type,
+            "games": games_data,
+            "raw_data": player_data
+        },
+        "meta": {"source": "espn", "sport": sport, "league": league, "player_id": player_id, "timestamp": now_iso()}
+    }
+
 # MCP Tool registry
 TOOLS = {
     "getScoreboard": {
@@ -453,6 +508,21 @@ TOOLS = {
             "required": ["sport", "event_id"]
         },
         "handler": handle_get_event_odds
+    },
+    "getPlayerStats": {
+        "description": "Get ESPN player statistics and game log",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "sport": {"type": "string", "description": "Sport (e.g. 'baseball')"},
+                "league": {"type": "string", "description": "League (e.g. 'mlb')"},
+                "player_id": {"type": "string", "description": "ESPN Player ID"},
+                "stat_type": {"type": "string", "description": "Type of stats (gamelog, season, career)", "optional": True},
+                "limit": {"type": "number", "description": "Number of recent games (default: 10)", "optional": True}
+            },
+            "required": ["sport", "league", "player_id"]
+        },
+        "handler": handle_get_player_stats
     }
 }
 
