@@ -449,21 +449,14 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                         eastern_game_date = game_time_eastern.date()
                         current_eastern_date = current_time_eastern.date()
                         
-                        # Enhanced filtering logic: filter if EITHER UTC or Eastern date matches today
-                        should_filter_utc = (utc_game_date == current_utc_date and current_time_eastern.hour < 23)
-                        should_filter_eastern = (eastern_game_date == current_eastern_date and current_time_eastern.hour < 23)
-                        will_filter = should_filter_utc or should_filter_eastern
+                        # CONSERVATIVE FILTERING: Only filter games that are clearly from today (08/12) and not yet finished
+                        # Strategy: Only filter if the Eastern time shows today AND we're before 11 PM ET
+                        # This ensures we keep legitimate 08/11 games even if their UTC timestamp spills into 08/12
+                        
+                        should_filter = (eastern_game_date == current_eastern_date and current_time_eastern.hour < 23)
                         
                         # Skip games scheduled for today that are likely in the future
-                        # Filter out if EITHER the UTC date OR Eastern date matches today and it's before 11 PM ET
-                        if will_filter:
-                            # Optional: Log filtered games for debugging
-                            if should_filter_utc and should_filter_eastern:
-                                print(f"Filtered Event {event_id}: UTC {utc_game_date} & ET {eastern_game_date} both match today")
-                            elif should_filter_utc:
-                                print(f"Filtered Event {event_id}: UTC {utc_game_date} matches today") 
-                            else:
-                                print(f"Filtered Event {event_id}: ET {eastern_game_date} matches today")
+                        if should_filter:
                             continue
                         
                         # Get stats if available
