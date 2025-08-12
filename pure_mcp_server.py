@@ -437,6 +437,9 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                         eastern_offset = timedelta(hours=-4)  # EDT offset
                         eastern_tz = timezone(eastern_offset)
                         
+                        # DEBUG: Print timezone info
+                        print(f"UTC time: {utc_dt}, EDT time: {utc_dt.astimezone(eastern_tz)}")
+                        
                         current_time_eastern = datetime.now(eastern_tz)
                         game_time_eastern = utc_dt.astimezone(eastern_tz)
                         
@@ -455,8 +458,13 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                         
                         should_filter = (eastern_game_date == current_eastern_date and current_time_eastern.hour < 23)
                         
+                        # DEBUG: Print filtering decision for debugging
+                        if eastern_game_date == current_eastern_date:
+                            print(f"Event {event_id}: Game date {eastern_game_date}, Current date {current_eastern_date}, Current hour {current_time_eastern.hour}, Should filter: {should_filter}")
+                        
                         # Skip games scheduled for today that are likely in the future
                         if should_filter:
+                            print(f"FILTERED: Event {event_id} from {eastern_game_date}")
                             continue
                         
                         # Get stats if available
