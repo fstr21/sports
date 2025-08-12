@@ -182,6 +182,37 @@ async def handle_get_teams(args: Dict[str, Any]) -> Dict[str, Any]:
         "meta": {"source": "espn", "sport": sport, "league": league, "timestamp": now_iso()}
     }
 
+async def handle_get_team_roster(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get ESPN team roster"""
+    sport = args.get("sport", "")
+    league = args.get("league", "")
+    team_id = args.get("team_id", "")
+    
+    if not team_id:
+        return {"ok": False, "error": "team_id is required"}
+    
+    try:
+        path = resolve_route(sport, league, "teams")
+        # Remove the /teams suffix and add specific team path
+        base_path = path.replace("/teams", "")
+        roster_path = f"{base_path}/teams/{team_id}/roster"
+    except ValueError as e:
+        return {"ok": False, "error": str(e)}
+    
+    resp = await espn_get(roster_path)
+    if not resp.get("ok"):
+        return resp
+    
+    roster_data = resp["data"]
+    athletes = roster_data.get("athletes", [])
+    
+    return {
+        "ok": True,
+        "content_md": f"## {sport}/{league} Team {team_id} Roster\n\nFound {len(athletes)} players",
+        "data": {"athletes": athletes, "total": len(athletes)},
+        "meta": {"source": "espn", "sport": sport, "league": league, "team_id": team_id, "timestamp": now_iso()}
+    }
+
 async def handle_get_sports(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get available sports from Odds API"""
     use_test_mode = args.get("use_test_mode", False)  # Default to live data
@@ -273,6 +304,64 @@ async def handle_get_quota_info(args: Dict[str, Any]) -> Dict[str, Any]:
         "meta": {"source": "odds_api", "test_mode": False, "timestamp": now_iso()}
     }
 
+async def handle_get_event_odds(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get odds for a specific event (for player props)"""
+    sport = args.get("sport", "")
+    event_id = args.get("event_id", "")
+    use_test_mode = args.get("use_test_mode", False)  # Default to live data
+    regions = args.get("regions", "us")
+    markets = args.get("markets", "h2h")
+    odds_format = args.get("odds_format", "american")
+    
+    if not event_id:
+        return {"ok": False, "error": "event_id is required"}
+    
+    if use_test_mode:
+        # Mock player props data
+        event_data = {
+            "id": event_id,
+            "sport_key": sport,
+            "commence_time": "2025-08-12T00:00:00Z",
+            "home_team": "Test Home Team",
+            "away_team": "Test Away Team",
+            "bookmakers": [{
+                "key": "fanduel",
+                "title": "FanDuel",
+                "markets": [{
+                    "key": "batter_home_runs",
+                    "outcomes": [
+                        {"name": "Over", "description": "Test Player", "price": -110, "point": 0.5},
+                        {"name": "Under", "description": "Test Player", "price": -110, "point": 0.5}
+                    ]
+                }]
+            }]
+        }
+        return {
+            "ok": True,
+            "content_md": f"## Event Odds for {event_id} (Test Mode)\n\nMock player props data",
+            "data": {"event": event_data},
+            "meta": {"source": "odds_api_mock", "event_id": event_id, "test_mode": True, "timestamp": now_iso()}
+        }
+    
+    # Build the endpoint path for event-specific odds
+    params = {
+        "regions": regions,
+        "markets": markets,
+        "oddsFormat": odds_format
+    }
+    
+    resp = await odds_api_get(f"sports/{sport}/events/{event_id}/odds", params)
+    if not resp.get("ok"):
+        return resp
+    
+    event_data = resp["data"]
+    return {
+        "ok": True,
+        "content_md": f"## Event Odds for {event_id}\n\nPlayer props and event-specific odds",
+        "data": {"event": event_data},
+        "meta": {"source": "odds_api", "event_id": event_id, "test_mode": False, "timestamp": now_iso()}
+    }
+
 # MCP Tool registry
 TOOLS = {
     "getScoreboard": {
@@ -299,6 +388,19 @@ TOOLS = {
             "required": ["sport", "league"]
         },
         "handler": handle_get_teams
+    },
+    "getTeamRoster": {
+        "description": "Get ESPN team roster",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "sport": {"type": "string", "description": "Sport (e.g. 'baseball')"},
+                "league": {"type": "string", "description": "League (e.g. 'mlb')"},
+                "team_id": {"type": "string", "description": "Team ID"}
+            },
+            "required": ["sport", "league", "team_id"]
+        },
+        "handler": handle_get_team_roster
     },
     "getSports": {
         "description": "Get available sports from Odds API",
@@ -335,6 +437,22 @@ TOOLS = {
             }
         },
         "handler": handle_get_quota_info
+    },
+    "getEventOdds": {
+        "description": "Get odds for a specific event (for player props)",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "sport": {"type": "string", "description": "Sport key (e.g. 'baseball_mlb')"},
+                "event_id": {"type": "string", "description": "Event ID from odds API"},
+                "regions": {"type": "string", "description": "Regions (default: 'us')", "optional": True},
+                "markets": {"type": "string", "description": "Markets (default: 'h2h')", "optional": True},
+                "odds_format": {"type": "string", "description": "Odds format (default: 'american')", "optional": True},
+                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+            },
+            "required": ["sport", "event_id"]
+        },
+        "handler": handle_get_event_odds
     }
 }
 
