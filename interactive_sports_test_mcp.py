@@ -737,8 +737,10 @@ def fetch_and_display_player_stats(espn_id, sport, market_key):
         stat_value = "N/A"
         
         # Look for the stat using the mapped name
+        stat_source = "NOT_FOUND"
         if stat_name.lower() in game_stats:
             stat_value = game_stats[stat_name.lower()]
+            stat_source = f"DIRECT:{stat_name.lower()}"
         else:
             # Try alternative names
             alt_names = {
@@ -753,12 +755,18 @@ def fetch_and_display_player_stats(espn_id, sport, market_key):
             for alt_name in alt_names.get(stat_name, [stat_name]):
                 if alt_name.lower() in game_stats:
                     stat_value = game_stats[alt_name.lower()]
+                    stat_source = f"ALT:{alt_name.lower()}"
                     break
         
-        # Temporary debug info
+        # Temporary debug info - show more stats and look for hits specifically
         debug_stats = game_stats.get("debug_all_stats", [])
         debug_categories = game_stats.get("debug_categories", [])
-        debug_str = f" [CATS: {', '.join(debug_categories[:3])} | STATS: {', '.join(debug_stats[:3])}...]" if debug_stats else ""
+        
+        # Look for hits specifically in the debug stats
+        hits_found = [stat for stat in debug_stats if "hits" in stat.lower()]
+        hits_debug = f" | HITS_FOUND: {hits_found}" if hits_found else " | NO_HITS_FOUND"
+        
+        debug_str = f" [SRC: {stat_source} | CATS: {', '.join(debug_categories)} | STATS: {', '.join(debug_stats[:5])}{hits_debug}...]" if debug_stats else ""
         
         print(f"        Game {i}: {date} - {stat_value}{debug_str}")
         
