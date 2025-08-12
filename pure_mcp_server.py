@@ -435,40 +435,41 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                                 if "splits" in stats_data and "categories" in stats_data["splits"]:
                                     categories = stats_data["splits"]["categories"]
                                     
+                                    # Debug: capture ALL categories and stats to see what's available
+                                    if "debug_all_stats" not in game_stats:
+                                        game_stats["debug_all_stats"] = []
+                                        game_stats["debug_categories"] = []
+                                    
                                     for category in categories:
                                         category_name = category.get("name", "").lower()
-                                        if category_name in ["batting", "passing", "rushing", "receiving", "goalkeeping"]:
-                                            category_stats = category.get("stats", [])
+                                        game_stats["debug_categories"].append(category_name)
+                                        category_stats = category.get("stats", [])
+                                        
+                                        # Capture ALL stats from ALL categories for debugging
+                                        for stat in category_stats:
+                                            name = stat.get("name", "").lower()
+                                            value = stat.get("value", 0)
+                                            game_stats["debug_all_stats"].append(f"{category_name}:{name}:{value}")
                                             
-                                            # Extract key stats using exact pattern from working example
-                                            for stat in category_stats:
-                                                name = stat.get("name", "").lower()
-                                                value = stat.get("value", 0)
-                                                
-                                                # Debug: capture all stats to help troubleshoot
-                                                if "debug_all_stats" not in game_stats:
-                                                    game_stats["debug_all_stats"] = []
-                                                game_stats["debug_all_stats"].append(f"{name}:{value}")
-                                                
-                                                # Use exact matching from your working code
-                                                if name == "hits":
-                                                    game_stats["hits"] = value
-                                                elif name == "homeruns":  # ESPN uses "homeruns", not "home runs" 
-                                                    game_stats["homeruns"] = value
-                                                elif name.lower() == "rbis":  # ESPN uses "RBIs"
-                                                    game_stats["rbis"] = value
-                                                elif name == "runs":
-                                                    game_stats["runs"] = value
-                                                elif name == "strikeouts":
-                                                    game_stats["strikeouts"] = value
-                                                elif name == "walks":
-                                                    game_stats["walks"] = value
-                                                elif name == "points":
-                                                    game_stats["points"] = value
-                                                elif name == "rebounds":
-                                                    game_stats["rebounds"] = value
-                                                elif name == "assists":
-                                                    game_stats["assists"] = value
+                                            # Extract stats regardless of category
+                                            if name == "hits":
+                                                game_stats["hits"] = value
+                                            elif name == "homeruns":  # ESPN uses "homeruns", not "home runs" 
+                                                game_stats["homeruns"] = value
+                                            elif name.lower() == "rbis":  # ESPN uses "RBIs"
+                                                game_stats["rbis"] = value
+                                            elif name == "runs":
+                                                game_stats["runs"] = value
+                                            elif name == "strikeouts":
+                                                game_stats["strikeouts"] = value
+                                            elif name == "walks":
+                                                game_stats["walks"] = value
+                                            elif name == "points":
+                                                game_stats["points"] = value
+                                            elif name == "rebounds":
+                                                game_stats["rebounds"] = value
+                                            elif name == "assists":
+                                                game_stats["assists"] = value
                         
                         all_games_with_dates.append({
                             "datetime_obj": utc_dt,

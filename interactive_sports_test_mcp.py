@@ -757,7 +757,8 @@ def fetch_and_display_player_stats(espn_id, sport, market_key):
         
         # Temporary debug info
         debug_stats = game_stats.get("debug_all_stats", [])
-        debug_str = f" [DEBUG: {', '.join(debug_stats[:3])}...]" if debug_stats else ""
+        debug_categories = game_stats.get("debug_categories", [])
+        debug_str = f" [CATS: {', '.join(debug_categories[:3])} | STATS: {', '.join(debug_stats[:3])}...]" if debug_stats else ""
         
         print(f"        Game {i}: {date} - {stat_value}{debug_str}")
         
