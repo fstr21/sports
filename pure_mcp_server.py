@@ -481,9 +481,35 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
         # Sort by date (most recent first) - like your working example
         all_games_with_dates.sort(key=lambda x: x["datetime_obj"], reverse=True)
         
-        # Get the most recent games up to limit
+        # Group by date and aggregate stats (for doubleheaders)
+        games_by_date = {}
+        
+        for game in all_games_with_dates:
+            date_key = game["datetime_obj"].strftime("%Y-%m-%d")
+            
+            if date_key not in games_by_date:
+                games_by_date[date_key] = {
+                    "date": game["date"],
+                    "datetime_obj": game["datetime_obj"],
+                    "opponent": game["opponent"],
+                    "stats": game["stats"].copy(),
+                    "game_count": 1
+                }
+            else:
+                # Aggregate stats for multiple games on same date (doubleheaders)
+                existing = games_by_date[date_key]
+                for stat_name, stat_value in game["stats"].items():
+                    if stat_name in existing["stats"]:
+                        existing["stats"][stat_name] += stat_value
+                    else:
+                        existing["stats"][stat_name] = stat_value
+                existing["game_count"] += 1
+        
+        # Sort by date and take most recent games
+        sorted_games = sorted(games_by_date.values(), key=lambda x: x["datetime_obj"], reverse=True)
+        
         games_with_stats = []
-        for game in all_games_with_dates[:limit]:
+        for game in sorted_games[:limit]:
             games_with_stats.append({
                 "date": game["date"],
                 "opponent": game["opponent"],
