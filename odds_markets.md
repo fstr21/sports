@@ -13,6 +13,6 @@ batter_home_runs, batter_hits, pitcher_strikeouts
 
 nhl
 player_goals, player_assists, player_shots_on_goal, 
-
+            
 mls, la_liga, epl
 player_shots, player_shots_on_target
