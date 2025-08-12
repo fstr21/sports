@@ -758,15 +758,13 @@ def fetch_and_display_player_stats(espn_id, sport, market_key):
                     stat_source = f"ALT:{alt_name.lower()}"
                     break
         
-        # Temporary debug info - show more stats and look for hits specifically
+        # Simplified debug - just show the key info
         debug_stats = game_stats.get("debug_all_stats", [])
-        debug_categories = game_stats.get("debug_categories", [])
         
-        # Look for hits specifically in the debug stats
-        hits_found = [stat for stat in debug_stats if "hits" in stat.lower()]
-        hits_debug = f" | HITS_FOUND: {hits_found}" if hits_found else " | NO_HITS_FOUND"
+        # Find the specific batting stat we're looking for
+        batting_stat = next((stat for stat in debug_stats if stat.startswith(f"batting:{stat_name.lower()}:")), "NOT_FOUND")
         
-        debug_str = f" [SRC: {stat_source} | CATS: {', '.join(debug_categories)} | STATS: {', '.join(debug_stats[:5])}{hits_debug}...]" if debug_stats else ""
+        debug_str = f" [SRC: {stat_source} | BATTING_{stat_name.upper()}: {batting_stat}]"
         
         print(f"        Game {i}: {date} - {stat_value}{debug_str}")
         

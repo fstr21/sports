@@ -451,24 +451,24 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                                             value = stat.get("value", 0)
                                             game_stats["debug_all_stats"].append(f"{category_name}:{name}:{value}")
                                             
-                                            # Extract stats regardless of category
-                                            if name == "hits":
+                                            # Extract stats only from correct category to avoid conflicts
+                                            if category_name == "batting" and name == "hits":
                                                 game_stats["hits"] = value
-                                            elif name == "homeruns":  # ESPN uses "homeruns", not "home runs" 
+                                            elif category_name == "batting" and name == "homeruns":  # ESPN uses "homeruns", not "home runs" 
                                                 game_stats["homeruns"] = value
-                                            elif name.lower() == "rbis":  # ESPN uses "RBIs"
+                                            elif category_name == "batting" and name.lower() == "rbis":  # ESPN uses "RBIs"
                                                 game_stats["rbis"] = value
-                                            elif name == "runs":
+                                            elif category_name == "batting" and name == "runs":
                                                 game_stats["runs"] = value
-                                            elif name == "strikeouts":
+                                            elif category_name == "batting" and name == "strikeouts":
                                                 game_stats["strikeouts"] = value
-                                            elif name == "walks":
+                                            elif category_name == "batting" and name == "walks":
                                                 game_stats["walks"] = value
-                                            elif name == "points":
+                                            elif category_name in ["scoring", "offense"] and name == "points":
                                                 game_stats["points"] = value
-                                            elif name == "rebounds":
+                                            elif category_name in ["rebounding", "defense"] and name == "rebounds":
                                                 game_stats["rebounds"] = value
-                                            elif name == "assists":
+                                            elif category_name in ["passing", "offense"] and name == "assists":
                                                 game_stats["assists"] = value
                         
                         all_games_with_dates.append({
