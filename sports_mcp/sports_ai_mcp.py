@@ -577,6 +577,82 @@ async def get_quota_info(use_test_mode: bool = True) -> Dict[str, Any]:
     md = f"## API Quota Info\n\nAPI key is valid. Retrieved {quota_data['data_fetched']} sports."
     return ok_envelope(md, {"quota": quota_data}, {"source": "odds_api", "url": resp.get("url"), "test_mode": False})
 
+@server.tool(name="getEventOdds", description="Get odds for a specific event (for player props). Params: sport, event_id, regions?, markets?, odds_format?, use_test_mode?")
+async def get_event_odds(sport: str, event_id: str, regions: str = "us", markets: str = "h2h", odds_format: str = "american", use_test_mode: bool = True) -> Dict[str, Any]:
+    """Get odds for a specific event from The Odds API"""
+    
+    if use_test_mode:
+        # Use mock event data for testing
+        mock_event = {
+            "id": event_id,
+            "sport_key": sport,
+            "sport_title": sport.replace("_", " ").title(),
+            "commence_time": "2025-08-12T19:05:00Z",
+            "home_team": "Test Home Team",
+            "away_team": "Test Away Team",
+            "bookmakers": [
+                {
+                    "key": "fanduel",
+                    "title": "FanDuel",
+                    "last_update": "2025-08-11T23:00:00Z",
+                    "markets": [
+                        {
+                            "key": "batter_home_runs",
+                            "last_update": "2025-08-11T23:00:00Z",
+                            "outcomes": [
+                                {"name": "Over", "description": "Test Player", "price": 250, "point": 0.5},
+                                {"name": "Under", "description": "Test Player", "price": -300, "point": 0.5}
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+        md = f"## Event Odds for {event_id} (Test Mode)\n\nFound mock player props data"
+        return ok_envelope(md, {"event": mock_event}, {"source": "odds_api_mock", "sport": sport, "event_id": event_id, "test_mode": True})
+    
+    # Live API call
+    params = {
+        "regions": regions,
+        "markets": markets,
+        "oddsFormat": odds_format
+    }
+    
+    resp = await odds_api_get(f"sports/{sport}/events/{event_id}/odds", params)
+    if not resp.get("ok"):
+        return resp
+    
+    event_data = resp["data"]
+    md = f"## Event Odds for {event_id}\n\nFound odds data for specific event"
+    return ok_envelope(md, {"event": event_data}, {"source": "odds_api", "sport": sport, "event_id": event_id, "url": resp.get("url"), "test_mode": False})
+
+@server.tool(name="getTeamRoster", description="Get ESPN team roster. Params: sport, league, team_id")
+async def get_team_roster(sport: str, league: str, team_id: str) -> Dict[str, Any]:
+    """Get ESPN team roster for player matching"""
+    try:
+        # Validate route exists
+        path_base = resolve_route(sport, league, "teams")  # Use teams endpoint as base
+        # Construct roster path
+        roster_path = f"{path_base.rsplit('/', 1)[0]}/teams/{team_id}/roster"
+    except Exception as e:
+        return err(str(e), error_type="validation_error")
+    
+    if not team_id:
+        return err("team_id is required", error_type="validation_error")
+    
+    resp = await espn_get(roster_path)
+    if not resp.get("ok"):
+        return resp
+    
+    roster_data = resp["data"]
+    athletes = roster_data.get("athletes", [])
+    
+    # Count athletes for summary
+    athlete_count = len(athletes)
+    
+    md = f"## Team Roster {sport}/{league} team={team_id}\n\nAthletes: {athlete_count}"
+    return ok_envelope(md, roster_data, {"league": league, "sport": sport, "team_id": team_id, "url": resp.get("url")})
+
 # =========================== Entrypoint ===========================
 async def amain() -> None:
     await server.run_stdio_async()
