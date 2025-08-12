@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Read", 
+      "Grep", 
+      "Glob", 
+      "LS",
+      "Bash(python:*)",
+      "Bash(pip:*)",
+      "Write(**/*.py)",
+      "Write(**/*.json)",
+      "Write(**/*.md)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Bash(rm -rf:*)",
+      "Bash(git push:*)",
+      "Write(.env)"
+    ]
+  },
+  "env": {
+    "RAILWAY_API_URL": "https://web-production-b939f.up.railway.app",
+    "ESPN_BASE_URL": "https://sports.core.api.espn.com/v2",
+    "PROJECT_DIR": "C:\\Users\\fstr2\\Desktop\\sports"
+  },
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "Edit|MultiEdit|Write",
+      "hooks": [{
+        "type": "command",
+        "command": "echo 'File modified at %date% %time%' >> .claude\\modification.log"
+      }]
+    }]
+  }
+}
