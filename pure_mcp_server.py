@@ -56,6 +56,10 @@ async def get_http_client() -> httpx.AsyncClient:
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
+def parse_espn_iso_to_et(s: str) -> datetime:
+    """Parse ESPN ISO datetime string and convert to Eastern Time"""
+    return datetime.fromisoformat(s.replace('Z', '+00:00')).astimezone(ET)
+
 # ESPN API functions
 async def espn_get(path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """Make ESPN API request"""
@@ -142,6 +146,9 @@ async def handle_get_scoreboard(args: Dict[str, Any]) -> Dict[str, Any]:
     params = {}
     if dates:
         params["dates"] = dates
+    else:
+        # Default to ET "today" to align with timezone handling
+        params["dates"] = datetime.now(ET).strftime("%Y%m%d")
     
     resp = await espn_get(path, params)
     if not resp.get("ok"):
@@ -373,6 +380,7 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
     league = args.get("league", "")
     player_id = args.get("player_id", "")
     limit = args.get("limit", 10)  # Default last 10 games
+    debug = args.get("debug", False)  # Debug output control
     
     if not player_id:
         return {"ok": False, "error": "player_id is required"}
@@ -396,10 +404,12 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
         # Step 2: Get MULTIPLE recent pages (ESPN eventlog: page 1 = oldest, page N = newest)
         all_recent_events = []
         
-        # Start from LAST page (most recent) and work backwards
+        # Start from LAST page (most recent) and work backwards  
         pages_to_check = min(3, total_pages)  # Check last 3 pages to ensure we get recent games
+        start = total_pages
+        end = total_pages - pages_to_check + 1  # inclusive
         
-        for page_num in range(total_pages, max(0, total_pages - pages_to_check), -1):
+        for page_num in range(start, end - 1, -1):  # e.g., 5..3
             page_url = f"{eventlog_url}?page={page_num}"
             page_r = await client.get(page_url)
             
@@ -431,9 +441,8 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                 
                 if game_date:
                     try:
-                        # Parse UTC datetime and convert to Eastern Time
-                        utc_dt = datetime.fromisoformat(game_date.replace('Z', '+00:00')).astimezone(timezone.utc)
-                        game_time_et = utc_dt.astimezone(ET)
+                        # Parse UTC datetime and convert to Eastern Time using centralized function
+                        game_time_et = parse_espn_iso_to_et(game_date)
                         now_et = datetime.now(ET)
                         
                         # Get event ID for verification
@@ -441,8 +450,20 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                         
                         # Simple future game filter: Skip only if game hasn't started yet
                         if game_time_et > now_et:
-                            print(f"FILTERED future game: Event {event_id} at {game_time_et} (current: {now_et})")
+                            if debug:
+                                print(f"FILTERED future game: Event {event_id} at {game_time_et} (current: {now_et})")
                             continue
+                        
+                        # Optional: Skip in-progress games on the current ET date
+                        if game_time_et.date() == now_et.date():
+                            try:
+                                status = event_data.get("competitions", [{}])[0].get("status", {}).get("type", {})
+                                if status.get("completed") is False:
+                                    if debug:
+                                        print(f"FILTERED in-progress game: Event {event_id} on {game_time_et.date()}")
+                                    continue
+                            except:
+                                pass  # If status parsing fails, include the game
                         
                         # Store ET-normalized values for everything downstream
                         display_date_et = game_time_et.date()
@@ -485,21 +506,24 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                                 if "splits" in stats_data and "categories" in stats_data["splits"]:
                                     categories = stats_data["splits"]["categories"]
                                     
-                                    # Debug: capture ALL categories and stats to see what's available
-                                    if "debug_all_stats" not in game_stats:
-                                        game_stats["debug_all_stats"] = []
-                                        game_stats["debug_categories"] = []
+                                    # Debug: capture ALL categories and stats to see what's available (only if debug=True)
+                                    if debug:
+                                        if "debug_all_stats" not in game_stats:
+                                            game_stats["debug_all_stats"] = []
+                                            game_stats["debug_categories"] = []
                                     
                                     for category in categories:
                                         category_name = category.get("name", "").lower()
-                                        game_stats["debug_categories"].append(category_name)
+                                        if debug:
+                                            game_stats["debug_categories"].append(category_name)
                                         category_stats = category.get("stats", [])
                                         
-                                        # Capture ALL stats from ALL categories for debugging
+                                        # Capture ALL stats from ALL categories for debugging (only if debug=True)
                                         for stat in category_stats:
                                             name = stat.get("name", "").lower()
                                             value = stat.get("value", 0)
-                                            game_stats["debug_all_stats"].append(f"{category_name}:{name}:{value}")
+                                            if debug:
+                                                game_stats["debug_all_stats"].append(f"{category_name}:{name}:{value}")
                                             
                                             # Extract stats only from correct category to avoid conflicts
                                             if category_name == "batting" and name == "hits":
@@ -669,7 +693,8 @@ TOOLS = {
                 "league": {"type": "string", "description": "League (e.g. 'mlb')"},
                 "player_id": {"type": "string", "description": "ESPN Player ID"},
                 "stat_type": {"type": "string", "description": "Type of stats (gamelog, season, career)", "optional": True},
-                "limit": {"type": "number", "description": "Number of recent games (default: 10)", "optional": True}
+                "limit": {"type": "number", "description": "Number of recent games (default: 10)", "optional": True},
+                "debug": {"type": "boolean", "description": "Enable debug output", "optional": True}
             },
             "required": ["sport", "league", "player_id"]
         },
