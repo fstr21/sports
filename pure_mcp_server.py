@@ -763,11 +763,12 @@ app = Starlette(routes=routes)
 @app.on_event("startup")
 async def startup():
     print("=" * 60)
-    print("Pure MCP Sports Server Starting")
-    print(f"ESPN Tools: {len([t for t in TOOLS if t.startswith('get') and t not in ['getSports', 'getOdds', 'getQuotaInfo']])}")
-    print(f"Odds Tools: {len([t for t in TOOLS if t in ['getSports', 'getOdds', 'getQuotaInfo']])}")
-    print(f"Total Tools: {len(TOOLS)}")
-    print("Server URL: http://0.0.0.0:8080/mcp")
+    print("🚀 Pure MCP Sports Server Starting - TIMEZONE FIX v2 🚀")
+    print(f"📊 ESPN Tools: {len([t for t in TOOLS if t.startswith('get') and t not in ['getSports', 'getOdds', 'getQuotaInfo']])}")
+    print(f"💰 Odds Tools: {len([t for t in TOOLS if t in ['getSports', 'getOdds', 'getQuotaInfo']])}")
+    print(f"🔧 Total Tools: {len(TOOLS)}")
+    print("🌐 Server URL: http://0.0.0.0:8080/mcp")
+    print("🕐 Current time for debugging: Aug 12, 2025 7:54 PM ET")
     print("=" * 60)
     
     for tool_name in sorted(TOOLS.keys()):
