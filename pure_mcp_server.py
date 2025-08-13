@@ -448,6 +448,32 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                         display_date_et = game_time_et.date()
                         display_iso_et = game_time_et.isoformat()
                         
+                        # Extract opponent information from event data
+                        opponent = "vs Unknown"  # Default fallback
+                        try:
+                            competitions = event_data.get("competitions", [])
+                            if competitions:
+                                competitors = competitions[0].get("competitors", [])
+                                if len(competitors) >= 2:
+                                    # Find home/away teams
+                                    home_team = None
+                                    away_team = None
+                                    
+                                    for comp in competitors:
+                                        team_info = comp.get("team", {})
+                                        team_name = team_info.get("abbreviation", team_info.get("displayName", ""))
+                                        if comp.get("homeAway") == "home":
+                                            home_team = team_name
+                                        elif comp.get("homeAway") == "away":
+                                            away_team = team_name
+                                    
+                                    # Format as "@ Home" or "vs Away" depending on context
+                                    if home_team and away_team:
+                                        # We don't know which team our player is on, so show both
+                                        opponent = f"{away_team} @ {home_team}"
+                        except:
+                            pass  # Keep default "vs Unknown"
+                        
                         # Get stats if available
                         game_stats = {"event_id": event_id}  # Add event ID for verification
                         if stats_ref:
@@ -498,7 +524,7 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                         all_games_with_dates.append({
                             "datetime_obj_et": game_time_et,  # Use ET for sorting
                             "date": display_iso_et,  # ET date for display
-                            "opponent": "Recent Game",  # Simplified as requested
+                            "opponent": opponent,  # Actual opponent teams
                             "stats": game_stats
                         })
                         
