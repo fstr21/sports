@@ -98,7 +98,7 @@ def call_mcp_tool(tool_name, arguments):
     }
     
     try:
-        response = requests.post(f"{RAILWAY_URL}/mcp", headers=headers, json=payload, timeout=15)
+        response = requests.post(f"{RAILWAY_URL}/mcp", headers=headers, json=payload, timeout=45)
         
         if response.status_code == 200:
             result = response.json()
