@@ -12,6 +12,7 @@ import os
 import sys
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
+from zoneinfo import ZoneInfo
 
 import httpx
 import uvicorn
@@ -25,6 +26,9 @@ ODDS_API_KEY = os.getenv("ODDS_API_KEY", "").strip()
 ODDS_API_BASE_URL = "https://api.the-odds-api.com/v4"
 ESPN_BASE_URL = "https://site.api.espn.com/apis/site/v2/sports"
 USER_AGENT = "sports-ai-mcp/3.0"
+
+# Timezone configuration
+ET = ZoneInfo("America/New_York")
 
 # ESPN league mappings (same as before)
 ALLOWED_ROUTES = {
@@ -426,46 +430,23 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                 game_date = event_data.get("date", "")
                 
                 if game_date:
-                    # Convert to datetime for sorting and future game filtering
-                    from datetime import datetime, timezone, timedelta
-                    
                     try:
-                        utc_dt = datetime.fromisoformat(game_date.replace('Z', '+00:00'))
+                        # Parse UTC datetime and convert to Eastern Time
+                        utc_dt = datetime.fromisoformat(game_date.replace('Z', '+00:00')).astimezone(timezone.utc)
+                        game_time_et = utc_dt.astimezone(ET)
+                        now_et = datetime.now(ET)
                         
-                        # Convert to Eastern time for proper game filtering (UTC-4 for EDT, UTC-5 for EST)
-                        # Using EDT (UTC-4) for August
-                        eastern_offset = timedelta(hours=-4)  # EDT offset
-                        eastern_tz = timezone(eastern_offset)
-                        
-                        # DEBUG: Print timezone info
-                        print(f"UTC time: {utc_dt}, EDT time: {utc_dt.astimezone(eastern_tz)}")
-                        
-                        current_time_eastern = datetime.now(eastern_tz)
-                        game_time_eastern = utc_dt.astimezone(eastern_tz)
-                        
-                        # Get event ID for verification (move up for debugging)
+                        # Get event ID for verification
                         event_id = event_data.get("id", "unknown")
                         
-                        # IMPROVED FILTERING: Check both UTC date and Eastern date to catch games that cross midnight
-                        utc_game_date = utc_dt.date()
-                        current_utc_date = datetime.now(timezone.utc).date()
-                        eastern_game_date = game_time_eastern.date()
-                        current_eastern_date = current_time_eastern.date()
-                        
-                        # CONSERVATIVE FILTERING: Only filter games that are clearly from today (08/12) and not yet finished
-                        # Strategy: Only filter if the Eastern time shows today AND we're before 11 PM ET
-                        # This ensures we keep legitimate 08/11 games even if their UTC timestamp spills into 08/12
-                        
-                        should_filter = (eastern_game_date == current_eastern_date and current_time_eastern.hour < 23)
-                        
-                        # DEBUG: Print filtering decision for debugging
-                        if eastern_game_date == current_eastern_date:
-                            print(f"Event {event_id}: Game date {eastern_game_date}, Current date {current_eastern_date}, Current hour {current_time_eastern.hour}, Should filter: {should_filter}")
-                        
-                        # Skip games scheduled for today that are likely in the future
-                        if should_filter:
-                            print(f"FILTERED: Event {event_id} from {eastern_game_date}")
+                        # Simple future game filter: Skip only if game hasn't started yet
+                        if game_time_et > now_et:
+                            print(f"FILTERED future game: Event {event_id} at {game_time_et} (current: {now_et})")
                             continue
+                        
+                        # Store ET-normalized values for everything downstream
+                        display_date_et = game_time_et.date()
+                        display_iso_et = game_time_et.isoformat()
                         
                         # Get stats if available
                         game_stats = {"event_id": event_id}  # Add event ID for verification
@@ -515,8 +496,8 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
                                                 game_stats["assists"] = value
                         
                         all_games_with_dates.append({
-                            "datetime_obj": utc_dt,
-                            "date": game_date,
+                            "datetime_obj_et": game_time_et,  # Use ET for sorting
+                            "date": display_iso_et,  # ET date for display
                             "opponent": "Recent Game",  # Simplified as requested
                             "stats": game_stats
                         })
@@ -527,21 +508,21 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
             except Exception as e:
                 continue
         
-        # Sort by date (most recent first) - like your working example
-        all_games_with_dates.sort(key=lambda x: x["datetime_obj"], reverse=True)
+        # Sort by date (most recent first) using ET time
+        all_games_with_dates.sort(key=lambda x: x["datetime_obj_et"], reverse=True)
         
-        # Simple deduplication by date and take most recent games
+        # Simple deduplication by ET date and take most recent games
         games_with_stats = []
-        seen_dates = set()
+        seen_dates_et = set()
         
         for game in all_games_with_dates:
-            date_key = game["datetime_obj"].strftime("%Y-%m-%d")
+            date_key = game["datetime_obj_et"].strftime("%Y-%m-%d")  # ET calendar day
             
-            # Take first (most recent) game for each date
-            if date_key not in seen_dates and len(games_with_stats) < limit:
-                seen_dates.add(date_key)
+            # Take first (most recent) game for each ET date
+            if date_key not in seen_dates_et and len(games_with_stats) < limit:
+                seen_dates_et.add(date_key)
                 games_with_stats.append({
-                    "date": game["date"],
+                    "date": date_key,  # Use clean YYYY-MM-DD format in ET
                     "opponent": game["opponent"],
                     "stats": game["stats"]
                 })
@@ -551,6 +532,7 @@ async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
             "content_md": f"## Player Stats for {player_id}\n\nFound {len(games_with_stats)} recent games",
             "data": {
                 "player_id": player_id,
+                "timezone": "America/New_York",  # Make timezone explicit
                 "games": games_with_stats,
                 "total_games": len(games_with_stats)
             },
