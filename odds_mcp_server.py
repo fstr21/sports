@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pure MCP Server for Sports AI - Odds Only
+Odds MCP Server for Sports AI
 
 A clean MCP implementation focused solely on sports odds functionality.
 Uses standard MCP protocol for maximum compatibility.
@@ -308,7 +308,7 @@ async def handle_initialize(params: Dict[str, Any]) -> Dict[str, Any]:
             "tools": {}
         },
         "serverInfo": {
-            "name": "sports-ai-mcp-odds-only",
+            "name": "odds-mcp",
             "version": "4.0.0"
         }
     }
@@ -393,7 +393,7 @@ app = Starlette(routes=routes)
 @app.on_event("startup")
 async def startup():
     print("=" * 60)
-    print("Pure MCP Odds Server Starting - Odds Only v4.0")
+    print("Odds MCP Server Starting - v4.0")
     print(f"Odds Tools: {len(TOOLS)}")
     print(f"Total Tools: {len(TOOLS)}")
     print("Server URL: http://0.0.0.0:8080/mcp")
