@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Pure MCP Server for Sports AI
+Pure MCP Server for Sports AI - Odds Only
 
-A clean MCP implementation without FastMCP that combines ESPN and Odds functionality.
+A clean MCP implementation focused solely on sports odds functionality.
 Uses standard MCP protocol for maximum compatibility.
 """
 
@@ -12,7 +12,6 @@ import os
 import sys
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
-from zoneinfo import ZoneInfo
 
 import httpx
 import uvicorn
@@ -24,22 +23,7 @@ from starlette.routing import Route
 # Configuration
 ODDS_API_KEY = os.getenv("ODDS_API_KEY", "").strip()
 ODDS_API_BASE_URL = "https://api.the-odds-api.com/v4"
-ESPN_BASE_URL = "https://site.api.espn.com/apis/site/v2/sports"
-USER_AGENT = "sports-ai-mcp/3.0"
-
-# Timezone configuration
-ET = ZoneInfo("America/New_York")
-
-# ESPN league mappings (same as before)
-ALLOWED_ROUTES = {
-    ("baseball", "mlb"): {"scoreboard": "/baseball/mlb/scoreboard", "teams": "/baseball/mlb/teams"},
-    ("basketball", "nba"): {"scoreboard": "/basketball/nba/scoreboard", "teams": "/basketball/nba/teams"},
-    ("basketball", "wnba"): {"scoreboard": "/basketball/wnba/scoreboard", "teams": "/basketball/wnba/teams"},
-    ("football", "nfl"): {"scoreboard": "/football/nfl/scoreboard", "teams": "/football/nfl/teams"},
-    ("hockey", "nhl"): {"scoreboard": "/hockey/nhl/scoreboard", "teams": "/hockey/nhl/teams"},
-    ("soccer", "usa.1"): {"scoreboard": "/soccer/usa.1/scoreboard", "teams": "/soccer/usa.1/teams"},
-    ("soccer", "eng.1"): {"scoreboard": "/soccer/eng.1/scoreboard", "teams": "/soccer/eng.1/teams"}
-}
+USER_AGENT = "sports-ai-mcp/4.0"
 
 # HTTP client
 _http_client: Optional[httpx.AsyncClient] = None
@@ -55,30 +39,6 @@ async def get_http_client() -> httpx.AsyncClient:
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
-
-def parse_espn_iso_to_et(s: str) -> datetime:
-    """Parse ESPN ISO datetime string and convert to Eastern Time"""
-    return datetime.fromisoformat(s.replace('Z', '+00:00')).astimezone(ET)
-
-# ESPN API functions
-async def espn_get(path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Make ESPN API request"""
-    url = f"{ESPN_BASE_URL}{path}"
-    client = await get_http_client()
-    try:
-        r = await client.get(url, params=params or {})
-        if r.status_code >= 400:
-            return {"ok": False, "error": f"ESPN API error {r.status_code}: {r.text[:200]}"}
-        return {"ok": True, "data": r.json()}
-    except Exception as e:
-        return {"ok": False, "error": f"ESPN request failed: {str(e)}"}
-
-def resolve_route(sport: str, league: str, endpoint: str) -> str:
-    """Resolve ESPN route"""
-    try:
-        return ALLOWED_ROUTES[(sport.lower(), league.lower())][endpoint.lower()]
-    except KeyError:
-        raise ValueError(f"Unsupported route: {sport}/{league}/{endpoint}")
 
 # Odds API functions
 async def odds_api_get(endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -131,99 +91,7 @@ def get_mock_odds_data(sport: str):
         }]
     return []
 
-# MCP Tool implementations
-async def handle_get_scoreboard(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Get ESPN scoreboard"""
-    sport = args.get("sport", "")
-    league = args.get("league", "")
-    dates = args.get("dates")
-    
-    try:
-        path = resolve_route(sport, league, "scoreboard")
-    except ValueError as e:
-        return {"ok": False, "error": str(e)}
-    
-    params = {}
-    if dates:
-        params["dates"] = dates
-    else:
-        # Default to ET "today" to align with timezone handling
-        params["dates"] = datetime.now(ET).strftime("%Y%m%d")
-    
-    resp = await espn_get(path, params)
-    if not resp.get("ok"):
-        return resp
-    
-    events = resp["data"].get("events", [])
-    return {
-        "ok": True,
-        "content_md": f"## {sport}/{league} Scoreboard\n\nFound {len(events)} events",
-        "data": {"events": events, "total": len(events)},
-        "meta": {"source": "espn", "sport": sport, "league": league, "timestamp": now_iso()}
-    }
-
-async def handle_get_teams(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Get ESPN teams"""
-    sport = args.get("sport", "")
-    league = args.get("league", "")
-    
-    try:
-        path = resolve_route(sport, league, "teams")
-    except ValueError as e:
-        return {"ok": False, "error": str(e)}
-    
-    resp = await espn_get(path)
-    if not resp.get("ok"):
-        return resp
-    
-    teams = resp["data"].get("sports", [{}])[0].get("leagues", [{}])[0].get("teams", [])
-    team_list = []
-    for t in teams:
-        info = t.get("team", {})
-        team_list.append({
-            "id": info.get("id"),
-            "displayName": info.get("displayName"),
-            "abbreviation": info.get("abbreviation")
-        })
-    
-    return {
-        "ok": True,
-        "content_md": f"## {sport}/{league} Teams\n\nFound {len(team_list)} teams",
-        "data": {"teams": team_list, "total": len(team_list)},
-        "meta": {"source": "espn", "sport": sport, "league": league, "timestamp": now_iso()}
-    }
-
-async def handle_get_team_roster(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Get ESPN team roster"""
-    sport = args.get("sport", "")
-    league = args.get("league", "")
-    team_id = args.get("team_id", "")
-    
-    if not team_id:
-        return {"ok": False, "error": "team_id is required"}
-    
-    try:
-        # Build roster path directly using the same pattern as teams
-        path = resolve_route(sport, league, "teams")
-        # Remove the /teams suffix and add specific team roster path
-        base_path = path.replace("/teams", "")
-        roster_path = f"{base_path}/teams/{team_id}/roster"
-    except ValueError as e:
-        return {"ok": False, "error": str(e)}
-    
-    resp = await espn_get(roster_path)
-    if not resp.get("ok"):
-        return resp
-    
-    roster_data = resp["data"]
-    athletes = roster_data.get("athletes", [])
-    
-    return {
-        "ok": True,
-        "content_md": f"## {sport}/{league} Team {team_id} Roster\n\nFound {len(athletes)} players",
-        "data": {"athletes": athletes, "total": len(athletes)},
-        "meta": {"source": "espn", "sport": sport, "league": league, "team_id": team_id, "timestamp": now_iso()}
-    }
+# MCP Tool implementations - Odds Only
 
 async def handle_get_sports(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get available sports from Odds API"""
@@ -374,264 +242,9 @@ async def handle_get_event_odds(args: Dict[str, Any]) -> Dict[str, Any]:
         "meta": {"source": "odds_api", "event_id": event_id, "test_mode": False, "timestamp": now_iso()}
     }
 
-async def handle_get_player_stats(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Get ESPN player statistics using core API eventlog approach"""
-    sport = args.get("sport", "")
-    league = args.get("league", "")
-    player_id = args.get("player_id", "")
-    limit = args.get("limit", 10)  # Default last 10 games
-    debug = args.get("debug", False)  # Debug output control
-    
-    if not player_id:
-        return {"ok": False, "error": "player_id is required"}
-    
-    # Use ESPN Core API (like in your working example)
-    base_url = f"https://sports.core.api.espn.com/v2/sports/{sport}/leagues/{league}/athletes/{player_id}"
-    eventlog_url = f"{base_url}/eventlog"
-    
-    client = await get_http_client()
-    
-    try:
-        # Step 1: Get eventlog to find total pages
-        r = await client.get(eventlog_url)
-        if r.status_code >= 400:
-            return {"ok": False, "error": f"ESPN Core API error {r.status_code}: {r.text[:200]}"}
-        
-        eventlog_data = r.json()
-        events = eventlog_data.get("events", {})
-        total_pages = events.get("pageCount", 1)
-        
-        # Step 2: Get MULTIPLE recent pages (ESPN eventlog: page 1 = oldest, page N = newest)
-        all_recent_events = []
-        
-        # Start from LAST page (most recent) and work backwards  
-        pages_to_check = min(3, total_pages)  # Check last 3 pages to ensure we get recent games
-        start = total_pages
-        end = total_pages - pages_to_check + 1  # inclusive
-        
-        for page_num in range(start, end - 1, -1):  # e.g., 5..3
-            page_url = f"{eventlog_url}?page={page_num}"
-            page_r = await client.get(page_url)
-            
-            if page_r.status_code == 200:
-                page_data = page_r.json()
-                page_events = page_data.get("events", {}).get("items", [])
-                all_recent_events.extend(page_events)
-        
-        last_page_events = all_recent_events
-        
-        # Step 3: Process ALL games and sort by date to get most recent
-        all_games_with_dates = []
-        
-        for event_item in last_page_events:
-            event_ref = event_item.get("event", {}).get("$ref")
-            stats_ref = event_item.get("statistics", {}).get("$ref")
-            
-            if not event_ref:
-                continue
-            
-            try:
-                # Get event details for date and opponent
-                event_r = await client.get(event_ref)
-                if event_r.status_code != 200:
-                    continue
-                
-                event_data = event_r.json()
-                game_date = event_data.get("date", "")
-                
-                if game_date:
-                    try:
-                        # Parse UTC datetime and convert to Eastern Time using centralized function
-                        game_time_et = parse_espn_iso_to_et(game_date)
-                        now_et = datetime.now(ET)
-                        
-                        # Get event ID for verification
-                        event_id = event_data.get("id", "unknown")
-                        
-                        # Simple future game filter: Skip only if game hasn't started yet
-                        if game_time_et > now_et:
-                            if debug:
-                                print(f"FILTERED future game: Event {event_id} at {game_time_et} (current: {now_et})")
-                            continue
-                        
-                        # Optional: Skip in-progress games on the current ET date
-                        if game_time_et.date() == now_et.date():
-                            try:
-                                status = event_data.get("competitions", [{}])[0].get("status", {}).get("type", {})
-                                if status.get("completed") is False:
-                                    if debug:
-                                        print(f"FILTERED in-progress game: Event {event_id} on {game_time_et.date()}")
-                                    continue
-                            except:
-                                pass  # If status parsing fails, include the game
-                        
-                        # Store ET-normalized values for everything downstream
-                        display_date_et = game_time_et.date()
-                        display_iso_et = game_time_et.isoformat()
-                        
-                        # Extract opponent information from event data
-                        opponent = "vs Unknown"  # Default fallback
-                        try:
-                            competitions = event_data.get("competitions", [])
-                            if competitions:
-                                competitors = competitions[0].get("competitors", [])
-                                if len(competitors) >= 2:
-                                    # Find home/away teams
-                                    home_team = None
-                                    away_team = None
-                                    
-                                    for comp in competitors:
-                                        team_info = comp.get("team", {})
-                                        team_name = team_info.get("abbreviation", team_info.get("displayName", ""))
-                                        if comp.get("homeAway") == "home":
-                                            home_team = team_name
-                                        elif comp.get("homeAway") == "away":
-                                            away_team = team_name
-                                    
-                                    # Format as "@ Home" or "vs Away" depending on context
-                                    if home_team and away_team:
-                                        # We don't know which team our player is on, so show both
-                                        opponent = f"{away_team} @ {home_team}"
-                        except:
-                            pass  # Keep default "vs Unknown"
-                        
-                        # Get stats if available
-                        game_stats = {"event_id": event_id}  # Add event ID for verification
-                        if stats_ref:
-                            stats_r = await client.get(stats_ref)
-                            if stats_r.status_code == 200:
-                                stats_data = stats_r.json()
-                                
-                                # Extract batting/player stats using your working pattern
-                                if "splits" in stats_data and "categories" in stats_data["splits"]:
-                                    categories = stats_data["splits"]["categories"]
-                                    
-                                    # Debug: capture ALL categories and stats to see what's available (only if debug=True)
-                                    if debug:
-                                        if "debug_all_stats" not in game_stats:
-                                            game_stats["debug_all_stats"] = []
-                                            game_stats["debug_categories"] = []
-                                    
-                                    for category in categories:
-                                        category_name = category.get("name", "").lower()
-                                        if debug:
-                                            game_stats["debug_categories"].append(category_name)
-                                        category_stats = category.get("stats", [])
-                                        
-                                        # Capture ALL stats from ALL categories for debugging (only if debug=True)
-                                        for stat in category_stats:
-                                            name = stat.get("name", "").lower()
-                                            value = stat.get("value", 0)
-                                            if debug:
-                                                game_stats["debug_all_stats"].append(f"{category_name}:{name}:{value}")
-                                            
-                                            # Extract stats only from correct category to avoid conflicts
-                                            if category_name == "batting" and name == "hits":
-                                                game_stats["hits"] = value
-                                            elif category_name == "batting" and name == "homeruns":  # ESPN uses "homeruns", not "home runs" 
-                                                game_stats["homeruns"] = value
-                                            elif category_name == "batting" and name.lower() == "rbis":  # ESPN uses "RBIs"
-                                                game_stats["rbis"] = value
-                                            elif category_name == "batting" and name == "runs":
-                                                game_stats["runs"] = value
-                                            elif category_name == "batting" and name == "strikeouts":
-                                                game_stats["strikeouts"] = value
-                                            elif category_name == "batting" and name == "walks":
-                                                game_stats["walks"] = value
-                                            elif category_name in ["scoring", "offense"] and name == "points":
-                                                game_stats["points"] = value
-                                            elif category_name in ["rebounding", "defense"] and name == "rebounds":
-                                                game_stats["rebounds"] = value
-                                            elif category_name in ["passing", "offense"] and name == "assists":
-                                                game_stats["assists"] = value
-                        
-                        all_games_with_dates.append({
-                            "datetime_obj_et": game_time_et,  # Use ET for sorting
-                            "date": display_iso_et,  # ET date for display
-                            "opponent": opponent,  # Actual opponent teams
-                            "stats": game_stats
-                        })
-                        
-                    except Exception:
-                        continue
-                
-            except Exception as e:
-                continue
-        
-        # Sort by date (most recent first) using ET time
-        all_games_with_dates.sort(key=lambda x: x["datetime_obj_et"], reverse=True)
-        
-        # Simple deduplication by ET date and take most recent games
-        games_with_stats = []
-        seen_dates_et = set()
-        
-        for game in all_games_with_dates:
-            date_key = game["datetime_obj_et"].strftime("%Y-%m-%d")  # ET calendar day
-            
-            # Take first (most recent) game for each ET date
-            if date_key not in seen_dates_et and len(games_with_stats) < limit:
-                seen_dates_et.add(date_key)
-                games_with_stats.append({
-                    "date": date_key,  # Use clean YYYY-MM-DD format in ET
-                    "opponent": game["opponent"],
-                    "stats": game["stats"]
-                })
-        
-        return {
-            "ok": True,
-            "content_md": f"## Player Stats for {player_id}\n\nFound {len(games_with_stats)} recent games",
-            "data": {
-                "player_id": player_id,
-                "timezone": "America/New_York",  # Make timezone explicit
-                "games": games_with_stats,
-                "total_games": len(games_with_stats)
-            },
-            "meta": {"source": "espn_core", "sport": sport, "league": league, "player_id": player_id, "timestamp": now_iso()}
-        }
-        
-    except Exception as e:
-        return {"ok": False, "error": f"ESPN Core API request failed: {str(e)}"}
 
 # MCP Tool registry
 TOOLS = {
-    "getScoreboard": {
-        "description": "Get ESPN scoreboard for a league",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "sport": {"type": "string", "description": "Sport (e.g. 'baseball')"},
-                "league": {"type": "string", "description": "League (e.g. 'mlb')"},
-                "dates": {"type": "string", "description": "Date filter (YYYYMMDD)", "optional": True}
-            },
-            "required": ["sport", "league"]
-        },
-        "handler": handle_get_scoreboard
-    },
-    "getTeams": {
-        "description": "Get ESPN teams for a league",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "sport": {"type": "string", "description": "Sport (e.g. 'baseball')"},
-                "league": {"type": "string", "description": "League (e.g. 'mlb')"}
-            },
-            "required": ["sport", "league"]
-        },
-        "handler": handle_get_teams
-    },
-    "getTeamRoster": {
-        "description": "Get ESPN team roster",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "sport": {"type": "string", "description": "Sport (e.g. 'baseball')"},
-                "league": {"type": "string", "description": "League (e.g. 'mlb')"},
-                "team_id": {"type": "string", "description": "Team ID"}
-            },
-            "required": ["sport", "league", "team_id"]
-        },
-        "handler": handle_get_team_roster
-    },
     "getSports": {
         "description": "Get available sports from Odds API",
         "parameters": {
@@ -683,22 +296,6 @@ TOOLS = {
             "required": ["sport", "event_id"]
         },
         "handler": handle_get_event_odds
-    },
-    "getPlayerStats": {
-        "description": "Get ESPN player statistics and game log",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "sport": {"type": "string", "description": "Sport (e.g. 'baseball')"},
-                "league": {"type": "string", "description": "League (e.g. 'mlb')"},
-                "player_id": {"type": "string", "description": "ESPN Player ID"},
-                "stat_type": {"type": "string", "description": "Type of stats (gamelog, season, career)", "optional": True},
-                "limit": {"type": "number", "description": "Number of recent games (default: 10)", "optional": True},
-                "debug": {"type": "boolean", "description": "Enable debug output", "optional": True}
-            },
-            "required": ["sport", "league", "player_id"]
-        },
-        "handler": handle_get_player_stats
     }
 }
 
@@ -711,8 +308,8 @@ async def handle_initialize(params: Dict[str, Any]) -> Dict[str, Any]:
             "tools": {}
         },
         "serverInfo": {
-            "name": "sports-ai-mcp-pure",
-            "version": "3.0.0"
+            "name": "sports-ai-mcp-odds-only",
+            "version": "4.0.0"
         }
     }
 
@@ -796,12 +393,10 @@ app = Starlette(routes=routes)
 @app.on_event("startup")
 async def startup():
     print("=" * 60)
-    print("🚀 Pure MCP Sports Server Starting - TIMEZONE + OPPONENT FIX v3 🚀")
-    print(f"📊 ESPN Tools: {len([t for t in TOOLS if t.startswith('get') and t not in ['getSports', 'getOdds', 'getQuotaInfo']])}")
-    print(f"💰 Odds Tools: {len([t for t in TOOLS if t in ['getSports', 'getOdds', 'getQuotaInfo']])}")
-    print(f"🔧 Total Tools: {len(TOOLS)}")
-    print("🌐 Server URL: http://0.0.0.0:8080/mcp")
-    print("🕐 Current time for debugging: Aug 12, 2025 7:54 PM ET")
+    print("Pure MCP Odds Server Starting - Odds Only v4.0")
+    print(f"Odds Tools: {len(TOOLS)}")
+    print(f"Total Tools: {len(TOOLS)}")
+    print("Server URL: http://0.0.0.0:8080/mcp")
     print("=" * 60)
     
     for tool_name in sorted(TOOLS.keys()):
