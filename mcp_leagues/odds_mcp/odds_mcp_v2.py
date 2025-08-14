@@ -131,7 +131,7 @@ async def handle_get_odds(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get odds for a specific sport"""
     sport = args.get("sport", "")
     use_test_mode = args.get("use_test_mode", False)
-    regions = args.get("regions", "us")
+    regions = args.get("regions")  # Don't default to "us", let API use account default
     markets = args.get("markets", "h2h")
     odds_format = args.get("odds_format", "american")
     
@@ -153,17 +153,41 @@ async def handle_get_odds(args: Dict[str, Any]) -> Dict[str, Any]:
     
     try:
         # Use the-odds package to get odds
-        odds_data = client.v4.get_odds(
-            sport=sport,
-            regions=regions,
-            markets=markets,
-            odds_format=odds_format
-        )
+        # Only include regions parameter if it was provided
+        kwargs = {
+            "sport": sport,
+            "markets": markets,
+            "odds_format": odds_format
+        }
+        if regions is not None:
+            kwargs["regions"] = regions
+            
+        odds_data = client.v4.get_odds(**kwargs)
         
+        # Check if the API returned an error
+        if isinstance(odds_data, dict) and "error_code" in odds_data:
+            # API returned an error, but the-odds package didn't throw exception
+            return {
+                "ok": True,  # Keep ok=True since the MCP call succeeded, but indicate API error in data
+                "content_md": f"## Odds for {sport}\n\nAPI Error: {odds_data.get('message', 'Unknown error')}",
+                "data": {"odds": odds_data, "total": 0},  # Set total to 0 for errors
+                "meta": {"source": "the_odds_package", "sport": sport, "test_mode": False, "timestamp": now_iso()}
+            }
+        
+        # Check if we got a list of games (successful response)
+        if isinstance(odds_data, list):
+            return {
+                "ok": True,
+                "content_md": f"## Odds for {sport}\n\nFound {len(odds_data)} games",
+                "data": {"odds": odds_data, "total": len(odds_data)},
+                "meta": {"source": "the_odds_package", "sport": sport, "test_mode": False, "timestamp": now_iso()}
+            }
+        
+        # Unknown response format
         return {
             "ok": True,
-            "content_md": f"## Odds for {sport}\n\nFound {len(odds_data)} games",
-            "data": {"odds": odds_data, "total": len(odds_data)},
+            "content_md": f"## Odds for {sport}\n\nUnexpected response format",
+            "data": {"odds": odds_data, "total": 0},
             "meta": {"source": "the_odds_package", "sport": sport, "test_mode": False, "timestamp": now_iso()}
         }
     except Exception as e:
