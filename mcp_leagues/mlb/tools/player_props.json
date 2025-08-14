@@ -1,0 +1,1008 @@
+{
+  "timestamp": "2025-08-14T16:09:23.179094",
+  "date": "2025-08-14",
+  "game": "Miami Marlins @ Cleveland Guardians",
+  "target_markets": [
+    "batter_home_runs",
+    "batter_hits",
+    "pitcher_strikeouts"
+  ],
+  "game_data": {
+    "event_id": "a3b6b094b903ef84efd4e8e1cad60fd3",
+    "home_team": "Cleveland Guardians",
+    "away_team": "Miami Marlins",
+    "commence_time": "2025-08-14T22:41:00Z",
+    "player_props": {
+      "batter_home_runs": [
+        {
+          "player": "Heriberto Hernandez",
+          "bookmaker": "BetMGM",
+          "over_price": 750,
+          "over_point": 0.5,
+          "under_price": -1200,
+          "under_point": 0.5
+        },
+        {
+          "player": "Otto Lopez",
+          "bookmaker": "BetMGM",
+          "over_price": 775,
+          "over_point": 0.5,
+          "under_price": -1400,
+          "under_point": 0.5
+        },
+        {
+          "player": "Steven Kwan",
+          "bookmaker": "BetMGM",
+          "over_price": 1050,
+          "over_point": 0.5,
+          "under_price": -2500,
+          "under_point": 0.5
+        },
+        {
+          "player": "Kyle Manzardo",
+          "bookmaker": "BetMGM",
+          "over_price": 475,
+          "over_point": 0.5,
+          "under_price": -650,
+          "under_point": 0.5
+        },
+        {
+          "player": "Brayan Rocchio",
+          "bookmaker": "BetMGM",
+          "over_price": 1550,
+          "over_point": 0.5,
+          "under_price": -10000,
+          "under_point": 0.5
+        },
+        {
+          "player": "Xavier Edwards",
+          "bookmaker": "BetMGM",
+          "over_price": 1300,
+          "over_point": 0.5,
+          "under_price": -3000,
+          "under_point": 0.5
+        },
+        {
+          "player": "Jose Ramirez",
+          "bookmaker": "BetMGM",
+          "over_price": 450,
+          "over_point": 0.5,
+          "under_price": -650,
+          "under_point": 0.5
+        },
+        {
+          "player": "Kyle Stowers",
+          "bookmaker": "BetMGM",
+          "over_price": 400,
+          "over_point": 0.5,
+          "under_price": -550,
+          "under_point": 0.5
+        },
+        {
+          "player": "Jakob Marsee",
+          "bookmaker": "BetMGM",
+          "over_price": 700,
+          "over_point": 0.5,
+          "under_price": -1100,
+          "under_point": 0.5
+        },
+        {
+          "player": "Gabriel Arias",
+          "bookmaker": "BetMGM",
+          "over_price": 800,
+          "over_point": 0.5,
+          "under_price": -1400,
+          "under_point": 0.5
+        },
+        {
+          "player": "Liam Hicks",
+          "bookmaker": "BetMGM",
+          "over_price": 1100,
+          "over_point": 0.5,
+          "under_price": -2500,
+          "under_point": 0.5
+        },
+        {
+          "player": "Graham Pauley",
+          "bookmaker": "BetMGM",
+          "over_price": 825,
+          "over_point": 0.5,
+          "under_price": -1400,
+          "under_point": 0.5
+        },
+        {
+          "player": "Agustín Ramírez",
+          "bookmaker": "BetMGM",
+          "over_price": 500,
+          "over_point": 0.5,
+          "under_price": -700,
+          "under_point": 0.5
+        },
+        {
+          "player": "C. J. Kayfus",
+          "bookmaker": "BetMGM",
+          "over_price": 700,
+          "over_point": 0.5,
+          "under_price": -1100,
+          "under_point": 0.5
+        },
+        {
+          "player": "David Fry",
+          "bookmaker": "BetMGM",
+          "over_price": 750,
+          "over_point": 0.5,
+          "under_price": -1200,
+          "under_point": 0.5
+        },
+        {
+          "player": "Austin Hedges",
+          "bookmaker": "BetMGM",
+          "over_price": 1500,
+          "over_point": 0.5,
+          "under_price": -5000,
+          "under_point": 0.5
+        },
+        {
+          "player": "Angel Martinez",
+          "bookmaker": "BetMGM",
+          "over_price": 700,
+          "over_point": 0.5,
+          "under_price": -1100,
+          "under_point": 0.5
+        }
+      ],
+      "batter_hits": [
+        {
+          "player": "Brayan Rocchio",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -127,
+          "over_point": 0.5,
+          "under_price": -102,
+          "under_point": 0.5
+        },
+        {
+          "player": "Bo Naylor",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -111,
+          "over_point": 0.5,
+          "under_price": -116,
+          "under_point": 0.5
+        },
+        {
+          "player": "Carlos Santana",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -120,
+          "over_point": 0.5,
+          "under_price": -108,
+          "under_point": 0.5
+        },
+        {
+          "player": "Steven Kwan",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -250,
+          "over_point": 0.5,
+          "under_price": 185,
+          "under_point": 0.5
+        },
+        {
+          "player": "Jose Ramirez",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -244,
+          "over_point": 0.5,
+          "under_price": 181,
+          "under_point": 0.5
+        },
+        {
+          "player": "Angel Martinez",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -196,
+          "over_point": 0.5,
+          "under_price": 150,
+          "under_point": 0.5
+        },
+        {
+          "player": "Gabriel Arias",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -152,
+          "over_point": 0.5,
+          "under_price": 116,
+          "under_point": 0.5
+        },
+        {
+          "player": "Xavier Edwards",
+          "bookmaker": "BetOnline.ag",
+          "over_price": 161,
+          "over_point": 1.5,
+          "under_price": -213,
+          "under_point": 1.5
+        },
+        {
+          "player": "Otto Lopez",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -244,
+          "over_point": 0.5,
+          "under_price": 183,
+          "under_point": 0.5
+        },
+        {
+          "player": "Kyle Stowers",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -196,
+          "over_point": 0.5,
+          "under_price": 148,
+          "under_point": 0.5
+        },
+        {
+          "player": "Kyle Manzardo",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -161,
+          "over_point": 0.5,
+          "under_price": 124,
+          "under_point": 0.5
+        },
+        {
+          "player": "Daniel Schneemann",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -152,
+          "over_point": 0.5,
+          "under_price": 116,
+          "under_point": 0.5
+        },
+        {
+          "player": "Heriberto Hernandez",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -149,
+          "over_point": 0.5,
+          "under_price": 115,
+          "under_point": 0.5
+        },
+        {
+          "player": "Troy Johnston",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -119,
+          "over_point": 0.5,
+          "under_price": -109,
+          "under_point": 0.5
+        },
+        {
+          "player": "Agustín Ramírez",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -244,
+          "over_point": 0.5,
+          "under_price": 182,
+          "under_point": 0.5
+        },
+        {
+          "player": "Liam Hicks",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -169,
+          "over_point": 0.5,
+          "under_price": 130,
+          "under_point": 0.5
+        },
+        {
+          "player": "Jakob Marsee",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -156,
+          "over_point": 0.5,
+          "under_price": 120,
+          "under_point": 0.5
+        },
+        {
+          "player": "Graham Pauley",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -112,
+          "over_point": 0.5,
+          "under_price": -115,
+          "under_point": 0.5
+        },
+        {
+          "player": "C. J. Kayfus",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -141,
+          "over_point": 0.5,
+          "under_price": 108,
+          "under_point": 0.5
+        },
+        {
+          "player": "Austin Hedges",
+          "bookmaker": "BetOnline.ag",
+          "over_price": 118,
+          "over_point": 0.5,
+          "under_price": -154,
+          "under_point": 0.5
+        },
+        {
+          "player": "David Fry",
+          "bookmaker": "BetOnline.ag",
+          "over_price": -133,
+          "over_point": 0.5,
+          "under_price": 103,
+          "under_point": 0.5
+        },
+        {
+          "player": "Xavier Edwards",
+          "bookmaker": "DraftKings",
+          "over_price": 150,
+          "over_point": 1.5,
+          "under_price": -205,
+          "under_point": 1.5
+        },
+        {
+          "player": "Steven Kwan",
+          "bookmaker": "DraftKings",
+          "over_price": -270,
+          "over_point": 0.5,
+          "under_price": 195,
+          "under_point": 0.5
+        },
+        {
+          "player": "Otto Lopez",
+          "bookmaker": "DraftKings",
+          "over_price": -255,
+          "over_point": 0.5,
+          "under_price": 185,
+          "under_point": 0.5
+        },
+        {
+          "player": "Jose Ramirez",
+          "bookmaker": "DraftKings",
+          "over_price": -250,
+          "over_point": 0.5,
+          "under_price": 185,
+          "under_point": 0.5
+        },
+        {
+          "player": "Agustín Ramírez",
+          "bookmaker": "DraftKings",
+          "over_price": -245,
+          "over_point": 0.5,
+          "under_price": 180,
+          "under_point": 0.5
+        },
+        {
+          "player": "Kyle Stowers",
+          "bookmaker": "DraftKings",
+          "over_price": -190,
+          "over_point": 0.5,
+          "under_price": 140,
+          "under_point": 0.5
+        },
+        {
+          "player": "Angel Martinez",
+          "bookmaker": "DraftKings",
+          "over_price": -185,
+          "over_point": 0.5,
+          "under_price": 135,
+          "under_point": 0.5
+        },
+        {
+          "player": "Liam Hicks",
+          "bookmaker": "DraftKings",
+          "over_price": -180,
+          "over_point": 0.5,
+          "under_price": 130,
+          "under_point": 0.5
+        },
+        {
+          "player": "Kyle Manzardo",
+          "bookmaker": "DraftKings",
+          "over_price": -170,
+          "over_point": 0.5,
+          "under_price": 125,
+          "under_point": 0.5
+        },
+        {
+          "player": "Gabriel Arias",
+          "bookmaker": "DraftKings",
+          "over_price": -160,
+          "over_point": 0.5,
+          "under_price": 120,
+          "under_point": 0.5
+        },
+        {
+          "player": "Heriberto Hernandez",
+          "bookmaker": "DraftKings",
+          "over_price": -160,
+          "over_point": 0.5,
+          "under_price": 120,
+          "under_point": 0.5
+        },
+        {
+          "player": "Jakob Marsee",
+          "bookmaker": "DraftKings",
+          "over_price": -160,
+          "over_point": 0.5,
+          "under_price": 115,
+          "under_point": 0.5
+        },
+        {
+          "player": "C. J. Kayfus",
+          "bookmaker": "DraftKings",
+          "over_price": -140,
+          "over_point": 0.5,
+          "under_price": 105,
+          "under_point": 0.5
+        },
+        {
+          "player": "Brayan Rocchio",
+          "bookmaker": "DraftKings",
+          "over_price": -130,
+          "over_point": 0.5,
+          "under_price": -105,
+          "under_point": 0.5
+        },
+        {
+          "player": "David Fry",
+          "bookmaker": "DraftKings",
+          "over_price": -125,
+          "over_point": 0.5,
+          "under_price": -105,
+          "under_point": 0.5
+        },
+        {
+          "player": "Troy Johnston",
+          "bookmaker": "DraftKings",
+          "over_price": -120,
+          "over_point": 0.5,
+          "under_price": -115,
+          "under_point": 0.5
+        },
+        {
+          "player": "Graham Pauley",
+          "bookmaker": "DraftKings",
+          "over_price": -110,
+          "over_point": 0.5,
+          "under_price": -120,
+          "under_point": 0.5
+        },
+        {
+          "player": "Austin Hedges",
+          "bookmaker": "DraftKings",
+          "over_price": 130,
+          "over_point": 0.5,
+          "under_price": -175,
+          "under_point": 0.5
+        },
+        {
+          "player": "Agustín Ramírez",
+          "bookmaker": "Bovada",
+          "over_price": -260,
+          "over_point": 0.5,
+          "under_price": 190,
+          "under_point": 0.5
+        },
+        {
+          "player": "Angel Martinez",
+          "bookmaker": "Bovada",
+          "over_price": -190,
+          "over_point": 0.5,
+          "under_price": 145,
+          "under_point": 0.5
+        },
+        {
+          "player": "Austin Hedges",
+          "bookmaker": "Bovada",
+          "over_price": 130,
+          "over_point": 0.5,
+          "under_price": -170,
+          "under_point": 0.5
+        },
+        {
+          "player": "Brayan Rocchio",
+          "bookmaker": "Bovada",
+          "over_price": -130,
+          "over_point": 0.5,
+          "under_price": 100,
+          "under_point": 0.5
+        },
+        {
+          "player": "C. J. Kayfus",
+          "bookmaker": "Bovada",
+          "over_price": -150,
+          "over_point": 0.5,
+          "under_price": 115,
+          "under_point": 0.5
+        },
+        {
+          "player": "David Fry",
+          "bookmaker": "Bovada",
+          "over_price": -130,
+          "over_point": 0.5,
+          "under_price": 100,
+          "under_point": 0.5
+        },
+        {
+          "player": "Gabriel Arias",
+          "bookmaker": "Bovada",
+          "over_price": -150,
+          "over_point": 0.5,
+          "under_price": 115,
+          "under_point": 0.5
+        },
+        {
+          "player": "Graham Pauley",
+          "bookmaker": "Bovada",
+          "over_price": -115,
+          "over_point": 0.5,
+          "under_price": -115,
+          "under_point": 0.5
+        },
+        {
+          "player": "Heriberto Hernandez",
+          "bookmaker": "Bovada",
+          "over_price": -150,
+          "over_point": 0.5,
+          "under_price": 115,
+          "under_point": 0.5
+        },
+        {
+          "player": "Jose Ramirez",
+          "bookmaker": "Bovada",
+          "over_price": -250,
+          "over_point": 0.5,
+          "under_price": 185,
+          "under_point": 0.5
+        },
+        {
+          "player": "Kyle Manzardo",
+          "bookmaker": "Bovada",
+          "over_price": -170,
+          "over_point": 0.5,
+          "under_price": 130,
+          "under_point": 0.5
+        },
+        {
+          "player": "Kyle Stowers",
+          "bookmaker": "Bovada",
+          "over_price": -200,
+          "over_point": 0.5,
+          "under_price": 150,
+          "under_point": 0.5
+        },
+        {
+          "player": "Liam Hicks",
+          "bookmaker": "Bovada",
+          "over_price": -160,
+          "over_point": 0.5,
+          "under_price": 120,
+          "under_point": 0.5
+        },
+        {
+          "player": "Otto Lopez",
+          "bookmaker": "Bovada",
+          "over_price": -260,
+          "over_point": 0.5,
+          "under_price": 190,
+          "under_point": 0.5
+        },
+        {
+          "player": "Steven Kwan",
+          "bookmaker": "Bovada",
+          "over_price": -260,
+          "over_point": 0.5,
+          "under_price": 190,
+          "under_point": 0.5
+        },
+        {
+          "player": "Xavier Edwards",
+          "bookmaker": "Bovada",
+          "over_price": 165,
+          "over_point": 1.5,
+          "under_price": -220,
+          "under_point": 1.5
+        },
+        {
+          "player": "Heriberto Hernandez",
+          "bookmaker": "BetMGM",
+          "over_price": -150,
+          "over_point": 0.5,
+          "under_price": 115,
+          "under_point": 0.5
+        },
+        {
+          "player": "Otto Lopez",
+          "bookmaker": "BetMGM",
+          "over_price": -250,
+          "over_point": 0.5,
+          "under_price": 185,
+          "under_point": 0.5
+        },
+        {
+          "player": "Steven Kwan",
+          "bookmaker": "BetMGM",
+          "over_price": -250,
+          "over_point": 0.5,
+          "under_price": 195,
+          "under_point": 0.5
+        },
+        {
+          "player": "Kyle Manzardo",
+          "bookmaker": "BetMGM",
+          "over_price": -165,
+          "over_point": 0.5,
+          "under_price": 125,
+          "under_point": 0.5
+        },
+        {
+          "player": "Brayan Rocchio",
+          "bookmaker": "BetMGM",
+          "over_price": -130,
+          "over_point": 0.5,
+          "under_price": 100,
+          "under_point": 0.5
+        },
+        {
+          "player": "Xavier Edwards",
+          "bookmaker": "BetMGM",
+          "over_price": 165,
+          "over_point": 1.5,
+          "under_price": -220,
+          "under_point": 1.5
+        },
+        {
+          "player": "Jose Ramirez",
+          "bookmaker": "BetMGM",
+          "over_price": -250,
+          "over_point": 0.5,
+          "under_price": 180,
+          "under_point": 0.5
+        },
+        {
+          "player": "Kyle Stowers",
+          "bookmaker": "BetMGM",
+          "over_price": -200,
+          "over_point": 0.5,
+          "under_price": 150,
+          "under_point": 0.5
+        },
+        {
+          "player": "Jakob Marsee",
+          "bookmaker": "BetMGM",
+          "over_price": -160,
+          "over_point": 0.5,
+          "under_price": 125,
+          "under_point": 0.5
+        },
+        {
+          "player": "Gabriel Arias",
+          "bookmaker": "BetMGM",
+          "over_price": -150,
+          "over_point": 0.5,
+          "under_price": 115,
+          "under_point": 0.5
+        },
+        {
+          "player": "Liam Hicks",
+          "bookmaker": "BetMGM",
+          "over_price": -160,
+          "over_point": 0.5,
+          "under_price": 120,
+          "under_point": 0.5
+        },
+        {
+          "player": "Graham Pauley",
+          "bookmaker": "BetMGM",
+          "over_price": -110,
+          "over_point": 0.5,
+          "under_price": -118,
+          "under_point": 0.5
+        },
+        {
+          "player": "Agustín Ramírez",
+          "bookmaker": "BetMGM",
+          "over_price": -250,
+          "over_point": 0.5,
+          "under_price": 190,
+          "under_point": 0.5
+        },
+        {
+          "player": "C. J. Kayfus",
+          "bookmaker": "BetMGM",
+          "over_price": -150,
+          "over_point": 0.5,
+          "under_price": 115,
+          "under_point": 0.5
+        },
+        {
+          "player": "David Fry",
+          "bookmaker": "BetMGM",
+          "over_price": -135,
+          "over_point": 0.5,
+          "under_price": 105,
+          "under_point": 0.5
+        },
+        {
+          "player": "Austin Hedges",
+          "bookmaker": "BetMGM",
+          "over_price": 130,
+          "over_point": 0.5,
+          "under_price": -165,
+          "under_point": 0.5
+        },
+        {
+          "player": "Angel Martinez",
+          "bookmaker": "BetMGM",
+          "over_price": -190,
+          "over_point": 0.5,
+          "under_price": 145,
+          "under_point": 0.5
+        },
+        {
+          "player": "Kyle Stowers",
+          "bookmaker": "Fanatics",
+          "over_price": -200,
+          "over_point": 0.5,
+          "under_price": 150,
+          "under_point": 0.5
+        },
+        {
+          "player": "Jose Ramirez",
+          "bookmaker": "Fanatics",
+          "over_price": -235,
+          "over_point": 0.5,
+          "under_price": 175,
+          "under_point": 0.5
+        },
+        {
+          "player": "Graham Pauley",
+          "bookmaker": "Fanatics",
+          "over_price": -105,
+          "over_point": 0.5,
+          "under_price": -125,
+          "under_point": 0.5
+        },
+        {
+          "player": "Brayan Rocchio",
+          "bookmaker": "Fanatics",
+          "over_price": -120,
+          "over_point": 0.5,
+          "under_price": -110,
+          "under_point": 0.5
+        },
+        {
+          "player": "Xavier Edwards",
+          "bookmaker": "Fanatics",
+          "over_price": 150,
+          "over_point": 1.5,
+          "under_price": -200,
+          "under_point": 1.5
+        },
+        {
+          "player": "Kyle Manzardo",
+          "bookmaker": "Fanatics",
+          "over_price": -165,
+          "over_point": 0.5,
+          "under_price": 125,
+          "under_point": 0.5
+        },
+        {
+          "player": "Angel Martinez",
+          "bookmaker": "Fanatics",
+          "over_price": -180,
+          "over_point": 0.5,
+          "under_price": 135,
+          "under_point": 0.5
+        },
+        {
+          "player": "C. J. Kayfus",
+          "bookmaker": "Fanatics",
+          "over_price": -145,
+          "over_point": 0.5,
+          "under_price": 110,
+          "under_point": 0.5
+        },
+        {
+          "player": "Liam Hicks",
+          "bookmaker": "Fanatics",
+          "over_price": -170,
+          "over_point": 0.5,
+          "under_price": 130,
+          "under_point": 0.5
+        },
+        {
+          "player": "Agustín Ramírez",
+          "bookmaker": "Fanatics",
+          "over_price": -245,
+          "over_point": 0.5,
+          "under_price": 180,
+          "under_point": 0.5
+        },
+        {
+          "player": "Troy Johnston",
+          "bookmaker": "Fanatics",
+          "over_price": -120,
+          "over_point": 0.5,
+          "under_price": -110,
+          "under_point": 0.5
+        },
+        {
+          "player": "Jakob Marsee",
+          "bookmaker": "Fanatics",
+          "over_price": -155,
+          "over_point": 0.5,
+          "under_price": 120,
+          "under_point": 0.5
+        },
+        {
+          "player": "Otto Lopez",
+          "bookmaker": "Fanatics",
+          "over_price": -250,
+          "over_point": 0.5,
+          "under_price": 185,
+          "under_point": 0.5
+        },
+        {
+          "player": "Gabriel Arias",
+          "bookmaker": "Fanatics",
+          "over_price": -145,
+          "over_point": 0.5,
+          "under_price": 110,
+          "under_point": 0.5
+        },
+        {
+          "player": "Steven Kwan",
+          "bookmaker": "Fanatics",
+          "over_price": -230,
+          "over_point": 0.5,
+          "under_price": 170,
+          "under_point": 0.5
+        },
+        {
+          "player": "Heriberto Hernandez",
+          "bookmaker": "Fanatics",
+          "over_price": -140,
+          "over_point": 0.5,
+          "under_price": 105,
+          "under_point": 0.5
+        },
+        {
+          "player": "Austin Hedges",
+          "bookmaker": "Fanatics",
+          "over_price": 130,
+          "over_point": 0.5,
+          "under_price": -170,
+          "under_point": 0.5
+        },
+        {
+          "player": "David Fry",
+          "bookmaker": "Fanatics",
+          "over_price": -130,
+          "over_point": 0.5,
+          "under_price": 100,
+          "under_point": 0.5
+        }
+      ],
+      "pitcher_strikeouts": [
+        {
+          "player": "Edward Cabrera",
+          "bookmaker": "FanDuel",
+          "over_price": 104,
+          "over_point": 5.5,
+          "under_price": -138,
+          "under_point": 5.5
+        },
+        {
+          "player": "Tanner Bibee",
+          "bookmaker": "FanDuel",
+          "over_price": 108,
+          "over_point": 5.5,
+          "under_price": -138,
+          "under_point": 5.5
+        },
+        {
+          "player": "Edward Cabrera",
+          "bookmaker": "MyBookie.ag",
+          "over_price": 101,
+          "over_point": 5.5,
+          "under_price": -140,
+          "under_point": 5.5
+        },
+        {
+          "player": "Tanner Bibee",
+          "bookmaker": "MyBookie.ag",
+          "over_price": 104,
+          "over_point": 5.5,
+          "under_price": -144,
+          "under_point": 5.5
+        },
+        {
+          "player": "Edward Cabrera",
+          "bookmaker": "BetOnline.ag",
+          "over_price": 106,
+          "over_point": 5.5,
+          "under_price": -137,
+          "under_point": 5.5
+        },
+        {
+          "player": "Tanner Bibee",
+          "bookmaker": "BetOnline.ag",
+          "over_price": 109,
+          "over_point": 5.5,
+          "under_price": -141,
+          "under_point": 5.5
+        },
+        {
+          "player": "Edward Cabrera",
+          "bookmaker": "DraftKings",
+          "over_price": -105,
+          "over_point": 5.5,
+          "under_price": -125,
+          "under_point": 5.5
+        },
+        {
+          "player": "Tanner Bibee",
+          "bookmaker": "DraftKings",
+          "over_price": 100,
+          "over_point": 5.5,
+          "under_price": -130,
+          "under_point": 5.5
+        },
+        {
+          "player": "Edward Cabrera",
+          "bookmaker": "Bovada",
+          "over_price": 105,
+          "over_point": 5.5,
+          "under_price": -135,
+          "under_point": 5.5
+        },
+        {
+          "player": "Tanner Bibee",
+          "bookmaker": "Bovada",
+          "over_price": 105,
+          "over_point": 5.5,
+          "under_price": -135,
+          "under_point": 5.5
+        },
+        {
+          "player": "Tanner Bibee",
+          "bookmaker": "BetMGM",
+          "over_price": 100,
+          "over_point": 5.5,
+          "under_price": -135,
+          "under_point": 5.5
+        },
+        {
+          "player": "Edward Cabrera",
+          "bookmaker": "BetMGM",
+          "over_price": 115,
+          "over_point": 5.5,
+          "under_price": -150,
+          "under_point": 5.5
+        },
+        {
+          "player": "Tanner Bibee",
+          "bookmaker": "Fanatics",
+          "over_price": 110,
+          "over_point": 5.5,
+          "under_price": -145,
+          "under_point": 5.5
+        },
+        {
+          "player": "Edward Cabrera",
+          "bookmaker": "Fanatics",
+          "over_price": 105,
+          "over_point": 5.5,
+          "under_price": -140,
+          "under_point": 5.5
+        },
+        {
+          "player": "Edward Cabrera",
+          "bookmaker": "BetRivers",
+          "over_price": -200,
+          "over_point": 4.5,
+          "under_price": 143,
+          "under_point": 4.5
+        },
+        {
+          "player": "Tanner Bibee",
+          "bookmaker": "BetRivers",
+          "over_price": -200,
+          "over_point": 4.5,
+          "under_price": 143,
+          "under_point": 4.5
+        }
+      ]
+    }
+  }
+}

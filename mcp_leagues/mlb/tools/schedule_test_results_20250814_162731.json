@@ -1,0 +1,282 @@
+{
+  "timestamp": "2025-08-14T16:27:31.193971",
+  "date": "2025-08-14",
+  "server_url": "https://mlbmcp-production.up.railway.app/mcp",
+  "tests": {
+    "default_today": {
+      "success": true,
+      "method": "default (no date argument)",
+      "raw_data": {
+        "ok": true,
+        "content_md": "## MLB Schedule for 2025-08-14 (ET)\n\nFound 7 games",
+        "data": {
+          "source": "mlb_stats_api",
+          "date_et": "2025-08-14",
+          "games": [
+            {
+              "gamePk": 776750,
+              "start_et": "2025-08-14T13:05:00-04:00",
+              "status": "Delayed",
+              "home": {
+                "teamId": 110,
+                "name": "Baltimore Orioles",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 136,
+                "name": "Seattle Mariners",
+                "abbrev": null
+              },
+              "venue": "Oriole Park at Camden Yards"
+            },
+            {
+              "gamePk": 776747,
+              "start_et": "2025-08-14T15:07:00-04:00",
+              "status": "In Progress",
+              "home": {
+                "teamId": 141,
+                "name": "Toronto Blue Jays",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 112,
+                "name": "Chicago Cubs",
+                "abbrev": null
+              },
+              "venue": "Rogers Centre"
+            },
+            {
+              "gamePk": 776745,
+              "start_et": "2025-08-14T18:40:00-04:00",
+              "status": "Pre-Game",
+              "home": {
+                "teamId": 114,
+                "name": "Cleveland Guardians",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 146,
+                "name": "Miami Marlins",
+                "abbrev": null
+              },
+              "venue": "Progressive Field"
+            },
+            {
+              "gamePk": 776743,
+              "start_et": "2025-08-14T18:45:00-04:00",
+              "status": "Pre-Game",
+              "home": {
+                "teamId": 120,
+                "name": "Washington Nationals",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 143,
+                "name": "Philadelphia Phillies",
+                "abbrev": null
+              },
+              "venue": "Nationals Park"
+            },
+            {
+              "gamePk": 776748,
+              "start_et": "2025-08-14T19:10:00-04:00",
+              "status": "Pre-Game",
+              "home": {
+                "teamId": 121,
+                "name": "New York Mets",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 144,
+                "name": "Atlanta Braves",
+                "abbrev": null
+              },
+              "venue": "Citi Field"
+            },
+            {
+              "gamePk": 776744,
+              "start_et": "2025-08-14T19:40:00-04:00",
+              "status": "Pre-Game",
+              "home": {
+                "teamId": 142,
+                "name": "Minnesota Twins",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 116,
+                "name": "Detroit Tigers",
+                "abbrev": null
+              },
+              "venue": "Target Field"
+            },
+            {
+              "gamePk": 776742,
+              "start_et": "2025-08-14T20:40:00-04:00",
+              "status": "Pre-Game",
+              "home": {
+                "teamId": 115,
+                "name": "Colorado Rockies",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 109,
+                "name": "Arizona Diamondbacks",
+                "abbrev": null
+              },
+              "venue": "Coors Field"
+            }
+          ],
+          "count": 7
+        },
+        "meta": {
+          "timestamp": "2025-08-14T20:27:30.787329+00:00"
+        }
+      }
+    },
+    "explicit_date": {
+      "success": true,
+      "method": "explicit date (2025-08-14)",
+      "date_requested": "2025-08-14",
+      "raw_data": {
+        "ok": true,
+        "content_md": "## MLB Schedule for 2025-08-14 (ET)\n\nFound 7 games",
+        "data": {
+          "source": "mlb_stats_api",
+          "date_et": "2025-08-14",
+          "games": [
+            {
+              "gamePk": 776750,
+              "start_et": "2025-08-14T13:05:00-04:00",
+              "status": "Delayed",
+              "home": {
+                "teamId": 110,
+                "name": "Baltimore Orioles",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 136,
+                "name": "Seattle Mariners",
+                "abbrev": null
+              },
+              "venue": "Oriole Park at Camden Yards"
+            },
+            {
+              "gamePk": 776747,
+              "start_et": "2025-08-14T15:07:00-04:00",
+              "status": "In Progress",
+              "home": {
+                "teamId": 141,
+                "name": "Toronto Blue Jays",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 112,
+                "name": "Chicago Cubs",
+                "abbrev": null
+              },
+              "venue": "Rogers Centre"
+            },
+            {
+              "gamePk": 776745,
+              "start_et": "2025-08-14T18:40:00-04:00",
+              "status": "Pre-Game",
+              "home": {
+                "teamId": 114,
+                "name": "Cleveland Guardians",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 146,
+                "name": "Miami Marlins",
+                "abbrev": null
+              },
+              "venue": "Progressive Field"
+            },
+            {
+              "gamePk": 776743,
+              "start_et": "2025-08-14T18:45:00-04:00",
+              "status": "Pre-Game",
+              "home": {
+                "teamId": 120,
+                "name": "Washington Nationals",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 143,
+                "name": "Philadelphia Phillies",
+                "abbrev": null
+              },
+              "venue": "Nationals Park"
+            },
+            {
+              "gamePk": 776748,
+              "start_et": "2025-08-14T19:10:00-04:00",
+              "status": "Pre-Game",
+              "home": {
+                "teamId": 121,
+                "name": "New York Mets",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 144,
+                "name": "Atlanta Braves",
+                "abbrev": null
+              },
+              "venue": "Citi Field"
+            },
+            {
+              "gamePk": 776744,
+              "start_et": "2025-08-14T19:40:00-04:00",
+              "status": "Pre-Game",
+              "home": {
+                "teamId": 142,
+                "name": "Minnesota Twins",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 116,
+                "name": "Detroit Tigers",
+                "abbrev": null
+              },
+              "venue": "Target Field"
+            },
+            {
+              "gamePk": 776742,
+              "start_et": "2025-08-14T20:40:00-04:00",
+              "status": "Pre-Game",
+              "home": {
+                "teamId": 115,
+                "name": "Colorado Rockies",
+                "abbrev": null
+              },
+              "away": {
+                "teamId": 109,
+                "name": "Arizona Diamondbacks",
+                "abbrev": null
+              },
+              "venue": "Coors Field"
+            }
+          ],
+          "count": 7
+        },
+        "meta": {
+          "timestamp": "2025-08-14T20:27:30.835870+00:00"
+        }
+      }
+    },
+    "comparison": {
+      "both_successful": true,
+      "game_counts_match": true,
+      "default_game_count": 7,
+      "explicit_game_count": 7,
+      "status": "PASS"
+    }
+  },
+  "summary": {
+    "status": "SUCCESS",
+    "date_tested": "2025-08-14",
+    "game_count": 7,
+    "total_tests": 3,
+    "successful_tests": 2
+  }
+}
