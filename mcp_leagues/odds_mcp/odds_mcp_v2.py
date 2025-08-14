@@ -19,27 +19,24 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette.routing import Route
 
-# Import the-odds package
-try:
-    from the_odds import OddsApiClient
-    ODDS_PACKAGE_AVAILABLE = True
-except ImportError:
-    ODDS_PACKAGE_AVAILABLE = False
-    print("Warning: 'the-odds' package not installed. Install with: pip install the-odds")
+# Use direct HTTP calls instead of the-odds package due to URL encoding bug
+import httpx
+ODDS_PACKAGE_AVAILABLE = True  # We'll use httpx for direct HTTP calls
 
 # Configuration
 ODDS_API_KEY = os.getenv("ODDS_API_KEY", "").strip()
 USER_AGENT = "sports-ai-odds-mcp-v2/1.0"
 
-# Initialize the odds client
-_odds_client: Optional[OddsApiClient] = None
+# Initialize HTTP client for direct API calls
+_http_client: Optional[httpx.AsyncClient] = None
+BASE_URL = "https://api.the-odds-api.com/v4"
 
-def get_odds_client() -> Optional[OddsApiClient]:
-    """Get the odds client instance"""
-    global _odds_client
-    if _odds_client is None and ODDS_PACKAGE_AVAILABLE and ODDS_API_KEY:
-        _odds_client = OddsApiClient(api_key=ODDS_API_KEY, debug=False)
-    return _odds_client
+async def get_http_client() -> httpx.AsyncClient:
+    """Get the HTTP client instance"""
+    global _http_client
+    if _http_client is None:
+        _http_client = httpx.AsyncClient(timeout=30.0)
+    return _http_client
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -104,23 +101,36 @@ async def handle_get_sports(args: Dict[str, Any]) -> Dict[str, Any]:
             "meta": {"source": "the_odds_mock", "test_mode": True, "timestamp": now_iso()}
         }
     
-    client = get_odds_client()
-    if not client:
+    if not ODDS_API_KEY:
         return {
-            "ok": False, 
-            "error": "Odds client not available. Check ODDS_API_KEY and 'the-odds' package installation."
+            "ok": False,
+            "error": "ODDS_API_KEY not configured"
         }
     
     try:
-        # Use the-odds package to get sports
-        sports_data = client.v4.get_sports(all=all_sports)
+        # Use direct HTTP calls instead of the-odds package
+        client = await get_http_client()
         
-        return {
-            "ok": True,
-            "content_md": f"## Available Sports\n\nFound {len(sports_data)} sports",
-            "data": {"sports": sports_data, "total": len(sports_data)},
-            "meta": {"source": "the_odds_package", "test_mode": False, "timestamp": now_iso()}
-        }
+        url = f"{BASE_URL}/sports"
+        params = {"apiKey": ODDS_API_KEY}
+        if all_sports:
+            params["all"] = "true"
+        
+        response = await client.get(url, params=params)
+        
+        if response.status_code == 200:
+            sports_data = response.json()
+            return {
+                "ok": True,
+                "content_md": f"## Available Sports\n\nFound {len(sports_data)} sports",
+                "data": {"sports": sports_data, "total": len(sports_data)},
+                "meta": {"source": "direct_http", "test_mode": False, "timestamp": now_iso()}
+            }
+        else:
+            return {
+                "ok": False,
+                "error": f"API returned {response.status_code}: {response.text}"
+            }
     except Exception as e:
         return {
             "ok": False,
@@ -131,7 +141,7 @@ async def handle_get_odds(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get odds for a specific sport"""
     sport = args.get("sport", "")
     use_test_mode = args.get("use_test_mode", False)
-    regions = args.get("regions", "us2")  # Default to "us2" (United States) since regions parameter is required
+    regions = args.get("regions", "us")  # Default to "us" now that we're using direct HTTP
     markets = args.get("markets", "h2h")
     odds_format = args.get("odds_format", "american")
     
@@ -144,48 +154,59 @@ async def handle_get_odds(args: Dict[str, Any]) -> Dict[str, Any]:
             "meta": {"source": "the_odds_mock", "sport": sport, "test_mode": True, "timestamp": now_iso()}
         }
     
-    client = get_odds_client()
-    if not client:
+    if not ODDS_API_KEY:
         return {
             "ok": False,
-            "error": "Odds client not available. Check ODDS_API_KEY and 'the-odds' package installation."
+            "error": "ODDS_API_KEY not configured"
         }
     
     try:
-        # Use the-odds package to get odds
-        odds_data = client.v4.get_odds(
-            sport=sport,
-            regions=regions,
-            markets=markets,
-            odds_format=odds_format
-        )
+        # Use direct HTTP calls instead of the-odds package (which has URL encoding bugs)
+        client = await get_http_client()
         
-        # Check if the API returned an error
-        if isinstance(odds_data, dict) and "error_code" in odds_data:
-            # API returned an error, but the-odds package didn't throw exception
-            return {
-                "ok": True,  # Keep ok=True since the MCP call succeeded, but indicate API error in data
-                "content_md": f"## Odds for {sport}\n\nAPI Error: {odds_data.get('message', 'Unknown error')}",
-                "data": {"odds": odds_data, "total": 0},  # Set total to 0 for errors
-                "meta": {"source": "the_odds_package", "sport": sport, "test_mode": False, "timestamp": now_iso()}
-            }
-        
-        # Check if we got a list of games (successful response)
-        if isinstance(odds_data, list):
-            return {
-                "ok": True,
-                "content_md": f"## Odds for {sport}\n\nFound {len(odds_data)} games",
-                "data": {"odds": odds_data, "total": len(odds_data)},
-                "meta": {"source": "the_odds_package", "sport": sport, "test_mode": False, "timestamp": now_iso()}
-            }
-        
-        # Unknown response format
-        return {
-            "ok": True,
-            "content_md": f"## Odds for {sport}\n\nUnexpected response format",
-            "data": {"odds": odds_data, "total": 0},
-            "meta": {"source": "the_odds_package", "sport": sport, "test_mode": False, "timestamp": now_iso()}
+        url = f"{BASE_URL}/sports/{sport}/odds"
+        params = {
+            "apiKey": ODDS_API_KEY,
+            "regions": regions,
+            "markets": markets,
+            "oddsFormat": odds_format
         }
+        
+        response = await client.get(url, params=params)
+        
+        if response.status_code == 200:
+            odds_data = response.json()
+            
+            # Direct HTTP returns a list of games on success
+            if isinstance(odds_data, list):
+                return {
+                    "ok": True,
+                    "content_md": f"## Odds for {sport}\n\nFound {len(odds_data)} games",
+                    "data": {"odds": odds_data, "total": len(odds_data)},
+                    "meta": {"source": "direct_http", "sport": sport, "test_mode": False, "timestamp": now_iso()}
+                }
+            else:
+                return {
+                    "ok": True,
+                    "content_md": f"## Odds for {sport}\n\nUnexpected response format",
+                    "data": {"odds": odds_data, "total": 0},
+                    "meta": {"source": "direct_http", "sport": sport, "test_mode": False, "timestamp": now_iso()}
+                }
+        else:
+            # Handle API errors
+            try:
+                error_data = response.json()
+                return {
+                    "ok": True,  # Keep ok=True since the MCP call succeeded, but indicate API error in data
+                    "content_md": f"## Odds for {sport}\n\nAPI Error: {error_data.get('message', 'Unknown error')}",
+                    "data": {"odds": error_data, "total": 0},
+                    "meta": {"source": "direct_http", "sport": sport, "test_mode": False, "timestamp": now_iso()}
+                }
+            except:
+                return {
+                    "ok": False,
+                    "error": f"API returned {response.status_code}: {response.text}"
+                }
     except Exception as e:
         return {
             "ok": False,
