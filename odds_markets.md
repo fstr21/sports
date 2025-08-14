@@ -10,6 +10,9 @@ player_points, player_rebounds, player_assists, player_threes
 
 mlb
 batter_home_runs, batter_hits, pitcher_strikeouts
+batter_home_runs	Batter home runs (Over/Under)
+batter_hits	Batter hits (Over/Under)
+pitcher_strikeouts	Pitcher strikeouts (Over/Under)
 
 nhl
 player_goals, player_assists, player_shots_on_goal, 
