@@ -382,8 +382,26 @@ async def handle_mcp_request(request: Request) -> Response:
         media_type="application/json"
     )
 
+# Health check handler for Railway
+async def handle_health_check(request: Request) -> Response:
+    """Health check endpoint for Railway deployment"""
+    return Response(
+        json.dumps({
+            "status": "ok",
+            "server": "odds-mcp",
+            "version": "4.0.0",
+            "timestamp": now_iso(),
+            "endpoints": {
+                "mcp": "/mcp (POST)",
+                "health": "/ (GET)"
+            }
+        }),
+        media_type="application/json"
+    )
+
 # Create Starlette app
 routes = [
+    Route("/", handle_health_check, methods=["GET"]),  # Health check for Railway
     Route("/mcp", handle_mcp_request, methods=["POST"]),
     Route("/mcp/", handle_mcp_request, methods=["POST"]),  # Handle trailing slash
 ]
