@@ -17,7 +17,7 @@ from datetime import datetime
 
 # API URLs
 MLB_MCP_URL = "https://mlbmcp-production.up.railway.app/mcp"
-ODDS_MCP_URL = "https://web-production-b939f.up.railway.app/mcp"
+ODDS_MCP_URL = "https://odds-mcp-v2-production.up.railway.app/mcp"  # Update this with your actual v2 URL
 
 def call_mlb_tool(name, args=None):
     """Call MLB MCP tool"""
@@ -165,10 +165,11 @@ def main():
     # Step 3: Get game odds (moneyline, spread, total)
     print(f"\nStep 3: Getting odds for this game...")
     
-    # Try to get odds - note: this may not work if odds aren't available
+    # Try to get odds - use test mode if live deployment is having issues
     odds_data = call_odds_tool("getOdds", {
         "sport": "baseball_mlb",
-        "markets": "h2h,spreads,totals"
+        "markets": "h2h,spreads,totals",
+        "use_test_mode": True  # Temporarily use test mode
     })
     
     if odds_data and odds_data.get("odds"):
