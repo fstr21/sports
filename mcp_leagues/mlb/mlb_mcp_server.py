@@ -253,24 +253,22 @@ async def handle_get_mlb_player_last_n(args: Dict[str, Any]) -> Dict[str, Any]:
             recent_splits = splits[-count:] if len(splits) > count else splits
             for s in recent_splits:
                 stat = s.get("stat", {}) or {}
-                official = (s.get("game") or {}).get("officialDate") or s.get("date")
                 game_iso = (s.get("game") or {}).get("gameDate")
+                official = (s.get("game") or {}).get("officialDate") or s.get("date")
+                
+                # Prioritize gameDate (has actual time) over officialDate (date only)
+                primary_time = game_iso if game_iso else official
+                if not primary_time:
+                    continue
                 
                 try:
-                    et_date_dt = to_et_from_api(official) if official else to_et_from_api(game_iso)
+                    et_datetime = to_et_from_api(primary_time)
                 except:
                     continue
                 
-                et_time_dt = None
-                if game_iso:
-                    try:
-                        et_time_dt = to_et_from_api(game_iso)
-                    except:
-                        et_time_dt = None
-                
                 row = {
-                    "et_datetime": (et_time_dt or et_date_dt).isoformat(),
-                    "date_et": et_date_dt.strftime("%Y-%m-%d"),
+                    "et_datetime": et_datetime.isoformat(),
+                    "date_et": et_datetime.strftime("%Y-%m-%d"),
                 }
                 
                 for k in stats_req:
