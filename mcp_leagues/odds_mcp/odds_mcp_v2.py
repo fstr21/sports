@@ -131,7 +131,7 @@ async def handle_get_odds(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get odds for a specific sport"""
     sport = args.get("sport", "")
     use_test_mode = args.get("use_test_mode", False)
-    regions = args.get("regions")  # Don't default to "us", let API use account default
+    regions = args.get("regions", "us2")  # Default to "us2" (United States) since regions parameter is required
     markets = args.get("markets", "h2h")
     odds_format = args.get("odds_format", "american")
     
@@ -153,16 +153,12 @@ async def handle_get_odds(args: Dict[str, Any]) -> Dict[str, Any]:
     
     try:
         # Use the-odds package to get odds
-        # Only include regions parameter if it was provided
-        kwargs = {
-            "sport": sport,
-            "markets": markets,
-            "odds_format": odds_format
-        }
-        if regions is not None:
-            kwargs["regions"] = regions
-            
-        odds_data = client.v4.get_odds(**kwargs)
+        odds_data = client.v4.get_odds(
+            sport=sport,
+            regions=regions,
+            markets=markets,
+            odds_format=odds_format
+        )
         
         # Check if the API returned an error
         if isinstance(odds_data, dict) and "error_code" in odds_data:
