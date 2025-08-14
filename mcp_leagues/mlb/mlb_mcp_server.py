@@ -456,62 +456,51 @@ async def handle_get_mlb_team_scoring_trends(args: Dict[str, Any]) -> Dict[str, 
     season = int(args.get("season") or now_et.year)
     count = int(args.get("count") or 10)
     
-    # For now, return basic team stats since full game-by-game analysis needs schedule endpoint
-    params = {"teamId": team_id, "season": season, "sportId": "1", "gameType": "R", "group": "hitting"}
-    resp = await mlb_api_get(f"teams/{team_id}/stats", params)
+    # Use simplified approach - get team standings for basic info
+    resp = await mlb_api_get(f"standings", {"leagueId": "103,104", "season": season})
     if not resp.get("ok"):
-        # If the stats endpoint fails, return a simplified response
-        return {
-            "ok": True,
-            "content_md": f"## Team Scoring Trends\n\nTeam {team_id} analysis",
-            "data": {
-                "source": "mlb_stats_api",
-                "team_id": team_id,
-                "season": season,
-                "trends": {
-                    "runs_per_game": "TBD",
-                    "home_runs_per_game": "TBD", 
-                    "batting_average": "TBD"
-                },
-                "note": "Full implementation requires game-by-game schedule data analysis"
-            },
-            "meta": {"timestamp": now_iso()}
-        }
+        return resp
     
-    # Extract basic team hitting stats
-    stats = resp["data"].get("stats", [])
-    team_stats = {}
-    if stats and len(stats) > 0:
-        stat_data = stats[0].get("splits", [])
-        if stat_data and len(stat_data) > 0:
-            hitting = stat_data[0].get("stat", {})
-            team_stats = {
-                "runs": hitting.get("runs", 0),
-                "hits": hitting.get("hits", 0),
-                "home_runs": hitting.get("homeRuns", 0),
-                "batting_avg": hitting.get("avg", ".000"),
-                "games_played": hitting.get("gamesPlayed", 0)
-            }
+    # Find the specific team in standings
+    standings = resp["data"]
+    team_record = None
     
-    # Calculate basic trends
-    games = team_stats.get("games_played", 1)
+    for league in standings.get("records", []):
+        for division in league.get("teamRecords", []):
+            if division.get("team", {}).get("id") == int(team_id):
+                team_record = division
+                break
+        if team_record:
+            break
+    
+    if not team_record:
+        return {"ok": False, "error": f"Team {team_id} not found in standings"}
+    
+    # Extract scoring trends from standings data
+    runs_scored = team_record.get("runsScored", 0)
+    runs_allowed = team_record.get("runsAllowed", 0)
+    games_played = team_record.get("gamesPlayed", 1)
+    
     trends = {
-        "runs_per_game": round(team_stats.get("runs", 0) / max(games, 1), 2),
-        "home_runs_per_game": round(team_stats.get("home_runs", 0) / max(games, 1), 2),
-        "hits_per_game": round(team_stats.get("hits", 0) / max(games, 1), 1),
-        "batting_average": team_stats.get("batting_avg", ".000")
+        "runs_per_game": round(runs_scored / max(games_played, 1), 2),
+        "runs_allowed_per_game": round(runs_allowed / max(games_played, 1), 2),
+        "run_differential": runs_scored - runs_allowed,
+        "run_differential_per_game": round((runs_scored - runs_allowed) / max(games_played, 1), 2),
+        "total_runs_scored": runs_scored,
+        "total_runs_allowed": runs_allowed,
+        "games_played": games_played
     }
     
     return {
         "ok": True,
-        "content_md": f"## Team Scoring Trends\n\nTeam {team_id} season averages",
+        "content_md": f"## Team Scoring Trends\n\nTeam {team_id} season scoring analysis",
         "data": {
             "source": "mlb_stats_api",
             "team_id": team_id,
             "season": season,
-            "season_stats": team_stats,
+            "team_name": team_record.get("team", {}).get("name", "Unknown"),
             "trends": trends,
-            "note": "Season averages shown; detailed game-by-game trends require schedule endpoint"
+            "note": "Season-long scoring averages from standings data"
         },
         "meta": {"timestamp": now_iso()}
     }
