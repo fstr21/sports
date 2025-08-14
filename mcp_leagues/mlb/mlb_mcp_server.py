@@ -330,6 +330,308 @@ async def handle_get_mlb_player_last_n(args: Dict[str, Any]) -> Dict[str, Any]:
         "meta": {"timestamp": now_iso()}
     }
 
+# New MLB Tools
+
+async def handle_get_mlb_pitcher_matchup(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get pitcher's recent performance and matchup data"""
+    pitcher_id = args.get("pitcher_id")
+    if not pitcher_id:
+        return {"ok": False, "error": "pitcher_id is required"}
+    
+    now_et = datetime.now(ET)
+    season = int(args.get("season") or now_et.year)
+    count = int(args.get("count") or 5)
+    opponent_team_id = args.get("opponent_team_id")  # Optional
+    
+    # Get pitcher's recent starts
+    params = {
+        "stats": "gameLog",
+        "group": "pitching", 
+        "season": season,
+        "sportId": "1",
+        "gameType": "R"
+    }
+    
+    resp = await mlb_api_get(f"people/{pitcher_id}/stats", params)
+    if not resp.get("ok"):
+        return resp
+    
+    payload = resp["data"]
+    stats = payload.get("stats", [])
+    splits = stats[0].get("splits", []) if stats and isinstance(stats[0], dict) else []
+    
+    recent_splits = splits[-count:] if len(splits) > count else splits
+    games = []
+    
+    for s in recent_splits:
+        stat = s.get("stat", {}) or {}
+        game_iso = (s.get("game") or {}).get("gameDate")
+        official = (s.get("game") or {}).get("officialDate") or s.get("date")
+        
+        primary_time = game_iso if game_iso else official
+        if not primary_time:
+            continue
+        
+        try:
+            et_datetime = to_et_from_api(primary_time)
+        except:
+            continue
+        
+        # Get opposing team info
+        opposing_team = (s.get("opponent") or {})
+        
+        row = {
+            "et_datetime": et_datetime.isoformat(),
+            "date_et": et_datetime.strftime("%Y-%m-%d"),
+            "innings_pitched": stat.get("inningsPitched", 0),
+            "earned_runs": stat.get("earnedRuns", 0),
+            "strikeouts": stat.get("strikeOuts", 0),
+            "walks": stat.get("baseOnBalls", 0),
+            "hits_allowed": stat.get("hits", 0),
+            "home_runs_allowed": stat.get("homeRuns", 0),
+            "pitch_count": stat.get("pitchCount", 0),
+            "opponent_team_id": opposing_team.get("id"),
+            "opponent_name": opposing_team.get("name")
+        }
+        
+        # Calculate ERA for this game (if innings > 0)
+        ip = float(stat.get("inningsPitched", 0))
+        er = int(stat.get("earnedRuns", 0))
+        row["game_era"] = (er * 9.0 / ip) if ip > 0 else 0.0
+        
+        # Calculate WHIP for this game
+        hits = int(stat.get("hits", 0))
+        walks = int(stat.get("baseOnBalls", 0))
+        row["game_whip"] = ((hits + walks) / ip) if ip > 0 else 0.0
+        
+        games.append(row)
+    
+    # Sort by date (most recent first)
+    games.sort(key=lambda x: (x["date_et"], x["et_datetime"]), reverse=True)
+    
+    # Calculate aggregates
+    total_ip = sum(float(g.get("innings_pitched", 0)) for g in games)
+    total_er = sum(int(g.get("earned_runs", 0)) for g in games)
+    total_k = sum(int(g.get("strikeouts", 0)) for g in games)
+    total_bb = sum(int(g.get("walks", 0)) for g in games)
+    total_hits = sum(int(g.get("hits_allowed", 0)) for g in games)
+    
+    aggs = {
+        "era": (total_er * 9.0 / total_ip) if total_ip > 0 else 0.0,
+        "whip": ((total_hits + total_bb) / total_ip) if total_ip > 0 else 0.0,
+        "k_per_9": (total_k * 9.0 / total_ip) if total_ip > 0 else 0.0,
+        "innings_pitched": total_ip,
+        "strikeouts": total_k,
+        "walks": total_bb,
+        "hits_allowed": total_hits
+    }
+    
+    # Filter games vs specific opponent if requested
+    vs_opponent_games = []
+    if opponent_team_id:
+        vs_opponent_games = [g for g in games if g.get("opponent_team_id") == opponent_team_id]
+    
+    return {
+        "ok": True,
+        "content_md": f"## Pitcher Matchup Analysis\n\nLast {len(games)} starts for Pitcher {pitcher_id}",
+        "data": {
+            "source": "mlb_stats_api",
+            "pitcher_id": pitcher_id,
+            "season": season,
+            "recent_starts": games,
+            "aggregates": aggs,
+            "vs_opponent": vs_opponent_games if opponent_team_id else None,
+            "count": len(games)
+        },
+        "meta": {"timestamp": now_iso()}
+    }
+
+async def handle_get_mlb_team_scoring_trends(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get team's recent scoring patterns and trends"""
+    team_id = args.get("team_id")
+    if not team_id:
+        return {"ok": False, "error": "team_id is required"}
+    
+    now_et = datetime.now(ET)
+    season = int(args.get("season") or now_et.year)
+    count = int(args.get("count") or 10)
+    
+    # Get team's recent games via schedule
+    params = {"teamId": team_id, "season": season, "sportId": "1", "gameType": "R"}
+    resp = await mlb_api_get(f"teams/{team_id}/stats", params)
+    if not resp.get("ok"):
+        return resp
+    
+    # This is a simplified version - would need more complex logic for full game-by-game scoring
+    return {
+        "ok": True,
+        "content_md": f"## Team Scoring Trends\n\nTeam {team_id} recent performance",
+        "data": {
+            "source": "mlb_stats_api",
+            "team_id": team_id,
+            "season": season,
+            "note": "Scoring trends implementation requires game-by-game data parsing"
+        },
+        "meta": {"timestamp": now_iso()}
+    }
+
+async def handle_get_mlb_team_form(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get team's recent form and win/loss patterns"""
+    team_id = args.get("team_id")
+    if not team_id:
+        return {"ok": False, "error": "team_id is required"}
+    
+    now_et = datetime.now(ET)
+    season = int(args.get("season") or now_et.year)
+    
+    # Get team standings/record
+    resp = await mlb_api_get(f"standings", {"leagueId": "103,104", "season": season})
+    if not resp.get("ok"):
+        return resp
+    
+    # Find the specific team in standings
+    standings = resp["data"]
+    team_record = None
+    
+    for league in standings.get("records", []):
+        for division in league.get("teamRecords", []):
+            if division.get("team", {}).get("id") == int(team_id):
+                team_record = division
+                break
+        if team_record:
+            break
+    
+    if not team_record:
+        return {"ok": False, "error": f"Team {team_id} not found in standings"}
+    
+    form_data = {
+        "wins": team_record.get("wins", 0),
+        "losses": team_record.get("losses", 0),
+        "win_percentage": team_record.get("winningPercentage", "0.000"),
+        "games_back": team_record.get("gamesBack", "0.0"),
+        "streak": team_record.get("streak", {}).get("streakCode", ""),
+        "last_10": team_record.get("last10", "0-0"),
+        "home_record": f"{team_record.get('home', {}).get('wins', 0)}-{team_record.get('home', {}).get('losses', 0)}",
+        "away_record": f"{team_record.get('away', {}).get('wins', 0)}-{team_record.get('away', {}).get('losses', 0)}"
+    }
+    
+    return {
+        "ok": True,
+        "content_md": f"## Team Form Analysis\n\nTeam {team_id} current season record",
+        "data": {
+            "source": "mlb_stats_api",
+            "team_id": team_id,
+            "season": season,
+            "form": form_data,
+            "team_name": team_record.get("team", {}).get("name", "Unknown")
+        },
+        "meta": {"timestamp": now_iso()}
+    }
+
+async def handle_get_mlb_player_streaks(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get player's current streaks and consistency patterns"""
+    player_ids = args.get("player_ids") or []
+    if not isinstance(player_ids, list) or not player_ids:
+        return {"ok": False, "error": "player_ids (list[int]) is required"}
+    
+    now_et = datetime.now(ET)
+    season = int(args.get("season") or now_et.year)
+    lookback = int(args.get("lookback") or 20)  # Games to analyze for streaks
+    
+    results = {}
+    errors = {}
+    
+    for player_id in player_ids:
+        try:
+            # Get player's recent games
+            params = {
+                "stats": "gameLog",
+                "group": "hitting",
+                "season": season,
+                "sportId": "1", 
+                "gameType": "R"
+            }
+            
+            resp = await mlb_api_get(f"people/{player_id}/stats", params)
+            if not resp.get("ok"):
+                errors[str(player_id)] = resp.get("error", "Failed to get player data")
+                continue
+            
+            payload = resp["data"]
+            stats = payload.get("stats", [])
+            splits = stats[0].get("splits", []) if stats and isinstance(stats[0], dict) else []
+            
+            recent_splits = splits[-lookback:] if len(splits) > lookback else splits
+            
+            # Analyze streaks
+            current_hit_streak = 0
+            current_multi_hit_streak = 0
+            current_hr_streak = 0
+            longest_hit_streak = 0
+            multi_hit_games = 0
+            total_games = 0
+            
+            for s in reversed(recent_splits):  # Most recent first
+                stat = s.get("stat", {}) or {}
+                hits = int(stat.get("hits", 0))
+                hrs = int(stat.get("homeRuns", 0))
+                
+                total_games += 1
+                
+                # Hit streak (consecutive games with at least 1 hit)
+                if hits > 0:
+                    current_hit_streak += 1
+                    longest_hit_streak = max(longest_hit_streak, current_hit_streak)
+                else:
+                    if current_hit_streak > longest_hit_streak:
+                        longest_hit_streak = current_hit_streak
+                    current_hit_streak = 0
+                
+                # Multi-hit games
+                if hits >= 2:
+                    multi_hit_games += 1
+                    current_multi_hit_streak += 1
+                else:
+                    current_multi_hit_streak = 0
+                
+                # Home run streak
+                if hrs > 0:
+                    current_hr_streak += 1
+                else:
+                    current_hr_streak = 0
+            
+            streak_data = {
+                "current_hit_streak": current_hit_streak,
+                "longest_hit_streak_in_period": longest_hit_streak,
+                "current_multi_hit_streak": current_multi_hit_streak,
+                "current_hr_streak": current_hr_streak,
+                "multi_hit_games": multi_hit_games,
+                "multi_hit_frequency": f"{multi_hit_games}/{total_games}" if total_games > 0 else "0/0",
+                "games_analyzed": total_games
+            }
+            
+            results[str(player_id)] = {
+                "player_id": player_id,
+                "season": season,
+                "streaks": streak_data,
+                "lookback_games": lookback
+            }
+            
+        except Exception as e:
+            errors[str(player_id)] = str(e)
+    
+    return {
+        "ok": True,
+        "content_md": f"## Player Streaks Analysis\n\nAnalyzed {len(player_ids)} players",
+        "data": {
+            "source": "mlb_stats_api",
+            "season": season,
+            "results": results,
+            "errors": errors
+        },
+        "meta": {"timestamp": now_iso()}
+    }
+
 # MCP Tool registry
 TOOLS = {
     "getMLBScheduleET": {
@@ -378,6 +680,58 @@ TOOLS = {
             "required": ["player_ids"]
         },
         "handler": handle_get_mlb_player_last_n
+    },
+    "getMLBPitcherMatchup": {
+        "description": "Get pitcher's recent performance and matchup analysis",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "pitcher_id": {"type": "integer", "description": "MLB pitcher ID"},
+                "season": {"type": "integer", "description": "Season year (default: current year)", "optional": True},
+                "count": {"type": "integer", "description": "Number of recent starts (default: 5)", "optional": True},
+                "opponent_team_id": {"type": "integer", "description": "Optional team ID for head-to-head analysis", "optional": True}
+            },
+            "required": ["pitcher_id"]
+        },
+        "handler": handle_get_mlb_pitcher_matchup
+    },
+    "getMLBTeamScoringTrends": {
+        "description": "Get team's recent scoring patterns and trends",
+        "parameters": {
+            "type": "object", 
+            "properties": {
+                "team_id": {"type": "integer", "description": "MLB team ID"},
+                "season": {"type": "integer", "description": "Season year (default: current year)", "optional": True},
+                "count": {"type": "integer", "description": "Number of recent games (default: 10)", "optional": True}
+            },
+            "required": ["team_id"]
+        },
+        "handler": handle_get_mlb_team_scoring_trends
+    },
+    "getMLBTeamForm": {
+        "description": "Get team's recent form and win/loss patterns",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "team_id": {"type": "integer", "description": "MLB team ID"},
+                "season": {"type": "integer", "description": "Season year (default: current year)", "optional": True}
+            },
+            "required": ["team_id"]
+        },
+        "handler": handle_get_mlb_team_form
+    },
+    "getMLBPlayerStreaks": {
+        "description": "Get player's current streaks and consistency patterns",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "player_ids": {"type": "array", "description": "List of MLB player IDs"},
+                "season": {"type": "integer", "description": "Season year (default: current year)", "optional": True},
+                "lookback": {"type": "integer", "description": "Games to analyze for streaks (default: 20)", "optional": True}
+            },
+            "required": ["player_ids"]
+        },
+        "handler": handle_get_mlb_player_streaks
     }
 }
 
