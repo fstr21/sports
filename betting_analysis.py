@@ -17,7 +17,7 @@ from datetime import datetime
 
 # API URLs
 MLB_MCP_URL = "https://mlbmcp-production.up.railway.app/mcp"
-ODDS_MCP_URL = "https://oddsmcp-production.up.railway.app/mcp"
+ODDS_MCP_URL = "https://web-production-b939f.up.railway.app/mcp"
 
 def call_mlb_tool(name, args=None):
     """Call MLB MCP tool"""
