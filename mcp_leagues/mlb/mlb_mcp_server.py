@@ -249,7 +249,9 @@ async def handle_get_mlb_player_last_n(args: Dict[str, Any]) -> Dict[str, Any]:
             splits = stats[0].get("splits", []) if stats and isinstance(stats[0], dict) else []
             
             games = []
-            for s in splits[:count]:  # Take last N games
+            # MLB API returns games chronologically (oldest first), so we need the LAST N games
+            recent_splits = splits[-count:] if len(splits) > count else splits
+            for s in recent_splits:
                 stat = s.get("stat", {}) or {}
                 official = (s.get("game") or {}).get("officialDate") or s.get("date")
                 game_iso = (s.get("game") or {}).get("gameDate")
@@ -281,6 +283,9 @@ async def handle_get_mlb_player_last_n(args: Dict[str, Any]) -> Dict[str, Any]:
                         row[k] = v
                 
                 games.append(row)
+            
+            # Sort games by date (most recent first)
+            games.sort(key=lambda x: (x["date_et"], x["et_datetime"]), reverse=True)
             
             # Calculate aggregates
             aggs = {}
