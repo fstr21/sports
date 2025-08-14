@@ -1,0 +1,493 @@
+#!/usr/bin/env python3
+"""
+MLB MCP Server for Sports AI
+
+A dedicated MCP implementation focused on MLB statistics and analytics.
+Uses MLB Stats API for comprehensive baseball data.
+"""
+
+import asyncio
+import json
+import os
+import sys
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
+from zoneinfo import ZoneInfo
+
+import httpx
+import uvicorn
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import Response
+from starlette.routing import Route
+
+# Configuration
+MLB_STATS_API_BASE = "https://statsapi.mlb.com/api/v1"
+USER_AGENT = "sports-ai-mlb-mcp/1.0"
+
+# Eastern Time zone for MLB games
+ET = ZoneInfo("America/New_York")
+
+# HTTP client
+_http_client: Optional[httpx.AsyncClient] = None
+
+async def get_http_client() -> httpx.AsyncClient:
+    global _http_client
+    if _http_client is None:
+        _http_client = httpx.AsyncClient(
+            timeout=20.0,
+            headers={"user-agent": USER_AGENT, "accept": "application/json"}
+        )
+    return _http_client
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+def to_et_from_api(iso_or_date: str) -> datetime:
+    """Convert API date/datetime to ET timezone"""
+    if not iso_or_date:
+        raise ValueError("empty datetime")
+    s = iso_or_date.strip()
+    
+    # Handle date-only format (YYYY-MM-DD)
+    if len(s) == 10 and s.count("-") == 2:
+        dt = datetime.fromisoformat(s)
+        return dt.replace(tzinfo=ET)
+    
+    # Handle ISO datetime
+    dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(ET)
+
+# MLB API functions
+async def mlb_api_get(endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Make MLB Stats API request"""
+    url = f"{MLB_STATS_API_BASE}/{endpoint}"
+    query_params = params or {}
+    
+    client = await get_http_client()
+    try:
+        r = await client.get(url, params=query_params)
+        if r.status_code >= 400:
+            return {"ok": False, "error": f"MLB API error {r.status_code}: {r.text[:200]}"}
+        return {"ok": True, "data": r.json()}
+    except Exception as e:
+        return {"ok": False, "error": f"MLB API request failed: {str(e)}"}
+
+# MLB Tool implementations
+
+async def handle_get_mlb_schedule_et(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get MLB games for a specific ET date"""
+    now_et = datetime.now(ET)
+    date_str = str(args.get("date") or now_et.strftime("%Y-%m-%d"))
+    
+    params = {"sportId": "1", "date": date_str}
+    resp = await mlb_api_get("schedule", params)
+    if not resp.get("ok"):
+        return resp
+    
+    payload = resp["data"]
+    dates = payload.get("dates") or []
+    
+    if not dates:
+        return {
+            "ok": True,
+            "content_md": f"## MLB Schedule for {date_str} (ET)\n\nNo games scheduled",
+            "data": {"source": "mlb_stats_api", "date_et": date_str, "games": [], "count": 0},
+            "meta": {"timestamp": now_iso()}
+        }
+    
+    games_out = []
+    for g in (dates[0].get("games") or []):
+        iso = g.get("gameDate") or g.get("officialDate")
+        dt_et = None
+        if iso:
+            try:
+                dt_et = to_et_from_api(iso)
+            except:
+                dt_et = None
+        
+        status = ((g.get("status") or {}).get("detailedState")
+                  or (g.get("status") or {}).get("abstractGameState"))
+        
+        home_team = (g.get("teams") or {}).get("home") or {}
+        away_team = (g.get("teams") or {}).get("away") or {}
+        
+        games_out.append({
+            "gamePk": g.get("gamePk"),
+            "start_et": dt_et.isoformat() if dt_et else None,
+            "status": status,
+            "home": {
+                "teamId": (home_team.get("team") or {}).get("id"),
+                "name": (home_team.get("team") or {}).get("name"),
+                "abbrev": (home_team.get("team") or {}).get("abbreviation"),
+            },
+            "away": {
+                "teamId": (away_team.get("team") or {}).get("id"),
+                "name": (away_team.get("team") or {}).get("name"),
+                "abbrev": (away_team.get("team") or {}).get("abbreviation"),
+            },
+            "venue": (g.get("venue") or {}).get("name"),
+        })
+    
+    games_out.sort(key=lambda x: x["start_et"] or "9999-12-31T00:00:00-04:00")
+    
+    return {
+        "ok": True,
+        "content_md": f"## MLB Schedule for {date_str} (ET)\n\nFound {len(games_out)} games",
+        "data": {"source": "mlb_stats_api", "date_et": date_str, "games": games_out, "count": len(games_out)},
+        "meta": {"timestamp": now_iso()}
+    }
+
+async def handle_get_mlb_teams(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get active MLB teams for a season"""
+    now_et = datetime.now(ET)
+    season = int(args.get("season") or now_et.year)
+    
+    params = {"sportId": "1", "season": season, "activeStatus": "Yes"}
+    resp = await mlb_api_get("teams", params)
+    if not resp.get("ok"):
+        return resp
+    
+    payload = resp["data"]
+    teams_raw = payload.get("teams") or []
+    
+    teams = []
+    for t in teams_raw:
+        if isinstance(t, dict):
+            teams.append({
+                "teamId": t.get("id"),
+                "name": t.get("name"),
+                "teamName": t.get("teamName"),
+                "abbrev": t.get("abbreviation"),
+                "locationName": t.get("locationName"),
+                "league": (t.get("league") or {}).get("name"),
+                "division": (t.get("division") or {}).get("name"),
+                "venue": (t.get("venue") or {}).get("name"),
+            })
+    
+    teams.sort(key=lambda x: x.get("abbrev") or "")
+    
+    return {
+        "ok": True,
+        "content_md": f"## MLB Teams ({season})\n\nFound {len(teams)} active teams",
+        "data": {"source": "mlb_stats_api", "season": season, "count": len(teams), "teams": teams},
+        "meta": {"timestamp": now_iso()}
+    }
+
+async def handle_get_mlb_team_roster(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get team roster for a specific team"""
+    team_id = args.get("teamId")
+    if not team_id:
+        return {"ok": False, "error": "teamId is required"}
+    
+    now_et = datetime.now(ET)
+    season = int(args.get("season") or now_et.year)
+    
+    params = {"season": season}
+    resp = await mlb_api_get(f"teams/{team_id}/roster", params)
+    if not resp.get("ok"):
+        return resp
+    
+    payload = resp["data"]
+    roster_raw = payload.get("roster") or []
+    
+    roster = []
+    for p in roster_raw:
+        person = p.get("person") or {}
+        position = p.get("position") or {}
+        roster.append({
+            "playerId": person.get("id"),
+            "fullName": person.get("fullName"),
+            "primaryNumber": p.get("jerseyNumber") or person.get("primaryNumber"),
+            "position": position.get("abbreviation"),
+            "status": (p.get("status") or {}).get("description"),
+        })
+    
+    return {
+        "ok": True,
+        "content_md": f"## Team Roster (Team {team_id}, {season})\n\nFound {len(roster)} players",
+        "data": {"source": "mlb_stats_api", "season": season, "teamId": team_id, "count": len(roster), "players": roster},
+        "meta": {"timestamp": now_iso()}
+    }
+
+async def handle_get_mlb_player_last_n(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get last N games for MLB players"""
+    player_ids = args.get("player_ids") or []
+    if not isinstance(player_ids, list) or not player_ids:
+        return {"ok": False, "error": "player_ids (list[int]) is required"}
+    
+    now_et = datetime.now(ET)
+    season = int(args.get("season") or now_et.year)
+    group = str(args.get("group") or "hitting").lower()
+    if group not in ("hitting", "pitching"):
+        return {"ok": False, "error": "group must be 'hitting' or 'pitching'"}
+    
+    stats_req = args.get("stats") or (["hits", "homeRuns"] if group == "hitting" else ["strikeOuts"])
+    count = int(args.get("count") or 5)
+    
+    # Process players concurrently
+    sem = asyncio.Semaphore(15)  # Rate limiting
+    results, errors = {}, {}
+    
+    async def fetch_player_stats(player_id: int):
+        async with sem:
+            params = {
+                "stats": "gameLog",
+                "group": group,
+                "season": season,
+                "sportId": "1",
+                "gameType": "R"
+            }
+            resp = await mlb_api_get(f"people/{player_id}/stats", params)
+            if not resp.get("ok"):
+                return {"error": resp.get("error", "Unknown error")}
+            
+            payload = resp["data"]
+            stats = payload.get("stats", [])
+            splits = stats[0].get("splits", []) if stats and isinstance(stats[0], dict) else []
+            
+            games = []
+            for s in splits[:count]:  # Take last N games
+                stat = s.get("stat", {}) or {}
+                official = (s.get("game") or {}).get("officialDate") or s.get("date")
+                game_iso = (s.get("game") or {}).get("gameDate")
+                
+                try:
+                    et_date_dt = to_et_from_api(official) if official else to_et_from_api(game_iso)
+                except:
+                    continue
+                
+                et_time_dt = None
+                if game_iso:
+                    try:
+                        et_time_dt = to_et_from_api(game_iso)
+                    except:
+                        et_time_dt = None
+                
+                row = {
+                    "et_datetime": (et_time_dt or et_date_dt).isoformat(),
+                    "date_et": et_date_dt.strftime("%Y-%m-%d"),
+                }
+                
+                for k in stats_req:
+                    v = stat.get(k)
+                    if isinstance(v, (int, float)):
+                        row[k] = v
+                    elif isinstance(v, str) and v.isdigit():
+                        row[k] = int(v)
+                    else:
+                        row[k] = v
+                
+                games.append(row)
+            
+            # Calculate aggregates
+            aggs = {}
+            for k in stats_req:
+                vals = [g.get(k) for g in games if isinstance(g.get(k), (int, float))]
+                aggs[f"{k}_avg"] = (sum(vals) / len(vals)) if vals else 0.0
+                aggs[f"{k}_sum"] = sum(vals) if vals else 0
+            
+            return {
+                "player_id": player_id,
+                "season": season,
+                "group": group,
+                "timezone": "America/New_York",
+                "games": games,
+                "aggregates": aggs,
+                "count": len(games),
+            }
+    
+    # Execute all player requests
+    async with httpx.AsyncClient(headers={"user-agent": USER_AGENT}) as client:
+        tasks = [fetch_player_stats(int(pid)) for pid in player_ids]
+        res_list = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    for pid, res in zip(player_ids, res_list):
+        if isinstance(res, Exception):
+            errors[str(pid)] = str(res)
+        elif isinstance(res, dict) and "error" in res:
+            errors[str(pid)] = res["error"]
+        else:
+            results[str(pid)] = res
+    
+    return {
+        "ok": True,
+        "content_md": f"## Player Stats (Last {count} Games)\n\nProcessed {len(player_ids)} players",
+        "data": {
+            "source": "mlb_stats_api",
+            "timezone": "America/New_York",
+            "season": season,
+            "group": group,
+            "requested_stats": stats_req,
+            "results": results,
+            "errors": errors
+        },
+        "meta": {"timestamp": now_iso()}
+    }
+
+# MCP Tool registry
+TOOLS = {
+    "getMLBScheduleET": {
+        "description": "Get MLB games for a specific ET date",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "date": {"type": "string", "description": "Date in YYYY-MM-DD format (ET timezone)", "optional": True}
+            }
+        },
+        "handler": handle_get_mlb_schedule_et
+    },
+    "getMLBTeams": {
+        "description": "Get active MLB teams for a season",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "season": {"type": "integer", "description": "Season year (default: current year)", "optional": True}
+            }
+        },
+        "handler": handle_get_mlb_teams
+    },
+    "getMLBTeamRoster": {
+        "description": "Get team roster for a specific team",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "teamId": {"type": "integer", "description": "MLB team ID"},
+                "season": {"type": "integer", "description": "Season year (default: current year)", "optional": True}
+            },
+            "required": ["teamId"]
+        },
+        "handler": handle_get_mlb_team_roster
+    },
+    "getMLBPlayerLastN": {
+        "description": "Get last N games stats for MLB players",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "player_ids": {"type": "array", "description": "List of MLB player IDs"},
+                "season": {"type": "integer", "description": "Season year (default: current year)", "optional": True},
+                "group": {"type": "string", "description": "Stats group: 'hitting' or 'pitching'", "optional": True},
+                "stats": {"type": "array", "description": "List of stat names to retrieve", "optional": True},
+                "count": {"type": "integer", "description": "Number of recent games (default: 5)", "optional": True}
+            },
+            "required": ["player_ids"]
+        },
+        "handler": handle_get_mlb_player_last_n
+    }
+}
+
+# MCP Protocol handlers
+async def handle_initialize(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Handle MCP initialize"""
+    return {
+        "protocolVersion": "2024-11-05",
+        "capabilities": {
+            "tools": {}
+        },
+        "serverInfo": {
+            "name": "mlb-mcp",
+            "version": "1.0.0"
+        }
+    }
+
+async def handle_tools_list(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Handle tools/list"""
+    tools_list = []
+    for name, tool_info in TOOLS.items():
+        tools_list.append({
+            "name": name,
+            "description": tool_info["description"],
+            "inputSchema": tool_info["parameters"]
+        })
+    
+    return {"tools": tools_list}
+
+async def handle_tools_call(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Handle tools/call"""
+    name = params.get("name", "")
+    arguments = params.get("arguments", {})
+    
+    if name not in TOOLS:
+        return {"error": {"code": -32602, "message": f"Unknown tool: {name}"}}
+    
+    try:
+        handler = TOOLS[name]["handler"]
+        result = await handler(arguments)
+        return result
+    except Exception as e:
+        return {"error": {"code": -32603, "message": f"Tool execution failed: {str(e)}"}}
+
+# HTTP handlers
+async def handle_mcp_request(request: Request) -> Response:
+    """Handle MCP requests"""
+    try:
+        body = await request.json()
+    except:
+        return Response(
+            json.dumps({"jsonrpc": "2.0", "error": {"code": -32700, "message": "Parse error"}}),
+            status_code=400,
+            media_type="application/json"
+        )
+    
+    method = body.get("method", "")
+    params = body.get("params", {})
+    request_id = body.get("id", "1")
+    
+    # Handle different MCP methods
+    if method == "initialize":
+        result = await handle_initialize(params)
+    elif method == "tools/list":
+        result = await handle_tools_list(params)
+    elif method == "tools/call":
+        result = await handle_tools_call(params)
+    else:
+        result = {"error": {"code": -32601, "message": f"Method not found: {method}"}}
+    
+    # Create response
+    response_data = {
+        "jsonrpc": "2.0",
+        "id": request_id
+    }
+    
+    if "error" in result:
+        response_data["error"] = result["error"]
+    else:
+        response_data["result"] = result
+    
+    return Response(
+        json.dumps(response_data, ensure_ascii=False),
+        media_type="application/json"
+    )
+
+# Create Starlette app
+routes = [
+    Route("/mcp", handle_mcp_request, methods=["POST"]),
+    Route("/mcp/", handle_mcp_request, methods=["POST"]),
+]
+
+app = Starlette(routes=routes)
+
+@app.on_event("startup")
+async def startup():
+    print("=" * 60)
+    print("MLB MCP Server Starting - v1.0")
+    print(f"MLB Tools: {len(TOOLS)}")
+    print(f"Total Tools: {len(TOOLS)}")
+    print("Server URL: http://0.0.0.0:8080/mcp")
+    print("=" * 60)
+    
+    for tool_name in sorted(TOOLS.keys()):
+        print(f"Registered tool: {tool_name}")
+    print("=" * 60)
+
+@app.on_event("shutdown")
+async def shutdown():
+    global _http_client
+    if _http_client:
+        await _http_client.aclose()
+
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 8080))
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
