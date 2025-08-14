@@ -251,7 +251,7 @@ async def handle_get_quota_info(args: Dict[str, Any]) -> Dict[str, Any]:
         }
 
 async def handle_get_event_odds(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Get odds for a specific event"""
+    """Get odds for a specific event using direct HTTP calls"""
     sport = args.get("sport", "")
     event_id = args.get("event_id", "")
     use_test_mode = args.get("use_test_mode", False)
@@ -273,7 +273,7 @@ async def handle_get_event_odds(args: Dict[str, Any]) -> Dict[str, Any]:
                 "key": "fanduel",
                 "title": "FanDuel",
                 "markets": [{
-                    "key": "batter_home_runs",
+                    "key": "batter_hits",
                     "outcomes": [
                         {"name": "Over", "description": "Test Player", "price": -110, "point": 0.5},
                         {"name": "Under", "description": "Test Player", "price": -110, "point": 0.5}
@@ -288,24 +288,119 @@ async def handle_get_event_odds(args: Dict[str, Any]) -> Dict[str, Any]:
             "meta": {"source": "the_odds_mock", "event_id": event_id, "test_mode": True, "timestamp": now_iso()}
         }
     
-    client = get_odds_client()
-    if not client:
+    if not ODDS_API_KEY:
         return {
             "ok": False,
-            "error": "Odds client not available. Check ODDS_API_KEY and 'the-odds' package installation."
+            "error": "ODDS_API_KEY not configured"
         }
     
     try:
-        # Note: the-odds package may not have event-specific endpoint
-        # This is a placeholder implementation
-        return {
-            "ok": False,
-            "error": "Event-specific odds not yet implemented in the-odds package"
+        # Use direct HTTP calls to event-specific endpoint
+        client = await get_http_client()
+        
+        url = f"{BASE_URL}/sports/{sport}/events/{event_id}/odds"
+        params = {
+            "apiKey": ODDS_API_KEY,
+            "regions": regions,
+            "markets": markets,
+            "oddsFormat": odds_format
         }
+        
+        response = await client.get(url, params=params)
+        
+        if response.status_code == 200:
+            event_data = response.json()
+            
+            return {
+                "ok": True,
+                "content_md": f"## Event Odds for {event_id}\n\nEvent-specific odds data",
+                "data": {"event": event_data},
+                "meta": {"source": "direct_http", "event_id": event_id, "test_mode": False, "timestamp": now_iso()}
+            }
+        else:
+            # Handle API errors
+            try:
+                error_data = response.json()
+                return {
+                    "ok": True,  # Keep ok=True since the MCP call succeeded, but indicate API error in data
+                    "content_md": f"## Event Odds for {event_id}\n\nAPI Error: {error_data.get('message', 'Unknown error')}",
+                    "data": {"event": error_data, "total": 0},
+                    "meta": {"source": "direct_http", "event_id": event_id, "test_mode": False, "timestamp": now_iso()}
+                }
+            except:
+                return {
+                    "ok": False,
+                    "error": f"API returned {response.status_code}: {response.text}"
+                }
     except Exception as e:
         return {
             "ok": False,
             "error": f"Failed to get event odds: {str(e)}"
+        }
+
+async def handle_get_events(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get upcoming events for a specific sport"""
+    sport = args.get("sport", "")
+    use_test_mode = args.get("use_test_mode", False)
+    
+    if use_test_mode:
+        events_data = [{
+            "id": "mock_event_1",
+            "sport_key": sport,
+            "commence_time": "2025-08-14T23:40:00Z",
+            "home_team": "Test Home Team",
+            "away_team": "Test Away Team"
+        }]
+        return {
+            "ok": True,
+            "content_md": f"## Events for {sport} (Test Mode)\n\nFound {len(events_data)} events",
+            "data": {"events": events_data, "total": len(events_data)},
+            "meta": {"source": "the_odds_mock", "sport": sport, "test_mode": True, "timestamp": now_iso()}
+        }
+    
+    if not ODDS_API_KEY:
+        return {
+            "ok": False,
+            "error": "ODDS_API_KEY not configured"
+        }
+    
+    try:
+        # Use direct HTTP calls to get events
+        client = await get_http_client()
+        
+        url = f"{BASE_URL}/sports/{sport}/events"
+        params = {"apiKey": ODDS_API_KEY}
+        
+        response = await client.get(url, params=params)
+        
+        if response.status_code == 200:
+            events_data = response.json()
+            
+            return {
+                "ok": True,
+                "content_md": f"## Events for {sport}\n\nFound {len(events_data)} upcoming events",
+                "data": {"events": events_data, "total": len(events_data)},
+                "meta": {"source": "direct_http", "sport": sport, "test_mode": False, "timestamp": now_iso()}
+            }
+        else:
+            # Handle API errors
+            try:
+                error_data = response.json()
+                return {
+                    "ok": True,  # Keep ok=True since the MCP call succeeded, but indicate API error in data
+                    "content_md": f"## Events for {sport}\n\nAPI Error: {error_data.get('message', 'Unknown error')}",
+                    "data": {"events": error_data, "total": 0},
+                    "meta": {"source": "direct_http", "sport": sport, "test_mode": False, "timestamp": now_iso()}
+                }
+            except:
+                return {
+                    "ok": False,
+                    "error": f"API returned {response.status_code}: {response.text}"
+                }
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": f"Failed to get events for {sport}: {str(e)}"
         }
 
 # MCP Tool registry
@@ -361,6 +456,18 @@ TOOLS = {
             "required": ["sport", "event_id"]
         },
         "handler": handle_get_event_odds
+    },
+    "getEvents": {
+        "description": "Get upcoming events for a specific sport",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "sport": {"type": "string", "description": "Sport key (e.g. 'baseball_mlb')"},
+                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+            },
+            "required": ["sport"]
+        },
+        "handler": handle_get_events
     }
 }
 
