@@ -16,8 +16,8 @@ class SoccerStandingsTester:
     """Test Soccer MCP standings functionality"""
     
     def __init__(self):
-        # Update this URL when your Soccer MCP is deployed
-        self.server_url = "https://your-soccer-mcp.up.railway.app/mcp"  # TODO: Update with actual URL
+        # Soccer MCP deployed on Railway
+        self.server_url = "https://soccermcp-production.up.railway.app/mcp"
         self.client = httpx.AsyncClient(timeout=30.0)
         
         # Target leagues
