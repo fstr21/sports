@@ -1,3 +1,19 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://glama.ai/mcp/servers/@v-3/discordmcp
+
+
 # Discord Integration Strategy for Sports Betting Platform
 
 ## Overview
