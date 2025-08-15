@@ -63,3 +63,10 @@ mcp_leagues/chat/package-lock.json
 mcp_leagues/chat/tsconfig.json
 mcp_leagues/chat/src/
 mcp_leagues/chat/build/
+
+# Screenshots and images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
