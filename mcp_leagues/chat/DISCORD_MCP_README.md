@@ -118,3 +118,5 @@ Once deployed, you can:
 ---
 
 *Ready for Railway deployment as part of the sports betting analytics platform ecosystem.*
+
+<!-- Trigger Railway redeploy -->
