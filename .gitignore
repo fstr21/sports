@@ -1,4 +1,4 @@
-# Python
+Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -21,6 +21,7 @@ wheels/
 *.egg
 
 # Environment variables
+.env
 .env.local
 .env.production
 
@@ -50,3 +51,22 @@ setup_http_server.py
 
 # Claude Code configuration (user-specific)
 .claude/
+
+# Ignore problematic nested git repos
+mcp_leagues/chat/chat_mcp/
+mcp_leagues/chat/discordmcp/
+
+# Ignore Node.js files in Discord MCP (Python-only deployment)
+mcp_leagues/chat/node_modules/
+mcp_leagues/chat/package.json
+mcp_leagues/chat/package-lock.json
+mcp_leagues/chat/tsconfig.json
+mcp_leagues/chat/src/
+mcp_leagues/chat/build/
+
+# Screenshots and images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
