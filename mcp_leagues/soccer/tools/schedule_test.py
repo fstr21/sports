@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test #2: Soccer MCP - Get League Matches
+Test #2: Soccer MCP - Get League Schedule/Fixtures
 Tests the getCompetitionMatches tool for EPL and La Liga fixtures
 Exports results to JSON file for analysis
 """
@@ -12,12 +12,12 @@ import os
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
-class SoccerMatchesTester:
-    """Test Soccer MCP matches functionality"""
+class SoccerScheduleTester:
+    """Test Soccer MCP schedule/fixtures functionality"""
     
     def __init__(self):
-        # Update this URL when your Soccer MCP is deployed
-        self.server_url = "https://your-soccer-mcp.up.railway.app/mcp"  # TODO: Update with actual URL
+        # Soccer MCP deployed on Railway
+        self.server_url = "https://soccermcp-production.up.railway.app/mcp"
         self.client = httpx.AsyncClient(timeout=30.0)
         
         # Target leagues
@@ -74,7 +74,7 @@ class SoccerMatchesTester:
     async def test_league_matches(self):
         """Test getting matches for EPL and La Liga"""
         print("=" * 60)
-        print("TEST #2: Soccer MCP - League Matches")
+        print("TEST #2: Soccer MCP - League Schedule/Fixtures")
         print("=" * 60)
         print("Target: Current and upcoming fixtures for EPL and La Liga")
         
@@ -373,7 +373,7 @@ class SoccerMatchesTester:
         os.makedirs(output_dir, exist_ok=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"matches_test_results_{timestamp}.json"
+        filename = f"schedule_test_results_{timestamp}.json"
         filepath = os.path.join(output_dir, filename)
         
         try:
@@ -418,9 +418,9 @@ class SoccerMatchesTester:
 
 async def main():
     """Run the matches test"""
-    tester = SoccerMatchesTester()
+    tester = SoccerScheduleTester()
     
-    print("Soccer MCP - Matches Test")
+    print("Soccer MCP - Schedule Test")
     print("Testing EPL and La Liga fixtures")
     print("NOTE: Update server_url in script with your deployed Soccer MCP URL")
     

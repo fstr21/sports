@@ -1,0 +1,69 @@
+{
+  "timestamp": "2025-08-14T20:40:20.206118",
+  "date": "2025-08-14",
+  "server_url": "https://your-soccer-mcp.up.railway.app/mcp",
+  "leagues_tested": {
+    "EPL": {
+      "id": "PL",
+      "name": "Premier League"
+    },
+    "La_Liga": {
+      "id": "PD",
+      "name": "Primera División"
+    }
+  },
+  "tests": {
+    "mock_epl": {
+      "success": false,
+      "league": "Premier League",
+      "error": "No data returned"
+    },
+    "mock_la_liga": {
+      "success": false,
+      "league": "Primera División",
+      "error": "No data returned"
+    },
+    "current_epl": {
+      "success": false,
+      "league": "Premier League",
+      "error": "No data returned"
+    },
+    "current_la_liga": {
+      "success": false,
+      "league": "Primera División",
+      "error": "No data returned"
+    },
+    "weekly_epl": {
+      "success": false,
+      "league": "Premier League",
+      "error": "No data returned"
+    },
+    "weekly_la_liga": {
+      "success": false,
+      "league": "Primera División",
+      "error": "No data returned"
+    },
+    "matchday_epl": {
+      "success": false,
+      "league": "Premier League",
+      "error": "No data returned"
+    },
+    "matchday_la_liga": {
+      "success": false,
+      "league": "Primera División",
+      "error": "No data returned"
+    }
+  },
+  "match_data": {},
+  "summary": {
+    "status": "FAILED",
+    "leagues_working": [],
+    "leagues_failed": [
+      "Premier League",
+      "Primera División"
+    ],
+    "total_tests": 8,
+    "successful_tests": 0,
+    "match_counts": {}
+  }
+}
