@@ -1,0 +1,202 @@
+[
+    {
+        "id": "4683021",
+        "name": "Deni Avdija",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "24",
+        "height": "6' 9\"",
+        "weight_lbs": "240 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4397885",
+        "name": "Dalano Banton",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 8\"",
+        "weight_lbs": "203 lbs",
+        "college": "Nebraska"
+    },
+    {
+        "id": "4431736",
+        "name": "Toumani Camara",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 7\"",
+        "weight_lbs": "229 lbs",
+        "college": "Dayton"
+    },
+    {
+        "id": "4702743",
+        "name": "Andrew Carr",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 11\"",
+        "weight_lbs": "235 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "5081727",
+        "name": "Sidy Cissoko",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 6\"",
+        "weight_lbs": "200 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5105565",
+        "name": "Donovan Clingan",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "21",
+        "height": "7' 2\"",
+        "weight_lbs": "280 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "2991070",
+        "name": "Jerami Grant",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "31",
+        "height": "6' 7\"",
+        "weight_lbs": "210 lbs",
+        "college": "Syracuse"
+    },
+    {
+        "id": "5217746",
+        "name": "Yang Hansen",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "20",
+        "height": "7' 1\"",
+        "weight_lbs": "260 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4683678",
+        "name": "Scoot Henderson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 3\"",
+        "weight_lbs": "206 lbs",
+        "college": "--"
+    },
+    {
+        "id": "3995",
+        "name": "Jrue Holiday",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "35",
+        "height": "6' 4\"",
+        "weight_lbs": "205 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "6606",
+        "name": "Damian Lillard",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "35",
+        "height": "6' 2\"",
+        "weight_lbs": "195 lbs",
+        "college": "Weber State"
+    },
+    {
+        "id": "4433144",
+        "name": "Caleb Love",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 4\"",
+        "weight_lbs": "205 lbs",
+        "college": "Arizona"
+    },
+    {
+        "id": "4576086",
+        "name": "Bryce McGowens",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 6\"",
+        "weight_lbs": "190 lbs",
+        "college": "Nebraska"
+    },
+    {
+        "id": "4278111",
+        "name": "Justin Minaya",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "26",
+        "height": "6' 5\"",
+        "weight_lbs": "205 lbs",
+        "college": "Providence"
+    },
+    {
+        "id": "4594326",
+        "name": "Kris Murray",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 8\"",
+        "weight_lbs": "216 lbs",
+        "college": "Iowa"
+    },
+    {
+        "id": "4066268",
+        "name": "Duop Reath",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "29",
+        "height": "6' 9\"",
+        "weight_lbs": "245 lbs",
+        "college": "LSU"
+    },
+    {
+        "id": "5099752",
+        "name": "Rayan Rupert",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 6\"",
+        "weight_lbs": "195 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4914336",
+        "name": "Shaedon Sharpe",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "22",
+        "height": "6' 5\"",
+        "weight_lbs": "208 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "3907498",
+        "name": "Matisse Thybulle",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 5\"",
+        "weight_lbs": "201 lbs",
+        "college": "Washington"
+    },
+    {
+        "id": "4066211",
+        "name": "Robert Williams III",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "27",
+        "height": "6' 9\"",
+        "weight_lbs": "249 lbs",
+        "college": "Texas A&M"
+    }
+]

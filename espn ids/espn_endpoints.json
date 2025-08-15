@@ -1,0 +1,353 @@
+{
+    "MLS": {
+        "url": "https://www.espn.com/soccer/teams/_/league/usa.1",
+        "teams": {
+            "USMNT": {
+                "url": "https://www.espn.com/soccer/team/_/id/660/united-states",
+                "id": "660"
+            },
+            "USWNT": {
+                "url": "https://www.espn.com/soccer/team/_/id/2765/united-states",
+                "id": "2765"
+            },
+            "Atlanta United FC": {
+                "url": "https://www.espn.com/soccer/team/_/id/18418/atlanta-united-fc",
+                "id": "18418"
+            },
+            "Austin FC": {
+                "url": "https://www.espn.com/soccer/team/_/id/20906/austin-fc",
+                "id": "20906"
+            },
+            "CF Montréal": {
+                "url": "https://www.espn.com/soccer/team/_/id/9720/cf-montreal",
+                "id": "9720"
+            },
+            "Charlotte FC": {
+                "url": "https://www.espn.com/soccer/team/_/id/21300/charlotte-fc",
+                "id": "21300"
+            },
+            "Chicago Fire FC": {
+                "url": "https://www.espn.com/soccer/team/_/id/182/chicago-fire-fc",
+                "id": "182"
+            },
+            "Colorado Rapids": {
+                "url": "https://www.espn.com/soccer/team/_/id/184/colorado-rapids",
+                "id": "184"
+            },
+            "Columbus Crew": {
+                "url": "https://www.espn.com/soccer/team/_/id/183/columbus-crew",
+                "id": "183"
+            },
+            "D.C. United": {
+                "url": "https://www.espn.com/soccer/team/_/id/193/dc-united",
+                "id": "193"
+            },
+            "FC Cincinnati": {
+                "url": "https://www.espn.com/soccer/team/_/id/18267/fc-cincinnati",
+                "id": "18267"
+            },
+            "FC Dallas": {
+                "url": "https://www.espn.com/soccer/team/_/id/185/fc-dallas",
+                "id": "185"
+            },
+            "Houston Dynamo FC": {
+                "url": "https://www.espn.com/soccer/team/_/id/6077/houston-dynamo-fc",
+                "id": "6077"
+            },
+            "Inter Miami CF": {
+                "url": "https://www.espn.com/soccer/team/_/id/20232/inter-miami-cf",
+                "id": "20232"
+            },
+            "LA Galaxy": {
+                "url": "https://www.espn.com/soccer/team/_/id/187/la-galaxy",
+                "id": "187"
+            },
+            "LAFC": {
+                "url": "https://www.espn.com/soccer/team/_/id/18966/lafc",
+                "id": "18966"
+            },
+            "Minnesota United FC": {
+                "url": "https://www.espn.com/soccer/team/_/id/17362/minnesota-united-fc",
+                "id": "17362"
+            },
+            "Nashville SC": {
+                "url": "https://www.espn.com/soccer/team/_/id/18986/nashville-sc",
+                "id": "18986"
+            },
+            "New England Revolution": {
+                "url": "https://www.espn.com/soccer/team/_/id/189/new-england-revolution",
+                "id": "189"
+            },
+            "New York City FC": {
+                "url": "https://www.espn.com/soccer/team/_/id/17606/new-york-city-fc",
+                "id": "17606"
+            },
+            "New York Red Bulls": {
+                "url": "https://www.espn.com/soccer/team/_/id/190/new-york-red-bulls",
+                "id": "190"
+            },
+            "Orlando City SC": {
+                "url": "https://www.espn.com/soccer/team/_/id/12011/orlando-city-sc",
+                "id": "12011"
+            },
+            "Philadelphia Union": {
+                "url": "https://www.espn.com/soccer/team/_/id/10739/philadelphia-union",
+                "id": "10739"
+            },
+            "Portland Timbers": {
+                "url": "https://www.espn.com/soccer/team/_/id/9723/portland-timbers",
+                "id": "9723"
+            },
+            "Real Salt Lake": {
+                "url": "https://www.espn.com/soccer/team/_/id/4771/real-salt-lake",
+                "id": "4771"
+            },
+            "San Diego FC": {
+                "url": "https://www.espn.com/soccer/team/_/id/22529/san-diego-fc",
+                "id": "22529"
+            },
+            "San Jose Earthquakes": {
+                "url": "https://www.espn.com/soccer/team/_/id/191/san-jose-earthquakes",
+                "id": "191"
+            },
+            "Seattle Sounders FC": {
+                "url": "https://www.espn.com/soccer/team/_/id/9726/seattle-sounders-fc",
+                "id": "9726"
+            },
+            "Sporting Kansas City": {
+                "url": "https://www.espn.com/soccer/team/_/id/186/sporting-kansas-city",
+                "id": "186"
+            },
+            "St. Louis CITY SC": {
+                "url": "https://www.espn.com/soccer/team/_/id/21812/st-louis-city-sc",
+                "id": "21812"
+            },
+            "Toronto FC": {
+                "url": "https://www.espn.com/soccer/team/_/id/7318/toronto-fc",
+                "id": "7318"
+            },
+            "Vancouver Whitecaps": {
+                "url": "https://www.espn.com/soccer/team/_/id/9727/vancouver-whitecaps",
+                "id": "9727"
+            }
+        },
+        "count": 32,
+        "squad_patterns": [
+            "https://www.espn.com/soccer/team/squad/_/id/{team_id}"
+        ]
+    },
+    "NBA": {
+        "url": "https://www.espn.com/nba/teams",
+        "teams": {},
+        "count": 0
+    },
+    "WNBA": {
+        "url": "https://www.espn.com/wnba/teams",
+        "teams": {},
+        "count": 0
+    },
+    "EPL": {
+        "url": "https://www.espn.com/soccer/teams/_/league/eng.1",
+        "teams": {
+            "USMNT": {
+                "url": "https://www.espn.com/soccer/team/_/id/660/united-states",
+                "id": "660"
+            },
+            "USWNT": {
+                "url": "https://www.espn.com/soccer/team/_/id/2765/united-states",
+                "id": "2765"
+            },
+            "AFC Bournemouth": {
+                "url": "https://www.espn.com/soccer/team/_/id/349/afc-bournemouth",
+                "id": "349"
+            },
+            "Arsenal": {
+                "url": "https://www.espn.com/soccer/team/_/id/359/arsenal",
+                "id": "359"
+            },
+            "Aston Villa": {
+                "url": "https://www.espn.com/soccer/team/_/id/362/aston-villa",
+                "id": "362"
+            },
+            "Brentford": {
+                "url": "https://www.espn.com/soccer/team/_/id/337/brentford",
+                "id": "337"
+            },
+            "Brighton & Hove Albion": {
+                "url": "https://www.espn.com/soccer/team/_/id/331/brighton-hove-albion",
+                "id": "331"
+            },
+            "Burnley": {
+                "url": "https://www.espn.com/soccer/team/_/id/379/burnley",
+                "id": "379"
+            },
+            "Chelsea": {
+                "url": "https://www.espn.com/soccer/team/_/id/363/chelsea",
+                "id": "363"
+            },
+            "Crystal Palace": {
+                "url": "https://www.espn.com/soccer/team/_/id/384/crystal-palace",
+                "id": "384"
+            },
+            "Everton": {
+                "url": "https://www.espn.com/soccer/team/_/id/368/everton",
+                "id": "368"
+            },
+            "Fulham": {
+                "url": "https://www.espn.com/soccer/team/_/id/370/fulham",
+                "id": "370"
+            },
+            "Leeds United": {
+                "url": "https://www.espn.com/soccer/team/_/id/357/leeds-united",
+                "id": "357"
+            },
+            "Liverpool": {
+                "url": "https://www.espn.com/soccer/team/_/id/364/liverpool",
+                "id": "364"
+            },
+            "Manchester City": {
+                "url": "https://www.espn.com/soccer/team/_/id/382/manchester-city",
+                "id": "382"
+            },
+            "Manchester United": {
+                "url": "https://www.espn.com/soccer/team/_/id/360/manchester-united",
+                "id": "360"
+            },
+            "Newcastle United": {
+                "url": "https://www.espn.com/soccer/team/_/id/361/newcastle-united",
+                "id": "361"
+            },
+            "Nottingham Forest": {
+                "url": "https://www.espn.com/soccer/team/_/id/393/nottingham-forest",
+                "id": "393"
+            },
+            "Sunderland": {
+                "url": "https://www.espn.com/soccer/team/_/id/366/sunderland",
+                "id": "366"
+            },
+            "Tottenham Hotspur": {
+                "url": "https://www.espn.com/soccer/team/_/id/367/tottenham-hotspur",
+                "id": "367"
+            },
+            "West Ham United": {
+                "url": "https://www.espn.com/soccer/team/_/id/371/west-ham-united",
+                "id": "371"
+            },
+            "Wolverhampton Wanderers": {
+                "url": "https://www.espn.com/soccer/team/_/id/380/wolverhampton-wanderers",
+                "id": "380"
+            }
+        },
+        "count": 22,
+        "squad_patterns": [
+            "https://www.espn.com/soccer/team/squad/_/id/{team_id}"
+        ]
+    },
+    "La Liga": {
+        "url": "https://www.espn.com/soccer/teams/_/league/esp.1",
+        "teams": {
+            "USMNT": {
+                "url": "https://www.espn.com/soccer/team/_/id/660/united-states",
+                "id": "660"
+            },
+            "USWNT": {
+                "url": "https://www.espn.com/soccer/team/_/id/2765/united-states",
+                "id": "2765"
+            },
+            "Alavés": {
+                "url": "https://www.espn.com/soccer/team/_/id/96/alaves",
+                "id": "96"
+            },
+            "Athletic Club": {
+                "url": "https://www.espn.com/soccer/team/_/id/93/athletic-club",
+                "id": "93"
+            },
+            "Atlético Madrid": {
+                "url": "https://www.espn.com/soccer/team/_/id/1068/atletico-madrid",
+                "id": "1068"
+            },
+            "Barcelona": {
+                "url": "https://www.espn.com/soccer/team/_/id/83/barcelona",
+                "id": "83"
+            },
+            "Celta Vigo": {
+                "url": "https://www.espn.com/soccer/team/_/id/85/celta-vigo",
+                "id": "85"
+            },
+            "Elche": {
+                "url": "https://www.espn.com/soccer/team/_/id/3751/elche",
+                "id": "3751"
+            },
+            "Espanyol": {
+                "url": "https://www.espn.com/soccer/team/_/id/88/espanyol",
+                "id": "88"
+            },
+            "Getafe": {
+                "url": "https://www.espn.com/soccer/team/_/id/2922/getafe",
+                "id": "2922"
+            },
+            "Girona": {
+                "url": "https://www.espn.com/soccer/team/_/id/9812/girona",
+                "id": "9812"
+            },
+            "Levante": {
+                "url": "https://www.espn.com/soccer/team/_/id/1538/levante",
+                "id": "1538"
+            },
+            "Mallorca": {
+                "url": "https://www.espn.com/soccer/team/_/id/84/mallorca",
+                "id": "84"
+            },
+            "Osasuna": {
+                "url": "https://www.espn.com/soccer/team/_/id/97/osasuna",
+                "id": "97"
+            },
+            "Rayo Vallecano": {
+                "url": "https://www.espn.com/soccer/team/_/id/101/rayo-vallecano",
+                "id": "101"
+            },
+            "Real Betis": {
+                "url": "https://www.espn.com/soccer/team/_/id/244/real-betis",
+                "id": "244"
+            },
+            "Real Madrid": {
+                "url": "https://www.espn.com/soccer/team/_/id/86/real-madrid",
+                "id": "86"
+            },
+            "Real Oviedo": {
+                "url": "https://www.espn.com/soccer/team/_/id/92/real-oviedo",
+                "id": "92"
+            },
+            "Real Sociedad": {
+                "url": "https://www.espn.com/soccer/team/_/id/89/real-sociedad",
+                "id": "89"
+            },
+            "Sevilla": {
+                "url": "https://www.espn.com/soccer/team/_/id/243/sevilla",
+                "id": "243"
+            },
+            "Valencia": {
+                "url": "https://www.espn.com/soccer/team/_/id/94/valencia",
+                "id": "94"
+            },
+            "Villarreal": {
+                "url": "https://www.espn.com/soccer/team/_/id/102/villarreal",
+                "id": "102"
+            }
+        },
+        "count": 22,
+        "squad_patterns": [
+            "https://www.espn.com/soccer/team/squad/_/id/{team_id}"
+        ]
+    },
+    "NHL": {
+        "url": "https://www.espn.com/nhl/teams",
+        "teams": {},
+        "count": 0
+    },
+    "NFL": {
+        "url": "https://www.espn.com/nfl/teams",
+        "teams": {},
+        "count": 0
+    }
+}

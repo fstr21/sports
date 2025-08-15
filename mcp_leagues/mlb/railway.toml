@@ -1,0 +1,8 @@
+[build]
+command = "pip install -r requirements.txt"
+
+[deploy]
+startCommand = "python mlb_mcp_server.py"
+
+[env]
+# No environment variables needed for MLB Stats API

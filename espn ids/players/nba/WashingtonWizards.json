@@ -1,0 +1,232 @@
+[
+    {
+        "id": "4277848",
+        "name": "Marvin Bagley III",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "26",
+        "height": "6' 10\"",
+        "weight_lbs": "235 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4565201",
+        "name": "Malaki Branham",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 4\"",
+        "weight_lbs": "180 lbs",
+        "college": "Ohio State"
+    },
+    {
+        "id": "2566769",
+        "name": "Malcolm Brogdon",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "32",
+        "height": "6' 4\"",
+        "weight_lbs": "229 lbs",
+        "college": "Virginia"
+    },
+    {
+        "id": "4845374",
+        "name": "Bub Carrington",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 4\"",
+        "weight_lbs": "190 lbs",
+        "college": "Pittsburgh"
+    },
+    {
+        "id": "4432907",
+        "name": "Justin Champagnie",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "24",
+        "height": "6' 6\"",
+        "weight_lbs": "206 lbs",
+        "college": "Pittsburgh"
+    },
+    {
+        "id": "5104155",
+        "name": "Bilal Coulibaly",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "21",
+        "height": "6' 8\"",
+        "weight_lbs": "195 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5174563",
+        "name": "Kyshawn George",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 8\"",
+        "weight_lbs": "200 lbs",
+        "college": "Miami"
+    },
+    {
+        "id": "4585618",
+        "name": "Keshon Gilbert",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 4\"",
+        "weight_lbs": "200 lbs",
+        "college": "Iowa State"
+    },
+    {
+        "id": "2581184",
+        "name": "Anthony Gill",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "32",
+        "height": "6' 8\"",
+        "weight_lbs": "230 lbs",
+        "college": "Virginia"
+    },
+    {
+        "id": "2993370",
+        "name": "Richaun Holmes",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "31",
+        "height": "6' 9\"",
+        "weight_lbs": "235 lbs",
+        "college": "Bowling Green"
+    },
+    {
+        "id": "5170947",
+        "name": "AJ Johnson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 5\"",
+        "weight_lbs": "160 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5238230",
+        "name": "Tre Johnson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "19",
+        "height": "6' 6\"",
+        "weight_lbs": "190 lbs",
+        "college": "Texas"
+    },
+    {
+        "id": "4702159",
+        "name": "Dillon Jones",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 5\"",
+        "weight_lbs": "235 lbs",
+        "college": "Weber State"
+    },
+    {
+        "id": "4280151",
+        "name": "Corey Kispert",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "26",
+        "height": "6' 6\"",
+        "weight_lbs": "224 lbs",
+        "college": "Gonzaga"
+    },
+    {
+        "id": "2490149",
+        "name": "CJ McCollum",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "33",
+        "height": "6' 3\"",
+        "weight_lbs": "190 lbs",
+        "college": "Lehigh"
+    },
+    {
+        "id": "6609",
+        "name": "Khris Middleton",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "33",
+        "height": "6' 7\"",
+        "weight_lbs": "222 lbs",
+        "college": "Texas A&M"
+    },
+    {
+        "id": "5144126",
+        "name": "Will Riley",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "19",
+        "height": "6' 8\"",
+        "weight_lbs": "180 lbs",
+        "college": "Illinois"
+    },
+    {
+        "id": "5160992",
+        "name": "Alex Sarr",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "20",
+        "height": "7' 0\"",
+        "weight_lbs": "205 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4702233",
+        "name": "JT Thor",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 9\"",
+        "weight_lbs": "203 lbs",
+        "college": "Auburn"
+    },
+    {
+        "id": "4997537",
+        "name": "Tristan Vukcevic",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "22",
+        "height": "7' 0\"",
+        "weight_lbs": "220 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4606840",
+        "name": "Jamir Watkins",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 7\"",
+        "weight_lbs": "210 lbs",
+        "college": "Florida State"
+    },
+    {
+        "id": "4683935",
+        "name": "Blake Wesley",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 3\"",
+        "weight_lbs": "185 lbs",
+        "college": "Notre Dame"
+    },
+    {
+        "id": "5105592",
+        "name": "Cam Whitmore",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 7\"",
+        "weight_lbs": "230 lbs",
+        "college": "Villanova"
+    }
+]

@@ -1,0 +1,122 @@
+[
+    {
+        "id": "3058908",
+        "name": "Lindsay Allen",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "30",
+        "height": "5' 8\"",
+        "weight_lbs": "145 lbs",
+        "college": "Notre Dame"
+    },
+    {
+        "id": "918",
+        "name": "Tina Charles",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "36",
+        "height": "6' 4\"",
+        "weight_lbs": "192 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "4433408",
+        "name": "Aaliyah Edwards",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 3\"",
+        "weight_lbs": "--",
+        "college": "UConn"
+    },
+    {
+        "id": "2529185",
+        "name": "Bria Hartley",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "32",
+        "height": "5' 9\"",
+        "weight_lbs": "148 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "5208981",
+        "name": "Leila Lacan",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "5' 11\"",
+        "weight_lbs": "--",
+        "college": "--"
+    },
+    {
+        "id": "3904576",
+        "name": "Marina Mabrey",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "28",
+        "height": "5' 11\"",
+        "weight_lbs": "170 lbs",
+        "college": "Notre Dame"
+    },
+    {
+        "id": "4433792",
+        "name": "Rayah Marshall",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "21",
+        "height": "6' 4\"",
+        "weight_lbs": "--",
+        "college": "USC"
+    },
+    {
+        "id": "4684384",
+        "name": "Aneesah Morrow",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 1\"",
+        "weight_lbs": "--",
+        "college": "LSU"
+    },
+    {
+        "id": "4398966",
+        "name": "Olivia Nelson-Ododa",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "24",
+        "height": "6' 5\"",
+        "weight_lbs": "176 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "2529125",
+        "name": "Haley Peters",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "32",
+        "height": "6' 3\"",
+        "weight_lbs": "178 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4433514",
+        "name": "Saniya Rivers",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 1\"",
+        "weight_lbs": "--",
+        "college": "NC State"
+    },
+    {
+        "id": "5279789",
+        "name": "Mamignan Toure",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "30",
+        "height": "6' 0\"",
+        "weight_lbs": "--",
+        "college": "--"
+    }
+]

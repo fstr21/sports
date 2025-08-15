@@ -1,0 +1,202 @@
+[
+    {
+        "id": "4066328",
+        "name": "Jarrett Allen",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "27",
+        "height": "6' 9\"",
+        "weight_lbs": "243 lbs",
+        "college": "Texas"
+    },
+    {
+        "id": "4066421",
+        "name": "Lonzo Ball",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "27",
+        "height": "6' 6\"",
+        "weight_lbs": "190 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "4433620",
+        "name": "Emoni Bates",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 8\"",
+        "weight_lbs": "202 lbs",
+        "college": "Eastern Michigan"
+    },
+    {
+        "id": "4396907",
+        "name": "Darius Garland",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "25",
+        "height": "6' 1\"",
+        "weight_lbs": "192 lbs",
+        "college": "Vanderbilt"
+    },
+    {
+        "id": "2596112",
+        "name": "Javonte Green",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "32",
+        "height": "6' 5\"",
+        "weight_lbs": "205 lbs",
+        "college": "Radford"
+    },
+    {
+        "id": "4065732",
+        "name": "De'Andre Hunter",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "27",
+        "height": "6' 8\"",
+        "weight_lbs": "221 lbs",
+        "college": "Virginia"
+    },
+    {
+        "id": "4066757",
+        "name": "Sam Merrill",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "29",
+        "height": "6' 4\"",
+        "weight_lbs": "205 lbs",
+        "college": "Utah State"
+    },
+    {
+        "id": "3908809",
+        "name": "Donovan Mitchell",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 3\"",
+        "weight_lbs": "215 lbs",
+        "college": "Louisville"
+    },
+    {
+        "id": "4432158",
+        "name": "Evan Mobley",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "24",
+        "height": "6' 11\"",
+        "weight_lbs": "215 lbs",
+        "college": "USC"
+    },
+    {
+        "id": "2580365",
+        "name": "Larry Nance Jr.",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "32",
+        "height": "6' 8\"",
+        "weight_lbs": "245 lbs",
+        "college": "Wyoming"
+    },
+    {
+        "id": "5281137",
+        "name": "Saliou Niang",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 8\"",
+        "weight_lbs": "204 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4278052",
+        "name": "Chuma Okeke",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "26",
+        "height": "6' 7\"",
+        "weight_lbs": "229 lbs",
+        "college": "Auburn"
+    },
+    {
+        "id": "4701233",
+        "name": "Craig Porter Jr.",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 2\"",
+        "weight_lbs": "176 lbs",
+        "college": "Wichita State"
+    },
+    {
+        "id": "5023693",
+        "name": "Tyrese Proctor",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 5\"",
+        "weight_lbs": "183 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4065778",
+        "name": "Max Strus",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "29",
+        "height": "6' 5\"",
+        "weight_lbs": "215 lbs",
+        "college": "DePaul"
+    },
+    {
+        "id": "6474",
+        "name": "Tristan Thompson",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "34",
+        "height": "6' 9\"",
+        "weight_lbs": "254 lbs",
+        "college": "Texas"
+    },
+    {
+        "id": "5106268",
+        "name": "Nae'Qwan Tomlin",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 9\"",
+        "weight_lbs": "210 lbs",
+        "college": "Memphis"
+    },
+    {
+        "id": "4997539",
+        "name": "Luke Travers",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 7\"",
+        "weight_lbs": "207 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4683747",
+        "name": "Jaylon Tyson",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 6\"",
+        "weight_lbs": "215 lbs",
+        "college": "California"
+    },
+    {
+        "id": "3912848",
+        "name": "Dean Wade",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "28",
+        "height": "6' 9\"",
+        "weight_lbs": "228 lbs",
+        "college": "Kansas State"
+    }
+]

@@ -1,0 +1,112 @@
+[
+    {
+        "id": "4704180",
+        "name": "Georgia Amoore",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "5' 6\"",
+        "weight_lbs": "--",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4398911",
+        "name": "Shakira Austin",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 5\"",
+        "weight_lbs": "190 lbs",
+        "college": "Ole Miss"
+    },
+    {
+        "id": "4433524",
+        "name": "Sonia Citron",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 1\"",
+        "weight_lbs": "--",
+        "college": "Notre Dame"
+    },
+    {
+        "id": "924",
+        "name": "Alysha Clark",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "38",
+        "height": "5' 11\"",
+        "weight_lbs": "167 lbs",
+        "college": "Middle Tennessee"
+    },
+    {
+        "id": "2529183",
+        "name": "Stefanie Dolson",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "33",
+        "height": "6' 5\"",
+        "weight_lbs": "235 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "4398729",
+        "name": "Emily Engstler",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 1\"",
+        "weight_lbs": "180 lbs",
+        "college": "Louisville"
+    },
+    {
+        "id": "4898384",
+        "name": "Kiki Iriafen",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 3\"",
+        "weight_lbs": "--",
+        "college": "USC"
+    },
+    {
+        "id": "5017726",
+        "name": "Jade Melbourne",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "5' 10\"",
+        "weight_lbs": "145 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4433815",
+        "name": "Lucy Olsen",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "5' 10\"",
+        "weight_lbs": "--",
+        "college": "Iowa"
+    },
+    {
+        "id": "4432865",
+        "name": "Jacy Sheldon",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "5' 10\"",
+        "weight_lbs": "140 lbs",
+        "college": "Ohio State"
+    },
+    {
+        "id": "4068159",
+        "name": "Sug Sutton",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "5' 8\"",
+        "weight_lbs": "140 lbs",
+        "college": "Texas"
+    }
+]

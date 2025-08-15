@@ -1,0 +1,212 @@
+[
+    {
+        "id": "3135045",
+        "name": "Grayson Allen",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "29",
+        "height": "6' 4\"",
+        "weight_lbs": "198 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4397102",
+        "name": "Bol Bol",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "25",
+        "height": "7' 3\"",
+        "weight_lbs": "220 lbs",
+        "college": "Oregon"
+    },
+    {
+        "id": "3136193",
+        "name": "Devin Booker",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 6\"",
+        "weight_lbs": "206 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4591259",
+        "name": "Koby Brea",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 6\"",
+        "weight_lbs": "202 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "3155526",
+        "name": "Dillon Brooks",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "29",
+        "height": "6' 6\"",
+        "weight_lbs": "225 lbs",
+        "college": "Oregon"
+    },
+    {
+        "id": "4395695",
+        "name": "Jared Butler",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "24",
+        "height": "6' 3\"",
+        "weight_lbs": "193 lbs",
+        "college": "Baylor"
+    },
+    {
+        "id": "4888725",
+        "name": "Ryan Dunn",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 8\"",
+        "weight_lbs": "216 lbs",
+        "college": "Virginia"
+    },
+    {
+        "id": "5105977",
+        "name": "Rasheer Fleming",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 9\"",
+        "weight_lbs": "240 lbs",
+        "college": "Saint Joseph's"
+    },
+    {
+        "id": "4278585",
+        "name": "Collin Gillespie",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "6' 1\"",
+        "weight_lbs": "195 lbs",
+        "college": "Villanova"
+    },
+    {
+        "id": "4278402",
+        "name": "Jordan Goodwin",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "6' 4\"",
+        "weight_lbs": "200 lbs",
+        "college": "Saint Louis"
+    },
+    {
+        "id": "4437244",
+        "name": "Jalen Green",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "23",
+        "height": "6' 4\"",
+        "weight_lbs": "186 lbs",
+        "college": "--"
+    },
+    {
+        "id": "3059409",
+        "name": "Nigel Hayes",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "30",
+        "height": "6' 8\"",
+        "weight_lbs": "240 lbs",
+        "college": "Wisconsin"
+    },
+    {
+        "id": "4702602",
+        "name": "CJ Huntley",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 11\"",
+        "weight_lbs": "221 lbs",
+        "college": "App State"
+    },
+    {
+        "id": "4601023",
+        "name": "Oso Ighodaro",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "23",
+        "height": "7' 0\"",
+        "weight_lbs": "235 lbs",
+        "college": "Marquette"
+    },
+    {
+        "id": "2595209",
+        "name": "Damion Lee",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "32",
+        "height": "6' 6\"",
+        "weight_lbs": "210 lbs",
+        "college": "Louisville"
+    },
+    {
+        "id": "4277957",
+        "name": "Isaiah Livers",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "27",
+        "height": "6' 6\"",
+        "weight_lbs": "232 lbs",
+        "college": "Michigan"
+    },
+    {
+        "id": "5203685",
+        "name": "Khaman Maluach",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "18",
+        "height": "7' 2\"",
+        "weight_lbs": "250 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "3059310",
+        "name": "Monte Morris",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "30",
+        "height": "6' 2\"",
+        "weight_lbs": "183 lbs",
+        "college": "Iowa State"
+    },
+    {
+        "id": "2583632",
+        "name": "Royce O'Neale",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "32",
+        "height": "6' 6\"",
+        "weight_lbs": "226 lbs",
+        "college": "Baylor"
+    },
+    {
+        "id": "4278076",
+        "name": "Nick Richards",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "27",
+        "height": "7' 0\"",
+        "weight_lbs": "245 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4701232",
+        "name": "Mark Williams",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "23",
+        "height": "7' 0\"",
+        "weight_lbs": "240 lbs",
+        "college": "Duke"
+    }
+]

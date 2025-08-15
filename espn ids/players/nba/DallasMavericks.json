@@ -1,0 +1,212 @@
+[
+    {
+        "id": "4432582",
+        "name": "Max Christie",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 5\"",
+        "weight_lbs": "190 lbs",
+        "college": "Michigan State"
+    },
+    {
+        "id": "4701208",
+        "name": "Moussa Cisse",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "22",
+        "height": "6' 11\"",
+        "weight_lbs": "229 lbs",
+        "college": "Memphis"
+    },
+    {
+        "id": "4897007",
+        "name": "Matthew Cleveland",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 7\"",
+        "weight_lbs": "210 lbs",
+        "college": "Miami"
+    },
+    {
+        "id": "6583",
+        "name": "Anthony Davis",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "32",
+        "height": "6' 10\"",
+        "weight_lbs": "253 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4397693",
+        "name": "Kessler Edwards",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "25",
+        "height": "6' 7\"",
+        "weight_lbs": "203 lbs",
+        "college": "Pepperdine"
+    },
+    {
+        "id": "3102528",
+        "name": "Dante Exum",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "30",
+        "height": "6' 5\"",
+        "weight_lbs": "214 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5041939",
+        "name": "Cooper Flagg",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "18",
+        "height": "6' 9\"",
+        "weight_lbs": "205 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4278049",
+        "name": "Daniel Gafford",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "26",
+        "height": "6' 10\"",
+        "weight_lbs": "265 lbs",
+        "college": "Arkansas"
+    },
+    {
+        "id": "4868423",
+        "name": "Jaden Hardy",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 3\"",
+        "weight_lbs": "198 lbs",
+        "college": "--"
+    },
+    {
+        "id": "6442",
+        "name": "Kyrie Irving",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "33",
+        "height": "6' 2\"",
+        "weight_lbs": "195 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4431699",
+        "name": "Kai Jones",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "24",
+        "height": "6' 11\"",
+        "weight_lbs": "221 lbs",
+        "college": "Texas"
+    },
+    {
+        "id": "4696317",
+        "name": "Miles Kelly",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 6\"",
+        "weight_lbs": "190 lbs",
+        "college": "Auburn"
+    },
+    {
+        "id": "4683688",
+        "name": "Dereck Lively II",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "21",
+        "height": "7' 1\"",
+        "weight_lbs": "230 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4278594",
+        "name": "Naji Marshall",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "27",
+        "height": "6' 6\"",
+        "weight_lbs": "220 lbs",
+        "college": "Xavier"
+    },
+    {
+        "id": "3138160",
+        "name": "Caleb Martin",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "29",
+        "height": "6' 5\"",
+        "weight_lbs": "205 lbs",
+        "college": "Nevada"
+    },
+    {
+        "id": "2531367",
+        "name": "Dwight Powell",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "34",
+        "height": "6' 10\"",
+        "weight_lbs": "240 lbs",
+        "college": "Stanford"
+    },
+    {
+        "id": "4595400",
+        "name": "Olivier-Maxence Prosper",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 7\"",
+        "weight_lbs": "230 lbs",
+        "college": "Marquette"
+    },
+    {
+        "id": "3136776",
+        "name": "D'Angelo Russell",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "29",
+        "height": "6' 3\"",
+        "weight_lbs": "193 lbs",
+        "college": "Ohio State"
+    },
+    {
+        "id": "6475",
+        "name": "Klay Thompson",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "35",
+        "height": "6' 5\"",
+        "weight_lbs": "220 lbs",
+        "college": "Washington State"
+    },
+    {
+        "id": "4278078",
+        "name": "P.J. Washington",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "26",
+        "height": "6' 6\"",
+        "weight_lbs": "230 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4397040",
+        "name": "Brandon Williams",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 1\"",
+        "weight_lbs": "190 lbs",
+        "college": "Arizona"
+    }
+]

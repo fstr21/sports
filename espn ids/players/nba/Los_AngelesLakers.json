@@ -1,0 +1,202 @@
+[
+    {
+        "id": "4278129",
+        "name": "Deandre Ayton",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "27",
+        "height": "7' 0\"",
+        "weight_lbs": "252 lbs",
+        "college": "Arizona"
+    },
+    {
+        "id": "4433176",
+        "name": "RJ Davis",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 0\"",
+        "weight_lbs": "175 lbs",
+        "college": "North Carolina"
+    },
+    {
+        "id": "4431718",
+        "name": "Eric Dixon",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 8\"",
+        "weight_lbs": "259 lbs",
+        "college": "Villanova"
+    },
+    {
+        "id": "3945274",
+        "name": "Luka Doncic",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "26",
+        "height": "6' 6\"",
+        "weight_lbs": "230 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4066648",
+        "name": "Rui Hachimura",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "27",
+        "height": "6' 8\"",
+        "weight_lbs": "230 lbs",
+        "college": "Gonzaga"
+    },
+    {
+        "id": "4397077",
+        "name": "Jaxson Hayes",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "25",
+        "height": "7' 0\"",
+        "weight_lbs": "220 lbs",
+        "college": "Texas"
+    },
+    {
+        "id": "4683774",
+        "name": "Bronny James",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 2\"",
+        "weight_lbs": "212 lbs",
+        "college": "USC"
+    },
+    {
+        "id": "1966",
+        "name": "LeBron James",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "40",
+        "height": "6' 9\"",
+        "weight_lbs": "250 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4433599",
+        "name": "Arthur Kaluma",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 6\"",
+        "weight_lbs": "223 lbs",
+        "college": "Texas"
+    },
+    {
+        "id": "2960236",
+        "name": "Maxi Kleber",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "33",
+        "height": "6' 10\"",
+        "weight_lbs": "240 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4897943",
+        "name": "Dalton Knecht",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 6\"",
+        "weight_lbs": "215 lbs",
+        "college": "Tennessee"
+    },
+    {
+        "id": "4431778",
+        "name": "Christian Koloko",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "25",
+        "height": "7' 0\"",
+        "weight_lbs": "220 lbs",
+        "college": "Arizona"
+    },
+    {
+        "id": "4592691",
+        "name": "Jake LaRavia",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 7\"",
+        "weight_lbs": "235 lbs",
+        "college": "Wake Forest"
+    },
+    {
+        "id": "4702972",
+        "name": "Chris Manon",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 5\"",
+        "weight_lbs": "215 lbs",
+        "college": "Vanderbilt"
+    },
+    {
+        "id": "4897197",
+        "name": "Augustas Marciulionis",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 4\"",
+        "weight_lbs": "200 lbs",
+        "college": "Saint Mary's"
+    },
+    {
+        "id": "4066457",
+        "name": "Austin Reaves",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "27",
+        "height": "6' 5\"",
+        "weight_lbs": "197 lbs",
+        "college": "Oklahoma"
+    },
+    {
+        "id": "2990992",
+        "name": "Marcus Smart",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "31",
+        "height": "6' 3\"",
+        "weight_lbs": "220 lbs",
+        "college": "Oklahoma State"
+    },
+    {
+        "id": "5060631",
+        "name": "Adou Thiero",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "--",
+        "height": "6' 8\"",
+        "weight_lbs": "220 lbs",
+        "college": "Arkansas"
+    },
+    {
+        "id": "4278077",
+        "name": "Jarred Vanderbilt",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "26",
+        "height": "6' 8\"",
+        "weight_lbs": "214 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "3137259",
+        "name": "Gabe Vincent",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "29",
+        "height": "6' 2\"",
+        "weight_lbs": "200 lbs",
+        "college": "UC Santa Barbara"
+    }
+]

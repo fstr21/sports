@@ -1,0 +1,12 @@
+[build]
+command = "pip install -r requirements.txt"
+
+[deploy]
+startCommand = "python discord_mcp_server.py"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+
+[env]
+PORT = "8080"

@@ -1,0 +1,202 @@
+[
+    {
+        "id": "3416",
+        "name": "Nicolas Batum",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "36",
+        "height": "6' 8\"",
+        "weight_lbs": "230 lbs",
+        "college": "--"
+    },
+    {
+        "id": "6580",
+        "name": "Bradley Beal",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "32",
+        "height": "6' 4\"",
+        "weight_lbs": "207 lbs",
+        "college": "Florida"
+    },
+    {
+        "id": "3037789",
+        "name": "Bogdan Bogdanovic",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "32",
+        "height": "6' 5\"",
+        "weight_lbs": "225 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4431752",
+        "name": "Kobe Brown",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 7\"",
+        "weight_lbs": "250 lbs",
+        "college": "Missouri"
+    },
+    {
+        "id": "4845363",
+        "name": "Cam Christie",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 6\"",
+        "weight_lbs": "190 lbs",
+        "college": "Minnesota"
+    },
+    {
+        "id": "4066387",
+        "name": "Amir Coffey",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 7\"",
+        "weight_lbs": "210 lbs",
+        "college": "Minnesota"
+    },
+    {
+        "id": "3908845",
+        "name": "John Collins",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "27",
+        "height": "6' 9\"",
+        "weight_lbs": "226 lbs",
+        "college": "Wake Forest"
+    },
+    {
+        "id": "2991139",
+        "name": "Kris Dunn",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "31",
+        "height": "6' 3\"",
+        "weight_lbs": "205 lbs",
+        "college": "Providence"
+    },
+    {
+        "id": "5165257",
+        "name": "Trentyn Flowers",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 9\"",
+        "weight_lbs": "185 lbs",
+        "college": "--"
+    },
+    {
+        "id": "3992",
+        "name": "James Harden",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "35",
+        "height": "6' 5\"",
+        "weight_lbs": "220 lbs",
+        "college": "Arizona State"
+    },
+    {
+        "id": "3936099",
+        "name": "Derrick Jones Jr.",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "28",
+        "height": "6' 6\"",
+        "weight_lbs": "210 lbs",
+        "college": "UNLV"
+    },
+    {
+        "id": "5108024",
+        "name": "Yanic Konan Niederhauser",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "22",
+        "height": "7' 0\"",
+        "weight_lbs": "250 lbs",
+        "college": "Penn State"
+    },
+    {
+        "id": "6450",
+        "name": "Kawhi Leonard",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "34",
+        "height": "6' 7\"",
+        "weight_lbs": "225 lbs",
+        "college": "San Diego State"
+    },
+    {
+        "id": "3448",
+        "name": "Brook Lopez",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "37",
+        "height": "7' 1\"",
+        "weight_lbs": "282 lbs",
+        "college": "Stanford"
+    },
+    {
+        "id": "4004",
+        "name": "Patty Mills",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "36",
+        "height": "6' 2\"",
+        "weight_lbs": "180 lbs",
+        "college": "Saint Mary's"
+    },
+    {
+        "id": "2779",
+        "name": "Chris Paul",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "40",
+        "height": "6' 0\"",
+        "weight_lbs": "175 lbs",
+        "college": "Wake Forest"
+    },
+    {
+        "id": "4702352",
+        "name": "Kobe Sanders",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 9\"",
+        "weight_lbs": "207 lbs",
+        "college": "Nevada"
+    },
+    {
+        "id": "3907387",
+        "name": "Ben Simmons",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "29",
+        "height": "6' 10\"",
+        "weight_lbs": "240 lbs",
+        "college": "LSU"
+    },
+    {
+        "id": "4683749",
+        "name": "TyTy Washington Jr.",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 3\"",
+        "weight_lbs": "195 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4017837",
+        "name": "Ivica Zubac",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "28",
+        "height": "7' 0\"",
+        "weight_lbs": "240 lbs",
+        "college": "--"
+    }
+]

@@ -1,0 +1,208 @@
+{
+  "scrape_summary": {
+    "scrape_date": "2025-08-10T22:54:31.382854",
+    "total_teams_scraped": 30,
+    "total_players_scraped": 786,
+    "teams_requested": 30
+  },
+  "team_abbreviations": {
+    "chw": {
+      "team_name": "ChicagoWhite Sox",
+      "safe_name": "ChicagoWhite_Sox",
+      "slug": "chicago-white-sox",
+      "player_count": 25
+    },
+    "cle": {
+      "team_name": "ClevelandGuardians",
+      "safe_name": "ClevelandGuardians",
+      "slug": "cleveland-guardians",
+      "player_count": 27
+    },
+    "det": {
+      "team_name": "DetroitTigers",
+      "safe_name": "DetroitTigers",
+      "slug": "detroit-tigers",
+      "player_count": 26
+    },
+    "kc": {
+      "team_name": "Kansas CityRoyals",
+      "safe_name": "Kansas_CityRoyals",
+      "slug": "kansas-city-royals",
+      "player_count": 26
+    },
+    "min": {
+      "team_name": "MinnesotaTwins",
+      "safe_name": "MinnesotaTwins",
+      "slug": "minnesota-twins",
+      "player_count": 25
+    },
+    "bal": {
+      "team_name": "BaltimoreOrioles",
+      "safe_name": "BaltimoreOrioles",
+      "slug": "baltimore-orioles",
+      "player_count": 26
+    },
+    "bos": {
+      "team_name": "BostonRed Sox",
+      "safe_name": "BostonRed_Sox",
+      "slug": "boston-red-sox",
+      "player_count": 26
+    },
+    "nyy": {
+      "team_name": "New YorkYankees",
+      "safe_name": "New_YorkYankees",
+      "slug": "new-york-yankees",
+      "player_count": 26
+    },
+    "tb": {
+      "team_name": "Tampa BayRays",
+      "safe_name": "Tampa_BayRays",
+      "slug": "tampa-bay-rays",
+      "player_count": 27
+    },
+    "tor": {
+      "team_name": "TorontoBlue Jays",
+      "safe_name": "TorontoBlue_Jays",
+      "slug": "toronto-blue-jays",
+      "player_count": 26
+    },
+    "ath": {
+      "team_name": "Athletics",
+      "safe_name": "Athletics",
+      "slug": "athletics",
+      "player_count": 26
+    },
+    "hou": {
+      "team_name": "HoustonAstros",
+      "safe_name": "HoustonAstros",
+      "slug": "houston-astros",
+      "player_count": 26
+    },
+    "laa": {
+      "team_name": "Los AngelesAngels",
+      "safe_name": "Los_AngelesAngels",
+      "slug": "los-angeles-angels",
+      "player_count": 25
+    },
+    "sea": {
+      "team_name": "SeattleMariners",
+      "safe_name": "SeattleMariners",
+      "slug": "seattle-mariners",
+      "player_count": 26
+    },
+    "tex": {
+      "team_name": "TexasRangers",
+      "safe_name": "TexasRangers",
+      "slug": "texas-rangers",
+      "player_count": 25
+    },
+    "chc": {
+      "team_name": "ChicagoCubs",
+      "safe_name": "ChicagoCubs",
+      "slug": "chicago-cubs",
+      "player_count": 26
+    },
+    "cin": {
+      "team_name": "CincinnatiReds",
+      "safe_name": "CincinnatiReds",
+      "slug": "cincinnati-reds",
+      "player_count": 26
+    },
+    "mil": {
+      "team_name": "MilwaukeeBrewers",
+      "safe_name": "MilwaukeeBrewers",
+      "slug": "milwaukee-brewers",
+      "player_count": 27
+    },
+    "pit": {
+      "team_name": "PittsburghPirates",
+      "safe_name": "PittsburghPirates",
+      "slug": "pittsburgh-pirates",
+      "player_count": 27
+    },
+    "stl": {
+      "team_name": "St. LouisCardinals",
+      "safe_name": "St._LouisCardinals",
+      "slug": "st-louis-cardinals",
+      "player_count": 27
+    },
+    "atl": {
+      "team_name": "AtlantaBraves",
+      "safe_name": "AtlantaBraves",
+      "slug": "atlanta-braves",
+      "player_count": 26
+    },
+    "mia": {
+      "team_name": "MiamiMarlins",
+      "safe_name": "MiamiMarlins",
+      "slug": "miami-marlins",
+      "player_count": 26
+    },
+    "nym": {
+      "team_name": "New YorkMets",
+      "safe_name": "New_YorkMets",
+      "slug": "new-york-mets",
+      "player_count": 26
+    },
+    "phi": {
+      "team_name": "PhiladelphiaPhillies",
+      "safe_name": "PhiladelphiaPhillies",
+      "slug": "philadelphia-phillies",
+      "player_count": 28
+    },
+    "wsh": {
+      "team_name": "WashingtonNationals",
+      "safe_name": "WashingtonNationals",
+      "slug": "washington-nationals",
+      "player_count": 26
+    },
+    "ari": {
+      "team_name": "ArizonaDiamondbacks",
+      "safe_name": "ArizonaDiamondbacks",
+      "slug": "arizona-diamondbacks",
+      "player_count": 26
+    },
+    "col": {
+      "team_name": "ColoradoRockies",
+      "safe_name": "ColoradoRockies",
+      "slug": "colorado-rockies",
+      "player_count": 29
+    },
+    "lad": {
+      "team_name": "Los AngelesDodgers",
+      "safe_name": "Los_AngelesDodgers",
+      "slug": "los-angeles-dodgers",
+      "player_count": 26
+    },
+    "sd": {
+      "team_name": "San DiegoPadres",
+      "safe_name": "San_DiegoPadres",
+      "slug": "san-diego-padres",
+      "player_count": 26
+    },
+    "sf": {
+      "team_name": "San FranciscoGiants",
+      "safe_name": "San_FranciscoGiants",
+      "slug": "san-francisco-giants",
+      "player_count": 26
+    }
+  },
+  "file_structure": {
+    "individual_files": "Each team saved as San_FranciscoGiants.json",
+    "summary_file": "This file contains overview and team abbreviation mapping",
+    "player_data_includes": [
+      "player_id",
+      "name",
+      "jersey_number",
+      "position",
+      "batting_hand",
+      "throwing_hand",
+      "age",
+      "height",
+      "weight",
+      "birth_place",
+      "team_info",
+      "espn_url"
+    ]
+  }
+}

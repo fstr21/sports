@@ -1,0 +1,182 @@
+[
+    {
+        "id": "4066261",
+        "name": "Bam Adebayo",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "28",
+        "height": "6' 9\"",
+        "weight_lbs": "255 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "6429",
+        "name": "Alec Burks",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "34",
+        "height": "6' 5\"",
+        "weight_lbs": "214 lbs",
+        "college": "Colorado"
+    },
+    {
+        "id": "3899664",
+        "name": "Simone Fontecchio",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "29",
+        "height": "6' 7\"",
+        "weight_lbs": "209 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4431772",
+        "name": "Myron Gardner",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 6\"",
+        "weight_lbs": "220 lbs",
+        "college": "Little Rock"
+    },
+    {
+        "id": "4700818",
+        "name": "Vladislav Goldin",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "24",
+        "height": "7' 1\"",
+        "weight_lbs": "250 lbs",
+        "college": "Michigan"
+    },
+    {
+        "id": "4395725",
+        "name": "Tyler Herro",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "25",
+        "height": "6' 5\"",
+        "weight_lbs": "195 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4291678",
+        "name": "Haywood Highsmith",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "28",
+        "height": "6' 5\"",
+        "weight_lbs": "220 lbs",
+        "college": "Wheeling Jesuit"
+    },
+    {
+        "id": "5214640",
+        "name": "Kasparas Jakucionis",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "19",
+        "height": "6' 6\"",
+        "weight_lbs": "200 lbs",
+        "college": "Illinois"
+    },
+    {
+        "id": "4432848",
+        "name": "Jaime Jaquez Jr.",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 6\"",
+        "weight_lbs": "225 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "4431786",
+        "name": "Keshad Johnson",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 7\"",
+        "weight_lbs": "225 lbs",
+        "college": "Arizona"
+    },
+    {
+        "id": "4997528",
+        "name": "Nikola Jovic",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 10\"",
+        "weight_lbs": "205 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4601025",
+        "name": "Pelle Larsson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 5\"",
+        "weight_lbs": "215 lbs",
+        "college": "Arizona"
+    },
+    {
+        "id": "4278053",
+        "name": "Davion Mitchell",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "26",
+        "height": "6' 0\"",
+        "weight_lbs": "202 lbs",
+        "college": "Baylor"
+    },
+    {
+        "id": "2595516",
+        "name": "Norman Powell",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "32",
+        "height": "6' 4\"",
+        "weight_lbs": "215 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "3074752",
+        "name": "Terry Rozier",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "31",
+        "height": "6' 1\"",
+        "weight_lbs": "190 lbs",
+        "college": "Louisville"
+    },
+    {
+        "id": "4066993",
+        "name": "Dru Smith",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "27",
+        "height": "6' 2\"",
+        "weight_lbs": "203 lbs",
+        "college": "Missouri"
+    },
+    {
+        "id": "5105623",
+        "name": "Kel'el Ware",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "21",
+        "height": "7' 0\"",
+        "weight_lbs": "230 lbs",
+        "college": "Indiana"
+    },
+    {
+        "id": "3059319",
+        "name": "Andrew Wiggins",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "30",
+        "height": "6' 7\"",
+        "weight_lbs": "197 lbs",
+        "college": "Kansas"
+    }
+]

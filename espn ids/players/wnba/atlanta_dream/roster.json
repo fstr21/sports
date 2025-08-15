@@ -1,0 +1,122 @@
+[
+    {
+        "id": "4280850",
+        "name": "Maya Caldwell",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "5' 11\"",
+        "weight_lbs": "160 lbs",
+        "college": "Georgia"
+    },
+    {
+        "id": "3142250",
+        "name": "Jordin Canada",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "29",
+        "height": "5' 6\"",
+        "weight_lbs": "135 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "3054590",
+        "name": "Nia Coffey",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "30",
+        "height": "6' 1\"",
+        "weight_lbs": "182 lbs",
+        "college": "Northwestern"
+    },
+    {
+        "id": "3058901",
+        "name": "Allisha Gray",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "30",
+        "height": "6' 0\"",
+        "weight_lbs": "167 lbs",
+        "college": "South Carolina"
+    },
+    {
+        "id": "2490553",
+        "name": "Brittney Griner",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "34",
+        "height": "6' 9\"",
+        "weight_lbs": "205 lbs",
+        "college": "Baylor"
+    },
+    {
+        "id": "4398915",
+        "name": "Naz Hillmon",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 2\"",
+        "weight_lbs": "190 lbs",
+        "college": "Michigan"
+    },
+    {
+        "id": "4398674",
+        "name": "Rhyne Howard",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 2\"",
+        "weight_lbs": "175 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "3058895",
+        "name": "Brionna Jones",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "29",
+        "height": "6' 3\"",
+        "weight_lbs": "215 lbs",
+        "college": "Maryland"
+    },
+    {
+        "id": "4433431",
+        "name": "Te-Hina Paopao",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "5' 9\"",
+        "weight_lbs": "--",
+        "college": "South Carolina"
+    },
+    {
+        "id": "4068346",
+        "name": "Kamiah Smalls",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "27",
+        "height": "5' 10\"",
+        "weight_lbs": "161 lbs",
+        "college": "James Madison"
+    },
+    {
+        "id": "4898400",
+        "name": "Taylor Thierry",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 1\"",
+        "weight_lbs": "--",
+        "college": "Ohio State"
+    },
+    {
+        "id": "3058893",
+        "name": "Shatori Walker-Kimbrough",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "30",
+        "height": "5' 9\"",
+        "weight_lbs": "140 lbs",
+        "college": "Maryland"
+    }
+]

@@ -1,0 +1,135 @@
+{
+  "scrape_date": "2025-08-11T01:00:00.000000",
+  "total_teams": 32,
+  "total_players": 908,
+  "teams": {
+    "boston_bruins": {
+      "players": 26,
+      "team_name": "Boston Bruins"
+    },
+    "buffalo_sabres": {
+      "players": 24,
+      "team_name": "Buffalo Sabres"
+    },
+    "detroit_red_wings": {
+      "players": 29,
+      "team_name": "Detroit Red Wings"
+    },
+    "florida_panthers": {
+      "players": 26,
+      "team_name": "Florida Panthers"
+    },
+    "montreal_canadiens": {
+      "players": 23,
+      "team_name": "Montreal Canadiens"
+    },
+    "ottawa_senators": {
+      "players": 35,
+      "team_name": "Ottawa Senators"
+    },
+    "tampa_bay_lightning": {
+      "players": 31,
+      "team_name": "Tampa Bay Lightning"
+    },
+    "toronto_maple_leafs": {
+      "players": 43,
+      "team_name": "Toronto Maple Leafs"
+    },
+    "chicago_blackhawks": {
+      "players": 28,
+      "team_name": "Chicago Blackhawks"
+    },
+    "colorado_avalanche": {
+      "players": 30,
+      "team_name": "Colorado Avalanche"
+    },
+    "dallas_stars": {
+      "players": 27,
+      "team_name": "Dallas Stars"
+    },
+    "minnesota_wild": {
+      "players": 36,
+      "team_name": "Minnesota Wild"
+    },
+    "nashville_predators": {
+      "players": 24,
+      "team_name": "Nashville Predators"
+    },
+    "st._louis_blues": {
+      "players": 27,
+      "team_name": "St. Louis Blues"
+    },
+    "utah_mammoth": {
+      "players": 25,
+      "team_name": "Utah Mammoth"
+    },
+    "winnipeg_jets": {
+      "players": 35,
+      "team_name": "Winnipeg Jets"
+    },
+    "carolina_hurricanes": {
+      "players": 33,
+      "team_name": "Carolina Hurricanes"
+    },
+    "columbus_blue_jackets": {
+      "players": 30,
+      "team_name": "Columbus Blue Jackets"
+    },
+    "new_jersey_devils": {
+      "players": 36,
+      "team_name": "New Jersey Devils"
+    },
+    "new_york_islanders": {
+      "players": 27,
+      "team_name": "New York Islanders"
+    },
+    "new_york_rangers": {
+      "players": 31,
+      "team_name": "New York Rangers"
+    },
+    "philadelphia_flyers": {
+      "players": 27,
+      "team_name": "Philadelphia Flyers"
+    },
+    "pittsburgh_penguins": {
+      "players": 32,
+      "team_name": "Pittsburgh Penguins"
+    },
+    "washington_capitals": {
+      "players": 26,
+      "team_name": "Washington Capitals"
+    },
+    "anaheim_ducks": {
+      "players": 27,
+      "team_name": "Anaheim Ducks"
+    },
+    "calgary_flames": {
+      "players": 25,
+      "team_name": "Calgary Flames"
+    },
+    "edmonton_oilers": {
+      "players": 34,
+      "team_name": "Edmonton Oilers"
+    },
+    "los_angeles_kings": {
+      "players": 32,
+      "team_name": "Los Angeles Kings"
+    },
+    "san_jose_sharks": {
+      "players": 30,
+      "team_name": "San Jose Sharks"
+    },
+    "seattle_kraken": {
+      "players": 26,
+      "team_name": "Seattle Kraken"
+    },
+    "vancouver_canucks": {
+      "players": 23,
+      "team_name": "Vancouver Canucks"
+    },
+    "vegas_golden_knights": {
+      "players": 37,
+      "team_name": "Vegas Golden Knights"
+    }
+  }
+}

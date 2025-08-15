@@ -1,0 +1,202 @@
+[
+    {
+        "id": "4065673",
+        "name": "Tony Bradley",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "27",
+        "height": "6' 11\"",
+        "weight_lbs": "248 lbs",
+        "college": "North Carolina"
+    },
+    {
+        "id": "3934723",
+        "name": "Thomas Bryant",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "28",
+        "height": "6' 10\"",
+        "weight_lbs": "248 lbs",
+        "college": "Indiana"
+    },
+    {
+        "id": "4431941",
+        "name": "RayJ Dennis",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 2\"",
+        "weight_lbs": "180 lbs",
+        "college": "Baylor"
+    },
+    {
+        "id": "5157066",
+        "name": "Johnny Furphy",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "20",
+        "height": "6' 7\"",
+        "weight_lbs": "195 lbs",
+        "college": "Kansas"
+    },
+    {
+        "id": "4396993",
+        "name": "Tyrese Haliburton",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "25",
+        "height": "6' 5\"",
+        "weight_lbs": "185 lbs",
+        "college": "Iowa State"
+    },
+    {
+        "id": "4065731",
+        "name": "Jay Huff",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "27",
+        "height": "7' 1\"",
+        "weight_lbs": "240 lbs",
+        "college": "Virginia"
+    },
+    {
+        "id": "4432170",
+        "name": "Isaiah Jackson",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "23",
+        "height": "6' 9\"",
+        "weight_lbs": "205 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4592829",
+        "name": "Quenton Jackson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "6' 5\"",
+        "weight_lbs": "180 lbs",
+        "college": "Texas A&M"
+    },
+    {
+        "id": "3999",
+        "name": "James Johnson",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "38",
+        "height": "6' 7\"",
+        "weight_lbs": "240 lbs",
+        "college": "Wake Forest"
+    },
+    {
+        "id": "4697268",
+        "name": "Kam Jones",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 5\"",
+        "weight_lbs": "200 lbs",
+        "college": "Marquette"
+    },
+    {
+        "id": "4683634",
+        "name": "Bennedict Mathurin",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "23",
+        "height": "6' 5\"",
+        "weight_lbs": "210 lbs",
+        "college": "Arizona"
+    },
+    {
+        "id": "2530530",
+        "name": "T.J. McConnell",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "33",
+        "height": "6' 1\"",
+        "weight_lbs": "190 lbs",
+        "college": "Arizona"
+    },
+    {
+        "id": "4395712",
+        "name": "Andrew Nembhard",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "25",
+        "height": "6' 4\"",
+        "weight_lbs": "191 lbs",
+        "college": "Gonzaga"
+    },
+    {
+        "id": "4396909",
+        "name": "Aaron Nesmith",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "25",
+        "height": "6' 6\"",
+        "weight_lbs": "215 lbs",
+        "college": "Vanderbilt"
+    },
+    {
+        "id": "4703421",
+        "name": "Taelon Peter",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 4\"",
+        "weight_lbs": "185 lbs",
+        "college": "Liberty"
+    },
+    {
+        "id": "4433076",
+        "name": "Ben Sheppard",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 6\"",
+        "weight_lbs": "190 lbs",
+        "college": "Belmont"
+    },
+    {
+        "id": "3149673",
+        "name": "Pascal Siakam",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "31",
+        "height": "6' 8\"",
+        "weight_lbs": "245 lbs",
+        "college": "New Mexico State"
+    },
+    {
+        "id": "4278355",
+        "name": "Obi Toppin",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "27",
+        "height": "6' 9\"",
+        "weight_lbs": "220 lbs",
+        "college": "Dayton"
+    },
+    {
+        "id": "5106060",
+        "name": "Jarace Walker",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 7\"",
+        "weight_lbs": "235 lbs",
+        "college": "Houston"
+    },
+    {
+        "id": "4432808",
+        "name": "James Wiseman",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "24",
+        "height": "6' 11\"",
+        "weight_lbs": "240 lbs",
+        "college": "Memphis"
+    }
+]

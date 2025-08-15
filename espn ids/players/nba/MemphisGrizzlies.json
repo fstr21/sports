@@ -1,0 +1,192 @@
+[
+    {
+        "id": "4593125",
+        "name": "Santi Aldama",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "24",
+        "height": "7' 0\"",
+        "weight_lbs": "215 lbs",
+        "college": "Loyola Maryland"
+    },
+    {
+        "id": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "32",
+        "height": "6' 5\"",
+        "weight_lbs": "204 lbs",
+        "college": "Georgia"
+    },
+    {
+        "id": "3906665",
+        "name": "Brandon Clarke",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "28",
+        "height": "6' 8\"",
+        "weight_lbs": "215 lbs",
+        "college": "Gonzaga"
+    },
+    {
+        "id": "4903027",
+        "name": "Cedric Coward",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 6\"",
+        "weight_lbs": "206 lbs",
+        "college": "Washington State"
+    },
+    {
+        "id": "4600663",
+        "name": "Zach Edey",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "23",
+        "height": "7' 4\"",
+        "weight_lbs": "305 lbs",
+        "college": "Purdue"
+    },
+    {
+        "id": "4701225",
+        "name": "PJ Hall",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "23",
+        "height": "6' 10\"",
+        "weight_lbs": "245 lbs",
+        "college": "Clemson"
+    },
+    {
+        "id": "5105550",
+        "name": "GG Jackson",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "20",
+        "height": "6' 9\"",
+        "weight_lbs": "210 lbs",
+        "college": "South Carolina"
+    },
+    {
+        "id": "4277961",
+        "name": "Jaren Jackson Jr.",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "25",
+        "height": "6' 10\"",
+        "weight_lbs": "242 lbs",
+        "college": "Michigan State"
+    },
+    {
+        "id": "4065733",
+        "name": "Ty Jerome",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 5\"",
+        "weight_lbs": "195 lbs",
+        "college": "Virginia"
+    },
+    {
+        "id": "3134932",
+        "name": "John Konchar",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "29",
+        "height": "6' 5\"",
+        "weight_lbs": "210 lbs",
+        "college": "Purdue Fort Wayne"
+    },
+    {
+        "id": "3146557",
+        "name": "Jock Landale",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "29",
+        "height": "6' 11\"",
+        "weight_lbs": "255 lbs",
+        "college": "Saint Mary's"
+    },
+    {
+        "id": "4683934",
+        "name": "Jahmai Mashack",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 3\"",
+        "weight_lbs": "197 lbs",
+        "college": "Tennessee"
+    },
+    {
+        "id": "4279888",
+        "name": "Ja Morant",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "26",
+        "height": "6' 2\"",
+        "weight_lbs": "174 lbs",
+        "college": "Murray State"
+    },
+    {
+        "id": "4431785",
+        "name": "Scotty Pippen Jr.",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 1\"",
+        "weight_lbs": "170 lbs",
+        "college": "Vanderbilt"
+    },
+    {
+        "id": "4781746",
+        "name": "Javon Small",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 3\"",
+        "weight_lbs": "190 lbs",
+        "college": "West Virginia"
+    },
+    {
+        "id": "4433083",
+        "name": "Cam Spencer",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 4\"",
+        "weight_lbs": "205 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "4066405",
+        "name": "Lamar Stevens",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "28",
+        "height": "6' 7\"",
+        "weight_lbs": "230 lbs",
+        "college": "Penn State"
+    },
+    {
+        "id": "5112087",
+        "name": "Jaylen Wells",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 8\"",
+        "weight_lbs": "206 lbs",
+        "college": "Washington State"
+    },
+    {
+        "id": "4397227",
+        "name": "Vince Williams Jr.",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 4\"",
+        "weight_lbs": "205 lbs",
+        "college": "VCU"
+    }
+]

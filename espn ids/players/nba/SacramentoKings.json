@@ -1,0 +1,232 @@
+[
+    {
+        "id": "4433174",
+        "name": "Dylan Cardwell",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "23",
+        "height": "6' 11\"",
+        "weight_lbs": "255 lbs",
+        "college": "Auburn"
+    },
+    {
+        "id": "4433188",
+        "name": "Devin Carter",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 2\"",
+        "weight_lbs": "195 lbs",
+        "college": "Providence"
+    },
+    {
+        "id": "4702384",
+        "name": "Nique Clifford",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 6\"",
+        "weight_lbs": "200 lbs",
+        "college": "Colorado State"
+    },
+    {
+        "id": "6581",
+        "name": "Jae Crowder",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "35",
+        "height": "6' 6\"",
+        "weight_lbs": "235 lbs",
+        "college": "Marquette"
+    },
+    {
+        "id": "3919454",
+        "name": "Terence Davis",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "28",
+        "height": "6' 4\"",
+        "weight_lbs": "201 lbs",
+        "college": "Ole Miss"
+    },
+    {
+        "id": "3978",
+        "name": "DeMar DeRozan",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "36",
+        "height": "6' 6\"",
+        "weight_lbs": "220 lbs",
+        "college": "USC"
+    },
+    {
+        "id": "4702177",
+        "name": "Keon Ellis",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 4\"",
+        "weight_lbs": "175 lbs",
+        "college": "Alabama"
+    },
+    {
+        "id": "3914285",
+        "name": "Drew Eubanks",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "28",
+        "height": "6' 10\"",
+        "weight_lbs": "245 lbs",
+        "college": "Oregon State"
+    },
+    {
+        "id": "4066636",
+        "name": "Markelle Fultz",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "27",
+        "height": "6' 4\"",
+        "weight_lbs": "209 lbs",
+        "college": "Washington"
+    },
+    {
+        "id": "5107818",
+        "name": "Isaac Jones",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "25",
+        "height": "6' 9\"",
+        "weight_lbs": "245 lbs",
+        "college": "Washington State"
+    },
+    {
+        "id": "4395704",
+        "name": "Mason Jones",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "27",
+        "height": "6' 4\"",
+        "weight_lbs": "200 lbs",
+        "college": "Arkansas"
+    },
+    {
+        "id": "3064440",
+        "name": "Zach LaVine",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "30",
+        "height": "6' 5\"",
+        "weight_lbs": "200 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "3136196",
+        "name": "Trey Lyles",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "29",
+        "height": "6' 9\"",
+        "weight_lbs": "234 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "2528588",
+        "name": "Doug McDermott",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "33",
+        "height": "6' 6\"",
+        "weight_lbs": "225 lbs",
+        "college": "Creighton"
+    },
+    {
+        "id": "4066262",
+        "name": "Malik Monk",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "27",
+        "height": "6' 3\"",
+        "weight_lbs": "200 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4594327",
+        "name": "Keegan Murray",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "24",
+        "height": "6' 8\"",
+        "weight_lbs": "225 lbs",
+        "college": "Iowa"
+    },
+    {
+        "id": "4279318",
+        "name": "Daeqwon Plowden",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "6' 6\"",
+        "weight_lbs": "216 lbs",
+        "college": "Bowling Green"
+    },
+    {
+        "id": "4898371",
+        "name": "Maxime Raynaud",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "22",
+        "height": "7' 1\"",
+        "weight_lbs": "250 lbs",
+        "college": "Stanford"
+    },
+    {
+        "id": "3155942",
+        "name": "Domantas Sabonis",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "29",
+        "height": "6' 10\"",
+        "weight_lbs": "240 lbs",
+        "college": "Gonzaga"
+    },
+    {
+        "id": "3032978",
+        "name": "Dario Saric",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "31",
+        "height": "6' 10\"",
+        "weight_lbs": "225 lbs",
+        "college": "--"
+    },
+    {
+        "id": "3032979",
+        "name": "Dennis Schroder",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "31",
+        "height": "6' 1\"",
+        "weight_lbs": "175 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4432117",
+        "name": "Isaiah Stevens",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 0\"",
+        "weight_lbs": "185 lbs",
+        "college": "Colorado State"
+    },
+    {
+        "id": "4279815",
+        "name": "Terry Taylor",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 5\"",
+        "weight_lbs": "230 lbs",
+        "college": "Austin Peay"
+    }
+]

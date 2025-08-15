@@ -1,0 +1,202 @@
+[
+    {
+        "id": "4397018",
+        "name": "Ochai Agbaji",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 5\"",
+        "weight_lbs": "215 lbs",
+        "college": "Kansas"
+    },
+    {
+        "id": "4433134",
+        "name": "Scottie Barnes",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "24",
+        "height": "6' 7\"",
+        "weight_lbs": "237 lbs",
+        "college": "Florida State"
+    },
+    {
+        "id": "4395625",
+        "name": "RJ Barrett",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "25",
+        "height": "6' 6\"",
+        "weight_lbs": "214 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4431893",
+        "name": "Jamison Battle",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 7\"",
+        "weight_lbs": "220 lbs",
+        "college": "Ohio State"
+    },
+    {
+        "id": "3948153",
+        "name": "Chris Boucher",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "32",
+        "height": "6' 9\"",
+        "weight_lbs": "200 lbs",
+        "college": "Oregon"
+    },
+    {
+        "id": "5211984",
+        "name": "Ulrich Chomche",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "19",
+        "height": "6' 11\"",
+        "weight_lbs": "235 lbs",
+        "college": "--"
+    },
+    {
+        "id": "5106258",
+        "name": "Gradey Dick",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 6\"",
+        "weight_lbs": "200 lbs",
+        "college": "Kansas"
+    },
+    {
+        "id": "4590360",
+        "name": "Chucky Hepburn",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 2\"",
+        "weight_lbs": "190 lbs",
+        "college": "Louisville"
+    },
+    {
+        "id": "3913176",
+        "name": "Brandon Ingram",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "27",
+        "height": "6' 8\"",
+        "weight_lbs": "190 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4067017",
+        "name": "A.J. Lawson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 6\"",
+        "weight_lbs": "179 lbs",
+        "college": "South Carolina"
+    },
+    {
+        "id": "4278580",
+        "name": "Sandro Mamukelashvili",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "26",
+        "height": "6' 9\"",
+        "weight_lbs": "240 lbs",
+        "college": "Seton Hall"
+    },
+    {
+        "id": "4702656",
+        "name": "Alijah Martin",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 2\"",
+        "weight_lbs": "210 lbs",
+        "college": "Florida"
+    },
+    {
+        "id": "5107897",
+        "name": "Jonathan Mogbo",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 9\"",
+        "weight_lbs": "225 lbs",
+        "college": "San Francisco"
+    },
+    {
+        "id": "5093267",
+        "name": "Collin Murray-Boyles",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "20",
+        "height": "6' 7\"",
+        "weight_lbs": "245 lbs",
+        "college": "South Carolina"
+    },
+    {
+        "id": "4066410",
+        "name": "Eugene Omoruyi",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "28",
+        "height": "6' 7\"",
+        "weight_lbs": "244 lbs",
+        "college": "Oregon"
+    },
+    {
+        "id": "3134908",
+        "name": "Jakob Poeltl",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "29",
+        "height": "7' 0\"",
+        "weight_lbs": "260 lbs",
+        "college": "Utah"
+    },
+    {
+        "id": "4395724",
+        "name": "Immanuel Quickley",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "26",
+        "height": "6' 2\"",
+        "weight_lbs": "190 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4432241",
+        "name": "Jamal Shead",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 1\"",
+        "weight_lbs": "200 lbs",
+        "college": "Houston"
+    },
+    {
+        "id": "4023",
+        "name": "Garrett Temple",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "39",
+        "height": "6' 5\"",
+        "weight_lbs": "195 lbs",
+        "college": "LSU"
+    },
+    {
+        "id": "4684272",
+        "name": "Ja'Kobe Walter",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 5\"",
+        "weight_lbs": "180 lbs",
+        "college": "Baylor"
+    }
+]

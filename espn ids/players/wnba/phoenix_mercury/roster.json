@@ -1,0 +1,112 @@
+[
+    {
+        "id": "5274110",
+        "name": "Monique Akoa Makani",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "5' 11\"",
+        "weight_lbs": "--",
+        "college": "--"
+    },
+    {
+        "id": "869",
+        "name": "DeWanna Bonner",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "37",
+        "height": "6' 4\"",
+        "weight_lbs": "140 lbs",
+        "college": "Auburn"
+    },
+    {
+        "id": "3916514",
+        "name": "Kalani Brown",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "28",
+        "height": "6' 7\"",
+        "weight_lbs": "245 lbs",
+        "college": "Baylor"
+    },
+    {
+        "id": "2998938",
+        "name": "Kahleah Copper",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "30",
+        "height": "6' 1\"",
+        "weight_lbs": "165 lbs",
+        "college": "Rutgers"
+    },
+    {
+        "id": "4399342",
+        "name": "Lexi Held",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "5' 10\"",
+        "weight_lbs": "150 lbs",
+        "college": "DePaul"
+    },
+    {
+        "id": "3920741",
+        "name": "Kitija Laksa",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "29",
+        "height": "6' 1\"",
+        "weight_lbs": "--",
+        "college": "South Florida"
+    },
+    {
+        "id": "4068042",
+        "name": "Natasha Mack",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "27",
+        "height": "6' 4\"",
+        "weight_lbs": "180 lbs",
+        "college": "Oklahoma State"
+    },
+    {
+        "id": "4281929",
+        "name": "Satou Sabally",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "27",
+        "height": "6' 4\"",
+        "weight_lbs": "175 lbs",
+        "college": "Oregon"
+    },
+    {
+        "id": "2529140",
+        "name": "Alyssa Thomas",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "33",
+        "height": "6' 2\"",
+        "weight_lbs": "203 lbs",
+        "college": "Maryland"
+    },
+    {
+        "id": "3142087",
+        "name": "Kathryn Westbeld",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "29",
+        "height": "6' 3\"",
+        "weight_lbs": "--",
+        "college": "Notre Dame"
+    },
+    {
+        "id": "887",
+        "name": "Sami Whitcomb",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "37",
+        "height": "5' 10\"",
+        "weight_lbs": "149 lbs",
+        "college": "Washington"
+    }
+]

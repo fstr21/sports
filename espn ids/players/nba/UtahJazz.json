@@ -1,0 +1,202 @@
+[
+    {
+        "id": "2993874",
+        "name": "Kyle Anderson",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "31",
+        "height": "6' 9\"",
+        "weight_lbs": "230 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "4873138",
+        "name": "Ace Bailey",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "18",
+        "height": "6' 8\"",
+        "weight_lbs": "210 lbs",
+        "college": "Rutgers"
+    },
+    {
+        "id": "4896372",
+        "name": "Walter Clayton Jr.",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 3\"",
+        "weight_lbs": "195 lbs",
+        "college": "Florida"
+    },
+    {
+        "id": "4683766",
+        "name": "Isaiah Collier",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 3\"",
+        "weight_lbs": "210 lbs",
+        "college": "USC"
+    },
+    {
+        "id": "4684793",
+        "name": "Kyle Filipowski",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 11\"",
+        "weight_lbs": "250 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4433627",
+        "name": "Keyonte George",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 4\"",
+        "weight_lbs": "185 lbs",
+        "college": "Baylor"
+    },
+    {
+        "id": "4397449",
+        "name": "Elijah Harkless",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "25",
+        "height": "6' 3\"",
+        "weight_lbs": "195 lbs",
+        "college": "UNLV"
+    },
+    {
+        "id": "4684806",
+        "name": "Taylor Hendricks",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 9\"",
+        "weight_lbs": "215 lbs",
+        "college": "UCF"
+    },
+    {
+        "id": "4433136",
+        "name": "Walker Kessler",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "24",
+        "height": "7' 0\"",
+        "weight_lbs": "245 lbs",
+        "college": "Auburn"
+    },
+    {
+        "id": "3449",
+        "name": "Kevin Love",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "36",
+        "height": "6' 8\"",
+        "weight_lbs": "251 lbs",
+        "college": "UCLA"
+    },
+    {
+        "id": "4066336",
+        "name": "Lauri Markkanen",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "28",
+        "height": "7' 0\"",
+        "weight_lbs": "240 lbs",
+        "college": "Arizona"
+    },
+    {
+        "id": "4431828",
+        "name": "KJ Martin",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 6\"",
+        "weight_lbs": "215 lbs",
+        "college": "--"
+    },
+    {
+        "id": "3133602",
+        "name": "Svi Mykhailiuk",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "28",
+        "height": "6' 7\"",
+        "weight_lbs": "205 lbs",
+        "college": "Kansas"
+    },
+    {
+        "id": "2990969",
+        "name": "Georges Niang",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "32",
+        "height": "6' 7\"",
+        "weight_lbs": "230 lbs",
+        "college": "Iowa State"
+    },
+    {
+        "id": "3102530",
+        "name": "Jusuf Nurkic",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "30",
+        "height": "7' 0\"",
+        "weight_lbs": "290 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4066399",
+        "name": "Micah Potter",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "27",
+        "height": "6' 9\"",
+        "weight_lbs": "248 lbs",
+        "college": "Wisconsin"
+    },
+    {
+        "id": "5105839",
+        "name": "Brice Sensabaugh",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "21",
+        "height": "6' 5\"",
+        "weight_lbs": "235 lbs",
+        "college": "Ohio State"
+    },
+    {
+        "id": "4593043",
+        "name": "John Tonje",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "24",
+        "height": "6' 5\"",
+        "weight_lbs": "218 lbs",
+        "college": "Wisconsin"
+    },
+    {
+        "id": "4432827",
+        "name": "Oscar Tshiebwe",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "25",
+        "height": "6' 8\"",
+        "weight_lbs": "255 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "4895758",
+        "name": "Cody Williams",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "20",
+        "height": "6' 7\"",
+        "weight_lbs": "190 lbs",
+        "college": "Colorado"
+    }
+]

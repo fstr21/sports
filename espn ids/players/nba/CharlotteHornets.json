@@ -1,0 +1,212 @@
+[
+    {
+        "id": "4432816",
+        "name": "LaMelo Ball",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "23",
+        "height": "6' 7\"",
+        "weight_lbs": "180 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4066383",
+        "name": "Miles Bridges",
+        "jersey_number": "N/A",
+        "position": "SF",
+        "age": "27",
+        "height": "6' 7\"",
+        "weight_lbs": "225 lbs",
+        "college": "Michigan State"
+    },
+    {
+        "id": "2578239",
+        "name": "Pat Connaughton",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "32",
+        "height": "6' 5\"",
+        "weight_lbs": "209 lbs",
+        "college": "Notre Dame"
+    },
+    {
+        "id": "4433249",
+        "name": "Moussa Diabate",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "23",
+        "height": "6' 9\"",
+        "weight_lbs": "210 lbs",
+        "college": "Michigan"
+    },
+    {
+        "id": "2580782",
+        "name": "Spencer Dinwiddie",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "32",
+        "height": "6' 5\"",
+        "weight_lbs": "215 lbs",
+        "college": "Colorado"
+    },
+    {
+        "id": "4432811",
+        "name": "Josh Green",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "24",
+        "height": "6' 5\"",
+        "weight_lbs": "200 lbs",
+        "college": "Arizona"
+    },
+    {
+        "id": "4602025",
+        "name": "Sion James",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "22",
+        "height": "6' 6\"",
+        "weight_lbs": "220 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "3913220",
+        "name": "DaQuan Jeffries",
+        "jersey_number": "N/A",
+        "position": "SG",
+        "age": "27",
+        "height": "6' 5\"",
+        "weight_lbs": "222 lbs",
+        "college": "Western Texas Coll. (J.C.)"
+    },
+    {
+        "id": "4576060",
+        "name": "Ryan Kalkbrenner",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "23",
+        "height": "7' 1\"",
+        "weight_lbs": "270 lbs",
+        "college": "Creighton"
+    },
+    {
+        "id": "5061575",
+        "name": "Kon Knueppel",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "20",
+        "height": "6' 7\"",
+        "weight_lbs": "217 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4432819",
+        "name": "Tre Mann",
+        "jersey_number": "N/A",
+        "position": "PG",
+        "age": "24",
+        "height": "6' 3\"",
+        "weight_lbs": "178 lbs",
+        "college": "Florida"
+    },
+    {
+        "id": "5239590",
+        "name": "Liam McNeeley",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "19",
+        "height": "6' 7\"",
+        "weight_lbs": "210 lbs",
+        "college": "UConn"
+    },
+    {
+        "id": "4433287",
+        "name": "Brandon Miller",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "22",
+        "height": "6' 7\"",
+        "weight_lbs": "200 lbs",
+        "college": "Alabama"
+    },
+    {
+        "id": "4397689",
+        "name": "Drew Peterson",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "25",
+        "height": "6' 9\"",
+        "weight_lbs": "205 lbs",
+        "college": "USC"
+    },
+    {
+        "id": "2488653",
+        "name": "Mason Plumlee",
+        "jersey_number": "N/A",
+        "position": "C",
+        "age": "35",
+        "height": "6' 10\"",
+        "weight_lbs": "254 lbs",
+        "college": "Duke"
+    },
+    {
+        "id": "4592686",
+        "name": "Antonio Reeves",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "24",
+        "height": "6' 5\"",
+        "weight_lbs": "205 lbs",
+        "college": "Kentucky"
+    },
+    {
+        "id": "5211176",
+        "name": "Tidjane Salaun",
+        "jersey_number": "N/A",
+        "position": "F",
+        "age": "20",
+        "height": "6' 8\"",
+        "weight_lbs": "207 lbs",
+        "college": "--"
+    },
+    {
+        "id": "4277811",
+        "name": "Collin Sexton",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "26",
+        "height": "6' 3\"",
+        "weight_lbs": "190 lbs",
+        "college": "Alabama"
+    },
+    {
+        "id": "4683834",
+        "name": "KJ Simpson",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "23",
+        "height": "6' 0\"",
+        "weight_lbs": "189 lbs",
+        "college": "Colorado"
+    },
+    {
+        "id": "4683686",
+        "name": "Nick Smith Jr.",
+        "jersey_number": "N/A",
+        "position": "G",
+        "age": "21",
+        "height": "6' 2\"",
+        "weight_lbs": "185 lbs",
+        "college": "Arkansas"
+    },
+    {
+        "id": "4066218",
+        "name": "Grant Williams",
+        "jersey_number": "N/A",
+        "position": "PF",
+        "age": "26",
+        "height": "6' 6\"",
+        "weight_lbs": "236 lbs",
+        "college": "Tennessee"
+    }
+]

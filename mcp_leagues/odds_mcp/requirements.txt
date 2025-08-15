@@ -1,0 +1,4 @@
+# Requirements for Odds MCP v2 using direct HTTP calls
+uvicorn[standard]>=0.24.0
+starlette>=0.27.0
+httpx>=0.25.0

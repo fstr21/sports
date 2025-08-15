@@ -1,0 +1,8 @@
+[build]
+command = "pip install -r requirements.txt"
+
+[deploy]
+startCommand = "python cfb_mcp_server.py"
+
+[env]
+CFBD_API_KEY = "Z0NGwLNiztE/3/YtS+Jajy4tID7xbjON1UFh6s8q0XgpM66VEkMGHYCt6ALSud7Y"
