@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "cfbd": {
+      "command": "uvx",
+      "args": ["lenwood.cfbd-mcp-server@latest"],
+      "env": {
+        "CFBD_API_KEY": "${CFBD_API_KEY}"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
