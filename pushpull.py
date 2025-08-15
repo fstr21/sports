@@ -22,10 +22,10 @@ def git_pull():
     print("Pulling from main branch...")
     success, stdout, stderr = run_command("git pull origin main")
     if success:
-        print("✅ Pull successful!")
+        print("Pull successful!")
         print(stdout)
     else:
-        print("❌ Pull failed!")
+        print("Pull failed!")
         print(stderr)
     return success
 
@@ -35,12 +35,12 @@ def git_push():
     has_changes = git_status()
     
     if has_changes:
-        print("📝 Changes detected. Adding and committing files...")
+        print("Changes detected. Adding and committing files...")
         
         # Add all changes
         success, stdout, stderr = run_command("git add .")
         if not success:
-            print("❌ Failed to add files!")
+            print("Failed to add files!")
             print(stderr)
             return False
         
@@ -48,45 +48,62 @@ def git_push():
         commit_msg = "Update workspace"
         success, stdout, stderr = run_command(f'git commit -m "{commit_msg}"')
         if not success:
-            print("❌ Failed to commit changes!")
+            print("Failed to commit changes!")
             print(stderr)
             return False
         
-        print(f"✅ Changes committed with message: '{commit_msg}'")
+        print(f"Changes committed with message: '{commit_msg}'")
     
     # Push to main
-    print("🚀 Pushing to main branch...")
+    print("Pushing to main branch...")
     success, stdout, stderr = run_command("git push origin main")
     if success:
-        print("✅ Push successful!")
+        print("Push successful!")
         print(stdout)
     else:
-        print("❌ Push failed!")
+        print("Push failed!")
         print(stderr)
     
     return success
 
 def main():
-    print("🔧 Git Helper Tool")
-    print("==================")
+    print("Git Helper Tool")
+    print("===============")
+    
+    # Non-interactive mode for testing
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "push":
+            git_push()
+            sys.exit(0)
+        elif sys.argv[1] == "pull":
+            git_pull() 
+            sys.exit(0)
+        elif sys.argv[1] == "status":
+            success, stdout, stderr = run_command("git status")
+            if success:
+                print(stdout)
+            else:
+                print("Failed to get git status!")
+                print(stderr)
+            sys.exit(0)
     
     while True:
         print("\nChoose an option:")
-        print("1. 📥 Pull from main branch")
-        print("2. 📤 Push to main branch")
-        print("3. 📊 Check git status")
-        print("4. ❌ Exit")
+        print("1. Pull from main branch")
+        print("2. Push to main branch")
+        print("3. Check git status")
+        print("4. Exit")
         
         choice = input("\nEnter your choice (1-4): ").strip()
         
         if choice == "1":
             git_pull()
-            print("\n✅ Operation completed. Press Enter to exit...")
+            print("\nOperation completed. Press Enter to exit...")
             input()
             sys.exit(0)
         elif choice == "2":
             git_push()
-            print("\n✅ Operation completed. Press Enter to exit...")
+            print("\nOperation completed. Press Enter to exit...")
             input()
             sys.exit(0)
         elif choice == "3":
@@ -94,16 +111,16 @@ def main():
             if success:
                 print(stdout)
             else:
-                print("❌ Failed to get git status!")
+                print("Failed to get git status!")
                 print(stderr)
-            print("\n✅ Status check completed. Press Enter to exit...")
+            print("\nStatus check completed. Press Enter to exit...")
             input()
             sys.exit(0)
         elif choice == "4":
-            print("👋 Goodbye!")
+            print("Goodbye!")
             sys.exit(0)
         else:
-            print("❌ Invalid choice. Please enter 1-4.")
+            print("Invalid choice. Please enter 1-4.")
 
 if __name__ == "__main__":
     main()
