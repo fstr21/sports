@@ -327,11 +327,17 @@ async def main():
         print("ERROR: DISCORD_TOKEN environment variable is required")
         sys.exit(1)
     
-    # Start Discord client
+    # Start Discord client and wait for it to be ready
     print("Connecting to Discord...")
-    discord_task = asyncio.create_task(discord_client.start(DISCORD_TOKEN))
     
-    # Wait for Discord to be ready
+    async def start_discord():
+        await discord_client.start(DISCORD_TOKEN)
+    
+    # Start Discord client in background
+    discord_task = asyncio.create_task(start_discord())
+    
+    # Give Discord client a moment to start, then wait for ready
+    await asyncio.sleep(2)
     await discord_client.wait_until_ready()
     print("Discord client ready!")
     
