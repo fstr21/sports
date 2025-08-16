@@ -61,7 +61,7 @@ class SportsBot(commands.Bot):
         intents = discord.Intents.default()
         intents.message_content = True
         intents.guilds = True
-        intents.manage_channels = True  # Required for channel management
+        # Note: Channel management is handled through bot permissions, not intents
         
         super().__init__(
             command_prefix=COMMAND_PREFIX,
