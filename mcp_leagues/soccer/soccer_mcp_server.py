@@ -53,9 +53,13 @@ async def football_data_api_get(endpoint: str, params: Optional[Dict[str, Any]] 
     url = f"{FOOTBALL_DATA_API_BASE}/{endpoint}"
     query_params = params or {}
     
-    # Get base client headers
-    client = await get_http_client()
-    headers = dict(client.headers)
+    # Build headers
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Accept": "application/json"
+    }
+    if FOOTBALL_DATA_API_KEY:
+        headers["X-Auth-Token"] = FOOTBALL_DATA_API_KEY
     
     # Add unfolding headers for detailed match statistics
     if unfold_details:
@@ -66,13 +70,15 @@ async def football_data_api_get(endpoint: str, params: Optional[Dict[str, Any]] 
             "X-Unfold-Subs": "true"
         })
     
-    try:
-        r = await client.get(url, params=query_params, headers=headers)
-        if r.status_code >= 400:
-            return {"ok": False, "error": f"Football-Data API error {r.status_code}: {r.text[:200]}"}
-        return {"ok": True, "data": r.json()}
-    except Exception as e:
-        return {"ok": False, "error": f"Football-Data API request failed: {str(e)}"}
+    # Create a new client with the correct headers
+    async with httpx.AsyncClient(timeout=20.0, headers=headers) as client:
+        try:
+            r = await client.get(url, params=query_params)
+            if r.status_code >= 400:
+                return {"ok": False, "error": f"Football-Data API error {r.status_code}: {r.text[:200]}"}
+            return {"ok": True, "data": r.json()}
+        except Exception as e:
+            return {"ok": False, "error": f"Football-Data API request failed: {str(e)}"}
 
 # Soccer Tool implementations
 
