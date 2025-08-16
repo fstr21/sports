@@ -143,35 +143,6 @@ async def handle_get_nfl_schedule(server: NFLMCPServer, args: Dict[str, Any]) ->
         date_from = args.get("date_from")
         date_to = args.get("date_to")
         game_type = args.get("game_type", "REG")  # REG, POST, WC, DIV, CON, SB
-        use_test_mode = args.get("use_test_mode", False)
-        
-        # Handle test mode
-        if use_test_mode:
-            return {
-                "ok": True,
-                "content_md": f"## NFL Schedule (Test Mode)\n\nTest NFL schedule data for season {season}",
-                "data": {
-                    "source": "test_mode",
-                    "season": season,
-                    "games": [
-                        {
-                            "game_id": f"test_{season}_01_KC_PHI",
-                            "week": 1,
-                            "date": "2025-09-04",
-                            "away_team": "KC",
-                            "home_team": "PHI",
-                            "game_type": "REG",
-                            "betting_odds": {
-                                "away_moneyline": -150,
-                                "home_moneyline": 130,
-                                "spread_line": -3.0,
-                                "total_line": 45.5
-                            }
-                        }
-                    ]
-                }
-            }
-        
         # Load NFL schedule
         cache_key = f"schedule_{season}"
         if cache_key not in server.data_cache or _is_cache_expired(server, cache_key):
@@ -277,21 +248,6 @@ async def handle_get_nfl_teams(server: NFLMCPServer, args: Dict[str, Any]) -> Di
     try:
         division = args.get("division")
         conference = args.get("conference")
-        use_test_mode = args.get("use_test_mode", False)
-        
-        if use_test_mode:
-            return {
-                "ok": True,
-                "content_md": "## NFL Teams (Test Mode)\n\nTest NFL teams data",
-                "data": {
-                    "source": "test_mode",
-                    "teams": [
-                        {"team_abbr": "KC", "team_name": "Kansas City Chiefs", "division": "AFC West", "conference": "AFC"},
-                        {"team_abbr": "PHI", "team_name": "Philadelphia Eagles", "division": "NFC East", "conference": "NFC"}
-                    ]
-                }
-            }
-        
         # Load teams data
         cache_key = "teams"
         if cache_key not in server.data_cache or _is_cache_expired(server, cache_key):
@@ -371,21 +327,6 @@ async def handle_get_nfl_player_stats(server: NFLMCPServer, args: Dict[str, Any]
         position = args.get("position")
         stat_type = args.get("stat_type", "passing")  # passing, rushing, receiving
         limit = args.get("limit", 50)
-        use_test_mode = args.get("use_test_mode", False)
-        
-        if use_test_mode:
-            return {
-                "ok": True,
-                "content_md": f"## NFL Player Stats (Test Mode)\n\nTest player statistics for {season}",
-                "data": {
-                    "source": "test_mode",
-                    "season": season,
-                    "players": [
-                        {"player_name": "P.Mahomes", "team": "KC", "passing_yards": 4500, "passing_tds": 35},
-                        {"player_name": "J.Hurts", "team": "PHI", "passing_yards": 4200, "passing_tds": 28}
-                    ]
-                }
-            }
         
         # Load player stats
         cache_key = f"player_stats_{season}"
@@ -507,21 +448,6 @@ async def handle_get_nfl_injuries(server: NFLMCPServer, args: Dict[str, Any]) ->
         status = args.get("status")  # Out, Questionable, Doubtful, etc.
         position = args.get("position")
         limit = args.get("limit", 100)
-        use_test_mode = args.get("use_test_mode", False)
-        
-        if use_test_mode:
-            return {
-                "ok": True,
-                "content_md": f"## NFL Injuries (Test Mode)\n\nTest injury reports for {season}",
-                "data": {
-                    "source": "test_mode",
-                    "season": season,
-                    "injuries": [
-                        {"player_name": "Test Player", "team": "KC", "status": "Questionable", "injury": "Ankle"},
-                        {"player_name": "Test Player 2", "team": "PHI", "status": "Out", "injury": "Hamstring"}
-                    ]
-                }
-            }
         
         # Load injury data
         cache_key = f"injuries_{season}"
@@ -604,21 +530,6 @@ async def handle_get_nfl_team_stats(server: NFLMCPServer, args: Dict[str, Any]) 
         season = args.get("season", datetime.now().year)
         team = args.get("team")
         stat_category = args.get("stat_category", "offense")  # offense, defense, special_teams
-        use_test_mode = args.get("use_test_mode", False)
-        
-        if use_test_mode:
-            return {
-                "ok": True,
-                "content_md": f"## NFL Team Stats (Test Mode)\n\nTest team statistics for {season}",
-                "data": {
-                    "source": "test_mode",
-                    "season": season,
-                    "teams": [
-                        {"team": "KC", "total_yards": 6500, "total_tds": 45},
-                        {"team": "PHI", "total_yards": 6200, "total_tds": 42}
-                    ]
-                }
-            }
         
         # Load seasonal team data
         cache_key = f"team_stats_{season}"
@@ -729,10 +640,6 @@ TOOLS = {
                     "type": "string",
                     "description": "Game type filter (REG, POST, WC, DIV, CON, SB)",
                     "default": "REG"
-                },
-                "use_test_mode": {
-                    "type": "boolean",
-                    "description": "Use test/mock data instead of live API"
                 }
             }
         },
@@ -751,10 +658,6 @@ TOOLS = {
                 "conference": {
                     "type": "string",
                     "description": "Filter by conference ('AFC' or 'NFC')"
-                },
-                "use_test_mode": {
-                    "type": "boolean",
-                    "description": "Use test/mock data instead of live API"
                 }
             }
         },
@@ -791,10 +694,6 @@ TOOLS = {
                     "type": "integer",
                     "description": "Maximum number of players to return",
                     "default": 50
-                },
-                "use_test_mode": {
-                    "type": "boolean",
-                    "description": "Use test/mock data instead of live API"
                 }
             }
         },
@@ -826,10 +725,6 @@ TOOLS = {
                     "type": "integer",
                     "description": "Maximum number of injury reports to return",
                     "default": 100
-                },
-                "use_test_mode": {
-                    "type": "boolean",
-                    "description": "Use test/mock data instead of live API"
                 }
             }
         },
@@ -853,10 +748,6 @@ TOOLS = {
                     "type": "string",
                     "description": "Category of stats (offense, defense, special_teams)",
                     "default": "offense"
-                },
-                "use_test_mode": {
-                    "type": "boolean",
-                    "description": "Use test/mock data instead of live API"
                 }
             }
         },

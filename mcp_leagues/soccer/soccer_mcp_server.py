@@ -47,83 +47,27 @@ async def get_http_client() -> httpx.AsyncClient:
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
-# Mock data for test mode
-def get_mock_competitions():
-    return [
-        {"id": 2021, "name": "Premier League", "code": "PL", "type": "LEAGUE", "area": {"name": "England"}},
-        {"id": 2014, "name": "Primera División", "code": "PD", "type": "LEAGUE", "area": {"name": "Spain"}},
-        {"id": 2002, "name": "Bundesliga", "code": "BL1", "type": "LEAGUE", "area": {"name": "Germany"}},
-        {"id": 2015, "name": "Ligue 1", "code": "FL1", "type": "LEAGUE", "area": {"name": "France"}},
-        {"id": 2019, "name": "Serie A", "code": "SA", "type": "LEAGUE", "area": {"name": "Italy"}},
-        {"id": 2001, "name": "UEFA Champions League", "code": "CL", "type": "CUP", "area": {"name": "Europe"}}
-    ]
-
-def get_mock_matches(competition_id: str):
-    return [
-        {
-            "id": 123456,
-            "utcDate": "2025-08-15T15:00:00Z",
-            "status": "SCHEDULED",
-            "homeTeam": {"id": 57, "name": "Arsenal FC", "shortName": "Arsenal"},
-            "awayTeam": {"id": 61, "name": "Chelsea FC", "shortName": "Chelsea"},
-            "score": {"fullTime": {"home": None, "away": None}},
-            "competition": {"id": competition_id, "name": "Premier League"}
-        },
-        {
-            "id": 123457,
-            "utcDate": "2025-08-15T17:30:00Z",
-            "status": "SCHEDULED", 
-            "homeTeam": {"id": 65, "name": "Manchester City FC", "shortName": "Man City"},
-            "awayTeam": {"id": 66, "name": "Manchester United FC", "shortName": "Man United"},
-            "score": {"fullTime": {"home": None, "away": None}},
-            "competition": {"id": competition_id, "name": "Premier League"}
-        }
-    ]
-
-def get_mock_standings(competition_id: str):
-    return {
-        "season": {"startDate": "2024-08-17", "endDate": "2025-05-25"},
-        "standings": [{
-            "stage": "REGULAR_SEASON",
-            "type": "TOTAL",
-            "table": [
-                {
-                    "position": 1,
-                    "team": {"id": 65, "name": "Manchester City FC", "shortName": "Man City"},
-                    "playedGames": 10,
-                    "won": 8,
-                    "draw": 1,
-                    "lost": 1,
-                    "points": 25,
-                    "goalsFor": 24,
-                    "goalsAgainst": 8,
-                    "goalDifference": 16
-                },
-                {
-                    "position": 2,
-                    "team": {"id": 57, "name": "Arsenal FC", "shortName": "Arsenal"},
-                    "playedGames": 10,
-                    "won": 7,
-                    "draw": 2,
-                    "lost": 1,
-                    "points": 23,
-                    "goalsFor": 21,
-                    "goalsAgainst": 9,
-                    "goalDifference": 12
-                }
-            ]
-        }]
-    }
-
 # Soccer API functions
-async def football_data_api_get(endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+async def football_data_api_get(endpoint: str, params: Optional[Dict[str, Any]] = None, unfold_details: bool = False) -> Dict[str, Any]:
     """Make Football-Data.org API request"""
     url = f"{FOOTBALL_DATA_API_BASE}/{endpoint}"
     query_params = params or {}
     
+    # Get base client headers
     client = await get_http_client()
+    headers = dict(client.headers)
+    
+    # Add unfolding headers for detailed match statistics
+    if unfold_details:
+        headers.update({
+            "X-Unfold-Lineups": "true",
+            "X-Unfold-Bookings": "true", 
+            "X-Unfold-Goals": "true",
+            "X-Unfold-Subs": "true"
+        })
+    
     try:
-        r = await client.get(url, params=query_params)
+        r = await client.get(url, params=query_params, headers=headers)
         if r.status_code >= 400:
             return {"ok": False, "error": f"Football-Data API error {r.status_code}: {r.text[:200]}"}
         return {"ok": True, "data": r.json()}
@@ -134,17 +78,7 @@ async def football_data_api_get(endpoint: str, params: Optional[Dict[str, Any]] 
 
 async def handle_get_competitions(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get available soccer competitions"""
-    use_test_mode = args.get("use_test_mode", False)
     areas = args.get("areas")  # Optional filter by area IDs
-    
-    if use_test_mode:
-        competitions_data = get_mock_competitions()
-        return {
-            "ok": True,
-            "content_md": f"## Available Soccer Competitions (Test Mode)\n\nFound {len(competitions_data)} competitions",
-            "data": {"source": "football_data_mock", "competitions": competitions_data, "count": len(competitions_data)},
-            "meta": {"test_mode": True, "timestamp": now_iso()}
-        }
     
     if not FOOTBALL_DATA_API_KEY:
         return {
@@ -176,20 +110,10 @@ async def handle_get_competition_matches(args: Dict[str, Any]) -> Dict[str, Any]
     if not competition_id:
         return {"ok": False, "error": "competition_id is required"}
     
-    use_test_mode = args.get("use_test_mode", False)
     date_from = args.get("date_from")  # YYYY-MM-DD
     date_to = args.get("date_to")      # YYYY-MM-DD
     matchday = args.get("matchday")    # Specific matchday
     status = args.get("status")        # SCHEDULED, LIVE, IN_PLAY, FINISHED, etc.
-    
-    if use_test_mode:
-        matches_data = get_mock_matches(str(competition_id))
-        return {
-            "ok": True,
-            "content_md": f"## Competition Matches (Test Mode)\n\nFound {len(matches_data)} matches",
-            "data": {"source": "football_data_mock", "matches": matches_data, "count": len(matches_data)},
-            "meta": {"test_mode": True, "timestamp": now_iso()}
-        }
     
     if not FOOTBALL_DATA_API_KEY:
         return {
@@ -227,18 +151,8 @@ async def handle_get_competition_standings(args: Dict[str, Any]) -> Dict[str, An
     if not competition_id:
         return {"ok": False, "error": "competition_id is required"}
     
-    use_test_mode = args.get("use_test_mode", False)
     season = args.get("season")      # Year (e.g., 2024)
     matchday = args.get("matchday")  # Specific matchday
-    
-    if use_test_mode:
-        standings_data = get_mock_standings(str(competition_id))
-        return {
-            "ok": True,
-            "content_md": f"## Competition Standings (Test Mode)\n\nStandings for competition {competition_id}",
-            "data": {"source": "football_data_mock", "competition_id": competition_id, "standings": standings_data},
-            "meta": {"test_mode": True, "timestamp": now_iso()}
-        }
     
     if not FOOTBALL_DATA_API_KEY:
         return {
@@ -271,22 +185,7 @@ async def handle_get_competition_teams(args: Dict[str, Any]) -> Dict[str, Any]:
     if not competition_id:
         return {"ok": False, "error": "competition_id is required"}
     
-    use_test_mode = args.get("use_test_mode", False)
     season = args.get("season")  # Year (e.g., 2024)
-    
-    if use_test_mode:
-        teams_data = [
-            {"id": 57, "name": "Arsenal FC", "shortName": "Arsenal", "area": {"name": "England"}},
-            {"id": 61, "name": "Chelsea FC", "shortName": "Chelsea", "area": {"name": "England"}},
-            {"id": 65, "name": "Manchester City FC", "shortName": "Man City", "area": {"name": "England"}},
-            {"id": 66, "name": "Manchester United FC", "shortName": "Man United", "area": {"name": "England"}}
-        ]
-        return {
-            "ok": True,
-            "content_md": f"## Competition Teams (Test Mode)\n\nFound {len(teams_data)} teams",
-            "data": {"source": "football_data_mock", "competition_id": competition_id, "teams": teams_data, "count": len(teams_data)},
-            "meta": {"test_mode": True, "timestamp": now_iso()}
-        }
     
     if not FOOTBALL_DATA_API_KEY:
         return {
@@ -318,32 +217,12 @@ async def handle_get_team_matches(args: Dict[str, Any]) -> Dict[str, Any]:
     if not team_id:
         return {"ok": False, "error": "team_id is required"}
     
-    use_test_mode = args.get("use_test_mode", False)
     date_from = args.get("date_from")  # YYYY-MM-DD
     date_to = args.get("date_to")      # YYYY-MM-DD
     season = args.get("season")        # Year
     status = args.get("status")        # SCHEDULED, LIVE, IN_PLAY, FINISHED, etc.
     venue = args.get("venue")          # HOME, AWAY
     limit = args.get("limit")          # Number of matches
-    
-    if use_test_mode:
-        matches_data = [
-            {
-                "id": 123458,
-                "utcDate": "2025-08-20T19:45:00Z",
-                "status": "SCHEDULED",
-                "homeTeam": {"id": team_id, "name": "Test Team FC", "shortName": "Test Team"},
-                "awayTeam": {"id": 999, "name": "Opponent FC", "shortName": "Opponent"},
-                "score": {"fullTime": {"home": None, "away": None}},
-                "competition": {"id": 2021, "name": "Premier League"}
-            }
-        ]
-        return {
-            "ok": True,
-            "content_md": f"## Team Matches (Test Mode)\n\nFound {len(matches_data)} matches",
-            "data": {"source": "football_data_mock", "team_id": team_id, "matches": matches_data, "count": len(matches_data)},
-            "meta": {"test_mode": True, "timestamp": now_iso()}
-        }
     
     if not FOOTBALL_DATA_API_KEY:
         return {
@@ -380,37 +259,10 @@ async def handle_get_team_matches(args: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 async def handle_get_match_details(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Get details for a specific match"""
+    """Get details for a specific match with full statistics"""
     match_id = args.get("match_id")
     if not match_id:
         return {"ok": False, "error": "match_id is required"}
-    
-    use_test_mode = args.get("use_test_mode", False)
-    
-    if use_test_mode:
-        match_data = {
-            "id": match_id,
-            "utcDate": "2025-08-15T15:00:00Z",
-            "status": "FINISHED",
-            "homeTeam": {"id": 57, "name": "Arsenal FC", "shortName": "Arsenal"},
-            "awayTeam": {"id": 61, "name": "Chelsea FC", "shortName": "Chelsea"},
-            "score": {
-                "fullTime": {"home": 2, "away": 1},
-                "halfTime": {"home": 1, "away": 0}
-            },
-            "goals": [
-                {"minute": 25, "scorer": {"name": "Test Player"}, "team": {"id": 57}},
-                {"minute": 60, "scorer": {"name": "Another Player"}, "team": {"id": 61}},
-                {"minute": 88, "scorer": {"name": "Winner"}, "team": {"id": 57}}
-            ],
-            "competition": {"id": 2021, "name": "Premier League"}
-        }
-        return {
-            "ok": True,
-            "content_md": f"## Match Details (Test Mode)\n\nDetails for match {match_id}",
-            "data": {"source": "football_data_mock", "match": match_data},
-            "meta": {"test_mode": True, "timestamp": now_iso()}
-        }
     
     if not FOOTBALL_DATA_API_KEY:
         return {
@@ -418,7 +270,8 @@ async def handle_get_match_details(args: Dict[str, Any]) -> Dict[str, Any]:
             "error": "FOOTBALL_DATA_API_KEY not configured"
         }
     
-    resp = await football_data_api_get(f"matches/{match_id}")
+    # Use unfolding headers to get detailed statistics
+    resp = await football_data_api_get(f"matches/{match_id}", unfold_details=True)
     if not resp.get("ok"):
         return resp
     
@@ -426,7 +279,7 @@ async def handle_get_match_details(args: Dict[str, Any]) -> Dict[str, Any]:
     
     return {
         "ok": True,
-        "content_md": f"## Match Details\n\nDetails for match {match_id}",
+        "content_md": f"## Match Details\n\nDetails for match {match_id} with full statistics",
         "data": {"source": "football_data_api", "match": payload},
         "meta": {"timestamp": now_iso()}
     }
@@ -437,33 +290,8 @@ async def handle_get_top_scorers(args: Dict[str, Any]) -> Dict[str, Any]:
     if not competition_id:
         return {"ok": False, "error": "competition_id is required"}
     
-    use_test_mode = args.get("use_test_mode", False)
     season = args.get("season")  # Year
     limit = args.get("limit", 10)  # Default to top 10
-    
-    if use_test_mode:
-        scorers_data = [
-            {
-                "player": {"id": 1, "name": "Test Striker", "nationality": "England"},
-                "team": {"id": 57, "name": "Arsenal FC"},
-                "goals": 15,
-                "assists": 5,
-                "penalties": 2
-            },
-            {
-                "player": {"id": 2, "name": "Another Scorer", "nationality": "Spain"},
-                "team": {"id": 61, "name": "Chelsea FC"},
-                "goals": 12,
-                "assists": 8,
-                "penalties": 1
-            }
-        ]
-        return {
-            "ok": True,
-            "content_md": f"## Top Scorers (Test Mode)\n\nFound {len(scorers_data)} top scorers",
-            "data": {"source": "football_data_mock", "competition_id": competition_id, "scorers": scorers_data, "count": len(scorers_data)},
-            "meta": {"test_mode": True, "timestamp": now_iso()}
-        }
     
     if not FOOTBALL_DATA_API_KEY:
         return {
@@ -496,8 +324,7 @@ TOOLS = {
         "parameters": {
             "type": "object",
             "properties": {
-                "areas": {"type": "string", "description": "Comma-separated area IDs to filter by", "optional": True},
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+                "areas": {"type": "string", "description": "Comma-separated area IDs to filter by", "optional": True}
             }
         },
         "handler": handle_get_competitions
@@ -511,8 +338,7 @@ TOOLS = {
                 "date_from": {"type": "string", "description": "Start date (YYYY-MM-DD)", "optional": True},
                 "date_to": {"type": "string", "description": "End date (YYYY-MM-DD)", "optional": True},
                 "matchday": {"type": "integer", "description": "Specific matchday", "optional": True},
-                "status": {"type": "string", "description": "Match status (SCHEDULED, LIVE, FINISHED, etc.)", "optional": True},
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+                "status": {"type": "string", "description": "Match status (SCHEDULED, LIVE, FINISHED, etc.)", "optional": True}
             },
             "required": ["competition_id"]
         },
@@ -525,8 +351,7 @@ TOOLS = {
             "properties": {
                 "competition_id": {"type": "string", "description": "Competition ID (e.g., 'PL', '2021')"},
                 "season": {"type": "integer", "description": "Season year (e.g., 2024)", "optional": True},
-                "matchday": {"type": "integer", "description": "Specific matchday", "optional": True},
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+                "matchday": {"type": "integer", "description": "Specific matchday", "optional": True}
             },
             "required": ["competition_id"]
         },
@@ -538,8 +363,7 @@ TOOLS = {
             "type": "object",
             "properties": {
                 "competition_id": {"type": "string", "description": "Competition ID (e.g., 'PL', '2021')"},
-                "season": {"type": "integer", "description": "Season year (e.g., 2024)", "optional": True},
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+                "season": {"type": "integer", "description": "Season year (e.g., 2024)", "optional": True}
             },
             "required": ["competition_id"]
         },
@@ -556,8 +380,7 @@ TOOLS = {
                 "season": {"type": "integer", "description": "Season year (e.g., 2024)", "optional": True},
                 "status": {"type": "string", "description": "Match status (SCHEDULED, LIVE, FINISHED, etc.)", "optional": True},
                 "venue": {"type": "string", "description": "Venue filter (HOME, AWAY)", "optional": True},
-                "limit": {"type": "integer", "description": "Number of matches to return", "optional": True},
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+                "limit": {"type": "integer", "description": "Number of matches to return", "optional": True}
             },
             "required": ["team_id"]
         },
@@ -568,8 +391,7 @@ TOOLS = {
         "parameters": {
             "type": "object",
             "properties": {
-                "match_id": {"type": "integer", "description": "Match ID"},
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+                "match_id": {"type": "integer", "description": "Match ID"}
             },
             "required": ["match_id"]
         },
@@ -582,8 +404,7 @@ TOOLS = {
             "properties": {
                 "competition_id": {"type": "string", "description": "Competition ID (e.g., 'PL', '2021')"},
                 "season": {"type": "integer", "description": "Season year (e.g., 2024)", "optional": True},
-                "limit": {"type": "integer", "description": "Number of top scorers to return (default: 10)", "optional": True},
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+                "limit": {"type": "integer", "description": "Number of top scorers to return (default: 10)", "optional": True}
             },
             "required": ["competition_id"]
         },

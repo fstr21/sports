@@ -271,10 +271,7 @@ async def odds_api_get(endpoint: str, params: Optional[Dict[str, Any]] = None) -
     except httpx.RequestError as e:
         return {"ok": False, "error_type": "request_error", "source": "odds_api", "url": url, "message": str(e)}
 
-def get_mock_sports_data() -> List[Dict[str, Any]]:
-    """Mock sports data for testing"""
-    return [
-        {"key": "americanfootball_nfl", "group": "American Football", "title": "NFL", "description": "US National Football League", "active": True, "has_outrights": False},
+,
         {"key": "basketball_nba", "group": "Basketball", "title": "NBA", "description": "US National Basketball Association", "active": True, "has_outrights": True},
         {"key": "baseball_mlb", "group": "Baseball", "title": "MLB", "description": "US Major League Baseball", "active": True, "has_outrights": True},
         {"key": "icehockey_nhl", "group": "Ice Hockey", "title": "NHL", "description": "US National Hockey League", "active": True, "has_outrights": True},
@@ -282,28 +279,7 @@ def get_mock_sports_data() -> List[Dict[str, Any]]:
         {"key": "soccer_usa_mls", "group": "Soccer", "title": "MLS", "description": "Major League Soccer", "active": True, "has_outrights": False}
     ]
 
-def get_mock_odds_data(sport: str) -> List[Dict[str, Any]]:
-    """Mock odds data for testing"""
-    if sport == "baseball_mlb":
-        return [
-            {
-                "id": "test_game_1",
-                "sport_key": "baseball_mlb",
-                "sport_title": "MLB",
-                "commence_time": "2025-08-12T19:05:00Z",
-                "home_team": "New York Yankees",
-                "away_team": "Boston Red Sox",
-                "bookmakers": [
-                    {
-                        "key": "fanduel",
-                        "title": "FanDuel",
-                        "last_update": "2025-08-11T23:00:00Z",
-                        "markets": [
-                            {
-                                "key": "h2h",
-                                "last_update": "2025-08-11T23:00:00Z",
-                                "outcomes": [
-                                    {"name": "New York Yankees", "price": -150},
+,
                                     {"name": "Boston Red Sox", "price": 130}
                                 ]
                             },
@@ -330,14 +306,7 @@ def get_mock_odds_data(sport: str) -> List[Dict[str, Any]]:
         ]
     return []
 
-def get_mock_quota_info() -> Dict[str, Any]:
-    """Mock quota info for testing"""
-    return {
-        "api_key": "test_key",
-        "usage": {
-            "used": 45,
-            "remaining": 455
-        },
+,
         "rate_limit": {
             "requests_per_second": 10,
             "requests_remaining": 455

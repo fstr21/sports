@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 
 from .odds_client import OddsClient
 
-
 def get_next_test_number() -> int:
     """
     Get the next sequential test number for the output directory.
@@ -47,7 +46,6 @@ def get_next_test_number() -> int:
     # Return next number in sequence
     return max(numbers) + 1 if numbers else 1
 
-
 def save_response(filename: str, data: Dict[str, Any], test_number: Optional[int] = None) -> str:
     """
     Save API response to a JSON file.
@@ -78,7 +76,6 @@ def save_response(filename: str, data: Dict[str, Any], test_number: Optional[int
         json.dump(data, f, indent=2)
     
     return file_path
-
 
 def test_wagyu_sports() -> Tuple[str, str]:
     """
@@ -134,7 +131,6 @@ def test_wagyu_sports() -> Tuple[str, str]:
         return sports_file, ""
     
     return sports_file, odds_file
-
 
 if __name__ == "__main__":
     # Run the test if this file is executed directly

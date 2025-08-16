@@ -41,31 +41,14 @@ async def get_http_client() -> httpx.AsyncClient:
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
-# Mock data for test mode
-def get_mock_sports_data():
-    return [
-        {"key": "baseball_mlb", "title": "MLB", "group": "Baseball", "active": True},
+,
         {"key": "basketball_nba", "title": "NBA", "group": "Basketball", "active": True},
         {"key": "basketball_wnba", "title": "WNBA", "group": "Basketball", "active": True},
         {"key": "americanfootball_nfl", "title": "NFL", "group": "American Football", "active": True},
         {"key": "icehockey_nhl", "title": "NHL", "group": "Ice Hockey", "active": True}
     ]
 
-def get_mock_odds_data(sport: str):
-    if sport == "baseball_mlb":
-        return [{
-            "id": "mock_game_1",
-            "sport_key": "baseball_mlb",
-            "commence_time": "2025-08-14T23:40:00Z",
-            "home_team": "Colorado Rockies",
-            "away_team": "Arizona Diamondbacks",
-            "bookmakers": [{
-                "key": "fanduel",
-                "title": "FanDuel",
-                "markets": [{
-                    "key": "h2h",
-                    "outcomes": [
-                        {"name": "Colorado Rockies", "price": -120},
+,
                         {"name": "Arizona Diamondbacks", "price": 105}
                     ]
                 }, {
@@ -89,7 +72,6 @@ def get_mock_odds_data(sport: str):
 
 async def handle_get_sports(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get available sports from Odds API"""
-    use_test_mode = args.get("use_test_mode", False)
     all_sports = args.get("all_sports", False)
     
     if use_test_mode:
@@ -140,7 +122,6 @@ async def handle_get_sports(args: Dict[str, Any]) -> Dict[str, Any]:
 async def handle_get_odds(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get odds for a specific sport"""
     sport = args.get("sport", "")
-    use_test_mode = args.get("use_test_mode", False)
     regions = args.get("regions", "us")  # Default to "us" now that we're using direct HTTP
     markets = args.get("markets", "h2h")
     odds_format = args.get("odds_format", "american")
@@ -215,8 +196,6 @@ async def handle_get_odds(args: Dict[str, Any]) -> Dict[str, Any]:
 
 async def handle_get_quota_info(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get API quota information"""
-    use_test_mode = args.get("use_test_mode", False)
-    
     if use_test_mode:
         quota_data = {"used": 45, "remaining": 455, "total": 500}
         return {
@@ -254,7 +233,6 @@ async def handle_get_event_odds(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get odds for a specific event using direct HTTP calls"""
     sport = args.get("sport", "")
     event_id = args.get("event_id", "")
-    use_test_mode = args.get("use_test_mode", False)
     regions = args.get("regions", "us")
     markets = args.get("markets", "h2h")
     odds_format = args.get("odds_format", "american")
@@ -341,8 +319,6 @@ async def handle_get_event_odds(args: Dict[str, Any]) -> Dict[str, Any]:
 async def handle_get_events(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get upcoming events for a specific sport"""
     sport = args.get("sport", "")
-    use_test_mode = args.get("use_test_mode", False)
-    
     if use_test_mode:
         events_data = [{
             "id": "mock_event_1",
@@ -410,8 +386,7 @@ TOOLS = {
         "parameters": {
             "type": "object",
             "properties": {
-                "all_sports": {"type": "boolean", "description": "Include inactive sports", "optional": True},
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+                "all_sports": {"type": "boolean", "description": "Include inactive sports", "optional": True}
             }
         },
         "handler": handle_get_sports
@@ -424,8 +399,7 @@ TOOLS = {
                 "sport": {"type": "string", "description": "Sport key (e.g. 'baseball_mlb')"},
                 "regions": {"type": "string", "description": "Regions (default: 'us')", "optional": True},
                 "markets": {"type": "string", "description": "Markets (default: 'h2h')", "optional": True},
-                "odds_format": {"type": "string", "description": "Odds format (default: 'american')", "optional": True},
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+                "odds_format": {"type": "string", "description": "Odds format (default: 'american')", "optional": True}
             },
             "required": ["sport"]
         },
@@ -436,7 +410,6 @@ TOOLS = {
         "parameters": {
             "type": "object",
             "properties": {
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
             }
         },
         "handler": handle_get_quota_info
@@ -450,8 +423,7 @@ TOOLS = {
                 "event_id": {"type": "string", "description": "Event ID"},
                 "regions": {"type": "string", "description": "Regions (default: 'us')", "optional": True},
                 "markets": {"type": "string", "description": "Markets (default: 'h2h')", "optional": True},
-                "odds_format": {"type": "string", "description": "Odds format (default: 'american')", "optional": True},
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+                "odds_format": {"type": "string", "description": "Odds format (default: 'american')", "optional": True}
             },
             "required": ["sport", "event_id"]
         },
@@ -462,8 +434,7 @@ TOOLS = {
         "parameters": {
             "type": "object",
             "properties": {
-                "sport": {"type": "string", "description": "Sport key (e.g. 'baseball_mlb')"},
-                "use_test_mode": {"type": "boolean", "description": "Use mock data", "optional": True}
+                "sport": {"type": "string", "description": "Sport key (e.g. 'baseball_mlb')"}
             },
             "required": ["sport"]
         },

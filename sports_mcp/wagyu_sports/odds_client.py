@@ -7,7 +7,6 @@ This module provides a client for interacting with sports betting data APIs.
 import requests
 from typing import Dict, List, Optional, Any, Union
 
-
 class OddsClient:
     """
     Client for sports betting data.
