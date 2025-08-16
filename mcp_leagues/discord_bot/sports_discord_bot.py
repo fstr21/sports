@@ -663,6 +663,99 @@ async def standings_command(ctx, league: str = "MLB"):
     except Exception as e:
         await ctx.followup.send(f"❌ Error fetching standings: {str(e)}")
 
+@bot.hybrid_command(name="create-mlb-channels", description="Create channels for today's MLB games")
+async def create_mlb_channels_command(ctx, date: str = None):
+    """Create Discord channels for today's MLB games"""
+    await ctx.defer()
+    
+    try:
+        if not ctx.author.guild_permissions.manage_channels:
+            await ctx.followup.send("❌ You need 'Manage Channels' permission to use this command.")
+            return
+        
+        # Use today's date if none provided
+        if not date:
+            date = datetime.now().strftime("%Y-%m-%d")
+        
+        # Get today's MLB games from your MCP
+        mlb_response = await bot.call_mcp_server(
+            bot.mcp_urls["mlb"],
+            "getMLBScheduleET",
+            {"date": date}
+        )
+        
+        if not mlb_response or not mlb_response.get("ok"):
+            await ctx.followup.send(f"❌ Error getting MLB games: {mlb_response.get('error', 'Unknown error')}")
+            return
+        
+        # Find or create MLB GAMES category
+        category = discord.utils.get(ctx.guild.categories, name="⚾ MLB GAMES")
+        if not category:
+            category = await ctx.guild.create_category("⚾ MLB GAMES")
+        
+        # Parse games from the MCP response
+        games_data = mlb_response.get("data", {}).get("games", [])
+        
+        if not games_data:
+            await ctx.followup.send(f"📅 No MLB games scheduled for {date}")
+            return
+        
+        created_channels = []
+        
+        for game in games_data[:10]:  # Limit to 10 games
+            try:
+                # Extract team info
+                teams = game.get("teams", {})
+                away_team = teams.get("away", {}).get("team", {}).get("name", "Unknown")
+                home_team = teams.get("home", {}).get("team", {}).get("name", "Unknown")
+                game_time = game.get("gameDate", "TBD")
+                
+                # Clean team names for channel
+                away_clean = away_team.lower().replace(" ", "").replace(".", "")[:10]
+                home_clean = home_team.lower().replace(" ", "").replace(".", "")[:10]
+                
+                # Create channel name: 08-16-yankees-vs-red-sox
+                date_short = datetime.strptime(date, "%Y-%m-%d").strftime("%m-%d")
+                channel_name = f"{date_short}-{away_clean}-vs-{home_clean}"
+                
+                # Check if channel already exists
+                existing_channel = discord.utils.get(category.channels, name=channel_name)
+                if existing_channel:
+                    continue
+                
+                # Create the channel
+                new_channel = await ctx.guild.create_text_channel(
+                    name=channel_name,
+                    category=category,
+                    topic=f"{away_team} @ {home_team} - {game_time}"
+                )
+                
+                # Post game info to channel
+                embed = discord.Embed(
+                    title=f"🔥 {away_team} @ {home_team}",
+                    description=f"**Game Time:** {game_time}\\n**Date:** {date}",
+                    color=discord.Color.blue()
+                )
+                embed.add_field(name="Away Team", value=away_team, inline=True)
+                embed.add_field(name="Home Team", value=home_team, inline=True)
+                embed.set_footer(text="Use this channel to discuss betting analysis for this game")
+                
+                await new_channel.send(embed=embed)
+                created_channels.append(channel_name)
+                
+            except Exception as e:
+                logger.error(f"Error creating channel for game: {e}")
+                continue
+        
+        if created_channels:
+            channels_list = "\\n".join([f"• #{name}" for name in created_channels])
+            await ctx.followup.send(f"✅ Created {len(created_channels)} MLB game channels:\\n{channels_list}")
+        else:
+            await ctx.followup.send("ℹ️ All game channels already exist or no games found.")
+        
+    except Exception as e:
+        await ctx.followup.send(f"❌ Error creating MLB channels: {str(e)}")
+
 @bot.hybrid_command(name="cleanup", description="Clean up old game channels")
 async def cleanup_command(ctx, days: int = 1):
     """Clean up game channels older than specified days"""

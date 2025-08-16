@@ -6,11 +6,11 @@ A production-ready Discord bot for sports betting analytics, integrating with al
 
 ### **Slash Commands**
 - `/setup` - Setup complete channel structure for server
+- `/create-mlb-channels [date]` - Create channels for MLB games (today if no date)
 - `/games [sport]` - Today's games across all sports
 - `/odds [sport]` - Current betting odds
 - `/analyze <query>` - AI analysis for games/situations  
 - `/standings [league]` - League standings
-- `/refresh-channels [sport]` - Refresh game channels for today
 - `/cleanup [days]` - Clean up old game channels
 
 ### **Automated Features**
