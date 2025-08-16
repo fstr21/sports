@@ -1,0 +1,385 @@
+{
+  "timestamp": "2025-08-16T00:17:39.178447",
+  "date": "2025-08-16",
+  "test_name": "Soccer MCP Comprehensive Test",
+  "server_url": "https://soccermcp-production.up.railway.app/mcp",
+  "tools_tested": [
+    {
+      "tool_name": "getCompetitions",
+      "status": "SUCCESS",
+      "competitions_found": 13,
+      "major_leagues": [
+        {
+          "name": "Premier League",
+          "id": 2021,
+          "code": "PL",
+          "country": "England"
+        },
+        {
+          "name": "Ligue 1",
+          "id": 2015,
+          "code": "FL1",
+          "country": "France"
+        },
+        {
+          "name": "Bundesliga",
+          "id": 2002,
+          "code": "BL1",
+          "country": "Germany"
+        },
+        {
+          "name": "Serie A",
+          "id": 2019,
+          "code": "SA",
+          "country": "Italy"
+        }
+      ],
+      "international_competitions": [
+        {
+          "name": "UEFA Champions League",
+          "id": 2001,
+          "code": "CL"
+        },
+        {
+          "name": "European Championship",
+          "id": 2018,
+          "code": "EC"
+        }
+      ],
+      "error": null
+    },
+    {
+      "tool_name": "getCompetitionStandings",
+      "competition": "Premier League",
+      "competition_id": "2021",
+      "status": "SUCCESS",
+      "teams_found": 20,
+      "top_3_teams": [
+        {
+          "position": 1,
+          "name": "Liverpool FC",
+          "points": 3,
+          "played": 1,
+          "won": 1,
+          "drawn": 0,
+          "lost": 0,
+          "goals_for": 4,
+          "goals_against": 2,
+          "goal_difference": 2
+        },
+        {
+          "position": 2,
+          "name": "Arsenal FC",
+          "points": 0,
+          "played": 0,
+          "won": 0,
+          "drawn": 0,
+          "lost": 0,
+          "goals_for": 0,
+          "goals_against": 0,
+          "goal_difference": 0
+        },
+        {
+          "position": 3,
+          "name": "Aston Villa FC",
+          "points": 0,
+          "played": 0,
+          "won": 0,
+          "drawn": 0,
+          "lost": 0,
+          "goals_for": 0,
+          "goals_against": 0,
+          "goal_difference": 0
+        }
+      ],
+      "bottom_3_teams": [
+        {
+          "position": 2,
+          "name": "West Ham United FC",
+          "points": 0,
+          "played": 0
+        },
+        {
+          "position": 2,
+          "name": "Wolverhampton Wanderers FC",
+          "points": 0,
+          "played": 0
+        },
+        {
+          "position": 20,
+          "name": "AFC Bournemouth",
+          "points": 0,
+          "played": 1
+        }
+      ],
+      "league_stats": {
+        "total_games_played": 2,
+        "total_goals_scored": 6,
+        "average_goals_per_game": 3.0
+      },
+      "error": null
+    },
+    {
+      "tool_name": "getCompetitionMatches",
+      "competition": "Premier League",
+      "date_range": "2025-08-02 to 2025-08-16",
+      "status": "SUCCESS",
+      "matches_found": 1,
+      "sample_matches": [
+        {
+          "date": "2025-08-15",
+          "home_team": "Liverpool FC",
+          "away_team": "AFC Bournemouth",
+          "score": "4-2",
+          "total_goals": 6,
+          "winner": "HOME"
+        }
+      ],
+      "goal_analysis": {
+        "total_matches_analyzed": 1,
+        "average_goals_per_game": 6.0,
+        "high_scoring_games_3plus": 1,
+        "high_scoring_percentage": 100.0,
+        "both_teams_scored": 1,
+        "btts_percentage": 100.0
+      },
+      "error": null
+    },
+    {
+      "tool_name": "getTopScorers",
+      "competition": "Premier League",
+      "status": "SUCCESS",
+      "scorers_found": 5,
+      "top_scorers": [
+        {
+          "rank": 1,
+          "name": "Antoine Semenyo",
+          "team": "AFC Bournemouth",
+          "team_short": "Bournemouth",
+          "goals": 2,
+          "position": null,
+          "nationality": "Ghana"
+        },
+        {
+          "rank": 2,
+          "name": "Hugo Ekitike",
+          "team": "Liverpool FC",
+          "team_short": "Liverpool",
+          "goals": 1,
+          "position": null,
+          "nationality": "France"
+        },
+        {
+          "rank": 3,
+          "name": "Cody Gakpo",
+          "team": "Liverpool FC",
+          "team_short": "Liverpool",
+          "goals": 1,
+          "position": null,
+          "nationality": "Netherlands"
+        },
+        {
+          "rank": 4,
+          "name": "Federico Chiesa",
+          "team": "Liverpool FC",
+          "team_short": "Liverpool",
+          "goals": 1,
+          "position": null,
+          "nationality": "Italy"
+        },
+        {
+          "rank": 5,
+          "name": "Mohamed Salah",
+          "team": "Liverpool FC",
+          "team_short": "Liverpool",
+          "goals": 1,
+          "position": null,
+          "nationality": "Egypt"
+        }
+      ],
+      "position_analysis": {
+        "null": {
+          "count": 5,
+          "total_goals": 6
+        }
+      },
+      "team_analysis": {
+        "Bournemouth": {
+          "players": 1,
+          "total_goals": 2
+        },
+        "Liverpool": {
+          "players": 4,
+          "total_goals": 4
+        }
+      },
+      "error": null
+    },
+    {
+      "tool_name": "getTeamMatches",
+      "team": "Liverpool FC",
+      "team_id": 64,
+      "status": "SUCCESS",
+      "matches_found": 5,
+      "recent_matches": [
+        {
+          "date": "2026-04-25",
+          "opponent": "Crystal Palace FC",
+          "venue": "Home",
+          "status": "SCHEDULED",
+          "score": null,
+          "result": null
+        },
+        {
+          "date": "2026-05-02",
+          "opponent": "Manchester United FC",
+          "venue": "Away",
+          "status": "SCHEDULED",
+          "score": null,
+          "result": null
+        },
+        {
+          "date": "2026-05-09",
+          "opponent": "Chelsea FC",
+          "venue": "Home",
+          "status": "SCHEDULED",
+          "score": null,
+          "result": null
+        },
+        {
+          "date": "2026-05-17",
+          "opponent": "Aston Villa FC",
+          "venue": "Away",
+          "status": "SCHEDULED",
+          "score": null,
+          "result": null
+        },
+        {
+          "date": "2026-05-24",
+          "opponent": "Brentford FC",
+          "venue": "Home",
+          "status": "SCHEDULED",
+          "score": null,
+          "result": null
+        }
+      ],
+      "performance_summary": {},
+      "error": null
+    },
+    {
+      "tool_name": "getMatchDetails",
+      "match_id": 537785,
+      "status": "SUCCESS",
+      "match_info": {
+        "home_team": "Liverpool FC",
+        "away_team": "AFC Bournemouth",
+        "date": "2025-08-15",
+        "time": "19:00",
+        "status": "FINISHED",
+        "matchday": 1,
+        "stage": "REGULAR_SEASON",
+        "final_score": "4-2",
+        "total_goals": 6,
+        "halftime_score": "1-0",
+        "referee": "Anthony Taylor"
+      },
+      "available_data": {
+        "basic_info": true,
+        "final_score": true,
+        "halftime_score": true,
+        "referee_info": true,
+        "venue_info": false,
+        "detailed_stats": false,
+        "player_stats": false,
+        "cards_bookings": false
+      },
+      "limitations": [
+        "No detailed match statistics (shots, corners, possession)",
+        "No player-level performance data",
+        "No card/booking information"
+      ],
+      "error": null
+    },
+    {
+      "tool_name": "getCompetitionTeams",
+      "competition": "Premier League",
+      "status": "SUCCESS",
+      "teams_found": 20,
+      "sample_teams": [
+        {
+          "id": 57,
+          "name": "Arsenal FC",
+          "short_name": "Arsenal",
+          "tla": "ARS",
+          "founded": 1886,
+          "venue": "Emirates Stadium",
+          "colors": "Red / White",
+          "website": "http://www.arsenal.com"
+        },
+        {
+          "id": 58,
+          "name": "Aston Villa FC",
+          "short_name": "Aston Villa",
+          "tla": "AVL",
+          "founded": 1872,
+          "venue": "Villa Park",
+          "colors": "Claret / Sky Blue",
+          "website": "http://www.avfc.co.uk"
+        },
+        {
+          "id": 61,
+          "name": "Chelsea FC",
+          "short_name": "Chelsea",
+          "tla": "CHE",
+          "founded": 1905,
+          "venue": "Stamford Bridge",
+          "colors": "Royal Blue / White",
+          "website": "http://www.chelseafc.com"
+        },
+        {
+          "id": 62,
+          "name": "Everton FC",
+          "short_name": "Everton",
+          "tla": "EVE",
+          "founded": 1878,
+          "venue": "Goodison Park",
+          "colors": "Blue / White",
+          "website": "http://www.evertonfc.com"
+        },
+        {
+          "id": 63,
+          "name": "Fulham FC",
+          "short_name": "Fulham",
+          "tla": "FUL",
+          "founded": 1879,
+          "venue": "Craven Cottage",
+          "colors": "White / Black",
+          "website": "http://www.fulhamfc.com"
+        }
+      ],
+      "team_metadata": {
+        "average_founded_year": 1884,
+        "oldest_club_year": 1872,
+        "newest_club_year": 1905,
+        "teams_with_founding_data": 5
+      },
+      "error": null
+    }
+  ],
+  "summary": {
+    "total_tools_tested": 7,
+    "successful_tools": 7,
+    "failed_tools": 0,
+    "success_rate": 100.0,
+    "successful_tool_names": [
+      "getCompetitions",
+      "getCompetitionStandings",
+      "getCompetitionMatches",
+      "getTopScorers",
+      "getTeamMatches",
+      "getMatchDetails",
+      "getCompetitionTeams"
+    ],
+    "failed_tool_names": []
+  }
+}

@@ -55,9 +55,11 @@ Get matches for a specific team
   - `limit` (optional): Number of matches to return
 
 ### 6. `getMatchDetails`
-Get details for a specific match
+Get details for a specific match (⚠️ **Limited by API tier**)
 - **Parameters**:
   - `match_id` (required): Match ID
+- **Returns**: Basic match info, scores, referee, venue
+- **Note**: Detailed statistics (shots, corners, possession) require paid API plan
 
 ### 7. `getTopScorers`
 Get top scorers for a specific competition
@@ -73,20 +75,38 @@ Get top scorers for a specific competition
 
 ## Testing
 
-Run the test suite to verify functionality:
+Run the comprehensive test suite:
 
 ```bash
 python test_soccer_mcp.py
 ```
 
+### Interactive Testing
+For betting analysis and real-world testing:
+
+```bash
+cd ../testing
+python soccer_test_simple.py
+```
+
+**Note**: See `ACTUAL_CAPABILITIES.md` for detailed testing results and data limitations.
+
 ## API Data Source
 
 This MCP uses the [Football-Data.org API](https://www.football-data.org/) which provides:
-- Real-time match data
-- Comprehensive league standings
+
+### ✅ Free Tier (Current Implementation)
+- Real-time match data (basic)
+- Comprehensive league standings  
 - Team and player information
 - Historical match results
 - Top scorer statistics
+
+### ⚠️ Paid Tier Required For
+- Detailed match statistics (shots, corners, possession)
+- Player-level match performance
+- Card and disciplinary data
+- Advanced lineups and formations
 
 ## Deployment
 
@@ -131,6 +151,30 @@ Configured for Railway deployment with:
   }
 }
 ```
+
+## Betting Analysis Capabilities
+
+### ✅ Strong Markets (Good Data Available)
+- **Match Result (1X2)**: League position and form analysis
+- **Over/Under Goals**: Team scoring averages and patterns
+- **Both Teams to Score**: Goal consistency analysis  
+- **Anytime Goalscorer**: Top scorer statistics
+
+### ⚠️ Limited Markets (Basic Data Only)
+- **Asian Handicap**: Goal difference patterns
+- **Exact Score**: Historical distributions
+
+### ❌ Avoid These Markets (Insufficient Data)
+- **Shots on Target Props**: No shot data
+- **Corner Kick Totals**: No corner data
+- **Player Card Props**: No disciplinary data
+- **Possession Bets**: No possession data
+
+### Recommended Workflow
+1. Use `getCompetitionStandings` for team strength
+2. Use `getCompetitionMatches` for goal patterns  
+3. Use `getTopScorers` for goalscorer markets
+4. Focus on fundamental betting markets
 
 ## Test Mode
 
