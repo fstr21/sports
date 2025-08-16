@@ -293,11 +293,11 @@ class SportsBot(commands.Bot):
     def extract_mlb_teams(self, game_data: Dict) -> Optional[Dict[str, str]]:
         """Extract team names from MLB game data"""
         try:
-            # Adapt this based on your MLB MCP response format
-            if "teams" in game_data:
+            # Updated for actual MLB MCP response format
+            if "home" in game_data and "away" in game_data:
                 return {
-                    "home": game_data["teams"].get("home", {}).get("team", {}).get("name", "Unknown"),
-                    "away": game_data["teams"].get("away", {}).get("team", {}).get("name", "Unknown")
+                    "home": game_data["home"].get("name", "Unknown"),
+                    "away": game_data["away"].get("name", "Unknown")
                 }
             return None
         except:
@@ -504,6 +504,8 @@ async def debug_mlb_command(ctx, date: str = None):
         if not date:
             date = datetime.now().strftime("%Y-%m-%d")
         
+        await ctx.send(f"🔍 Testing MLB MCP for date: {date}")
+        
         # Get today's MLB games from your MCP
         mlb_response = await bot.call_mcp_server(
             bot.mcp_urls["mlb"],
@@ -511,9 +513,28 @@ async def debug_mlb_command(ctx, date: str = None):
             {"date": date}
         )
         
-        # Send raw response for debugging
-        response_text = json.dumps(mlb_response, indent=2)[:1900]  # Discord limit
-        await ctx.send(f"```json\\n{response_text}\\n```")
+        if mlb_response:
+            # Show summary first
+            if mlb_response.get("ok"):
+                games_data = mlb_response.get("data", {}).get("games", [])
+                await ctx.send(f"✅ MCP Response: {len(games_data)} games found")
+                
+                # Show first few games
+                if games_data:
+                    for i, game in enumerate(games_data[:3]):
+                        away = game.get("away", {}).get("name", "Unknown")
+                        home = game.get("home", {}).get("name", "Unknown")
+                        time = game.get("start_et", "Unknown")
+                        status = game.get("status", "Unknown")
+                        await ctx.send(f"🏟️ **Game {i+1}**: {away} @ {home}\\n⏰ {time} - {status}")
+            else:
+                await ctx.send(f"❌ MCP Error: {mlb_response.get('error', 'Unknown error')}")
+            
+            # Send raw response for debugging (truncated)
+            response_text = json.dumps(mlb_response, indent=2)[:1900]  # Discord limit
+            await ctx.send(f"```json\\n{response_text}\\n```")
+        else:
+            await ctx.send("❌ No response from MLB MCP")
         
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
@@ -756,6 +777,9 @@ async def create_mlb_channels_command(ctx, date: str = None):
             {"date": date}
         )
         
+        # Debug logging
+        logger.info(f"MLB MCP Response for {date}: {mlb_response}")
+        
         if not mlb_response or not mlb_response.get("ok"):
             await send_func(f"❌ Error getting MLB games: {mlb_response.get('error', 'Unknown error')}")
             return
@@ -768,6 +792,11 @@ async def create_mlb_channels_command(ctx, date: str = None):
         # Parse games from the MCP response
         games_data = mlb_response.get("data", {}).get("games", [])
         
+        # Debug logging
+        logger.info(f"Found {len(games_data)} games for {date}")
+        if games_data:
+            logger.info(f"First game sample: {games_data[0]}")
+        
         if not games_data:
             await send_func(f"📅 No MLB games scheduled for {date}")
             return
@@ -776,11 +805,10 @@ async def create_mlb_channels_command(ctx, date: str = None):
         
         for game in games_data[:10]:  # Limit to 10 games
             try:
-                # Extract team info
-                teams = game.get("teams", {})
-                away_team = teams.get("away", {}).get("team", {}).get("name", "Unknown")
-                home_team = teams.get("home", {}).get("team", {}).get("name", "Unknown")
-                game_time = game.get("gameDate", "TBD")
+                # Extract team info - updated for actual MLB MCP response format
+                away_team = game.get("away", {}).get("name", "Unknown")
+                home_team = game.get("home", {}).get("name", "Unknown")
+                game_time = game.get("start_et", "TBD")
                 
                 # Clean team names for channel
                 away_clean = away_team.lower().replace(" ", "").replace(".", "")[:10]
