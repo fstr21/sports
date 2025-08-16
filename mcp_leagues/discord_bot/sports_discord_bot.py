@@ -497,6 +497,27 @@ async def sync_command(ctx):
     except Exception as e:
         await ctx.send(f"❌ Error syncing commands: {str(e)}")
 
+@bot.command(name="debug-mlb", description="Debug MLB data from MCP")
+async def debug_mlb_command(ctx, date: str = None):
+    """Debug what data we get from MLB MCP"""
+    try:
+        if not date:
+            date = datetime.now().strftime("%Y-%m-%d")
+        
+        # Get today's MLB games from your MCP
+        mlb_response = await bot.call_mcp_server(
+            bot.mcp_urls["mlb"],
+            "getMLBScheduleET",
+            {"date": date}
+        )
+        
+        # Send raw response for debugging
+        response_text = json.dumps(mlb_response, indent=2)[:1900]  # Discord limit
+        await ctx.send(f"```json\\n{response_text}\\n```")
+        
+    except Exception as e:
+        await ctx.send(f"❌ Error: {str(e)}")
+
 @bot.hybrid_command(name="setup", description="Setup channel structure for this server")
 async def setup_command(ctx):
     """Setup the complete channel structure"""
@@ -688,11 +709,16 @@ async def standings_command(ctx, league: str = "MLB"):
 @bot.hybrid_command(name="create-mlb-channels", description="Create channels for today's MLB games")
 async def create_mlb_channels_command(ctx, date: str = None):
     """Create Discord channels for today's MLB games"""
-    await ctx.defer()
+    # Handle both slash and prefix commands
+    if hasattr(ctx, 'defer'):
+        await ctx.defer()
+        send_func = ctx.followup.send
+    else:
+        send_func = ctx.send
     
     try:
         if not ctx.author.guild_permissions.manage_channels:
-            await ctx.followup.send("❌ You need 'Manage Channels' permission to use this command.")
+            await send_func("❌ You need 'Manage Channels' permission to use this command.")
             return
         
         # Use today's date if none provided
@@ -707,7 +733,7 @@ async def create_mlb_channels_command(ctx, date: str = None):
         )
         
         if not mlb_response or not mlb_response.get("ok"):
-            await ctx.followup.send(f"❌ Error getting MLB games: {mlb_response.get('error', 'Unknown error')}")
+            await send_func(f"❌ Error getting MLB games: {mlb_response.get('error', 'Unknown error')}")
             return
         
         # Find or create MLB GAMES category
@@ -719,7 +745,7 @@ async def create_mlb_channels_command(ctx, date: str = None):
         games_data = mlb_response.get("data", {}).get("games", [])
         
         if not games_data:
-            await ctx.followup.send(f"📅 No MLB games scheduled for {date}")
+            await send_func(f"📅 No MLB games scheduled for {date}")
             return
         
         created_channels = []
@@ -771,12 +797,12 @@ async def create_mlb_channels_command(ctx, date: str = None):
         
         if created_channels:
             channels_list = "\\n".join([f"• #{name}" for name in created_channels])
-            await ctx.followup.send(f"✅ Created {len(created_channels)} MLB game channels:\\n{channels_list}")
+            await send_func(f"✅ Created {len(created_channels)} MLB game channels:\\n{channels_list}")
         else:
-            await ctx.followup.send("ℹ️ All game channels already exist or no games found.")
+            await send_func("ℹ️ All game channels already exist or no games found.")
         
     except Exception as e:
-        await ctx.followup.send(f"❌ Error creating MLB channels: {str(e)}")
+        await send_func(f"❌ Error creating MLB channels: {str(e)}")
 
 @bot.hybrid_command(name="cleanup", description="Clean up old game channels")
 async def cleanup_command(ctx, days: int = 1):
