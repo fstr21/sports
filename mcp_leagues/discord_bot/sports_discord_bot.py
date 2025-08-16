@@ -116,6 +116,13 @@ class SportsBot(commands.Bot):
         logger.info(f"{self.user} has connected to Discord!")
         logger.info(f"Bot is in {len(self.guilds)} guilds")
         
+        # Sync slash commands to Discord
+        try:
+            synced = await self.tree.sync()
+            logger.info(f"Synced {len(synced)} command(s)")
+        except Exception as e:
+            logger.error(f"Failed to sync commands: {e}")
+        
         # Setup channel structure for each guild
         for guild in self.guilds:
             await self.setup_guild_channels(guild)
@@ -475,6 +482,23 @@ Keep each pick under 50 words.
 bot = SportsBot()
 
 # Slash Commands
+@bot.hybrid_command(name="sync", description="Manually sync slash commands")
+async def sync_command(ctx):
+    """Manually sync slash commands with Discord"""
+    await ctx.defer()
+    
+    try:
+        if not ctx.author.guild_permissions.administrator:
+            await ctx.followup.send("❌ You need Administrator permission to use this command.")
+            return
+        
+        synced = await bot.tree.sync()
+        await ctx.followup.send(f"✅ Synced {len(synced)} slash commands!")
+        logger.info(f"Manual sync: {len(synced)} commands synced by {ctx.author}")
+        
+    except Exception as e:
+        await ctx.followup.send(f"❌ Error syncing commands: {str(e)}")
+
 @bot.hybrid_command(name="setup", description="Setup channel structure for this server")
 async def setup_command(ctx):
     """Setup the complete channel structure"""
