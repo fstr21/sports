@@ -9,9 +9,17 @@ import os
 from dotenv import load_dotenv
 from openrouter_discord_bridge import OpenRouterDiscordBridge
 
-load_dotenv()
+# Load from project root .env.local
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.join(script_dir, "..", "..")
+env_file = os.path.join(project_root, ".env.local")
 
-# Configuration from .env
+if os.path.exists(env_file):
+    load_dotenv(env_file)
+else:
+    load_dotenv()
+
+# Configuration from .env.local
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "anthropic/claude-3.5-haiku")
 DISCORD_MCP_URL = os.getenv("DISCORD_MCP_URL", "https://chatmcp-production.up.railway.app/mcp")

@@ -92,7 +92,10 @@ def test_wagyu_sports() -> Tuple[str, str]:
         Tuple[str, str]: Paths to the saved files (sports, odds)
     """
     # Load environment variables
-    load_dotenv(dotenv_path="config/.env")
+    # Load from project root .env.local
+    project_root = Path(__file__).parent.parent.parent
+    env_path = project_root / ".env.local"
+    load_dotenv(dotenv_path=env_path)
     
     # Get API key
     api_key = os.getenv("ODDS_API_KEY")

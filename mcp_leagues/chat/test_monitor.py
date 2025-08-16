@@ -11,7 +11,7 @@ from openrouter_discord_bridge import OpenRouterDiscordBridge
 # Load .env
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.join(script_dir, "..", "..")
-env_file = os.path.join(project_root, ".env")
+env_file = os.path.join(project_root, ".env.local")
 
 if os.path.exists(env_file):
     load_dotenv(env_file)

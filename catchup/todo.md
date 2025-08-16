@@ -56,6 +56,26 @@
   - Basic subscription management
   - Error handling and logging
 
+#### **Discord Server Channel Structure** 🏗️
+- **Timeline**: 1-2 days
+- **Channel Organization**:
+
+  **📚 BETTING EDUCATION**
+  - 💰 bankroll-management
+  - 📈 tracking-your-bets
+  - 🎯 understanding-value
+  - 🤖 how-our-ai-works
+
+  **🏆 LEADERBOARDS**
+  - 📊 weekly-winners
+  - 💯 accuracy-tracking
+  - 👥 community-picks
+
+  **📌 FEATURED TODAY**
+  - 🔥 hot-picks (Top 3-5 games with best betting value)
+  - 🎰 high-confidence (Games where your AI is most confident)
+  - 💎 value-plays (Best odds discrepancies)
+
 #### **Essential Discord Commands**
 - **Timeline**: 2-3 days
 - **Commands**:
