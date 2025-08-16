@@ -521,32 +521,40 @@ async def debug_mlb_command(ctx, date: str = None):
 @bot.hybrid_command(name="setup", description="Setup channel structure for this server")
 async def setup_command(ctx):
     """Setup the complete channel structure"""
-    await ctx.defer()
+    if hasattr(ctx, 'response'):  # Slash command
+        await ctx.defer()
+        send_func = ctx.followup.send
+    else:  # Prefix command
+        send_func = ctx.send
     
     try:
         if not ctx.author.guild_permissions.manage_channels:
-            await ctx.followup.send("❌ You need 'Manage Channels' permission to use this command.")
+            await send_func("❌ You need 'Manage Channels' permission to use this command.")
             return
         
         await bot.setup_guild_channels(ctx.guild)
-        await ctx.followup.send("✅ Channel structure setup completed!")
+        await send_func("✅ Channel structure setup completed!")
         
     except Exception as e:
-        await ctx.followup.send(f"❌ Error setting up channels: {str(e)}")
+        await send_func(f"❌ Error setting up channels: {str(e)}")
 
 @bot.hybrid_command(name="refresh-channels", description="Refresh game channels for today")
 async def refresh_channels_command(ctx, sport: str = "all"):
     """Refresh game channels for specific sport or all sports"""
-    await ctx.defer()
+    if hasattr(ctx, 'response'):  # Slash command
+        await ctx.defer()
+        send_func = ctx.followup.send
+    else:  # Prefix command
+        send_func = ctx.send
     
     try:
         if not ctx.author.guild_permissions.manage_channels:
-            await ctx.followup.send("❌ You need 'Manage Channels' permission to use this command.")
+            await send_func("❌ You need 'Manage Channels' permission to use this command.")
             return
         
         if sport.lower() == "all":
             await bot.update_game_channels(ctx.guild)
-            await ctx.followup.send("✅ Refreshed game channels for all sports!")
+            await send_func("✅ Refreshed game channels for all sports!")
         else:
             # Refresh specific sport
             if sport.lower() == "mlb":
@@ -559,15 +567,19 @@ async def refresh_channels_command(ctx, sport: str = "all"):
                     games_list = bot.parse_games_from_content(mlb_games.get("content", ""), "mlb")
                     await bot.create_game_channels(ctx.guild, "mlb", games_list)
             
-            await ctx.followup.send(f"✅ Refreshed {sport.upper()} game channels!")
+            await send_func(f"✅ Refreshed {sport.upper()} game channels!")
         
     except Exception as e:
-        await ctx.followup.send(f"❌ Error refreshing channels: {str(e)}")
+        await send_func(f"❌ Error refreshing channels: {str(e)}")
 
 @bot.hybrid_command(name="games", description="Get today's games across all sports")
 async def games_command(ctx, sport: str = "all"):
     """Show today's games"""
-    await ctx.defer()
+    if hasattr(ctx, 'response'):  # Slash command
+        await ctx.defer()
+        send_func = ctx.followup.send
+    else:  # Prefix command
+        send_func = ctx.send
     
     try:
         games_data = {}
@@ -600,15 +612,19 @@ async def games_command(ctx, sport: str = "all"):
                 games_text = data["content"][:1000] + "..." if len(data["content"]) > 1000 else data["content"]
                 embed.add_field(name=f"{sport_name} Games", value=f"```{games_text}```", inline=False)
         
-        await ctx.followup.send(embed=embed)
+        await send_func(embed=embed)
         
     except Exception as e:
-        await ctx.followup.send(f"❌ Error fetching games: {str(e)}")
+        await send_func(f"❌ Error fetching games: {str(e)}")
 
 @bot.hybrid_command(name="odds", description="Get current betting odds")
 async def odds_command(ctx, sport: str = "baseball_mlb"):
     """Show current betting odds"""
-    await ctx.defer()
+    if hasattr(ctx, 'response'):  # Slash command
+        await ctx.defer()
+        send_func = ctx.followup.send
+    else:  # Prefix command
+        send_func = ctx.send
     
     try:
         odds_data = await bot.call_mcp_server(
@@ -627,15 +643,19 @@ async def odds_command(ctx, sport: str = "baseball_mlb"):
             odds_text = odds_data["content"][:1500] + "..." if len(odds_data["content"]) > 1500 else odds_data["content"]
             embed.description = f"```{odds_text}```"
         
-        await ctx.followup.send(embed=embed)
+        await send_func(embed=embed)
         
     except Exception as e:
-        await ctx.followup.send(f"❌ Error fetching odds: {str(e)}")
+        await send_func(f"❌ Error fetching odds: {str(e)}")
 
 @bot.hybrid_command(name="analyze", description="Get AI analysis for a game")
 async def analyze_command(ctx, *, query: str):
     """Get AI analysis for a specific game or situation"""
-    await ctx.defer()
+    if hasattr(ctx, 'response'):  # Slash command
+        await ctx.defer()
+        send_func = ctx.followup.send
+    else:  # Prefix command
+        send_func = ctx.send
     
     try:
         # Get relevant data based on query
@@ -664,15 +684,19 @@ Keep response under 300 words.
             timestamp=datetime.now()
         )
         
-        await ctx.followup.send(embed=embed)
+        await send_func(embed=embed)
         
     except Exception as e:
-        await ctx.followup.send(f"❌ Error generating analysis: {str(e)}")
+        await send_func(f"❌ Error generating analysis: {str(e)}")
 
 @bot.hybrid_command(name="standings", description="Get league standings")
 async def standings_command(ctx, league: str = "MLB"):
     """Show league standings"""
-    await ctx.defer()
+    if hasattr(ctx, 'response'):  # Slash command
+        await ctx.defer()
+        send_func = ctx.followup.send
+    else:  # Prefix command
+        send_func = ctx.send
     
     try:
         if league.upper() == "MLB":
@@ -688,7 +712,7 @@ async def standings_command(ctx, league: str = "MLB"):
                 {"competition": "PL"}
             )
         else:
-            await ctx.followup.send("❌ League not supported. Try: MLB, EPL")
+            await send_func("❌ League not supported. Try: MLB, EPL")
             return
         
         embed = discord.Embed(
@@ -701,19 +725,19 @@ async def standings_command(ctx, league: str = "MLB"):
             standings_text = standings_data["content"][:1500] + "..." if len(standings_data["content"]) > 1500 else standings_data["content"]
             embed.description = f"```{standings_text}```"
         
-        await ctx.followup.send(embed=embed)
+        await send_func(embed=embed)
         
     except Exception as e:
-        await ctx.followup.send(f"❌ Error fetching standings: {str(e)}")
+        await send_func(f"❌ Error fetching standings: {str(e)}")
 
 @bot.hybrid_command(name="create-mlb-channels", description="Create channels for today's MLB games")
 async def create_mlb_channels_command(ctx, date: str = None):
     """Create Discord channels for today's MLB games"""
     # Handle both slash and prefix commands
-    if hasattr(ctx, 'defer'):
+    if hasattr(ctx, 'response'):  # Slash command (interaction)
         await ctx.defer()
         send_func = ctx.followup.send
-    else:
+    else:  # Prefix command (context)
         send_func = ctx.send
     
     try:
@@ -807,11 +831,15 @@ async def create_mlb_channels_command(ctx, date: str = None):
 @bot.hybrid_command(name="cleanup", description="Clean up old game channels")
 async def cleanup_command(ctx, days: int = 1):
     """Clean up game channels older than specified days"""
-    await ctx.defer()
+    if hasattr(ctx, 'response'):  # Slash command
+        await ctx.defer()
+        send_func = ctx.followup.send
+    else:  # Prefix command
+        send_func = ctx.send
     
     try:
         if not ctx.author.guild_permissions.manage_channels:
-            await ctx.followup.send("❌ You need 'Manage Channels' permission to use this command.")
+            await send_func("❌ You need 'Manage Channels' permission to use this command.")
             return
         
         deleted_count = 0
@@ -838,10 +866,10 @@ async def cleanup_command(ctx, days: int = 1):
                         except:
                             continue
         
-        await ctx.followup.send(f"✅ Cleaned up {deleted_count} old game channels.")
+        await send_func(f"✅ Cleaned up {deleted_count} old game channels.")
         
     except Exception as e:
-        await ctx.followup.send(f"❌ Error cleaning up channels: {str(e)}")
+        await send_func(f"❌ Error cleaning up channels: {str(e)}")
 
 # Health check endpoint for Railway
 async def health_check(request):
