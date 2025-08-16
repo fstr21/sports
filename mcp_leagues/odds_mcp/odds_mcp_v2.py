@@ -26,6 +26,7 @@ ODDS_PACKAGE_AVAILABLE = True  # We'll use httpx for direct HTTP calls
 # Configuration
 ODDS_API_KEY = os.getenv("ODDS_API_KEY", "").strip()
 USER_AGENT = "sports-ai-odds-mcp-v2/1.0"
+use_test_mode = not bool(ODDS_API_KEY)  # Use test mode if no API key
 
 # Initialize HTTP client for direct API calls
 _http_client: Optional[httpx.AsyncClient] = None
@@ -41,32 +42,47 @@ async def get_http_client() -> httpx.AsyncClient:
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
-,
+# Available sports for odds data
+SPORTS = [
         {"key": "basketball_nba", "title": "NBA", "group": "Basketball", "active": True},
         {"key": "basketball_wnba", "title": "WNBA", "group": "Basketball", "active": True},
         {"key": "americanfootball_nfl", "title": "NFL", "group": "American Football", "active": True},
         {"key": "icehockey_nhl", "title": "NHL", "group": "Ice Hockey", "active": True}
     ]
 
-,
-                        {"name": "Arizona Diamondbacks", "price": 105}
-                    ]
-                }, {
-                    "key": "spreads",
-                    "outcomes": [
-                        {"name": "Colorado Rockies", "price": -110, "point": -1.5},
-                        {"name": "Arizona Diamondbacks", "price": -110, "point": 1.5}
-                    ]
-                }, {
-                    "key": "totals",
-                    "outcomes": [
-                        {"name": "Over", "price": -110, "point": 9.5},
-                        {"name": "Under", "price": -110, "point": 9.5}
-                    ]
-                }]
-            }]
+# Sample odds data structure (for reference/testing)
+SAMPLE_ODDS_DATA = [{
+    "id": "sample_game_123",
+    "sport_key": "baseball_mlb",
+    "sport_title": "MLB",
+    "commence_time": "2024-07-15T20:00:00Z",
+    "home_team": "Arizona Diamondbacks",
+    "away_team": "Colorado Rockies",
+    "bookmakers": [{
+        "key": "draftkings",
+        "title": "DraftKings",
+        "last_update": "2024-07-15T12:00:00Z",
+        "markets": [{
+            "key": "h2h",
+            "outcomes": [
+                {"name": "Colorado Rockies", "price": -115},
+                {"name": "Arizona Diamondbacks", "price": 105}
+            ]
+        }, {
+            "key": "spreads",
+            "outcomes": [
+                {"name": "Colorado Rockies", "price": -110, "point": -1.5},
+                {"name": "Arizona Diamondbacks", "price": -110, "point": 1.5}
+            ]
+        }, {
+            "key": "totals",
+            "outcomes": [
+                {"name": "Over", "price": -110, "point": 9.5},
+                {"name": "Under", "price": -110, "point": 9.5}
+            ]
         }]
-    return []
+    }]
+}]
 
 # MCP Tool implementations
 
