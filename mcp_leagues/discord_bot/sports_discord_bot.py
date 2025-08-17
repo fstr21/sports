@@ -1012,6 +1012,9 @@ if __name__ == "__main__":
     print("  /clear-channels - Clear sport channels")
     print("  /create-mlb-channels - Create MLB channels")
     print("  /bot-status - Bot diagnostics")
+    print("  /analyze - Analyze games (placeholder)")
+    print("  /debug-mlb - Debug MLB data")
     print("=" * 60)
+    print(f"🚀 Build timestamp: {datetime.now().isoformat()}")
     
     asyncio.run(main())
