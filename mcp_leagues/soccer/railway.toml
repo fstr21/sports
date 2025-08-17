@@ -3,8 +3,6 @@ builder = "nixpacks"
 
 [deploy]
 startCommand = "python soccer_mcp_server.py"
-healthcheckPath = "/"
-healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 
