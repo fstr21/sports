@@ -137,10 +137,10 @@ class SportsBot(commands.Bot):
         """Sync commands with retry logic and better error handling"""
         for attempt in range(max_retries):
             try:
-                logger.info(f"Syncing commands (attempt {attempt + 1}/{max_retries})...")
+                logger.info(f"🔄 Syncing commands (attempt {attempt + 1}/{max_retries})...")
                 
-                # Clear any existing commands first to avoid conflicts
-                self.tree.clear_commands(guild=None)
+                # Don't clear commands during startup - only add/update
+                # Clear commands can cause integration errors
                 
                 # Sync commands globally
                 synced = await self.tree.sync()
@@ -151,18 +151,28 @@ class SportsBot(commands.Bot):
                 for cmd in synced:
                     logger.info(f"  - Synced: /{cmd.name} - {cmd.description}")
                 
+                # Verify commands are actually registered
+                await asyncio.sleep(2)
+                try:
+                    registered = await self.tree.fetch_commands()
+                    logger.info(f"✅ Verified {len(registered)} commands registered with Discord")
+                except Exception as e:
+                    logger.warning(f"⚠️ Could not verify command registration: {e}")
+                
                 return True
                 
             except discord.HTTPException as e:
                 logger.error(f"❌ HTTP error syncing commands (attempt {attempt + 1}): {e}")
+                logger.error(f"   Error code: {e.status}, Response: {e.response}")
                 if attempt < max_retries - 1:
-                    await asyncio.sleep(5)  # Wait before retry
+                    await asyncio.sleep(10)  # Longer wait for HTTP errors
                     continue
                 else:
                     logger.error("❌ Failed to sync commands after all retries")
                     return False
             except Exception as e:
                 logger.error(f"❌ Unexpected error syncing commands: {e}")
+                logger.error(f"   Error type: {type(e).__name__}")
                 if attempt < max_retries - 1:
                     await asyncio.sleep(5)
                     continue
@@ -532,37 +542,116 @@ async def sync_command(interaction: discord.Interaction):
         
         logger.info(f"Manual sync requested by {interaction.user}")
         
-        # FORCE CLEAR: Remove all existing commands first
-        bot.tree.clear_commands(guild=None)
-        
-        # Wait a moment for Discord to process
-        await asyncio.sleep(2)
-        
-        # Re-sync only our current commands
+        # Gentle sync - don't clear commands, just update
         synced = await bot.tree.sync()
         
         embed = discord.Embed(
-            title="🔄 Force Command Sync Complete",
-            description=f"Cleared old commands and synced {len(synced)} new slash commands!",
+            title="🔄 Command Sync Complete",
+            description=f"Successfully synced {len(synced)} slash commands!",
             color=discord.Color.green()
         )
         
         if synced:
             command_list = "\n".join([f"• /{cmd.name}" for cmd in synced])
-            embed.add_field(name="Active Commands", value=command_list, inline=False)
+            embed.add_field(name="Synced Commands", value=command_list, inline=False)
         
-        embed.add_field(
-            name="ℹ️ Note", 
-            value="Old commands should disappear within 1-2 minutes. Try refreshing Discord if needed.",
-            inline=False
-        )
+        # Verify registration
+        await asyncio.sleep(1)
+        try:
+            registered = await bot.tree.fetch_commands()
+            embed.add_field(
+                name="✅ Verification", 
+                value=f"Discord shows {len(registered)} commands registered",
+                inline=False
+            )
+        except Exception as e:
+            embed.add_field(
+                name="⚠️ Verification Failed", 
+                value=f"Could not verify: {str(e)[:100]}",
+                inline=False
+            )
         
         await interaction.followup.send(embed=embed)
-        logger.info(f"Force sync completed: {len(synced)} commands synced by {interaction.user}")
+        logger.info(f"Sync completed: {len(synced)} commands synced by {interaction.user}")
         
     except Exception as e:
         logger.error(f"Manual sync failed: {e}")
         await interaction.followup.send(f"❌ Error syncing commands: {str(e)}")
+
+@bot.tree.command(name="emergency-fix", description="Emergency command recovery (Admin only)")
+async def emergency_fix_command(interaction: discord.Interaction):
+    """Emergency command to fix bot integration issues"""
+    await interaction.response.defer()
+    
+    try:
+        if not interaction.user.guild_permissions.administrator:
+            await interaction.followup.send("❌ You need Administrator permission to use this command.")
+            return
+        
+        logger.info(f"🚨 Emergency fix requested by {interaction.user}")
+        
+        status_embed = discord.Embed(
+            title="🚨 Emergency Bot Recovery",
+            description="Attempting to fix integration issues...",
+            color=discord.Color.orange()
+        )
+        
+        await interaction.followup.send(embed=status_embed)
+        
+        # Step 1: Check bot connection
+        bot_status = "✅ Connected" if bot.is_ready() else "❌ Disconnected"
+        
+        # Step 2: Try to fetch current commands
+        try:
+            current_commands = await bot.tree.fetch_commands()
+            commands_status = f"✅ Found {len(current_commands)} commands"
+        except Exception as e:
+            current_commands = []
+            commands_status = f"❌ Cannot fetch: {str(e)[:50]}"
+        
+        # Step 3: Count local commands
+        local_commands = len([cmd for cmd in bot.tree.get_commands()])
+        
+        # Step 4: Attempt recovery sync
+        try:
+            await asyncio.sleep(2)
+            synced = await bot.tree.sync()
+            sync_status = f"✅ Synced {len(synced)} commands"
+            sync_success = True
+        except Exception as e:
+            sync_status = f"❌ Sync failed: {str(e)[:50]}"
+            sync_success = False
+        
+        # Results embed
+        result_embed = discord.Embed(
+            title="🔧 Recovery Results",
+            color=discord.Color.green() if sync_success else discord.Color.red()
+        )
+        
+        result_embed.add_field(name="Bot Status", value=bot_status, inline=True)
+        result_embed.add_field(name="Discord Commands", value=commands_status, inline=True)
+        result_embed.add_field(name="Local Commands", value=f"{local_commands} defined", inline=True)
+        result_embed.add_field(name="Sync Result", value=sync_status, inline=False)
+        
+        if sync_success:
+            result_embed.add_field(
+                name="✅ Next Steps",
+                value="Commands should appear in Discord within 1-2 minutes. Try refreshing Discord or restarting the app.",
+                inline=False
+            )
+        else:
+            result_embed.add_field(
+                name="❌ Manual Steps Required",
+                value="1. Check Railway logs for errors\n2. Verify bot token is valid\n3. Check bot permissions in Discord Developer Portal",
+                inline=False
+            )
+        
+        await interaction.followup.send(embed=result_embed)
+        logger.info(f"Emergency fix completed. Success: {sync_success}")
+        
+    except Exception as e:
+        logger.error(f"Emergency fix failed: {e}")
+        await interaction.followup.send(f"❌ Emergency fix failed: {str(e)}")
 
 @bot.tree.command(name="debug-mlb", description="Debug MLB data from MCP")
 async def debug_mlb_command(interaction: discord.Interaction, date: str = None):
@@ -1030,13 +1119,25 @@ if __name__ == "__main__":
     print("=" * 60)
     print("Expected commands after startup:")
     print("  /sync - Manual command sync")
+    print("  /emergency-fix - Emergency recovery")
     print("  /help - Show all commands") 
     print("  /clear-channels - Clear sport channels")
     print("  /create-mlb-channels - Create MLB channels")
     print("  /bot-status - Bot diagnostics")
     print("  /analyze - Analyze games (placeholder)")
     print("  /debug-mlb - Debug MLB data")
+    print("  /setup - Setup server structure")
     print("=" * 60)
     print(f"🚀 Build timestamp: {datetime.now().isoformat()}")
+    print(f"🔧 Discord Token: {'✅ Set' if DISCORD_TOKEN else '❌ Missing'}")
+    print(f"🔗 MCP URLs configured: 4")
+    print("=" * 60)
     
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n🛑 Bot stopped by user")
+    except Exception as e:
+        print(f"\n💥 Bot crashed: {e}")
+        import traceback
+        traceback.print_exc()
