@@ -1,181 +1,140 @@
-# Soccer MCP Server
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/yeonupark-mcp-soccer-data-badge.png)](https://mseep.ai/app/yeonupark-mcp-soccer-data)
 
-A dedicated MCP (Model Context Protocol) server for soccer/football data using the Football-Data.org API.
+# ⚽️ Soccerdata MCP Server
+[![smithery badge](https://smithery.ai/badge/@yeonupark/mcp-soccer-data)](https://smithery.ai/server/@yeonupark/mcp-soccer-data)
+- **MCP-Soccerdata** is an open-source [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) server that connects to the **SoccerDataAPI to deliver up-to-date football match information via natural language interactions**. 
 
-## Features
+- Designed for use with MCP-enabled clients such as Claude Desktop, it allows users to retrieve football data by leveraging large language models (LLMs).
 
-Comprehensive soccer data across major leagues including:
-- **Premier League** (England)
-- **La Liga** (Spain)  
-- **Bundesliga** (Germany)
-- **Serie A** (Italy)
-- **Ligue 1** (France)
-- **UEFA Champions League**
-- And many more competitions
+---
 
-## Available Tools
+## ✨ Features
 
-### 1. `getCompetitions`
-Get available soccer competitions from Football-Data.org
-- **Parameters**: 
-  - `areas` (optional): Comma-separated area IDs to filter by
-  - `use_test_mode` (optional): Use mock data for testing
+### 🏟️ Live Football Match Insights
+MCP-Soccerdata focuses on delivering **real-time information about ongoing football matches around the world.**
 
-### 2. `getCompetitionMatches`
-Get matches for a specific competition
-- **Parameters**: 
-  - `competition_id` (required): Competition ID (e.g., 'PL', '2021')
-  - `date_from` (optional): Start date (YYYY-MM-DD)
-  - `date_to` (optional): End date (YYYY-MM-DD)
-  - `matchday` (optional): Specific matchday
-  - `status` (optional): Match status (SCHEDULED, LIVE, FINISHED, etc.)
+> "What football matches are being played right now?"      
+> "What are the predicted lineups for PSG vs Aston Villa today?"       
+> "Please tell me the scores and number of goals from recent football matches."
 
-### 3. `getCompetitionStandings`
-Get standings/table for a specific competition
-- **Parameters**:
-  - `competition_id` (required): Competition ID
-  - `season` (optional): Season year (e.g., 2024)
-  - `matchday` (optional): Specific matchday
+→ Provides relevant football data in a structured format, including the detailed categories described below.
 
-### 4. `getCompetitionTeams`
-Get teams in a specific competition
-- **Parameters**:
-  - `competition_id` (required): Competition ID
-  - `season` (optional): Season year
+### - Match Listings & Basic Info
+- Global list of all currently active matches
+- Home and away team names
+- Kickoff time and match date
+- Stadium details
+- Current score
 
-### 5. `getTeamMatches`
-Get matches for a specific team
-- **Parameters**:
-  - `team_id` (required): Team ID
-  - `date_from` (optional): Start date (YYYY-MM-DD)
-  - `date_to` (optional): End date (YYYY-MM-DD)
-  - `season` (optional): Season year
-  - `status` (optional): Match status
-  - `venue` (optional): HOME or AWAY
-  - `limit` (optional): Number of matches to return
 
-### 6. `getMatchDetails`
-Get details for a specific match (⚠️ **Limited by API tier**)
-- **Parameters**:
-  - `match_id` (required): Match ID
-- **Returns**: Basic match info, scores, referee, venue
-- **Note**: Detailed statistics (shots, corners, possession) require paid API plan
+### - Match Details
+- Match status: scheduled, in progress, or finished
+- Goal breakdown: first half, second half, extra time, penalty shootout
+- Final result: win, draw, or loss
 
-### 7. `getTopScorers`
-Get top scorers for a specific competition
-- **Parameters**:
-  - `competition_id` (required): Competition ID
-  - `season` (optional): Season year
-  - `limit` (optional): Number of top scorers (default: 10)
 
-## Environment Variables
+### - Key Match Events
+- Goal events (who scored, when, how)
+- Substitutions
+- Yellow and red cards
+- Penalties
 
-- `FOOTBALL_DATA_API_KEY`: Your Football-Data.org API key
-- `PORT`: Server port (default: 8080)
 
-## Testing
+### - Team Lineups
+- Starting XI
+- Bench players
+- Injury status
+- Team formation
 
-Run the comprehensive test suite:
+
+### - Odds & Betting Information
+- Win / Draw / Lose odds
+- Over / Under odds
+- Handicap betting odds
+
+
+### - League Metadata
+- League name
+- Country
+- Competition format (e.g., regular season, knockout stage)
+
+
+> ⚠️ Focused exclusively on **live**, **upcoming**, and **recently finished** matches
+
+---
+## 🎥 Demo
+
+![mcp (3) (1)](https://github.com/user-attachments/assets/03f63020-e467-48d3-8bbc-e97f9bd26e5b)
+
+---
+
+## 🚀 Quick Start
+
+### Installing via Smithery
+
+To install Amadeus MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@yeonupark/mcp-soccer-data):
 
 ```bash
-python test_soccer_mcp.py
+npx -y @smithery/cli install @yeonupark/mcp-soccer-data --client claude
 ```
 
-### Interactive Testing
-For betting analysis and real-world testing:
+### Prerequisites
+- Python 3.12+
+- `uv` package manager
+- Soccerdata API account
+- MCP-compatible client (e.g., Claude for Desktop)
 
+
+### 1. Clone and Setup
+
+- Clone the repository
 ```bash
-cd ../testing
-python soccer_test_simple.py
+git clone https://github.com/yeonupark/mcp-soccer-data.git
+cd mcp-soccer-data
+```
+- Install dependencies
+```
+uv sync
 ```
 
-**Note**: See `ACTUAL_CAPABILITIES.md` for detailed testing results and data limitations.
+### 2. Get Your API Key and Set Environment
 
-## API Data Source
+- Create a .env file with your credentials:
+```
+AUTH_KEY=your_auth_key
+```
+> Sign up on https://soccerdataapi.com/ and get your own Auth keys.
 
-This MCP uses the [Football-Data.org API](https://www.football-data.org/) which provides:
+### 3. Configure MCP Client
+- Register this server in your MCP client (e.g., Claude for Desktop).
 
-### ✅ Free Tier (Current Implementation)
-- Real-time match data (basic)
-- Comprehensive league standings  
-- Team and player information
-- Historical match results
-- Top scorer statistics
-
-### ⚠️ Paid Tier Required For
-- Detailed match statistics (shots, corners, possession)
-- Player-level match performance
-- Card and disciplinary data
-- Advanced lineups and formations
-
-## Deployment
-
-Configured for Railway deployment with:
-- `railway.toml` - Railway configuration
-- `requirements.txt` - Python dependencies
-- Health check endpoint at `/`
-- MCP endpoint at `/mcp`
-
-## Usage Examples
-
-### Get Premier League standings
-```json
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json:`
+```
 {
-  "name": "getCompetitionStandings",
-  "arguments": {
-    "competition_id": "PL"
+  "mcpServers": {
+      "mcp-soccer-data": {
+          "command": "/ABSOLUTE/PATH/TO/PARENT/FOLDER/uv",
+          "args": [
+              "--directory",
+              "/ABSOLUTE/PATH/TO/PARENT/FOLDER/src/",
+              "run",
+              "--env-file",
+              "/ABSOLUTE/PATH/TO/PARENT/FOLDER/.env",
+              "server.py"
+          ]
+      }
   }
 }
 ```
 
-### Get today's matches for a competition
-```json
-{
-  "name": "getCompetitionMatches", 
-  "arguments": {
-    "competition_id": "PL",
-    "date_from": "2025-08-15",
-    "date_to": "2025-08-15"
-  }
-}
-```
+---
+## 🛠️ Tools
+The follwing tool is exposed to MCP clients:  
+### `get_livescores()`
+-> Returns real-time information about ongoing football matches around the world.
 
-### Get Arsenal's recent matches
-```json
-{
-  "name": "getTeamMatches",
-  "arguments": {
-    "team_id": 57,
-    "limit": 5,
-    "status": "FINISHED"
-  }
-}
-```
 
-## Betting Analysis Capabilities
-
-### ✅ Strong Markets (Good Data Available)
-- **Match Result (1X2)**: League position and form analysis
-- **Over/Under Goals**: Team scoring averages and patterns
-- **Both Teams to Score**: Goal consistency analysis  
-- **Anytime Goalscorer**: Top scorer statistics
-
-### ⚠️ Limited Markets (Basic Data Only)
-- **Asian Handicap**: Goal difference patterns
-- **Exact Score**: Historical distributions
-
-### ❌ Avoid These Markets (Insufficient Data)
-- **Shots on Target Props**: No shot data
-- **Corner Kick Totals**: No corner data
-- **Player Card Props**: No disciplinary data
-- **Possession Bets**: No possession data
-
-### Recommended Workflow
-1. Use `getCompetitionStandings` for team strength
-2. Use `getCompetitionMatches` for goal patterns  
-3. Use `getTopScorers` for goalscorer markets
-4. Focus on fundamental betting markets
-
-## Test Mode
-
-All tools support `use_test_mode: true` parameter to return mock data for development and testing without using API quota.
+---
+## 📝 License
+- This project is licensed under the [MIT License](LICENSE). See the LICENSE file for details.
+- Built with [Model Context Protocol](https://modelcontextprotocol.io/introduction)

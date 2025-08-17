@@ -1,15 +1,15 @@
 # Sports Betting Platform - Current Status
 
 ## Overview
-Complete **quad-MCP** sports analytics platform providing **LIVE MLB data**, **LIVE soccer data**, **LIVE college football data**, and **LIVE betting odds** including player props. All four MCPs are fully operational on Railway with integrated testing.
+Complete **tri-MCP** sports analytics platform providing **LIVE MLB data**, **LIVE college football data**, and **LIVE betting odds** including player props. All three MCPs are fully operational on Railway with integrated testing. **NEW**: Enhanced soccer data capabilities via SoccerDataAPI with 128+ leagues and comprehensive player stats.
 
 ## Platform Architecture
 
-### ⚡ Quad MCP System
+### ⚡ Tri-MCP System + Enhanced Soccer
 - **MLB MCP**: Live MLB game data, schedules, stats, player info
-- **Soccer MCP**: Live EPL and La Liga fixtures, standings, team data
-- **College Football MCP**: Complete CFB data including games, rosters, stats, rankings (NEW!)
+- **College Football MCP**: Complete CFB data including games, rosters, stats, rankings
 - **Odds MCP v2**: Live betting odds including player props for all sports
+- **NEW Soccer Implementation**: SoccerDataAPI with 128+ leagues, comprehensive player stats, match events
 
 ### 🌐 Railway Cloud Deployment
 All MCPs are deployed on Railway with:
@@ -38,27 +38,27 @@ All MCPs are deployed on Railway with:
 - `getMLBPlayerStats` - Individual player statistics
 - `getMLBTeamStats` - Team performance metrics
 
-### ✅ Soccer MCP - Fully Operational (NEW!)
-**Server URL**: `https://soccermcp-production.up.railway.app/mcp`
+### ✅ Enhanced Soccer Data - SoccerDataAPI Implementation (NEW!)
+**Location**: `C:\Users\fstr2\Desktop\sports\soccer_testing\mcp-soccer-data\`
 
 **Core Features**:
-- Live EPL (Premier League) and La Liga fixtures
-- Current league standings/tables with full statistics
-- Team information and squad details
-- Match details with live status updates
-- Top scorers and competition data
-- Limited to EPL and La Liga due to Football-Data.org plan restrictions
+- **128+ Leagues Available**: EPL, La Liga, MLS, Bundesliga, Serie A, and more
+- **Comprehensive Player Stats**: Goals, assists, cards from match events
+- **Live Match Data**: Real-time scores, lineups, formations, weather
+- **Team Information**: Stadium data, transfer history, head-to-head stats
+- **Match Previews**: AI-powered match analysis and predictions
+- **No League Restrictions**: Full access vs. limited Football-Data.org plan
 
-**Key Tools**:
-- `getCompetitions` - Available soccer competitions (EPL, La Liga)
-- `getCompetitionMatches` - Live fixtures by competition and date range
-- `getCompetitionStandings` - Current league tables with full stats
-- `getCompetitionTeams` - Teams in each competition
-- `getTeamMatches` - Specific team fixtures
-- `getMatchDetails` - Individual match information
-- `getTopScorers` - Leading goal scorers by competition
+**Enhanced MCP Tools**:
+- `get_livescores()` - Live match scores with detailed match events
+- `get_leagues()` - All 128+ available leagues worldwide
+- `get_league_standings(league_id)` - League tables and team positions
+- `get_league_matches(league_id)` - Matches with player events and statistics
+- `get_team_info(team_id)` - Team details, stadium, country information
+- `get_player_info(player_id)` - Player details (limited to ID + name)
+- `extract_players_from_league(league_id)` - **ADVANCED**: Extract all players with stats from match events
 
-**Data Source**: Football-Data.org API v4 (limited plan: EPL + La Liga only)
+**Data Source**: SoccerDataAPI.com (comprehensive free tier: 75 requests/hour)
 
 ### ✅ College Football MCP - Fully Operational (NEW!)
 **Server URL**: `https://cfbmcp-production.up.railway.app/mcp`
@@ -122,19 +122,20 @@ All MCPs are deployed on Railway with:
 
 ## Integration Examples
 
-### 🏈 Soccer + Odds Integration (TESTED)
-**Liverpool vs Bournemouth Example**:
+### ⚽ Enhanced Soccer + Odds Integration (UPGRADED)
+**Liverpool vs Bournemouth Example via SoccerDataAPI**:
 
-**Fixture Data** (Soccer MCP):
-- Match: AFC Bournemouth @ Liverpool FC
-- Date: 2025-08-15T19:00:00Z
-- Status: TIMED (scheduled)
-- Competition: Premier League (PL)
+**Match Data** (Enhanced Soccer):
+- **Live Scores**: Real-time match events, goals, cards, substitutions
+- **Player Stats**: Rodrigo Muniz (Fulham): 1 goal, 1 yellow card, 1 sub
+- **Match Events**: Detailed timeline with player involvement
+- **Team Data**: Squad information, formations, bench players
+- **League**: EPL (league_id: 228) - one of 128+ available leagues
 
-**Betting Odds** (Odds MCP):
-- **BetRivers**: Liverpool -315, Bournemouth +750, Draw +540
-- **DraftKings**: Liverpool -320, Bournemouth +750, Draw +500
-- **Totals**: Over/Under 3.5 goals available
+**Betting Integration** (Odds MCP):
+- **Live Odds**: Match winner, over/under, handicap betting
+- **Player Props**: Goalscorer markets based on extracted player data
+- **Enhanced Analysis**: 113 EPL players with comprehensive stats
 
 ### ⚾ MLB + Odds Integration (ESTABLISHED)
 **Seattle Mariners @ Baltimore Orioles Example**:
@@ -175,12 +176,12 @@ All MCPs are deployed on Railway with:
 ### 🧪 Comprehensive Test Suites
 Each MCP has dedicated test scripts that validate:
 
-#### Soccer MCP Tests
-- `competitions_test.py` - Verify EPL and La Liga access
-- `schedule_test.py` - Live fixture data retrieval
-- `standings_test.py` - League table data with full statistics
-- `team_matches_test.py` - Team-specific fixture data
-- `test_odds_integration.py` - Combined fixture + odds data
+#### Enhanced Soccer Implementation Tests
+- `test_mcp_functions_directly.py` - Test all 7 MCP tools directly
+- `simple_mcp_tester.py` - Basic functionality validation
+- `epl_recent_games_realistic.py` - Real EPL match data extraction
+- `west_ham_mcp_analysis.py` - Comprehensive team analysis example
+- **Result**: 113 EPL players extracted with full statistics
 
 #### College Football MCP Tests (NEW!)
 - `games.py` - Game schedules and matchup testing
@@ -200,12 +201,12 @@ Each MCP has dedicated test scripts that validate:
 
 ## Technical Achievements
 
-### ✅ Soccer MCP Implementation
-- **Football-Data.org API v4** integration with proper authentication
-- **Async HTTP client** using httpx for optimal performance
-- **Comprehensive error handling** with mock data fallbacks
-- **Railway deployment** with proper environment configuration
-- **7 specialized tools** covering all soccer data needs within plan limits
+### ✅ Enhanced Soccer Implementation (SoccerDataAPI)
+- **SoccerDataAPI.com integration** with comprehensive 128+ league coverage
+- **Advanced player extraction** from match events (vs. limited player endpoints)
+- **MCP server architecture** with 7 specialized tools including enhanced player stats
+- **Local deployment ready** for Claude Desktop integration
+- **Massive efficiency gain**: 1 call extracts 113+ players vs. 113 individual calls
 
 ### ✅ Multi-MCP Integration
 - **Cross-MCP communication** tested and validated
@@ -233,15 +234,15 @@ Each MCP has dedicated test scripts that validate:
 
 ### Primary APIs
 - **MLB Data**: Live MLB API (official data)
-- **Soccer Data**: Football-Data.org API v4 (EPL + La Liga only)
+- **Soccer Data**: SoccerDataAPI.com (128+ leagues, comprehensive coverage)
 - **College Football Data**: College Football Data API (collegefootballdata.com)
 - **Betting Odds**: The Odds API v4 (live bookmaker feeds)
 
 ### Data Coverage
 - **MLB**: 30 teams, live games, player stats, rosters
-- **Soccer**: EPL + La Liga fixtures, standings, team data
+- **Soccer**: 128+ leagues, 113+ EPL players with match event stats, live scores, team data
 - **College Football**: All FBS/FCS teams, 197+ games on key dates, complete rosters
-- **Betting**: 7 live MLB games, 10+ EPL/La Liga matches, college football games
+- **Betting**: 7 live MLB games, enhanced soccer coverage, college football games
 
 ### Bookmaker Coverage
 - **FanDuel, DraftKings, Fanatics, BetOnline, Bovada**
@@ -251,16 +252,17 @@ Each MCP has dedicated test scripts that validate:
 ## Development Status
 
 ### ✅ Completed Features
-- [x] Quad MCP architecture fully operational
+- [x] Tri-MCP architecture fully operational (MLB, CFB, Odds)
 - [x] Live MLB game data integration
-- [x] Live soccer data integration (EPL + La Liga)
-- [x] Live college football data integration (NEW!)
+- [x] Enhanced soccer data implementation (128+ leagues via SoccerDataAPI)
+- [x] Live college football data integration
 - [x] Live betting odds for game markets (all sports)
 - [x] Player prop betting markets (MLB)
-- [x] Cross-MCP integration (Soccer + Odds tested)
+- [x] Enhanced soccer + odds integration with comprehensive player stats
 - [x] Event-specific odds endpoint
-- [x] Railway cloud deployment for all four MCPs
-- [x] Direct HTTP implementation bypassing faulty packages
+- [x] Railway cloud deployment for three core MCPs
+- [x] Local MCP server for enhanced soccer data
+- [x] Advanced player extraction algorithms (113+ EPL players)
 - [x] Comprehensive testing suites with JSON exports
 - [x] Complete validation and live data verification
 - [x] College football player analysis (rosters, stats, rankings)
@@ -268,7 +270,7 @@ Each MCP has dedicated test scripts that validate:
 - [x] International game support (Dublin game tracking)
 
 ### 🎯 Platform Ready
-The platform is **fully operational** and provides comprehensive sports analytics with MLB data, soccer data, college football data, and live betting odds including player props. All four MCPs are deployed, tested, and providing real-time data with proven integration capabilities.
+The platform is **fully operational** and provides comprehensive sports analytics with MLB data, enhanced soccer data, college football data, and live betting odds including player props. The tri-MCP architecture (MLB, CFB, Odds) is deployed on Railway, with enhanced soccer capabilities available via local SoccerDataAPI MCP server providing superior data coverage (128+ leagues vs. previous 2-league limitation).
 
 ## Railway Infrastructure
 
@@ -300,9 +302,9 @@ restartPolicyMaxRetries = 10
 
 ## Usage
 
-All four MCPs can be used independently or together for complete sports analytics:
+All sports data sources can be used independently or together for complete sports analytics:
 
-1. **Soccer MCP** provides live fixture data and league standings
+1. **Enhanced Soccer Implementation** provides 128+ leagues, comprehensive player stats, match events
 2. **Odds MCP** provides betting odds for soccer and other sports  
 3. **MLB MCP** provides comprehensive baseball data
 4. **College Football MCP** provides complete CFB data including games, rosters, stats, rankings
@@ -333,7 +335,7 @@ The platform now supports:
 - **Betting integration**: Live odds with game and player prop markets
 - **Historical trends**: Multi-season data for predictive modeling
 
-**Platform Status**: ✅ **FULLY OPERATIONAL** (Quad MCP Architecture)
+**Platform Status**: ✅ **FULLY OPERATIONAL** (Tri-MCP + Enhanced Soccer Architecture)
 
 ---
 
