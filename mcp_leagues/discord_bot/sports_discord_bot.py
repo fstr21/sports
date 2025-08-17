@@ -116,12 +116,12 @@ class SportsBot(commands.Bot):
         logger.info(f"{self.user} has connected to Discord!")
         logger.info(f"Bot is in {len(self.guilds)} guilds")
         
-        # Sync slash commands to Discord
-        try:
-            synced = await self.tree.sync()
-            logger.info(f"Synced {len(synced)} command(s)")
-        except Exception as e:
-            logger.error(f"Failed to sync commands: {e}")
+        # List all guilds for debugging
+        for guild in self.guilds:
+            logger.info(f"Guild: {guild.name} (ID: {guild.id})")
+        
+        # FIXED: Improved command sync with retry logic
+        await self.sync_commands_with_retry()
         
         # Setup channel structure for each guild
         for guild in self.guilds:
@@ -132,6 +132,44 @@ class SportsBot(commands.Bot):
             self.daily_picks_task.start()
         if not self.channel_management_task.is_running():
             self.channel_management_task.start()
+    
+    async def sync_commands_with_retry(self, max_retries: int = 3):
+        """Sync commands with retry logic and better error handling"""
+        for attempt in range(max_retries):
+            try:
+                logger.info(f"Syncing commands (attempt {attempt + 1}/{max_retries})...")
+                
+                # Clear any existing commands first to avoid conflicts
+                self.tree.clear_commands(guild=None)
+                
+                # Sync commands globally
+                synced = await self.tree.sync()
+                
+                logger.info(f"✅ Successfully synced {len(synced)} command(s)")
+                
+                # Log each synced command for debugging
+                for cmd in synced:
+                    logger.info(f"  - Synced: /{cmd.name} - {cmd.description}")
+                
+                return True
+                
+            except discord.HTTPException as e:
+                logger.error(f"❌ HTTP error syncing commands (attempt {attempt + 1}): {e}")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(5)  # Wait before retry
+                    continue
+                else:
+                    logger.error("❌ Failed to sync commands after all retries")
+                    return False
+            except Exception as e:
+                logger.error(f"❌ Unexpected error syncing commands: {e}")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(5)
+                    continue
+                else:
+                    return False
+        
+        return False
     
     async def on_command_error(self, ctx, error):
         logger.error(f"Command error: {error}")
@@ -492,11 +530,27 @@ async def sync_command(interaction: discord.Interaction):
             await interaction.followup.send("❌ You need Administrator permission to use this command.")
             return
         
+        logger.info(f"Manual sync requested by {interaction.user}")
+        
+        # Clear and re-sync commands to avoid conflicts
+        bot.tree.clear_commands(guild=None)
         synced = await bot.tree.sync()
-        await interaction.followup.send(f"✅ Synced {len(synced)} slash commands!")
-        logger.info(f"Manual sync: {len(synced)} commands synced by {interaction.user}")
+        
+        embed = discord.Embed(
+            title="✅ Command Sync Complete",
+            description=f"Successfully synced {len(synced)} slash commands!",
+            color=discord.Color.green()
+        )
+        
+        if synced:
+            command_list = "\n".join([f"• /{cmd.name}" for cmd in synced])
+            embed.add_field(name="Synced Commands", value=command_list, inline=False)
+        
+        await interaction.followup.send(embed=embed)
+        logger.info(f"Manual sync completed: {len(synced)} commands synced by {interaction.user}")
         
     except Exception as e:
+        logger.error(f"Manual sync failed: {e}")
         await interaction.followup.send(f"❌ Error syncing commands: {str(e)}")
 
 @bot.tree.command(name="debug-mlb", description="Debug MLB data from MCP")
@@ -702,6 +756,8 @@ async def clear_channels_command(interaction: discord.Interaction, category: str
     await interaction.response.defer()
     
     try:
+        logger.info(f"Clear channels command used by {interaction.user} for category: {category}")
+        
         if not interaction.user.guild_permissions.manage_channels:
             await interaction.followup.send("❌ You need 'Manage Channels' permission to use this command.")
             return
@@ -749,14 +805,55 @@ async def clear_channels_command(interaction: discord.Interaction, category: str
                 logger.error(f"Failed to delete channel {channel.name}: {e}")
         
         # Send result
-        if deleted_count > 0:
-            await interaction.followup.send(f"✅ Successfully deleted {deleted_count} channels from '{category}'.")
-        else:
-            await interaction.followup.send(f"❌ Failed to delete channels from '{category}'.")
+        result_embed = discord.Embed(
+            title="✅ Clear Channels Complete",
+            description=f"Successfully deleted {deleted_count} out of {channel_count} channels from '{category}'.",
+            color=discord.Color.green()
+        )
+        
+        await interaction.followup.send(embed=result_embed)
+        logger.info(f"Clear channels completed: {deleted_count}/{channel_count} deleted")
         
     except Exception as e:
         logger.error(f"Error in clear-channels command: {e}")
         await interaction.followup.send(f"❌ Error clearing channels: {str(e)}")
+
+@bot.tree.command(name="bot-status", description="Check bot status and command diagnostics")
+async def bot_status_command(interaction: discord.Interaction):
+    """Check bot status and diagnostics"""
+    await interaction.response.defer()
+    
+    try:
+        # Get registered commands
+        commands = await bot.tree.fetch_commands()
+        
+        embed = discord.Embed(
+            title="🤖 Bot Status & Diagnostics",
+            color=discord.Color.blue()
+        )
+        
+        # Basic status
+        embed.add_field(name="Bot Ready", value="✅ Yes" if bot.is_ready() else "❌ No", inline=True)
+        embed.add_field(name="Guilds", value=len(bot.guilds), inline=True)
+        embed.add_field(name="Registered Commands", value=len(commands), inline=True)
+        
+        # List commands
+        if commands:
+            command_list = "\n".join([f"• /{cmd.name}" for cmd in commands[:15]])
+            if len(commands) > 15:
+                command_list += f"\n• ... and {len(commands) - 15} more"
+            embed.add_field(name="Command List", value=command_list, inline=False)
+        
+        # MCP URLs status
+        mcp_status = "\n".join([f"• {name.upper()}: {'✅' if url else '❌'}" for name, url in bot.mcp_urls.items()])
+        embed.add_field(name="MCP Servers", value=mcp_status, inline=False)
+        
+        embed.set_footer(text=f"Bot User: {bot.user} | Latency: {round(bot.latency * 1000)}ms")
+        
+        await interaction.followup.send(embed=embed)
+        
+    except Exception as e:
+        await interaction.followup.send(f"❌ Error checking bot status: {str(e)}")
 
 @bot.tree.command(name="analyze", description="Analyze and populate game channels with betting insights")
 @app_commands.describe(sport="Select the sport to analyze games for")
@@ -789,6 +886,8 @@ async def help_command(interaction: discord.Interaction):
     await interaction.response.defer()
     
     try:
+        logger.info(f"Help command used by {interaction.user}")
+        
         embed = discord.Embed(
             title="🤖 Sports Bot Commands",
             description="All available slash commands for the sports betting bot",
@@ -839,6 +938,7 @@ async def help_command(interaction: discord.Interaction):
         embed.set_footer(text="Sports Betting Bot | All commands use Discord slash command format")
         
         await interaction.followup.send(embed=embed)
+        logger.info("Help command completed successfully")
         
     except Exception as e:
         logger.error(f"Error in help command: {e}")
@@ -846,12 +946,28 @@ async def help_command(interaction: discord.Interaction):
 
 # Health check endpoint for Railway
 async def health_check(request):
-    return JSONResponse({
-        "status": "healthy", 
-        "bot_ready": bot.is_ready(),
-        "guilds": len(bot.guilds) if bot.is_ready() else 0,
-        "channels_managed": len(bot.channel_structure)
-    })
+    try:
+        # Try to get command count for health check
+        command_count = 0
+        if bot.is_ready():
+            try:
+                commands = await bot.tree.fetch_commands()
+                command_count = len(commands)
+            except:
+                command_count = -1  # Indicates sync issue
+        
+        return JSONResponse({
+            "status": "healthy", 
+            "bot_ready": bot.is_ready(),
+            "guilds": len(bot.guilds) if bot.is_ready() else 0,
+            "channels_managed": len(bot.channel_structure),
+            "commands_registered": command_count
+        })
+    except Exception as e:
+        return JSONResponse({
+            "status": "error",
+            "error": str(e)
+        })
 
 # Create Starlette app for health checks
 app = Starlette(routes=[
@@ -888,4 +1004,14 @@ async def main():
     )
 
 if __name__ == "__main__":
+    print("🤖 Starting Sports Discord Bot")
+    print("=" * 60)
+    print("Expected commands after startup:")
+    print("  /sync - Manual command sync")
+    print("  /help - Show all commands") 
+    print("  /clear-channels - Clear sport channels")
+    print("  /create-mlb-channels - Create MLB channels")
+    print("  /bot-status - Bot diagnostics")
+    print("=" * 60)
+    
     asyncio.run(main())
