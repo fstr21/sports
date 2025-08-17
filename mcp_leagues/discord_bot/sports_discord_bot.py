@@ -41,7 +41,6 @@ CFB_MCP_URL = os.getenv("CFB_MCP_URL", "https://cfbmcp-production.up.railway.app
 ODDS_MCP_URL = os.getenv("ODDS_MCP_URL", "https://odds-mcp-v2-production.up.railway.app/mcp")
 
 # Bot configuration
-COMMAND_PREFIX = "!"
 DEFAULT_GUILD = os.getenv("DEFAULT_GUILD", "Foster")
 DEFAULT_CHANNEL = os.getenv("DEFAULT_CHANNEL", "mcp-testing")
 
@@ -65,7 +64,7 @@ class SportsBot(commands.Bot):
         # Note: Channel management is handled through bot permissions, not intents
         
         super().__init__(
-            command_prefix=COMMAND_PREFIX,
+            command_prefix=None,  # Slash commands only
             intents=intents,
             description="Sports Betting Analytics Bot with AI Integration"
         )
@@ -544,231 +543,30 @@ async def debug_mlb_command(interaction: discord.Interaction, date: str = None):
     except Exception as e:
         await interaction.followup.send(f"❌ Error: {str(e)}")
 
-@bot.hybrid_command(name="setup", description="Setup channel structure for this server")
-async def setup_command(ctx):
+@bot.tree.command(name="setup", description="Setup channel structure for this server")
+async def setup_command(interaction: discord.Interaction):
     """Setup the complete channel structure"""
-    if hasattr(ctx, 'response'):  # Slash command
-        await ctx.defer()
-        send_func = ctx.followup.send
-    else:  # Prefix command
-        send_func = ctx.send
+    await interaction.response.defer()
     
     try:
-        if not ctx.author.guild_permissions.manage_channels:
-            await send_func("❌ You need 'Manage Channels' permission to use this command.")
+        if not interaction.user.guild_permissions.manage_channels:
+            await interaction.followup.send("❌ You need 'Manage Channels' permission to use this command.")
             return
         
-        await bot.setup_guild_channels(ctx.guild)
-        await send_func("✅ Channel structure setup completed!")
+        await bot.setup_guild_channels(interaction.guild)
+        await interaction.followup.send("✅ Channel structure setup completed!")
         
     except Exception as e:
-        await send_func(f"❌ Error setting up channels: {str(e)}")
+        await interaction.followup.send(f"❌ Error setting up channels: {str(e)}")
 
-@bot.hybrid_command(name="refresh-channels", description="Refresh game channels for today")
-async def refresh_channels_command(ctx, sport: str = "all"):
-    """Refresh game channels for specific sport or all sports"""
-    if hasattr(ctx, 'response'):  # Slash command
-        await ctx.defer()
-        send_func = ctx.followup.send
-    else:  # Prefix command
-        send_func = ctx.send
-    
-    try:
-        if not ctx.author.guild_permissions.manage_channels:
-            await send_func("❌ You need 'Manage Channels' permission to use this command.")
-            return
-        
-        if sport.lower() == "all":
-            await bot.update_game_channels(ctx.guild)
-            await send_func("✅ Refreshed game channels for all sports!")
-        else:
-            # Refresh specific sport
-            if sport.lower() == "mlb":
-                mlb_games = await bot.call_mcp_server(
-                    bot.mcp_urls["mlb"], 
-                    "getMLBScheduleET",
-                    {"date": datetime.now().strftime("%Y-%m-%d")}
-                )
-                if mlb_games:
-                    games_list = bot.parse_games_from_content(mlb_games.get("content", ""), "mlb")
-                    await bot.create_game_channels(ctx.guild, "mlb", games_list)
-            
-            await send_func(f"✅ Refreshed {sport.upper()} game channels!")
-        
-    except Exception as e:
-        await send_func(f"❌ Error refreshing channels: {str(e)}")
-
-@bot.hybrid_command(name="games", description="Get today's games across all sports")
-async def games_command(ctx, sport: str = "all"):
-    """Show today's games"""
-    if hasattr(ctx, 'response'):  # Slash command
-        await ctx.defer()
-        send_func = ctx.followup.send
-    else:  # Prefix command
-        send_func = ctx.send
-    
-    try:
-        games_data = {}
-        
-        if sport.lower() in ["all", "mlb"]:
-            mlb_games = await bot.call_mcp_server(
-                bot.mcp_urls["mlb"], 
-                "getMLBScheduleET",
-                {"date": datetime.now().strftime("%Y-%m-%d")}
-            )
-            games_data["MLB"] = mlb_games
-        
-        if sport.lower() in ["all", "soccer"]:
-            soccer_games = await bot.call_mcp_server(
-                bot.mcp_urls["soccer"],
-                "getCompetitionMatches", 
-                {"competition": "PL", "dateFrom": datetime.now().strftime("%Y-%m-%d")}
-            )
-            games_data["Soccer"] = soccer_games
-            
-        # Format and send response
-        embed = discord.Embed(
-            title=f"🏆 Today's Games - {datetime.now().strftime('%B %d, %Y')}",
-            color=discord.Color.blue(),
-            timestamp=datetime.now()
-        )
-        
-        for sport_name, data in games_data.items():
-            if data and "content" in data:
-                games_text = data["content"][:1000] + "..." if len(data["content"]) > 1000 else data["content"]
-                embed.add_field(name=f"{sport_name} Games", value=f"```{games_text}```", inline=False)
-        
-        await send_func(embed=embed)
-        
-    except Exception as e:
-        await send_func(f"❌ Error fetching games: {str(e)}")
-
-@bot.hybrid_command(name="odds", description="Get current betting odds")
-async def odds_command(ctx, sport: str = "baseball_mlb"):
-    """Show current betting odds"""
-    if hasattr(ctx, 'response'):  # Slash command
-        await ctx.defer()
-        send_func = ctx.followup.send
-    else:  # Prefix command
-        send_func = ctx.send
-    
-    try:
-        odds_data = await bot.call_mcp_server(
-            bot.mcp_urls["odds"],
-            "getOdds",
-            {"sport": sport, "markets": "h2h,spreads,totals"}
-        )
-        
-        embed = discord.Embed(
-            title=f"💰 Current Odds - {sport.upper()}",
-            color=discord.Color.green(),
-            timestamp=datetime.now()
-        )
-        
-        if odds_data and "content" in odds_data:
-            odds_text = odds_data["content"][:1500] + "..." if len(odds_data["content"]) > 1500 else odds_data["content"]
-            embed.description = f"```{odds_text}```"
-        
-        await send_func(embed=embed)
-        
-    except Exception as e:
-        await send_func(f"❌ Error fetching odds: {str(e)}")
-
-@bot.hybrid_command(name="analyze", description="Get AI analysis for a game")
-async def analyze_command(ctx, *, query: str):
-    """Get AI analysis for a specific game or situation"""
-    if hasattr(ctx, 'response'):  # Slash command
-        await ctx.defer()
-        send_func = ctx.followup.send
-    else:  # Prefix command
-        send_func = ctx.send
-    
-    try:
-        # Get relevant data based on query
-        prompt = f"""
-You are a sports betting expert. Analyze this request and provide helpful insights.
-
-User query: {query}
-
-Provide a concise analysis with:
-1. Key factors to consider
-2. Potential betting value
-3. Risk assessment
-4. Recommendation
-
-Keep response under 300 words.
-"""
-        
-        ai_response = await bot.call_openrouter([
-            {"role": "user", "content": prompt}
-        ], max_tokens=400)
-        
-        embed = discord.Embed(
-            title="🤖 AI Analysis",
-            description=ai_response,
-            color=discord.Color.purple(),
-            timestamp=datetime.now()
-        )
-        
-        await send_func(embed=embed)
-        
-    except Exception as e:
-        await send_func(f"❌ Error generating analysis: {str(e)}")
-
-@bot.hybrid_command(name="standings", description="Get league standings")
-async def standings_command(ctx, league: str = "MLB"):
-    """Show league standings"""
-    if hasattr(ctx, 'response'):  # Slash command
-        await ctx.defer()
-        send_func = ctx.followup.send
-    else:  # Prefix command
-        send_func = ctx.send
-    
-    try:
-        if league.upper() == "MLB":
-            standings_data = await bot.call_mcp_server(
-                bot.mcp_urls["mlb"],
-                "getMLBTeams", 
-                {}
-            )
-        elif league.upper() in ["EPL", "PL"]:
-            standings_data = await bot.call_mcp_server(
-                bot.mcp_urls["soccer"],
-                "getCompetitionStandings",
-                {"competition": "PL"}
-            )
-        else:
-            await send_func("❌ League not supported. Try: MLB, EPL")
-            return
-        
-        embed = discord.Embed(
-            title=f"📊 {league.upper()} Standings",
-            color=discord.Color.orange(),
-            timestamp=datetime.now()
-        )
-        
-        if standings_data and "content" in standings_data:
-            standings_text = standings_data["content"][:1500] + "..." if len(standings_data["content"]) > 1500 else standings_data["content"]
-            embed.description = f"```{standings_text}```"
-        
-        await send_func(embed=embed)
-        
-    except Exception as e:
-        await send_func(f"❌ Error fetching standings: {str(e)}")
-
-@bot.hybrid_command(name="create-mlb-channels", description="Create channels for today's MLB games")
-async def create_mlb_channels_command(ctx, date: str = None):
+@bot.tree.command(name="create-mlb-channels", description="Create channels for today's MLB games")
+async def create_mlb_channels_command(interaction: discord.Interaction, date: str = None):
     """Create Discord channels for today's MLB games"""
-    # Handle both slash and prefix commands
-    if hasattr(ctx, 'response'):  # Slash command (interaction)
-        await ctx.defer()
-        send_func = ctx.followup.send
-    else:  # Prefix command (context)
-        send_func = ctx.send
+    await interaction.response.defer()
     
     try:
-        if not ctx.author.guild_permissions.manage_channels:
-            await send_func("❌ You need 'Manage Channels' permission to use this command.")
+        if not interaction.user.guild_permissions.manage_channels:
+            await interaction.followup.send("❌ You need 'Manage Channels' permission to use this command.")
             return
         
         # Use today's date if none provided
@@ -786,13 +584,13 @@ async def create_mlb_channels_command(ctx, date: str = None):
         logger.info(f"MLB MCP Response for {date}: {mlb_response}")
         
         if not mlb_response or not mlb_response.get("ok"):
-            await send_func(f"❌ Error getting MLB games: {mlb_response.get('error', 'Unknown error')}")
+            await interaction.followup.send(f"❌ Error getting MLB games: {mlb_response.get('error', 'Unknown error')}")
             return
         
         # Find or create MLB GAMES category
-        category = discord.utils.get(ctx.guild.categories, name="⚾ MLB GAMES")
+        category = discord.utils.get(interaction.guild.categories, name="⚾ MLB GAMES")
         if not category:
-            category = await ctx.guild.create_category("⚾ MLB GAMES")
+            category = await interaction.guild.create_category("⚾ MLB GAMES")
         
         # Parse games from the MCP response
         games_data = mlb_response.get("data", {}).get("games", [])
@@ -803,7 +601,7 @@ async def create_mlb_channels_command(ctx, date: str = None):
             logger.info(f"First game sample: {games_data[0]}")
         
         if not games_data:
-            await send_func(f"📅 No MLB games scheduled for {date}")
+            await interaction.followup.send(f"📅 No MLB games scheduled for {date}")
             return
         
         created_channels = []
@@ -811,7 +609,7 @@ async def create_mlb_channels_command(ctx, date: str = None):
         
         # Send initial progress message
         total_games = len(games_data)
-        await send_func(f"🔄 Processing {total_games} games...")
+        await interaction.followup.send(f"🔄 Processing {total_games} games...")
         
         for i, game in enumerate(games_data):
             try:
@@ -835,7 +633,7 @@ async def create_mlb_channels_command(ctx, date: str = None):
                     continue
                 
                 # Create the channel
-                new_channel = await ctx.guild.create_text_channel(
+                new_channel = await interaction.guild.create_text_channel(
                     name=channel_name,
                     category=category,
                     topic=f"{away_team} @ {home_team} - {game_time}"
@@ -883,59 +681,20 @@ async def create_mlb_channels_command(ctx, date: str = None):
             summary_parts.append("ℹ️ No games found to process.")
         
         final_message = "\\n\\n".join(summary_parts)
-        await send_func(final_message)
+        await interaction.followup.send(final_message)
         
     except Exception as e:
-        await send_func(f"❌ Error creating MLB channels: {str(e)}")
+        await interaction.followup.send(f"❌ Error creating MLB channels: {str(e)}")
 
-@bot.hybrid_command(name="cleanup", description="Clean up old game channels")
-async def cleanup_command(ctx, days: int = 1):
-    """Clean up game channels older than specified days"""
-    if hasattr(ctx, 'response'):  # Slash command
-        await ctx.defer()
-        send_func = ctx.followup.send
-    else:  # Prefix command
-        send_func = ctx.send
-    
-    try:
-        if not ctx.author.guild_permissions.manage_channels:
-            await send_func("❌ You need 'Manage Channels' permission to use this command.")
-            return
-        
-        deleted_count = 0
-        sport_categories = ["⚾ MLB GAMES", "⚽ SOCCER GAMES", "🏈 CFB GAMES"]
-        
-        for category_name in sport_categories:
-            category = discord.utils.get(ctx.guild.categories, name=category_name)
-            if category:
-                for channel in category.channels:
-                    if isinstance(channel, discord.TextChannel):
-                        # Check if channel is old (basic date check in name)
-                        try:
-                            # Extract date from channel name (format: mm-dd-team-vs-team)
-                            if "-" in channel.name:
-                                date_part = channel.name.split("-")[:2]
-                                if len(date_part) == 2 and date_part[0].isdigit() and date_part[1].isdigit():
-                                    today = datetime.now()
-                                    channel_date = f"{today.year}-{date_part[0].zfill(2)}-{date_part[1].zfill(2)}"
-                                    channel_datetime = datetime.strptime(channel_date, "%Y-%m-%d")
-                                    
-                                    if (today - channel_datetime).days >= days:
-                                        await channel.delete()
-                                        deleted_count += 1
-                        except:
-                            continue
-        
-        await send_func(f"✅ Cleaned up {deleted_count} old game channels.")
-        
-    except Exception as e:
-        await send_func(f"❌ Error cleaning up channels: {str(e)}")
 
-@app_commands.describe(category="Select the sport category to clear channels from")
+@app_commands.describe(category="Select the sport to clear channels from")
 @app_commands.choices(category=[
-    app_commands.Choice(name="⚾ MLB GAMES", value="⚾ MLB GAMES"),
-    app_commands.Choice(name="⚽ SOCCER GAMES", value="⚽ SOCCER GAMES"),
-    app_commands.Choice(name="🏈 CFB GAMES", value="🏈 CFB GAMES"),
+    app_commands.Choice(name="MLB", value="⚾ MLB GAMES"),
+    app_commands.Choice(name="NFL", value="🏈 NFL GAMES"),
+    app_commands.Choice(name="NHL", value="🏒 NHL GAMES"),
+    app_commands.Choice(name="NBA", value="🏀 NBA GAMES"),
+    app_commands.Choice(name="CFB", value="🏈 CFB GAMES"),
+    app_commands.Choice(name="Soccer", value="⚽ SOCCER GAMES"),
 ])
 @bot.tree.command(name="clear-channels", description="Clear all channels from a specific sport category")
 async def clear_channels_command(interaction: discord.Interaction, category: str):
@@ -998,6 +757,31 @@ async def clear_channels_command(interaction: discord.Interaction, category: str
     except Exception as e:
         logger.error(f"Error in clear-channels command: {e}")
         await interaction.followup.send(f"❌ Error clearing channels: {str(e)}")
+
+@app_commands.describe(sport="Select the sport to analyze games for")
+@app_commands.choices(sport=[
+    app_commands.Choice(name="MLB", value="mlb"),
+    app_commands.Choice(name="NFL", value="nfl"),
+    app_commands.Choice(name="NHL", value="nhl"),
+    app_commands.Choice(name="NBA", value="nba"),
+    app_commands.Choice(name="CFB", value="cfb"),
+    app_commands.Choice(name="Soccer", value="soccer"),
+])
+@bot.tree.command(name="analyze", description="Analyze and populate game channels with betting insights")
+async def analyze_command(interaction: discord.Interaction, sport: str):
+    """Analyze games and populate channels with AI betting insights"""
+    await interaction.response.defer()
+    
+    try:
+        # TODO: This will be implemented later
+        # Will go through each channel in the selected sport category
+        # and populate with AI analysis, odds, and betting insights
+        
+        await interaction.followup.send(f"🚧 Analyze feature coming soon for {sport.upper()}!")
+        
+    except Exception as e:
+        logger.error(f"Error in analyze command: {e}")
+        await interaction.followup.send(f"❌ Error analyzing {sport}: {str(e)}")
 
 # Health check endpoint for Railway
 async def health_check(request):
