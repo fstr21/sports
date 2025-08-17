@@ -532,22 +532,33 @@ async def sync_command(interaction: discord.Interaction):
         
         logger.info(f"Manual sync requested by {interaction.user}")
         
-        # Clear and re-sync commands to avoid conflicts
+        # FORCE CLEAR: Remove all existing commands first
         bot.tree.clear_commands(guild=None)
+        
+        # Wait a moment for Discord to process
+        await asyncio.sleep(2)
+        
+        # Re-sync only our current commands
         synced = await bot.tree.sync()
         
         embed = discord.Embed(
-            title="✅ Command Sync Complete",
-            description=f"Successfully synced {len(synced)} slash commands!",
+            title="🔄 Force Command Sync Complete",
+            description=f"Cleared old commands and synced {len(synced)} new slash commands!",
             color=discord.Color.green()
         )
         
         if synced:
             command_list = "\n".join([f"• /{cmd.name}" for cmd in synced])
-            embed.add_field(name="Synced Commands", value=command_list, inline=False)
+            embed.add_field(name="Active Commands", value=command_list, inline=False)
+        
+        embed.add_field(
+            name="ℹ️ Note", 
+            value="Old commands should disappear within 1-2 minutes. Try refreshing Discord if needed.",
+            inline=False
+        )
         
         await interaction.followup.send(embed=embed)
-        logger.info(f"Manual sync completed: {len(synced)} commands synced by {interaction.user}")
+        logger.info(f"Force sync completed: {len(synced)} commands synced by {interaction.user}")
         
     except Exception as e:
         logger.error(f"Manual sync failed: {e}")
@@ -824,7 +835,7 @@ async def bot_status_command(interaction: discord.Interaction):
     await interaction.response.defer()
     
     try:
-        # Get registered commands
+        # Get registered commands from Discord
         commands = await bot.tree.fetch_commands()
         
         embed = discord.Embed(
@@ -835,18 +846,29 @@ async def bot_status_command(interaction: discord.Interaction):
         # Basic status
         embed.add_field(name="Bot Ready", value="✅ Yes" if bot.is_ready() else "❌ No", inline=True)
         embed.add_field(name="Guilds", value=len(bot.guilds), inline=True)
-        embed.add_field(name="Registered Commands", value=len(commands), inline=True)
+        embed.add_field(name="Discord Commands", value=len(commands), inline=True)
         
-        # List commands
+        # List commands registered with Discord
         if commands:
-            command_list = "\n".join([f"• /{cmd.name}" for cmd in commands[:15]])
-            if len(commands) > 15:
-                command_list += f"\n• ... and {len(commands) - 15} more"
-            embed.add_field(name="Command List", value=command_list, inline=False)
+            command_list = "\n".join([f"• /{cmd.name} - {cmd.description[:30]}..." for cmd in commands[:10]])
+            if len(commands) > 10:
+                command_list += f"\n• ... and {len(commands) - 10} more"
+            embed.add_field(name="🔍 Commands Registered with Discord", value=command_list, inline=False)
+        
+        # Expected commands from our code
+        expected_commands = [
+            "/sync", "/debug-mlb", "/setup", "/create-mlb-channels", 
+            "/clear-channels", "/analyze", "/help", "/bot-status"
+        ]
+        embed.add_field(
+            name="📋 Expected Commands", 
+            value="\n".join([f"• {cmd}" for cmd in expected_commands]), 
+            inline=False
+        )
         
         # MCP URLs status
         mcp_status = "\n".join([f"• {name.upper()}: {'✅' if url else '❌'}" for name, url in bot.mcp_urls.items()])
-        embed.add_field(name="MCP Servers", value=mcp_status, inline=False)
+        embed.add_field(name="🔗 MCP Servers", value=mcp_status, inline=False)
         
         embed.set_footer(text=f"Bot User: {bot.user} | Latency: {round(bot.latency * 1000)}ms")
         
