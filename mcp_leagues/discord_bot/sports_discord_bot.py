@@ -376,7 +376,7 @@ async def create_channels_command(interaction: discord.Interaction, sport: str):
         et_tz = timezone(timedelta(hours=-5))  # EST/EDT approximation
         today_et = datetime.now(et_tz).strftime("%Y-%m-%d")
         
-        await interaction.followup.send(f"🔄 Creating {sport.upper()} channels for {today_et}...")
+        await interaction.followup.send(f"🔄 Creating {sport.upper()} channels...")
         
         # Route to appropriate sport handler
         if sport == "mlb":
@@ -397,6 +397,37 @@ async def create_channels_command(interaction: discord.Interaction, sport: str):
     except Exception as e:
         logger.error(f"Error in create-channels command: {e}")
         await interaction.followup.send(f"❌ Error creating channels: {str(e)}")
+
+def extract_team_name(full_team_name: str) -> str:
+    """Extract just the team name from 'City Team' format"""
+    # MLB team name mappings - extract last word(s) as team name
+    team_mapping = {
+        # Handle multi-word team names
+        "Los Angeles Angels": "Angels",
+        "Los Angeles Dodgers": "Dodgers", 
+        "New York Yankees": "Yankees",
+        "New York Mets": "Mets",
+        "San Francisco Giants": "Giants",
+        "San Diego Padres": "Padres",
+        "St. Louis Cardinals": "Cardinals",
+        "Tampa Bay Rays": "Rays",
+        "Boston Red Sox": "RedSox",
+        "Chicago White Sox": "WhiteSox",
+        "Chicago Cubs": "Cubs",
+        "Kansas City Royals": "Royals",
+        # Single word teams - extract last word
+    }
+    
+    # Check if we have a specific mapping
+    if full_team_name in team_mapping:
+        return team_mapping[full_team_name]
+    
+    # Default: take the last word (team name)
+    words = full_team_name.split()
+    if len(words) > 1:
+        return words[-1]  # Last word is usually the team name
+    else:
+        return full_team_name  # Fallback
 
 async def create_mlb_channels(interaction: discord.Interaction, date: str):
     """Create MLB game channels using the proven working method"""
@@ -442,13 +473,12 @@ async def create_mlb_channels(interaction: discord.Interaction, date: str):
                 home_team = game.get("home", {}).get("name", "Unknown")
                 game_time = game.get("start_et", "TBD")
                 
-                # Clean team names for channel (documented working method)
-                away_clean = away_team.lower().replace(" ", "").replace(".", "")[:10]
-                home_clean = home_team.lower().replace(" ", "").replace(".", "")[:10]
+                # Extract just team names (remove cities)
+                away_team_name = extract_team_name(away_team)
+                home_team_name = extract_team_name(home_team)
                 
-                # Create channel name (documented format)
-                date_short = datetime.strptime(date, "%Y-%m-%d").strftime("%m-%d")
-                channel_name = f"{date_short}-{away_clean}-vs-{home_clean}"
+                # Create channel name without date
+                channel_name = f"{away_team_name.lower()}-vs-{home_team_name.lower()}"
                 
                 # Check if channel already exists
                 existing_channel = discord.utils.get(category.channels, name=channel_name)
@@ -466,7 +496,7 @@ async def create_mlb_channels(interaction: discord.Interaction, date: str):
                 # Post game info to channel
                 embed = discord.Embed(
                     title=f"🔥 {away_team} @ {home_team}",
-                    description=f"**Game Time:** {game_time}\\n**Date:** {date}",
+                    description=f"**Game Time:** {game_time}",
                     color=discord.Color.blue()
                 )
                 embed.add_field(name="Away Team", value=away_team, inline=True)
@@ -511,23 +541,23 @@ async def create_mlb_channels(interaction: discord.Interaction, date: str):
 
 async def create_nfl_channels(interaction: discord.Interaction, date: str):
     """Create NFL game channels - placeholder for now"""
-    await interaction.followup.send(f"🚧 NFL channel creation coming soon! (Date: {date})")
+    await interaction.followup.send("🚧 NFL channel creation coming soon!")
 
 async def create_nba_channels(interaction: discord.Interaction, date: str):
     """Create NBA game channels - placeholder for now"""
-    await interaction.followup.send(f"🚧 NBA channel creation coming soon! (Date: {date})")
+    await interaction.followup.send("🚧 NBA channel creation coming soon!")
 
 async def create_nhl_channels(interaction: discord.Interaction, date: str):
     """Create NHL game channels - placeholder for now"""
-    await interaction.followup.send(f"🚧 NHL channel creation coming soon! (Date: {date})")
+    await interaction.followup.send("🚧 NHL channel creation coming soon!")
 
 async def create_soccer_channels(interaction: discord.Interaction, date: str):
     """Create Soccer game channels - placeholder for now"""
-    await interaction.followup.send(f"🚧 Soccer channel creation coming soon! (Date: {date})")
+    await interaction.followup.send("🚧 Soccer channel creation coming soon!")
 
 async def create_cfb_channels(interaction: discord.Interaction, date: str):
     """Create CFB game channels - placeholder for now"""
-    await interaction.followup.send(f"🚧 CFB channel creation coming soon! (Date: {date})")
+    await interaction.followup.send("🚧 CFB channel creation coming soon!")
 
 # Health check endpoint for Railway
 async def health_check(request):
