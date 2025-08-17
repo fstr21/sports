@@ -15,6 +15,7 @@ from typing import Dict, List, Optional, Any
 
 import discord
 from discord.ext import commands, tasks
+from discord import app_commands
 import httpx
 import uvicorn
 from starlette.applications import Starlette
@@ -482,29 +483,33 @@ Keep each pick under 50 words.
 bot = SportsBot()
 
 # Slash Commands
-@bot.command(name="sync", description="Manually sync slash commands")
-async def sync_command(ctx):
+@bot.tree.command(name="sync", description="Manually sync slash commands")
+async def sync_command(interaction: discord.Interaction):
     """Manually sync slash commands with Discord"""
+    await interaction.response.defer()
+    
     try:
-        if not ctx.author.guild_permissions.administrator:
-            await ctx.send("❌ You need Administrator permission to use this command.")
+        if not interaction.user.guild_permissions.administrator:
+            await interaction.followup.send("❌ You need Administrator permission to use this command.")
             return
         
         synced = await bot.tree.sync()
-        await ctx.send(f"✅ Synced {len(synced)} slash commands!")
-        logger.info(f"Manual sync: {len(synced)} commands synced by {ctx.author}")
+        await interaction.followup.send(f"✅ Synced {len(synced)} slash commands!")
+        logger.info(f"Manual sync: {len(synced)} commands synced by {interaction.user}")
         
     except Exception as e:
-        await ctx.send(f"❌ Error syncing commands: {str(e)}")
+        await interaction.followup.send(f"❌ Error syncing commands: {str(e)}")
 
-@bot.command(name="debug-mlb", description="Debug MLB data from MCP")
-async def debug_mlb_command(ctx, date: str = None):
+@bot.tree.command(name="debug-mlb", description="Debug MLB data from MCP")
+async def debug_mlb_command(interaction: discord.Interaction, date: str = None):
     """Debug what data we get from MLB MCP"""
+    await interaction.response.defer()
+    
     try:
         if not date:
             date = datetime.now().strftime("%Y-%m-%d")
         
-        await ctx.send(f"🔍 Testing MLB MCP for date: {date}")
+        await interaction.followup.send(f"🔍 Testing MLB MCP for date: {date}")
         
         # Get today's MLB games from your MCP
         mlb_response = await bot.call_mcp_server(
@@ -517,7 +522,7 @@ async def debug_mlb_command(ctx, date: str = None):
             # Show summary first
             if mlb_response.get("ok"):
                 games_data = mlb_response.get("data", {}).get("games", [])
-                await ctx.send(f"✅ MCP Response: {len(games_data)} games found")
+                await interaction.followup.send(f"✅ MCP Response: {len(games_data)} games found")
                 
                 # Show first few games
                 if games_data:
@@ -526,18 +531,18 @@ async def debug_mlb_command(ctx, date: str = None):
                         home = game.get("home", {}).get("name", "Unknown")
                         time = game.get("start_et", "Unknown")
                         status = game.get("status", "Unknown")
-                        await ctx.send(f"🏟️ **Game {i+1}**: {away} @ {home}\\n⏰ {time} - {status}")
+                        await interaction.followup.send(f"🏟️ **Game {i+1}**: {away} @ {home}\\n⏰ {time} - {status}")
             else:
-                await ctx.send(f"❌ MCP Error: {mlb_response.get('error', 'Unknown error')}")
+                await interaction.followup.send(f"❌ MCP Error: {mlb_response.get('error', 'Unknown error')}")
             
             # Send raw response for debugging (truncated)
             response_text = json.dumps(mlb_response, indent=2)[:1900]  # Discord limit
-            await ctx.send(f"```json\\n{response_text}\\n```")
+            await interaction.followup.send(f"```json\\n{response_text}\\n```")
         else:
-            await ctx.send("❌ No response from MLB MCP")
+            await interaction.followup.send("❌ No response from MLB MCP")
         
     except Exception as e:
-        await ctx.send(f"❌ Error: {str(e)}")
+        await interaction.followup.send(f"❌ Error: {str(e)}")
 
 @bot.hybrid_command(name="setup", description="Setup channel structure for this server")
 async def setup_command(ctx):
@@ -802,8 +807,13 @@ async def create_mlb_channels_command(ctx, date: str = None):
             return
         
         created_channels = []
+        skipped_channels = []
         
-        for game in games_data[:10]:  # Limit to 10 games
+        # Send initial progress message
+        total_games = len(games_data)
+        await send_func(f"🔄 Processing {total_games} games...")
+        
+        for i, game in enumerate(games_data):
             try:
                 # Extract team info - updated for actual MLB MCP response format
                 away_team = game.get("away", {}).get("name", "Unknown")
@@ -821,6 +831,7 @@ async def create_mlb_channels_command(ctx, date: str = None):
                 # Check if channel already exists
                 existing_channel = discord.utils.get(category.channels, name=channel_name)
                 if existing_channel:
+                    skipped_channels.append(f"{away_team} @ {home_team}")
                     continue
                 
                 # Create the channel
@@ -843,15 +854,36 @@ async def create_mlb_channels_command(ctx, date: str = None):
                 await new_channel.send(embed=embed)
                 created_channels.append(channel_name)
                 
+                # Progress update every 5 channels
+                if (i + 1) % 5 == 0:
+                    logger.info(f"Created {len(created_channels)} channels, processed {i + 1}/{total_games} games")
+                
             except Exception as e:
-                logger.error(f"Error creating channel for game: {e}")
+                logger.error(f"Error creating channel for game {i+1}: {e}")
                 continue
         
+        # Final summary
+        summary_parts = []
+        
         if created_channels:
-            channels_list = "\\n".join([f"• #{name}" for name in created_channels])
-            await send_func(f"✅ Created {len(created_channels)} MLB game channels:\\n{channels_list}")
-        else:
-            await send_func("ℹ️ All game channels already exist or no games found.")
+            summary_parts.append(f"✅ **Created {len(created_channels)} new channels:**")
+            channels_list = "\\n".join([f"• #{name}" for name in created_channels[:10]])
+            if len(created_channels) > 10:
+                channels_list += f"\\n• ... and {len(created_channels) - 10} more"
+            summary_parts.append(channels_list)
+        
+        if skipped_channels:
+            summary_parts.append(f"ℹ️ **Skipped {len(skipped_channels)} existing channels:**")
+            skipped_list = "\\n".join([f"• {game}" for game in skipped_channels[:5]])
+            if len(skipped_channels) > 5:
+                skipped_list += f"\\n• ... and {len(skipped_channels) - 5} more"
+            summary_parts.append(skipped_list)
+        
+        if not created_channels and not skipped_channels:
+            summary_parts.append("ℹ️ No games found to process.")
+        
+        final_message = "\\n\\n".join(summary_parts)
+        await send_func(final_message)
         
     except Exception as e:
         await send_func(f"❌ Error creating MLB channels: {str(e)}")
@@ -898,6 +930,74 @@ async def cleanup_command(ctx, days: int = 1):
         
     except Exception as e:
         await send_func(f"❌ Error cleaning up channels: {str(e)}")
+
+@app_commands.describe(category="Select the sport category to clear channels from")
+@app_commands.choices(category=[
+    app_commands.Choice(name="⚾ MLB GAMES", value="⚾ MLB GAMES"),
+    app_commands.Choice(name="⚽ SOCCER GAMES", value="⚽ SOCCER GAMES"),
+    app_commands.Choice(name="🏈 CFB GAMES", value="🏈 CFB GAMES"),
+])
+@bot.tree.command(name="clear-channels", description="Clear all channels from a specific sport category")
+async def clear_channels_command(interaction: discord.Interaction, category: str):
+    """Clear all channels from a specific sport category"""
+    await interaction.response.defer()
+    
+    try:
+        if not interaction.user.guild_permissions.manage_channels:
+            await interaction.followup.send("❌ You need 'Manage Channels' permission to use this command.")
+            return
+        
+        # Find the category
+        category_obj = discord.utils.get(interaction.guild.categories, name=category)
+        if not category_obj:
+            await interaction.followup.send(f"❌ Category '{category}' not found.")
+            return
+        
+        # Count channels to delete
+        channels_to_delete = [ch for ch in category_obj.channels if isinstance(ch, discord.TextChannel)]
+        channel_count = len(channels_to_delete)
+        
+        if channel_count == 0:
+            await interaction.followup.send(f"ℹ️ No channels found in '{category}' category.")
+            return
+        
+        # Confirm deletion
+        embed = discord.Embed(
+            title="🗑️ Clear Channels Confirmation",
+            description=f"Are you sure you want to delete **{channel_count} channels** from '{category}'?",
+            color=discord.Color.orange()
+        )
+        
+        # Add list of channels (first 10)
+        channel_names = [ch.name for ch in channels_to_delete[:10]]
+        if len(channels_to_delete) > 10:
+            channel_names.append(f"... and {len(channels_to_delete) - 10} more")
+        
+        embed.add_field(
+            name="Channels to delete:",
+            value="\\n".join([f"• #{name}" for name in channel_names]),
+            inline=False
+        )
+        
+        # Delete channels
+        deleted_count = 0
+        for channel in channels_to_delete:
+            try:
+                await channel.delete()
+                deleted_count += 1
+                logger.info(f"Deleted channel: {channel.name}")
+            except Exception as e:
+                logger.error(f"Failed to delete channel {channel.name}: {e}")
+        
+        # Send result
+        if deleted_count > 0:
+            await interaction.followup.send(f"✅ Successfully deleted {deleted_count} channels from '{category}'.")
+        else:
+            await interaction.followup.send(f"❌ Failed to delete channels from '{category}'.")
+        
+    except Exception as e:
+        logger.error(f"Error in clear-channels command: {e}")
+        await interaction.followup.send(f"❌ Error clearing channels: {str(e)}")
 
 # Health check endpoint for Railway
 async def health_check(request):
