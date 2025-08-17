@@ -50,14 +50,61 @@ class SportsBot(commands.Bot):
         for guild in self.guilds:
             logger.info(f"Guild: {guild.name} (ID: {guild.id})")
         
-        # Sync commands
-        try:
-            synced = await self.tree.sync()
-            logger.info(f"✅ Successfully synced {len(synced)} command(s)")
-            for cmd in synced:
-                logger.info(f"  - /{cmd.name}: {cmd.description}")
-        except Exception as e:
-            logger.error(f"❌ Failed to sync commands: {e}")
+        # Sync commands with multiple attempts
+        await self.sync_commands_properly()
+    
+    async def sync_commands_properly(self):
+        """Properly sync commands with Discord"""
+        max_attempts = 3
+        
+        for attempt in range(max_attempts):
+            try:
+                logger.info(f"🔄 Syncing commands (attempt {attempt + 1}/{max_attempts})")
+                
+                # Clear any cached commands first
+                self.tree.clear_commands(guild=None)
+                
+                # Add a small delay
+                await asyncio.sleep(1)
+                
+                # Sync globally 
+                synced = await self.tree.sync()
+                
+                logger.info(f"✅ Successfully synced {len(synced)} command(s)")
+                for cmd in synced:
+                    logger.info(f"  - /{cmd.name}: {cmd.description}")
+                
+                # Try to fetch commands to verify
+                await asyncio.sleep(2)
+                try:
+                    fetched = await self.tree.fetch_commands()
+                    logger.info(f"🔍 Verified: Discord shows {len(fetched)} registered commands")
+                    
+                    if len(fetched) > 0:
+                        return True  # Success
+                    else:
+                        logger.warning("⚠️ No commands found after sync")
+                        
+                except Exception as fetch_error:
+                    logger.error(f"❌ Could not fetch commands: {fetch_error}")
+                
+                # If we got here, something might be wrong
+                if attempt < max_attempts - 1:
+                    logger.info(f"🔄 Retrying command sync in 5 seconds...")
+                    await asyncio.sleep(5)
+                else:
+                    logger.error(f"❌ Failed to properly sync commands after {max_attempts} attempts")
+                    return False
+                    
+            except Exception as e:
+                logger.error(f"❌ Sync attempt {attempt + 1} failed: {e}")
+                if attempt < max_attempts - 1:
+                    await asyncio.sleep(5)
+                else:
+                    logger.error(f"❌ All sync attempts failed")
+                    return False
+        
+        return False
 
 # Initialize bot
 bot = SportsBot()
@@ -144,6 +191,66 @@ async def clear_command(interaction: discord.Interaction, category: str):
         logger.error(f"Error in clear command: {e}")
         await interaction.followup.send(f"❌ Error clearing channels: {str(e)}")
 
+@bot.tree.command(name="sync", description="Force sync slash commands with Discord")
+async def sync_command(interaction: discord.Interaction):
+    """Force sync commands - for troubleshooting"""
+    await interaction.response.defer()
+    
+    try:
+        if not interaction.user.guild_permissions.administrator:
+            await interaction.followup.send("❌ You need Administrator permission to use this command.")
+            return
+        
+        logger.info(f"Manual sync requested by {interaction.user.name}")
+        
+        # Force sync
+        await interaction.followup.send("🔄 Force syncing commands...")
+        
+        # Clear and re-sync
+        bot.tree.clear_commands(guild=None)
+        await asyncio.sleep(2)
+        
+        synced = await bot.tree.sync()
+        
+        embed = discord.Embed(
+            title="🔄 Manual Sync Results",
+            description=f"Synced {len(synced)} commands with Discord",
+            color=discord.Color.blue()
+        )
+        
+        if synced:
+            command_list = "\\n".join([f"• /{cmd.name} - {cmd.description}" for cmd in synced])
+            embed.add_field(name="Commands Synced", value=command_list, inline=False)
+        
+        # Try to verify
+        await asyncio.sleep(1)
+        try:
+            fetched = await bot.tree.fetch_commands()
+            embed.add_field(
+                name="✅ Verification", 
+                value=f"Discord API shows {len(fetched)} registered commands",
+                inline=False
+            )
+        except Exception as e:
+            embed.add_field(
+                name="⚠️ Verification", 
+                value=f"Could not verify: {str(e)[:100]}",
+                inline=False
+            )
+        
+        embed.add_field(
+            name="ℹ️ Note",
+            value="Commands may take 1-2 minutes to appear in Discord. Try refreshing the app.",
+            inline=False
+        )
+        
+        await interaction.followup.send(embed=embed)
+        logger.info(f"Manual sync completed by {interaction.user.name}")
+        
+    except Exception as e:
+        logger.error(f"Manual sync failed: {e}")
+        await interaction.followup.send(f"❌ Sync failed: {str(e)}")
+
 # Health check endpoint for Railway
 async def health_check(request):
     try:
@@ -190,11 +297,18 @@ async def main():
 if __name__ == "__main__":
     print("🤖 Starting Simple Sports Discord Bot")
     print("=" * 50)
-    print("Expected command after startup:")
+    print("Expected commands after startup:")
     print("  /clear - Clear channels from sport categories")
+    print("  /sync - Force sync commands (admin only)")
     print("=" * 50)
     print(f"🚀 Build timestamp: {datetime.now().isoformat()}")
     print(f"🔧 Discord Token: {'✅ Set' if DISCORD_TOKEN else '❌ Missing'}")
+    print("=" * 50)
+    print("🔍 TROUBLESHOOTING:")
+    print("  If commands don't appear in Discord:")
+    print("  1. Use /sync command (if available)")
+    print("  2. Restart Discord app")
+    print("  3. Check Railway logs for errors")
     print("=" * 50)
     
     try:
