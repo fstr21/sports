@@ -687,6 +687,7 @@ async def create_mlb_channels_command(interaction: discord.Interaction, date: st
         await interaction.followup.send(f"❌ Error creating MLB channels: {str(e)}")
 
 
+@bot.tree.command(name="clear-channels", description="Clear all channels from a specific sport category")
 @app_commands.describe(category="Select the sport to clear channels from")
 @app_commands.choices(category=[
     app_commands.Choice(name="MLB", value="⚾ MLB GAMES"),
@@ -696,7 +697,6 @@ async def create_mlb_channels_command(interaction: discord.Interaction, date: st
     app_commands.Choice(name="CFB", value="🏈 CFB GAMES"),
     app_commands.Choice(name="Soccer", value="⚽ SOCCER GAMES"),
 ])
-@bot.tree.command(name="clear-channels", description="Clear all channels from a specific sport category")
 async def clear_channels_command(interaction: discord.Interaction, category: str):
     """Clear all channels from a specific sport category"""
     await interaction.response.defer()
@@ -758,6 +758,7 @@ async def clear_channels_command(interaction: discord.Interaction, category: str
         logger.error(f"Error in clear-channels command: {e}")
         await interaction.followup.send(f"❌ Error clearing channels: {str(e)}")
 
+@bot.tree.command(name="analyze", description="Analyze and populate game channels with betting insights")
 @app_commands.describe(sport="Select the sport to analyze games for")
 @app_commands.choices(sport=[
     app_commands.Choice(name="MLB", value="mlb"),
@@ -767,7 +768,6 @@ async def clear_channels_command(interaction: discord.Interaction, category: str
     app_commands.Choice(name="CFB", value="cfb"),
     app_commands.Choice(name="Soccer", value="soccer"),
 ])
-@bot.tree.command(name="analyze", description="Analyze and populate game channels with betting insights")
 async def analyze_command(interaction: discord.Interaction, sport: str):
     """Analyze games and populate channels with AI betting insights"""
     await interaction.response.defer()
@@ -782,6 +782,67 @@ async def analyze_command(interaction: discord.Interaction, sport: str):
     except Exception as e:
         logger.error(f"Error in analyze command: {e}")
         await interaction.followup.send(f"❌ Error analyzing {sport}: {str(e)}")
+
+@bot.tree.command(name="help", description="Show all available bot commands")
+async def help_command(interaction: discord.Interaction):
+    """Show all available bot commands"""
+    await interaction.response.defer()
+    
+    try:
+        embed = discord.Embed(
+            title="🤖 Sports Bot Commands",
+            description="All available slash commands for the sports betting bot",
+            color=discord.Color.blue()
+        )
+        
+        # Core Commands
+        embed.add_field(
+            name="🏟️ Core Commands",
+            value="`/create-mlb-channels` - Create channels for today's MLB games\n"
+                  "`/setup` - Setup channel structure for this server\n"
+                  "`/sync` - Manually sync slash commands",
+            inline=False
+        )
+        
+        # Management Commands
+        embed.add_field(
+            name="🗑️ Management Commands", 
+            value="`/clear-channels` - Clear all channels from a sport category\n"
+                  "└ Dropdown: MLB, NFL, NHL, NBA, CFB, Soccer",
+            inline=False
+        )
+        
+        # Analysis Commands
+        embed.add_field(
+            name="📊 Analysis Commands",
+            value="`/analyze` - Analyze and populate game channels (Coming Soon)\n"
+                  "└ Dropdown: MLB, NFL, NHL, NBA, CFB, Soccer",
+            inline=False
+        )
+        
+        # Debug Commands
+        embed.add_field(
+            name="🔧 Debug Commands",
+            value="`/debug-mlb` - Debug MLB data from MCP server\n"
+                  "`/help` - Show this help message",
+            inline=False
+        )
+        
+        # Permissions
+        embed.add_field(
+            name="🔐 Required Permissions",
+            value="**Manage Channels** - Required for `/setup`, `/create-mlb-channels`, `/clear-channels`\n"
+                  "**Administrator** - Required for `/sync`",
+            inline=False
+        )
+        
+        embed.set_footer(text="Sports Betting Bot | All commands use Discord slash command format")
+        
+        await interaction.followup.send(embed=embed)
+        
+    except Exception as e:
+        logger.error(f"Error in help command: {e}")
+        await interaction.followup.send(f"❌ Error showing help: {str(e)}")
 
 # Health check endpoint for Railway
 async def health_check(request):
