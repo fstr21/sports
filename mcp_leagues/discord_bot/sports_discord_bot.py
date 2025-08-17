@@ -57,12 +57,26 @@ class SportsBot(commands.Bot):
         """Properly sync commands with Discord"""
         max_attempts = 3
         
+        # First, let's debug what commands are actually defined
+        logger.info("🔍 DEBUGGING: Checking command tree before sync")
+        local_commands = list(self.tree.get_commands())
+        logger.info(f"📊 Local commands in tree: {len(local_commands)}")
+        
+        for cmd in local_commands:
+            logger.info(f"  🎯 Found local command: /{cmd.name} - {cmd.description}")
+            logger.info(f"      Callback: {cmd.callback.__name__ if cmd.callback else 'None'}")
+        
+        if len(local_commands) == 0:
+            logger.error("❌ CRITICAL: No commands found in command tree!")
+            logger.error("   This means the @bot.tree.command decorators are not working")
+            return False
+        
         for attempt in range(max_attempts):
             try:
                 logger.info(f"🔄 Syncing commands (attempt {attempt + 1}/{max_attempts})")
                 
-                # Clear any cached commands first
-                self.tree.clear_commands(guild=None)
+                # DON'T clear commands - this might be removing our commands
+                # self.tree.clear_commands(guild=None)
                 
                 # Add a small delay
                 await asyncio.sleep(1)
@@ -98,6 +112,8 @@ class SportsBot(commands.Bot):
                     
             except Exception as e:
                 logger.error(f"❌ Sync attempt {attempt + 1} failed: {e}")
+                logger.error(f"   Exception type: {type(e).__name__}")
+                logger.error(f"   Exception details: {str(e)}")
                 if attempt < max_attempts - 1:
                     await asyncio.sleep(5)
                 else:
@@ -109,7 +125,7 @@ class SportsBot(commands.Bot):
 # Initialize bot
 bot = SportsBot()
 
-# Single command: /clear
+# Commands defined AFTER bot initialization
 @bot.tree.command(name="clear", description="Clear all channels from a sport category")
 @app_commands.describe(category="Select the sport category to clear")
 @app_commands.choices(category=[
