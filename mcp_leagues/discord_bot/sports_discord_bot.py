@@ -7,7 +7,7 @@ Starting fresh with minimal commands to test functionality
 import asyncio
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any
 
 import discord
@@ -28,6 +28,12 @@ logger = logging.getLogger(__name__)
 # Configuration
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "").strip()
 
+# MCP Server URLs
+MLB_MCP_URL = os.getenv("MLB_MCP_URL", "https://mlbmcp-production.up.railway.app/mcp")
+SOCCER_MCP_URL = os.getenv("SOCCER_MCP_URL", "https://soccermcp-production.up.railway.app/mcp")
+CFB_MCP_URL = os.getenv("CFB_MCP_URL", "https://cfbmcp-production.up.railway.app/mcp")
+ODDS_MCP_URL = os.getenv("ODDS_MCP_URL", "https://odds-mcp-v2-production.up.railway.app/mcp")
+
 class SportsBot(commands.Bot):
     """Simple bot for channel management"""
     
@@ -41,6 +47,47 @@ class SportsBot(commands.Bot):
             intents=intents,
             description="Sports Channel Management Bot"
         )
+        
+        # MCP URLs
+        self.mcp_urls = {
+            "mlb": MLB_MCP_URL,
+            "soccer": SOCCER_MCP_URL,
+            "cfb": CFB_MCP_URL,
+            "odds": ODDS_MCP_URL
+        }
+    
+    async def call_mcp_server(self, mcp_url: str, tool_name: str, arguments: Dict = None) -> Dict:
+        """Call an MCP server tool"""
+        if arguments is None:
+            arguments = {}
+            
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {
+                "name": tool_name,
+                "arguments": arguments
+            }
+        }
+        
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(mcp_url, json=payload)
+                response.raise_for_status()
+                
+                result = response.json()
+                
+                if "error" in result:
+                    logger.error(f"MCP Error: {result['error']}")
+                    return {}
+                
+                return result.get("result", {})
+                
+        except Exception as e:
+            logger.error(f"MCP call failed: {e}")
+            return {}
     
     async def on_ready(self):
         logger.info(f"{self.user} has connected to Discord!")
@@ -302,6 +349,186 @@ async def sync_command(interaction: discord.Interaction):
         logger.error(f"Manual sync failed: {e}")
         await interaction.followup.send(f"❌ Sync failed: {str(e)}")
 
+@bot.tree.command(name="create-channels", description="Create game channels for today's games")
+@app_commands.describe(sport="Select the sport to create channels for")
+@app_commands.choices(sport=[
+    app_commands.Choice(name="MLB", value="mlb"),
+    app_commands.Choice(name="NFL", value="nfl"),
+    app_commands.Choice(name="NBA", value="nba"),
+    app_commands.Choice(name="NHL", value="nhl"),
+    app_commands.Choice(name="SOCCER", value="soccer"),
+    app_commands.Choice(name="CFB", value="cfb"),
+])
+async def create_channels_command(interaction: discord.Interaction, sport: str):
+    """Create Discord channels for today's games"""
+    await interaction.response.defer()
+    
+    try:
+        logger.info(f"Create channels command used by {interaction.user.name} for sport: {sport}")
+        
+        # Check permissions
+        if not interaction.user.guild_permissions.manage_channels:
+            await interaction.followup.send("❌ You need 'Manage Channels' permission to use this command.")
+            return
+        
+        # Get today's date in Eastern Time
+        from datetime import datetime, timezone, timedelta
+        et_tz = timezone(timedelta(hours=-5))  # EST/EDT approximation
+        today_et = datetime.now(et_tz).strftime("%Y-%m-%d")
+        
+        await interaction.followup.send(f"🔄 Creating {sport.upper()} channels for {today_et}...")
+        
+        # Route to appropriate sport handler
+        if sport == "mlb":
+            await create_mlb_channels(interaction, today_et)
+        elif sport == "nfl":
+            await create_nfl_channels(interaction, today_et)
+        elif sport == "nba":
+            await create_nba_channels(interaction, today_et)
+        elif sport == "nhl":
+            await create_nhl_channels(interaction, today_et)
+        elif sport == "soccer":
+            await create_soccer_channels(interaction, today_et)
+        elif sport == "cfb":
+            await create_cfb_channels(interaction, today_et)
+        else:
+            await interaction.followup.send(f"❌ Sport '{sport}' not yet implemented.")
+        
+    except Exception as e:
+        logger.error(f"Error in create-channels command: {e}")
+        await interaction.followup.send(f"❌ Error creating channels: {str(e)}")
+
+async def create_mlb_channels(interaction: discord.Interaction, date: str):
+    """Create MLB game channels using the proven working method"""
+    try:
+        # Get today's MLB games from MCP (using our documented working method)
+        mlb_response = await bot.call_mcp_server(
+            bot.mcp_urls["mlb"],
+            "getMLBScheduleET",
+            {"date": date}
+        )
+        
+        logger.info(f"MLB MCP Response for {date}: {mlb_response}")
+        
+        if not mlb_response or not mlb_response.get("ok"):
+            await interaction.followup.send(f"❌ Error getting MLB games: {mlb_response.get('error', 'Unknown error')}")
+            return
+        
+        # Find or create MLB GAMES category
+        category = discord.utils.get(interaction.guild.categories, name="⚾ MLB GAMES")
+        if not category:
+            category = await interaction.guild.create_category("⚾ MLB GAMES")
+            logger.info(f"Created new category: ⚾ MLB GAMES")
+        
+        # Parse games from the MCP response (using documented structure)
+        games_data = mlb_response.get("data", {}).get("games", [])
+        
+        logger.info(f"Found {len(games_data)} MLB games for {date}")
+        if games_data:
+            logger.info(f"First game sample: {games_data[0]}")
+        
+        if not games_data:
+            await interaction.followup.send(f"📅 No MLB games scheduled for {date}")
+            return
+        
+        created_channels = []
+        skipped_channels = []
+        
+        # Process all games
+        for i, game in enumerate(games_data):
+            try:
+                # Extract team info using documented working method
+                away_team = game.get("away", {}).get("name", "Unknown")
+                home_team = game.get("home", {}).get("name", "Unknown")
+                game_time = game.get("start_et", "TBD")
+                
+                # Clean team names for channel (documented working method)
+                away_clean = away_team.lower().replace(" ", "").replace(".", "")[:10]
+                home_clean = home_team.lower().replace(" ", "").replace(".", "")[:10]
+                
+                # Create channel name (documented format)
+                date_short = datetime.strptime(date, "%Y-%m-%d").strftime("%m-%d")
+                channel_name = f"{date_short}-{away_clean}-vs-{home_clean}"
+                
+                # Check if channel already exists
+                existing_channel = discord.utils.get(category.channels, name=channel_name)
+                if existing_channel:
+                    skipped_channels.append(f"{away_team} @ {home_team}")
+                    continue
+                
+                # Create the channel
+                new_channel = await interaction.guild.create_text_channel(
+                    name=channel_name,
+                    category=category,
+                    topic=f"{away_team} @ {home_team} - {game_time}"
+                )
+                
+                # Post game info to channel
+                embed = discord.Embed(
+                    title=f"🔥 {away_team} @ {home_team}",
+                    description=f"**Game Time:** {game_time}\\n**Date:** {date}",
+                    color=discord.Color.blue()
+                )
+                embed.add_field(name="Away Team", value=away_team, inline=True)
+                embed.add_field(name="Home Team", value=home_team, inline=True)
+                embed.set_footer(text="Use this channel to discuss betting analysis for this game")
+                
+                await new_channel.send(embed=embed)
+                created_channels.append(channel_name)
+                
+                logger.info(f"Created MLB channel: {channel_name}")
+                
+            except Exception as e:
+                logger.error(f"Error creating MLB channel for game {i+1}: {e}")
+                continue
+        
+        # Send final summary
+        summary_parts = []
+        
+        if created_channels:
+            summary_parts.append(f"✅ **Created {len(created_channels)} new MLB channels:**")
+            channels_list = "\\n".join([f"• #{name}" for name in created_channels[:10]])
+            if len(created_channels) > 10:
+                channels_list += f"\\n• ... and {len(created_channels) - 10} more"
+            summary_parts.append(channels_list)
+        
+        if skipped_channels:
+            summary_parts.append(f"ℹ️ **Skipped {len(skipped_channels)} existing channels:**")
+            skipped_list = "\\n".join([f"• {game}" for game in skipped_channels[:5]])
+            if len(skipped_channels) > 5:
+                skipped_list += f"\\n• ... and {len(skipped_channels) - 5} more"
+            summary_parts.append(skipped_list)
+        
+        if not created_channels and not skipped_channels:
+            summary_parts.append("ℹ️ No games found to process.")
+        
+        final_message = "\\n\\n".join(summary_parts)
+        await interaction.followup.send(final_message)
+        
+    except Exception as e:
+        logger.error(f"Error in create_mlb_channels: {e}")
+        await interaction.followup.send(f"❌ Error creating MLB channels: {str(e)}")
+
+async def create_nfl_channels(interaction: discord.Interaction, date: str):
+    """Create NFL game channels - placeholder for now"""
+    await interaction.followup.send(f"🚧 NFL channel creation coming soon! (Date: {date})")
+
+async def create_nba_channels(interaction: discord.Interaction, date: str):
+    """Create NBA game channels - placeholder for now"""
+    await interaction.followup.send(f"🚧 NBA channel creation coming soon! (Date: {date})")
+
+async def create_nhl_channels(interaction: discord.Interaction, date: str):
+    """Create NHL game channels - placeholder for now"""
+    await interaction.followup.send(f"🚧 NHL channel creation coming soon! (Date: {date})")
+
+async def create_soccer_channels(interaction: discord.Interaction, date: str):
+    """Create Soccer game channels - placeholder for now"""
+    await interaction.followup.send(f"🚧 Soccer channel creation coming soon! (Date: {date})")
+
+async def create_cfb_channels(interaction: discord.Interaction, date: str):
+    """Create CFB game channels - placeholder for now"""
+    await interaction.followup.send(f"🚧 CFB channel creation coming soon! (Date: {date})")
+
 # Health check endpoint for Railway
 async def health_check(request):
     try:
@@ -350,6 +577,7 @@ if __name__ == "__main__":
     print("=" * 50)
     print("Expected commands after startup:")
     print("  /clear - Clear channels from sport categories")
+    print("  /create-channels - Create game channels (dropdown: MLB, NFL, NBA, NHL, SOCCER, CFB)")
     print("  /sync - Force sync commands (admin only)")
     print("=" * 50)
     print(f"🚀 Build timestamp: {datetime.now().isoformat()}")
