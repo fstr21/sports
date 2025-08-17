@@ -1,0 +1,902 @@
+{
+  "match_info": {
+    "id": 954373,
+    "date": "15/08/2025",
+    "time": "19:00",
+    "status": "finished",
+    "home_team": "Liverpool",
+    "away_team": "AFC Bournemouth"
+  },
+  "score": {
+    "home_ht_goals": 1,
+    "away_ht_goals": 0,
+    "home_ft_goals": 4,
+    "away_ft_goals": 2,
+    "home_et_goals": -1,
+    "away_et_goals": -1,
+    "home_pen_goals": -1,
+    "away_pen_goals": -1
+  },
+  "events_summary": {
+    "total_events": 18,
+    "goals": 6,
+    "cards": 3,
+    "substitutions": 9
+  },
+  "detailed_events": {
+    "goals": [
+      {
+        "event_type": "goal",
+        "event_minute": "37",
+        "team": "home",
+        "player": {
+          "id": 35421,
+          "name": "H. Ekitike"
+        },
+        "assist_player": {
+          "id": 61790,
+          "name": "A. Mac Allister"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "49",
+        "team": "home",
+        "player": {
+          "id": 61820,
+          "name": "C. Gakpo"
+        },
+        "assist_player": {
+          "id": 35421,
+          "name": "H. Ekitike"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "64",
+        "team": "away",
+        "player": {
+          "id": 42615,
+          "name": "A. Semenyo"
+        },
+        "assist_player": {
+          "id": 42602,
+          "name": "D. Brooks"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "76",
+        "team": "away",
+        "player": {
+          "id": 42615,
+          "name": "A. Semenyo"
+        },
+        "assist_player": {
+          "id": 42606,
+          "name": "H. Traorè"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "88",
+        "team": "home",
+        "player": {
+          "id": 69078,
+          "name": "F. Chiesa"
+        },
+        "assist_player": null
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "90",
+        "team": "home",
+        "player": {
+          "id": 61819,
+          "name": "Mohamed Salah"
+        },
+        "assist_player": {
+          "id": 65643,
+          "name": "W. Endo"
+        }
+      }
+    ],
+    "cards": [
+      {
+        "event_type": "yellow_card",
+        "event_minute": "14",
+        "team": "away",
+        "player": {
+          "id": 42602,
+          "name": "D. Brooks"
+        }
+      },
+      {
+        "event_type": "yellow_card",
+        "event_minute": "43",
+        "team": "home",
+        "player": {
+          "id": 26551,
+          "name": "M. Kerkez"
+        }
+      },
+      {
+        "event_type": "yellow_card",
+        "event_minute": "81",
+        "team": "away",
+        "player": {
+          "id": 45997,
+          "name": "Evanilson"
+        }
+      }
+    ],
+    "substitutions": [
+      {
+        "event_type": "substitution",
+        "event_minute": "60",
+        "team": "home",
+        "player_in": {
+          "id": 65643,
+          "name": "W. Endo"
+        },
+        "player_out": {
+          "id": 65375,
+          "name": "J. Frimpong"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "60",
+        "team": "home",
+        "player_in": {
+          "id": 61750,
+          "name": "A. Robertson"
+        },
+        "player_out": {
+          "id": 26551,
+          "name": "M. Kerkez"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "72",
+        "team": "home",
+        "player_in": {
+          "id": 61796,
+          "name": "C. Jones"
+        },
+        "player_out": {
+          "id": 61790,
+          "name": "A. Mac Allister"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "72",
+        "team": "home",
+        "player_in": {
+          "id": 61727,
+          "name": "J. Gomez"
+        },
+        "player_out": {
+          "id": 35421,
+          "name": "H. Ekitike"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "74",
+        "team": "away",
+        "player_in": {
+          "id": 42606,
+          "name": "H. Traorè"
+        },
+        "player_out": {
+          "id": 62301,
+          "name": "A. Scott"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "82",
+        "team": "home",
+        "player_in": {
+          "id": 69078,
+          "name": "F. Chiesa"
+        },
+        "player_out": {
+          "id": 65392,
+          "name": "F. Wirtz"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "84",
+        "team": "away",
+        "player_in": {
+          "id": 201477,
+          "name": "B. Winterburn"
+        },
+        "player_out": {
+          "id": 42602,
+          "name": "D. Brooks"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "90",
+        "team": "away",
+        "player_in": {
+          "id": 35737,
+          "name": "J. Hill"
+        },
+        "player_out": {
+          "id": 42597,
+          "name": "A. Smith"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "90",
+        "team": "away",
+        "player_in": {
+          "id": 114923,
+          "name": "E. Kroupi"
+        },
+        "player_out": {
+          "id": 62209,
+          "name": "T. Adams"
+        }
+      }
+    ]
+  },
+  "player_stats": {
+    "liverpool": {
+      "35421": {
+        "name": "H. Ekitike",
+        "goals": 1,
+        "assists": 1,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": true,
+        "events": [
+          {
+            "minute": "37",
+            "type": "goal"
+          },
+          {
+            "minute": "49",
+            "type": "assist"
+          },
+          {
+            "minute": "72",
+            "type": "substituted_out"
+          }
+        ]
+      },
+      "61790": {
+        "name": "A. Mac Allister",
+        "goals": 0,
+        "assists": 1,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": true,
+        "events": [
+          {
+            "minute": "37",
+            "type": "assist"
+          },
+          {
+            "minute": "72",
+            "type": "substituted_out"
+          }
+        ]
+      },
+      "26551": {
+        "name": "M. Kerkez",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 1,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": true,
+        "events": [
+          {
+            "minute": "43",
+            "type": "yellow_card"
+          },
+          {
+            "minute": "60",
+            "type": "substituted_out"
+          }
+        ]
+      },
+      "61820": {
+        "name": "C. Gakpo",
+        "goals": 1,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "49",
+            "type": "goal"
+          }
+        ]
+      },
+      "65643": {
+        "name": "W. Endo",
+        "goals": 0,
+        "assists": 1,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": true,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "60",
+            "type": "substituted_in"
+          },
+          {
+            "minute": "90",
+            "type": "assist"
+          }
+        ]
+      },
+      "65375": {
+        "name": "J. Frimpong",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": true,
+        "events": [
+          {
+            "minute": "60",
+            "type": "substituted_out"
+          }
+        ]
+      },
+      "61750": {
+        "name": "A. Robertson",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": true,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "60",
+            "type": "substituted_in"
+          }
+        ]
+      },
+      "61796": {
+        "name": "C. Jones",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": true,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "72",
+            "type": "substituted_in"
+          }
+        ]
+      },
+      "61727": {
+        "name": "J. Gomez",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": true,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "72",
+            "type": "substituted_in"
+          }
+        ]
+      },
+      "69078": {
+        "name": "F. Chiesa",
+        "goals": 1,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": true,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "82",
+            "type": "substituted_in"
+          },
+          {
+            "minute": "88",
+            "type": "goal"
+          }
+        ]
+      },
+      "65392": {
+        "name": "F. Wirtz",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": true,
+        "events": [
+          {
+            "minute": "82",
+            "type": "substituted_out"
+          }
+        ]
+      },
+      "61819": {
+        "name": "Mohamed Salah",
+        "goals": 1,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "90",
+            "type": "goal"
+          }
+        ]
+      }
+    },
+    "bournemouth": {
+      "42602": {
+        "name": "D. Brooks",
+        "goals": 0,
+        "assists": 1,
+        "yellow_cards": 1,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": true,
+        "events": [
+          {
+            "minute": "14",
+            "type": "yellow_card"
+          },
+          {
+            "minute": "64",
+            "type": "assist"
+          },
+          {
+            "minute": "84",
+            "type": "substituted_out"
+          }
+        ]
+      },
+      "42615": {
+        "name": "A. Semenyo",
+        "goals": 2,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "64",
+            "type": "goal"
+          },
+          {
+            "minute": "76",
+            "type": "goal"
+          }
+        ]
+      },
+      "42606": {
+        "name": "H. Traorè",
+        "goals": 0,
+        "assists": 1,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": true,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "74",
+            "type": "substituted_in"
+          },
+          {
+            "minute": "76",
+            "type": "assist"
+          }
+        ]
+      },
+      "62301": {
+        "name": "A. Scott",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": true,
+        "events": [
+          {
+            "minute": "74",
+            "type": "substituted_out"
+          }
+        ]
+      },
+      "45997": {
+        "name": "Evanilson",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 1,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "81",
+            "type": "yellow_card"
+          }
+        ]
+      },
+      "201477": {
+        "name": "B. Winterburn",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": true,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "84",
+            "type": "substituted_in"
+          }
+        ]
+      },
+      "35737": {
+        "name": "J. Hill",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": true,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "90",
+            "type": "substituted_in"
+          }
+        ]
+      },
+      "42597": {
+        "name": "A. Smith",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": true,
+        "events": [
+          {
+            "minute": "90",
+            "type": "substituted_out"
+          }
+        ]
+      },
+      "114923": {
+        "name": "E. Kroupi",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": true,
+        "substituted_out": false,
+        "events": [
+          {
+            "minute": "90",
+            "type": "substituted_in"
+          }
+        ]
+      },
+      "62209": {
+        "name": "T. Adams",
+        "goals": 0,
+        "assists": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "substituted_in": false,
+        "substituted_out": true,
+        "events": [
+          {
+            "minute": "90",
+            "type": "substituted_out"
+          }
+        ]
+      }
+    }
+  },
+  "full_match_data": {
+    "id": 954373,
+    "date": "15/08/2025",
+    "time": "19:00",
+    "teams": {
+      "home": {
+        "id": 4138,
+        "name": "Liverpool"
+      },
+      "away": {
+        "id": 3072,
+        "name": "AFC Bournemouth"
+      }
+    },
+    "status": "finished",
+    "minute": -1,
+    "winner": "home",
+    "has_extra_time": false,
+    "has_penalties": false,
+    "goals": {
+      "home_ht_goals": 1,
+      "away_ht_goals": 0,
+      "home_ft_goals": 4,
+      "away_ft_goals": 2,
+      "home_et_goals": -1,
+      "away_et_goals": -1,
+      "home_pen_goals": -1,
+      "away_pen_goals": -1
+    },
+    "events": [
+      {
+        "event_type": "yellow_card",
+        "event_minute": "14",
+        "team": "away",
+        "player": {
+          "id": 42602,
+          "name": "D. Brooks"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "37",
+        "team": "home",
+        "player": {
+          "id": 35421,
+          "name": "H. Ekitike"
+        },
+        "assist_player": {
+          "id": 61790,
+          "name": "A. Mac Allister"
+        }
+      },
+      {
+        "event_type": "yellow_card",
+        "event_minute": "43",
+        "team": "home",
+        "player": {
+          "id": 26551,
+          "name": "M. Kerkez"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "49",
+        "team": "home",
+        "player": {
+          "id": 61820,
+          "name": "C. Gakpo"
+        },
+        "assist_player": {
+          "id": 35421,
+          "name": "H. Ekitike"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "60",
+        "team": "home",
+        "player_in": {
+          "id": 65643,
+          "name": "W. Endo"
+        },
+        "player_out": {
+          "id": 65375,
+          "name": "J. Frimpong"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "60",
+        "team": "home",
+        "player_in": {
+          "id": 61750,
+          "name": "A. Robertson"
+        },
+        "player_out": {
+          "id": 26551,
+          "name": "M. Kerkez"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "64",
+        "team": "away",
+        "player": {
+          "id": 42615,
+          "name": "A. Semenyo"
+        },
+        "assist_player": {
+          "id": 42602,
+          "name": "D. Brooks"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "72",
+        "team": "home",
+        "player_in": {
+          "id": 61796,
+          "name": "C. Jones"
+        },
+        "player_out": {
+          "id": 61790,
+          "name": "A. Mac Allister"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "72",
+        "team": "home",
+        "player_in": {
+          "id": 61727,
+          "name": "J. Gomez"
+        },
+        "player_out": {
+          "id": 35421,
+          "name": "H. Ekitike"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "74",
+        "team": "away",
+        "player_in": {
+          "id": 42606,
+          "name": "H. Traorè"
+        },
+        "player_out": {
+          "id": 62301,
+          "name": "A. Scott"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "76",
+        "team": "away",
+        "player": {
+          "id": 42615,
+          "name": "A. Semenyo"
+        },
+        "assist_player": {
+          "id": 42606,
+          "name": "H. Traorè"
+        }
+      },
+      {
+        "event_type": "yellow_card",
+        "event_minute": "81",
+        "team": "away",
+        "player": {
+          "id": 45997,
+          "name": "Evanilson"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "82",
+        "team": "home",
+        "player_in": {
+          "id": 69078,
+          "name": "F. Chiesa"
+        },
+        "player_out": {
+          "id": 65392,
+          "name": "F. Wirtz"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "84",
+        "team": "away",
+        "player_in": {
+          "id": 201477,
+          "name": "B. Winterburn"
+        },
+        "player_out": {
+          "id": 42602,
+          "name": "D. Brooks"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "88",
+        "team": "home",
+        "player": {
+          "id": 69078,
+          "name": "F. Chiesa"
+        },
+        "assist_player": null
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "90",
+        "team": "away",
+        "player_in": {
+          "id": 35737,
+          "name": "J. Hill"
+        },
+        "player_out": {
+          "id": 42597,
+          "name": "A. Smith"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "90",
+        "team": "away",
+        "player_in": {
+          "id": 114923,
+          "name": "E. Kroupi"
+        },
+        "player_out": {
+          "id": 62209,
+          "name": "T. Adams"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "90",
+        "team": "home",
+        "player": {
+          "id": 61819,
+          "name": "Mohamed Salah"
+        },
+        "assist_player": {
+          "id": 65643,
+          "name": "W. Endo"
+        }
+      }
+    ],
+    "odds": {
+      "match_winner": {
+        "home": 1.3,
+        "draw": 6.0,
+        "away": 8.6
+      },
+      "over_under": {
+        "total": 3.5,
+        "over": 1.95,
+        "under": 1.87
+      },
+      "handicap": {
+        "market": -1.5,
+        "home": 1.85,
+        "away": 2.0
+      },
+      "last_modified_timestamp": 1755293505
+    },
+    "match_preview": {
+      "has_preview": false,
+      "word_count": -1
+    }
+  }
+}
