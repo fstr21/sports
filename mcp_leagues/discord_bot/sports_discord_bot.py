@@ -185,20 +185,55 @@ async def clear_command(interaction: discord.Interaction, category: str):
         
         # Delete channels
         deleted_count = 0
-        for channel in channels_to_delete:
+        failed_deletions = []
+        
+        logger.info(f"🗑️ Attempting to delete {len(channels_to_delete)} channels...")
+        
+        for i, channel in enumerate(channels_to_delete):
             try:
+                logger.info(f"🔄 Deleting channel {i+1}/{len(channels_to_delete)}: {channel.name}")
                 await channel.delete()
                 deleted_count += 1
-                logger.info(f"Deleted channel: {channel.name}")
+                logger.info(f"✅ Successfully deleted: {channel.name}")
+            except discord.Forbidden as e:
+                error_msg = f"Permission denied: {channel.name}"
+                logger.error(f"❌ {error_msg}: {e}")
+                failed_deletions.append(error_msg)
+            except discord.NotFound as e:
+                error_msg = f"Channel not found: {channel.name}"
+                logger.error(f"❌ {error_msg}: {e}")
+                failed_deletions.append(error_msg)
             except Exception as e:
-                logger.error(f"Failed to delete channel {channel.name}: {e}")
+                error_msg = f"Unknown error with {channel.name}: {str(e)}"
+                logger.error(f"❌ {error_msg}")
+                failed_deletions.append(error_msg)
         
-        # Send final result
-        result_embed = discord.Embed(
-            title="✅ Clear Complete",
-            description=f"Successfully deleted **{deleted_count}** out of {channel_count} channels from '{category}'.",
-            color=discord.Color.green()
-        )
+        logger.info(f"🏁 Deletion complete: {deleted_count}/{len(channels_to_delete)} successful")
+        
+        # Send final result with detailed info
+        if deleted_count > 0:
+            result_embed = discord.Embed(
+                title="✅ Clear Complete",
+                description=f"Successfully deleted **{deleted_count}** out of {channel_count} channels from '{category}'.",
+                color=discord.Color.green()
+            )
+        else:
+            result_embed = discord.Embed(
+                title="⚠️ Clear Failed",
+                description=f"Could not delete any channels from '{category}'. Check bot permissions.",
+                color=discord.Color.red()
+            )
+        
+        # Add failure details if any
+        if failed_deletions:
+            failure_text = "\n".join(failed_deletions[:5])  # Show first 5 failures
+            if len(failed_deletions) > 5:
+                failure_text += f"\n... and {len(failed_deletions) - 5} more failures"
+            result_embed.add_field(
+                name="❌ Failed Deletions",
+                value=failure_text,
+                inline=False
+            )
         
         await interaction.followup.send(embed=result_embed)
         logger.info(f"Clear completed: {deleted_count}/{channel_count} channels deleted")
