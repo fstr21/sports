@@ -1,0 +1,97 @@
+{
+  "count": 9,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "league": {
+        "id": 297,
+        "name": "La Liga"
+      },
+      "season": {
+        "is_active": true,
+        "year": "2025-2026"
+      }
+    },
+    {
+      "league": {
+        "id": 297,
+        "name": "La Liga"
+      },
+      "season": {
+        "is_active": false,
+        "year": "2024-2025"
+      }
+    },
+    {
+      "league": {
+        "id": 297,
+        "name": "La Liga"
+      },
+      "season": {
+        "is_active": false,
+        "year": "2023-2024"
+      }
+    },
+    {
+      "league": {
+        "id": 297,
+        "name": "La Liga"
+      },
+      "season": {
+        "is_active": false,
+        "year": "2022-2023"
+      }
+    },
+    {
+      "league": {
+        "id": 297,
+        "name": "La Liga"
+      },
+      "season": {
+        "is_active": false,
+        "year": "2021-2022"
+      }
+    },
+    {
+      "league": {
+        "id": 297,
+        "name": "La Liga"
+      },
+      "season": {
+        "is_active": false,
+        "year": "2020-2021"
+      }
+    },
+    {
+      "league": {
+        "id": 297,
+        "name": "La Liga"
+      },
+      "season": {
+        "is_active": false,
+        "year": "2019-2020"
+      }
+    },
+    {
+      "league": {
+        "id": 297,
+        "name": "La Liga"
+      },
+      "season": {
+        "is_active": false,
+        "year": "2018-2019"
+      }
+    },
+    {
+      "league": {
+        "id": 297,
+        "name": "La Liga"
+      },
+      "season": {
+        "is_active": false,
+        "year": "2017-2018"
+      }
+    }
+  ]
+}

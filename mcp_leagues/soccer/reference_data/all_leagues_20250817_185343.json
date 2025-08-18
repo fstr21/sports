@@ -1,0 +1,139 @@
+{
+  "leagues": [
+    {
+      "id": 181,
+      "name": "CSL",
+      "is_cup": false,
+      "country": {
+        "id": 3,
+        "name": "china"
+      }
+    },
+    {
+      "id": 229,
+      "name": "Championship",
+      "is_cup": false,
+      "country": {
+        "id": 8,
+        "name": "england"
+      }
+    },
+    {
+      "id": 228,
+      "name": "Premier League",
+      "is_cup": false,
+      "country": {
+        "id": 8,
+        "name": "england"
+      }
+    },
+    {
+      "id": 230,
+      "name": "FA Cup",
+      "is_cup": false,
+      "country": {
+        "id": 8,
+        "name": "england"
+      }
+    },
+    {
+      "id": 310,
+      "name": "UEFA Champions League",
+      "is_cup": true,
+      "country": {
+        "id": 4,
+        "name": "europe"
+      }
+    },
+    {
+      "id": 326,
+      "name": "Europa League",
+      "is_cup": true,
+      "country": {
+        "id": 4,
+        "name": "europe"
+      }
+    },
+    {
+      "id": 198,
+      "name": "Europa Conference League",
+      "is_cup": true,
+      "country": {
+        "id": 4,
+        "name": "europe"
+      }
+    },
+    {
+      "id": 235,
+      "name": "Ligue 1",
+      "is_cup": false,
+      "country": {
+        "id": 9,
+        "name": "france"
+      }
+    },
+    {
+      "id": 241,
+      "name": "Bundesliga",
+      "is_cup": false,
+      "country": {
+        "id": 27,
+        "name": "germany"
+      }
+    },
+    {
+      "id": 253,
+      "name": "Serie A",
+      "is_cup": false,
+      "country": {
+        "id": 6,
+        "name": "italy"
+      }
+    },
+    {
+      "id": 268,
+      "name": "Eredivisie",
+      "is_cup": false,
+      "country": {
+        "id": 7,
+        "name": "netherlands"
+      }
+    },
+    {
+      "id": 280,
+      "name": "Primeira Liga",
+      "is_cup": false,
+      "country": {
+        "id": 41,
+        "name": "portugal"
+      }
+    },
+    {
+      "id": 289,
+      "name": "Premiership",
+      "is_cup": false,
+      "country": {
+        "id": 21,
+        "name": "scotland"
+      }
+    },
+    {
+      "id": 297,
+      "name": "La Liga",
+      "is_cup": false,
+      "country": {
+        "id": 60,
+        "name": "spain"
+      }
+    },
+    {
+      "id": 168,
+      "name": "MLS",
+      "is_cup": false,
+      "country": {
+        "id": 1,
+        "name": "usa"
+      }
+    }
+  ]
+}

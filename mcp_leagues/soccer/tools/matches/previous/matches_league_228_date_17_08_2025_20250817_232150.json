@@ -1,0 +1,685 @@
+[
+  {
+    "league_id": 228,
+    "league_name": "Premier League",
+    "country": {
+      "id": 8,
+      "name": "england"
+    },
+    "is_cup": false,
+    "season": {
+      "is_active": true,
+      "year": "2025-2026"
+    },
+    "stage": [
+      {
+        "stage_id": 13908,
+        "stage_name": "Premier League",
+        "is_active": true,
+        "matches": [
+          {
+            "id": 961071,
+            "date": "17/08/2025",
+            "time": "06:00",
+            "teams": {
+              "home": {
+                "id": 18798,
+                "name": "None"
+              },
+              "away": {
+                "id": 18798,
+                "name": "None"
+              }
+            },
+            "status": "pre-match",
+            "minute": -1,
+            "winner": "tbd",
+            "has_extra_time": false,
+            "has_penalties": false,
+            "goals": {
+              "home_ht_goals": 0,
+              "away_ht_goals": 0,
+              "home_ft_goals": 0,
+              "away_ft_goals": 0,
+              "home_et_goals": -1,
+              "away_et_goals": -1,
+              "home_pen_goals": -1,
+              "away_pen_goals": -1
+            },
+            "events": [],
+            "odds": {
+              "match_winner": {},
+              "over_under": {},
+              "handicap": {}
+            },
+            "match_preview": {
+              "has_preview": false,
+              "word_count": -1
+            }
+          },
+          {
+            "id": 954380,
+            "date": "17/08/2025",
+            "time": "13:00",
+            "teams": {
+              "home": {
+                "id": 2916,
+                "name": "Chelsea"
+              },
+              "away": {
+                "id": 4140,
+                "name": "Crystal Palace"
+              }
+            },
+            "status": "pre-match",
+            "minute": -1,
+            "winner": "tbd",
+            "has_extra_time": false,
+            "has_penalties": false,
+            "goals": {
+              "home_ht_goals": 0,
+              "away_ht_goals": 0,
+              "home_ft_goals": 0,
+              "away_ft_goals": 0,
+              "home_et_goals": -1,
+              "away_et_goals": -1,
+              "home_pen_goals": -1,
+              "away_pen_goals": -1
+            },
+            "events": [
+              {
+                "event_type": "yellow_card",
+                "event_minute": "24",
+                "team": "home",
+                "player": {
+                  "id": 39280,
+                  "name": "R. James"
+                }
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "28",
+                "team": "away",
+                "player": {
+                  "id": 49819,
+                  "name": "D. Muñoz"
+                }
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "33",
+                "team": "away",
+                "player": {
+                  "id": 61916,
+                  "name": "J. Mateta"
+                }
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "49",
+                "team": "away",
+                "player": {
+                  "id": 61889,
+                  "name": "W. Hughes"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "54",
+                "team": "home",
+                "player_in": {
+                  "id": 209115,
+                  "name": "Estevão"
+                },
+                "player_out": {
+                  "id": 45314,
+                  "name": "J. Bynoe-Gittens"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "70",
+                "team": "away",
+                "player_in": {
+                  "id": 61883,
+                  "name": "J. Lerma"
+                },
+                "player_out": {
+                  "id": 61889,
+                  "name": "W. Hughes"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "73",
+                "team": "home",
+                "player_in": {
+                  "id": 62297,
+                  "name": "L. Delap"
+                },
+                "player_out": {
+                  "id": 45277,
+                  "name": "João Pedro"
+                }
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "74",
+                "team": "home",
+                "player": {
+                  "id": 209115,
+                  "name": "Estevão"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "79",
+                "team": "home",
+                "player_in": {
+                  "id": 39290,
+                  "name": "M. Gusto"
+                },
+                "player_out": {
+                  "id": 39280,
+                  "name": "R. James"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "79",
+                "team": "home",
+                "player_in": {
+                  "id": 39330,
+                  "name": "Andrey Santos"
+                },
+                "player_out": {
+                  "id": 39302,
+                  "name": "E. Fernández"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "84",
+                "team": "away",
+                "player_in": {
+                  "id": 87110,
+                  "name": "J. Devenny"
+                },
+                "player_out": {
+                  "id": 61885,
+                  "name": "E. Eze"
+                }
+              }
+            ],
+            "odds": {
+              "match_winner": {
+                "home": 1.85,
+                "draw": 3.7,
+                "away": 4.25
+              },
+              "over_under": {
+                "total": 2.5,
+                "over": 1.74,
+                "under": 2.11
+              },
+              "handicap": {
+                "market": -0.5,
+                "home": 1.88,
+                "away": 2.02
+              },
+              "last_modified_timestamp": 1755446474
+            },
+            "match_preview": {
+              "has_preview": false,
+              "word_count": -1
+            }
+          },
+          {
+            "id": 961402,
+            "date": "17/08/2025",
+            "time": "13:00",
+            "teams": {
+              "home": {
+                "id": 4149,
+                "name": "Nottingham Forest"
+              },
+              "away": {
+                "id": 4148,
+                "name": "Brentford"
+              }
+            },
+            "status": "pre-match",
+            "minute": -1,
+            "winner": "tbd",
+            "has_extra_time": false,
+            "has_penalties": false,
+            "goals": {
+              "home_ht_goals": 3,
+              "away_ht_goals": 0,
+              "home_ft_goals": 3,
+              "away_ft_goals": 1,
+              "home_et_goals": -1,
+              "away_et_goals": -1,
+              "home_pen_goals": -1,
+              "away_pen_goals": -1
+            },
+            "events": [
+              {
+                "event_type": "goal",
+                "event_minute": "5",
+                "team": "home",
+                "player": {
+                  "id": 62194,
+                  "name": "C. Wood"
+                },
+                "assist_player": null
+              },
+              {
+                "event_type": "goal",
+                "event_minute": "42",
+                "team": "home",
+                "player": {
+                  "id": 26484,
+                  "name": "D. Ndoye"
+                },
+                "assist_player": {
+                  "id": 62147,
+                  "name": "M. Gibbs-White"
+                }
+              },
+              {
+                "event_type": "goal",
+                "event_minute": "45",
+                "team": "home",
+                "player": {
+                  "id": 62194,
+                  "name": "C. Wood"
+                },
+                "assist_player": {
+                  "id": 42576,
+                  "name": "E. Anderson"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "46",
+                "team": "away",
+                "player_in": {
+                  "id": 62088,
+                  "name": "K. Schade"
+                },
+                "player_out": {
+                  "id": 26169,
+                  "name": "A. Milambo"
+                }
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "52",
+                "team": "away",
+                "player": {
+                  "id": 62070,
+                  "name": "N. Collins"
+                }
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "53",
+                "team": "home",
+                "player": {
+                  "id": 62105,
+                  "name": "N. Williams"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "69",
+                "team": "away",
+                "player_in": {
+                  "id": 61793,
+                  "name": "J. Henderson"
+                },
+                "player_out": {
+                  "id": 62084,
+                  "name": "M. Jensen"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "69",
+                "team": "away",
+                "player_in": {
+                  "id": 62100,
+                  "name": "F. Onyeka"
+                },
+                "player_out": {
+                  "id": 62135,
+                  "name": "K. Lewis-Potter"
+                }
+              },
+              {
+                "event_type": "penalty_goal",
+                "event_minute": "78",
+                "team": "away",
+                "player": {
+                  "id": 34010,
+                  "name": "Thiago"
+                },
+                "assist_player": null
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "79",
+                "team": "home",
+                "player_in": {
+                  "id": 90779,
+                  "name": "Igor Jesus"
+                },
+                "player_out": {
+                  "id": 62194,
+                  "name": "C. Wood"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "79",
+                "team": "home",
+                "player_in": {
+                  "id": 32676,
+                  "name": "Jota Silva"
+                },
+                "player_out": {
+                  "id": 26484,
+                  "name": "D. Ndoye"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "84",
+                "team": "home",
+                "player_in": {
+                  "id": 62153,
+                  "name": "R. Yates"
+                },
+                "player_out": {
+                  "id": 62147,
+                  "name": "M. Gibbs-White"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "88",
+                "team": "away",
+                "player_in": {
+                  "id": 62034,
+                  "name": "A. Hickey"
+                },
+                "player_out": {
+                  "id": 62038,
+                  "name": "R. Henry"
+                }
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "90",
+                "team": "away",
+                "player": {
+                  "id": 62034,
+                  "name": "A. Hickey"
+                }
+              }
+            ],
+            "odds": {
+              "match_winner": {
+                "home": 1.91,
+                "draw": 3.5,
+                "away": 4.15
+              },
+              "over_under": {
+                "total": 2.5,
+                "over": 2.02,
+                "under": 1.82
+              },
+              "handicap": {
+                "market": -0.5,
+                "home": 1.91,
+                "away": 1.98
+              },
+              "last_modified_timestamp": 1755446474
+            },
+            "match_preview": {
+              "has_preview": false,
+              "word_count": -1
+            }
+          },
+          {
+            "id": 954381,
+            "date": "17/08/2025",
+            "time": "15:30",
+            "teams": {
+              "home": {
+                "id": 4137,
+                "name": "Manchester United"
+              },
+              "away": {
+                "id": 3068,
+                "name": "Arsenal"
+              }
+            },
+            "status": "pre-match",
+            "minute": -1,
+            "winner": "tbd",
+            "has_extra_time": false,
+            "has_penalties": false,
+            "goals": {
+              "home_ht_goals": 0,
+              "away_ht_goals": 0,
+              "home_ft_goals": 0,
+              "away_ft_goals": 0,
+              "home_et_goals": -1,
+              "away_et_goals": -1,
+              "home_pen_goals": -1,
+              "away_pen_goals": -1
+            },
+            "events": [
+              {
+                "event_type": "goal",
+                "event_minute": "13",
+                "team": "away",
+                "player": {
+                  "id": 26466,
+                  "name": "R. Calafiori"
+                },
+                "assist_player": null
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "42",
+                "team": "away",
+                "player": {
+                  "id": 26466,
+                  "name": "R. Calafiori"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "55",
+                "team": "home",
+                "player_in": {
+                  "id": 61850,
+                  "name": "A. Diallo"
+                },
+                "player_out": {
+                  "id": 61780,
+                  "name": "Diogo Dalot"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "60",
+                "team": "away",
+                "player_in": {
+                  "id": 42532,
+                  "name": "K. Havertz"
+                },
+                "player_out": {
+                  "id": 35455,
+                  "name": "V. Gyokeres"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "60",
+                "team": "away",
+                "player_in": {
+                  "id": 39351,
+                  "name": "N. Madueke"
+                },
+                "player_out": {
+                  "id": 42538,
+                  "name": "Gabriel Martinelli"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "65",
+                "team": "home",
+                "player_in": {
+                  "id": 35406,
+                  "name": "M. Ugarte"
+                },
+                "player_out": {
+                  "id": 61830,
+                  "name": "Casemiro"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "65",
+                "team": "home",
+                "player_in": {
+                  "id": 47099,
+                  "name": "B. Šeško"
+                },
+                "player_out": {
+                  "id": 61818,
+                  "name": "M. Mount"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "71",
+                "team": "away",
+                "player_in": {
+                  "id": 42490,
+                  "name": "J. Timber"
+                },
+                "player_out": {
+                  "id": 42482,
+                  "name": "B. White"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "72",
+                "team": "away",
+                "player_in": {
+                  "id": 99619,
+                  "name": "M. Lewis-Skelly"
+                },
+                "player_out": {
+                  "id": 26466,
+                  "name": "R. Calafiori"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "80",
+                "team": "home",
+                "player_in": {
+                  "id": 61768,
+                  "name": "H. Maguire"
+                },
+                "player_out": {
+                  "id": 61783,
+                  "name": "L. Shaw"
+                }
+              },
+              {
+                "event_type": "substitution",
+                "event_minute": "83",
+                "team": "away",
+                "player_in": {
+                  "id": 82259,
+                  "name": "Mikel Merino"
+                },
+                "player_out": {
+                  "id": 31438,
+                  "name": "D. Rice"
+                }
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "85",
+                "team": "home",
+                "player": {
+                  "id": 167942,
+                  "name": "P. Dorgu"
+                }
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "85",
+                "team": "away",
+                "player": {
+                  "id": 62018,
+                  "name": "David Raya"
+                }
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "90",
+                "team": "away",
+                "player": {
+                  "id": 42490,
+                  "name": "J. Timber"
+                }
+              },
+              {
+                "event_type": "yellow_card",
+                "event_minute": "90",
+                "team": "away",
+                "player": {
+                  "id": 99619,
+                  "name": "M. Lewis-Skelly"
+                }
+              }
+            ],
+            "odds": {
+              "match_winner": {
+                "home": 3.82,
+                "draw": 3.7,
+                "away": 1.95
+              },
+              "over_under": {
+                "total": 2.5,
+                "over": 1.74,
+                "under": 2.1
+              },
+              "handicap": {
+                "market": "+0.5",
+                "home": 1.9,
+                "away": 1.98
+              },
+              "last_modified_timestamp": 1755455503
+            },
+            "match_preview": {
+              "has_preview": false,
+              "word_count": -1
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

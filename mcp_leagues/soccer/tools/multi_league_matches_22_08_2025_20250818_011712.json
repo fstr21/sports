@@ -1,0 +1,310 @@
+{
+  "EPL": {
+    "league_info": {
+      "id": 228,
+      "name": "Premier League",
+      "country": "England"
+    },
+    "date_searched": "22-08-2025",
+    "matches_found": 1,
+    "raw_response": [
+      {
+        "league_id": 228,
+        "league_name": "Premier League",
+        "country": {
+          "id": 8,
+          "name": "england"
+        },
+        "is_cup": false,
+        "season": {
+          "is_active": true,
+          "year": "2025-2026"
+        },
+        "stage": [
+          {
+            "stage_id": 13908,
+            "stage_name": "Premier League",
+            "is_active": true,
+            "matches": [
+              {
+                "id": 965410,
+                "date": "22/08/2025",
+                "time": "19:00",
+                "teams": {
+                  "home": {
+                    "id": 3059,
+                    "name": "West Ham United"
+                  },
+                  "away": {
+                    "id": 2916,
+                    "name": "Chelsea"
+                  }
+                },
+                "status": "pre-match",
+                "minute": -1,
+                "winner": "tbd",
+                "has_extra_time": false,
+                "has_penalties": false,
+                "goals": {
+                  "home_ht_goals": 0,
+                  "away_ht_goals": 0,
+                  "home_ft_goals": 0,
+                  "away_ft_goals": 0,
+                  "home_et_goals": -1,
+                  "away_et_goals": -1,
+                  "home_pen_goals": -1,
+                  "away_pen_goals": -1
+                },
+                "events": [],
+                "odds": {
+                  "match_winner": {
+                    "home": 4.6,
+                    "draw": 3.9,
+                    "away": 1.72
+                  },
+                  "over_under": {
+                    "total": 2.5,
+                    "over": 1.7,
+                    "under": 2.14
+                  },
+                  "handicap": {
+                    "market": "+0.5",
+                    "home": 2.2,
+                    "away": 1.71
+                  },
+                  "last_modified_timestamp": 1755493246
+                },
+                "match_preview": {
+                  "has_preview": false,
+                  "word_count": -1
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "processed_matches": [
+      {
+        "id": 965410,
+        "date": "22/08/2025",
+        "time": "19:00",
+        "teams": {
+          "home": {
+            "id": 3059,
+            "name": "West Ham United"
+          },
+          "away": {
+            "id": 2916,
+            "name": "Chelsea"
+          }
+        },
+        "status": "pre-match",
+        "minute": -1,
+        "winner": "tbd",
+        "has_extra_time": false,
+        "has_penalties": false,
+        "goals": {
+          "home_ht_goals": 0,
+          "away_ht_goals": 0,
+          "home_ft_goals": 0,
+          "away_ft_goals": 0,
+          "home_et_goals": -1,
+          "away_et_goals": -1,
+          "home_pen_goals": -1,
+          "away_pen_goals": -1
+        },
+        "events": [],
+        "odds": {
+          "match_winner": {
+            "home": 4.6,
+            "draw": 3.9,
+            "away": 1.72
+          },
+          "over_under": {
+            "total": 2.5,
+            "over": 1.7,
+            "under": 2.14
+          },
+          "handicap": {
+            "market": "+0.5",
+            "home": 2.2,
+            "away": 1.71
+          },
+          "last_modified_timestamp": 1755493246
+        },
+        "match_preview": {
+          "has_preview": false,
+          "word_count": -1
+        }
+      }
+    ]
+  },
+  "La Liga": {
+    "league_info": {
+      "id": 297,
+      "name": "La Liga",
+      "country": "Spain"
+    },
+    "date_searched": "22-08-2025",
+    "matches_found": 1,
+    "raw_response": [
+      {
+        "league_id": 297,
+        "league_name": "La Liga",
+        "country": {
+          "id": 60,
+          "name": "spain"
+        },
+        "is_cup": false,
+        "season": {
+          "is_active": true,
+          "year": "2025-2026"
+        },
+        "stage": [
+          {
+            "stage_id": 13947,
+            "stage_name": "LaLiga",
+            "is_active": true,
+            "matches": [
+              {
+                "id": 965442,
+                "date": "22/08/2025",
+                "time": "19:30",
+                "teams": {
+                  "home": {
+                    "id": 4886,
+                    "name": "Real Betis"
+                  },
+                  "away": {
+                    "id": 4892,
+                    "name": "Alaves"
+                  }
+                },
+                "status": "pre-match",
+                "minute": -1,
+                "winner": "tbd",
+                "has_extra_time": false,
+                "has_penalties": false,
+                "goals": {
+                  "home_ht_goals": 0,
+                  "away_ht_goals": 0,
+                  "home_ft_goals": 0,
+                  "away_ft_goals": 0,
+                  "home_et_goals": -1,
+                  "away_et_goals": -1,
+                  "home_pen_goals": -1,
+                  "away_pen_goals": -1
+                },
+                "events": [],
+                "odds": {
+                  "match_winner": {
+                    "home": 1.83,
+                    "draw": 3.5,
+                    "away": 4.6
+                  },
+                  "over_under": {
+                    "total": 2.5,
+                    "over": 2.12,
+                    "under": 1.72
+                  },
+                  "handicap": {
+                    "market": -0.5,
+                    "home": 1.83,
+                    "away": 2.02
+                  },
+                  "last_modified_timestamp": 1755493242
+                },
+                "match_preview": {
+                  "has_preview": false,
+                  "word_count": -1
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "processed_matches": [
+      {
+        "id": 965442,
+        "date": "22/08/2025",
+        "time": "19:30",
+        "teams": {
+          "home": {
+            "id": 4886,
+            "name": "Real Betis"
+          },
+          "away": {
+            "id": 4892,
+            "name": "Alaves"
+          }
+        },
+        "status": "pre-match",
+        "minute": -1,
+        "winner": "tbd",
+        "has_extra_time": false,
+        "has_penalties": false,
+        "goals": {
+          "home_ht_goals": 0,
+          "away_ht_goals": 0,
+          "home_ft_goals": 0,
+          "away_ft_goals": 0,
+          "home_et_goals": -1,
+          "away_et_goals": -1,
+          "home_pen_goals": -1,
+          "away_pen_goals": -1
+        },
+        "events": [],
+        "odds": {
+          "match_winner": {
+            "home": 1.83,
+            "draw": 3.5,
+            "away": 4.6
+          },
+          "over_under": {
+            "total": 2.5,
+            "over": 2.12,
+            "under": 1.72
+          },
+          "handicap": {
+            "market": -0.5,
+            "home": 1.83,
+            "away": 2.02
+          },
+          "last_modified_timestamp": 1755493242
+        },
+        "match_preview": {
+          "has_preview": false,
+          "word_count": -1
+        }
+      }
+    ]
+  },
+  "MLS": {
+    "league_info": {
+      "id": 168,
+      "name": "Major League Soccer",
+      "country": "USA"
+    },
+    "date_searched": "22-08-2025",
+    "matches_found": 0,
+    "raw_response": [
+      {
+        "league_id": 168,
+        "league_name": "MLS",
+        "country": {
+          "id": 1,
+          "name": "usa"
+        },
+        "is_cup": false,
+        "season": {
+          "is_active": true,
+          "year": "2025"
+        },
+        "stage": []
+      }
+    ],
+    "processed_matches": []
+  }
+}

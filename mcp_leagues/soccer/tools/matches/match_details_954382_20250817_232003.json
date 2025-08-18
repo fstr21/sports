@@ -1,0 +1,90 @@
+{
+  "id": 954382,
+  "date": "18/08/2025",
+  "time": "19:00",
+  "country": {
+    "id": 8,
+    "name": "england"
+  },
+  "league": {
+    "id": 228,
+    "name": "Premier League"
+  },
+  "stage": {
+    "id": 13908,
+    "name": "Premier League",
+    "is_active": true
+  },
+  "teams": {
+    "home": {
+      "id": 4147,
+      "name": "Leeds United"
+    },
+    "away": {
+      "id": 4139,
+      "name": "Everton"
+    }
+  },
+  "stadium": {
+    "id": 1035,
+    "name": "Elland Road",
+    "city": "Leeds, West Yorkshire"
+  },
+  "status": "pre-match",
+  "minute": -1,
+  "winner": "tbd",
+  "has_extra_time": false,
+  "has_penalties": false,
+  "goals": {
+    "home_ht_goals": 0,
+    "away_ht_goals": 0,
+    "home_ft_goals": 0,
+    "away_ft_goals": 0,
+    "home_et_goals": -1,
+    "away_et_goals": -1,
+    "home_pen_goals": -1,
+    "away_pen_goals": -1
+  },
+  "events": [],
+  "odds": {
+    "match_winner": {
+      "home": 2.29,
+      "draw": 3.35,
+      "away": 3.2
+    },
+    "over_under": {
+      "total": 2.5,
+      "over": 2.02,
+      "under": 1.8
+    },
+    "handicap": {
+      "market": -0.25,
+      "home": 1.95,
+      "away": 1.9
+    },
+    "last_modified_timestamp": 1755486106
+  },
+  "lineups": {
+    "lineup_type": "None",
+    "lineups": {
+      "home": [],
+      "away": []
+    },
+    "bench": {
+      "home": [],
+      "away": []
+    },
+    "sidelined": {
+      "home": [],
+      "away": []
+    },
+    "formation": {
+      "home": "None",
+      "away": "None"
+    }
+  },
+  "match_preview": {
+    "has_preview": false,
+    "word_count": -1
+  }
+}

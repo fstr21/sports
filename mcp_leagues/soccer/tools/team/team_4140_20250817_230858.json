@@ -1,0 +1,14 @@
+{
+  "id": 4140,
+  "name": "Crystal Palace",
+  "country": {
+    "id": 8,
+    "name": "england"
+  },
+  "stadium": {
+    "id": 2076,
+    "name": "Selhurst Park",
+    "city": "London"
+  },
+  "is_nation": false
+}

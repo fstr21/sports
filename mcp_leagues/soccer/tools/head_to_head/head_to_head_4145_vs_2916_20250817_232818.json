@@ -1,0 +1,36 @@
+{
+  "team1": {
+    "id": 4145,
+    "name": "Fulham"
+  },
+  "team2": {
+    "id": 2916,
+    "name": "Chelsea"
+  },
+  "stats": {
+    "overall": {
+      "overall_games_played": 55,
+      "overall_team1_wins": 4,
+      "overall_team2_wins": 34,
+      "overall_draws": 17,
+      "overall_team1_scored": 46,
+      "overall_team2_scored": 94
+    },
+    "team1_at_home": {
+      "team1_games_played_at_home": 28,
+      "team1_wins_at_home": 3,
+      "team1_losses_at_home": 18,
+      "team1_draws_at_home": 7,
+      "team1_scored_at_home": 26,
+      "team1_conceded_at_home": 52
+    },
+    "team2_at_home": {
+      "team2_games_played_at_home": 27,
+      "team2_wins_at_home": 16,
+      "team2_losses_at_home": 1,
+      "team2_draws_at_home": 10,
+      "team2_scored_at_home": 42,
+      "team2_conceded_at_home": 20
+    }
+  }
+}
