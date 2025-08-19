@@ -13,6 +13,7 @@ from typing import Dict, List, Optional, Any
 import discord
 from discord.ext import commands
 from discord import app_commands
+import httpx
 import uvicorn
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
@@ -349,17 +350,20 @@ async def sync_command(interaction: discord.Interaction):
         logger.error(f"Manual sync failed: {e}")
         await interaction.followup.send(f"❌ Sync failed: {str(e)}")
 
-@bot.tree.command(name="create-channels", description="Create game channels for today's games")
-@app_commands.describe(sport="Select the sport to create channels for")
+@bot.tree.command(name="create-channels", description="Create game channels for a specific date")
+@app_commands.describe(
+    sport="Select the sport to create channels for",
+    date="Date in YYYY-MM-DD format (optional, defaults to today)"
+)
 @app_commands.choices(sport=[
+    app_commands.Choice(name="Soccer", value="soccer"),
     app_commands.Choice(name="MLB", value="mlb"),
     app_commands.Choice(name="NFL", value="nfl"),
     app_commands.Choice(name="NBA", value="nba"),
     app_commands.Choice(name="NHL", value="nhl"),
-    app_commands.Choice(name="SOCCER", value="soccer"),
     app_commands.Choice(name="CFB", value="cfb"),
 ])
-async def create_channels_command(interaction: discord.Interaction, sport: str):
+async def create_channels_command(interaction: discord.Interaction, sport: str, date: str = None):
     """Create Discord channels for today's games"""
     await interaction.response.defer()
     
@@ -371,26 +375,35 @@ async def create_channels_command(interaction: discord.Interaction, sport: str):
             await interaction.followup.send("❌ You need 'Manage Channels' permission to use this command.")
             return
         
-        # Get today's date in Eastern Time
-        from datetime import datetime, timezone, timedelta
-        et_tz = timezone(timedelta(hours=-5))  # EST/EDT approximation
-        today_et = datetime.now(et_tz).strftime("%Y-%m-%d")
+        # Use provided date or default to today
+        if date is None:
+            from datetime import datetime, timezone, timedelta
+            et_tz = timezone(timedelta(hours=-5))  # EST/EDT approximation
+            target_date = datetime.now(et_tz).strftime("%Y-%m-%d")
+        else:
+            # Validate date format
+            try:
+                datetime.strptime(date, "%Y-%m-%d")
+                target_date = date
+            except ValueError:
+                await interaction.followup.send("❌ Invalid date format. Please use YYYY-MM-DD (e.g., 2025-08-19)")
+                return
         
-        await interaction.followup.send(f"🔄 Creating {sport.upper()} channels...")
+        await interaction.followup.send(f"🔄 Creating {sport.upper()} channels for {target_date}...")
         
         # Route to appropriate sport handler
         if sport == "mlb":
-            await create_mlb_channels(interaction, today_et)
+            await create_mlb_channels(interaction, target_date)
         elif sport == "nfl":
-            await create_nfl_channels(interaction, today_et)
+            await create_nfl_channels(interaction, target_date)
         elif sport == "nba":
-            await create_nba_channels(interaction, today_et)
+            await create_nba_channels(interaction, target_date)
         elif sport == "nhl":
-            await create_nhl_channels(interaction, today_et)
+            await create_nhl_channels(interaction, target_date)
         elif sport == "soccer":
-            await create_soccer_channels(interaction, today_et)
+            await create_soccer_channels(interaction, target_date)
         elif sport == "cfb":
-            await create_cfb_channels(interaction, today_et)
+            await create_cfb_channels(interaction, target_date)
         else:
             await interaction.followup.send(f"❌ Sport '{sport}' not yet implemented.")
         
@@ -552,8 +565,174 @@ async def create_nhl_channels(interaction: discord.Interaction, date: str):
     await interaction.followup.send("🚧 NHL channel creation coming soon!")
 
 async def create_soccer_channels(interaction: discord.Interaction, date: str):
-    """Create Soccer game channels - placeholder for now"""
-    await interaction.followup.send("🚧 Soccer channel creation coming soon!")
+    """Create Soccer game channels using Soccer MCP server"""
+    try:
+        logger.info(f"Creating soccer channels for date: {date}")
+        
+        # Convert date to DD-MM-YYYY format for Soccer MCP server
+        from datetime import datetime
+        try:
+            parsed_date = datetime.strptime(date, "%Y-%m-%d")
+            mcp_date = parsed_date.strftime("%d-%m-%Y")
+        except ValueError:
+            await interaction.followup.send("❌ Invalid date format")
+            return
+        
+        # Call Soccer MCP server
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {
+                "name": "get_betting_matches",
+                "arguments": {"date": mcp_date}
+            }
+        }
+        
+        logger.info(f"Calling Soccer MCP with date: {mcp_date}")
+        
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.post(SOCCER_MCP_URL, json=payload)
+            
+            if response.status_code != 200:
+                logger.error(f"Soccer MCP error: {response.status_code}")
+                await interaction.followup.send("❌ Failed to connect to Soccer MCP server")
+                return
+            
+            data = response.json()
+            
+            if "error" in data:
+                logger.error(f"Soccer MCP error: {data['error']}")
+                await interaction.followup.send("❌ Soccer MCP server error")
+                return
+            
+            result = data.get("result", {})
+            
+            # Handle MCP server's content array format
+            if isinstance(result, dict) and "content" in result:
+                content = result["content"]
+                if isinstance(content, list) and len(content) > 0:
+                    first_content = content[0]
+                    if isinstance(first_content, dict) and "text" in first_content:
+                        import json
+                        result = json.loads(first_content["text"])
+            
+            # Process matches
+            if not result or "matches_by_league" not in result:
+                await interaction.followup.send(f"📅 No soccer matches found for {date}")
+                return
+            
+            matches_by_league = result["matches_by_league"]
+            total_matches = 0
+            created_channels = []
+            
+            # Get or create soccer category
+            guild = interaction.guild
+            soccer_category = discord.utils.get(guild.categories, name="⚽ SOCCER")
+            if not soccer_category:
+                soccer_category = await guild.create_category("⚽ SOCCER")
+            
+            # Process matches by league
+            league_summary = {}
+            for league_name, matches in matches_by_league.items():
+                if not isinstance(matches, list) or len(matches) == 0:
+                    continue
+                
+                league_summary[league_name] = len(matches)
+                total_matches += len(matches)
+                
+                for match in matches:
+                    try:
+                        # Extract match info
+                        match_id = match.get("id", 0)
+                        teams = match.get("teams", {})
+                        home_team = teams.get("home", {}).get("name", "Unknown")
+                        away_team = teams.get("away", {}).get("name", "Unknown")
+                        match_time = match.get("time", "TBD")
+                        
+                        # Create channel name
+                        date_short = parsed_date.strftime("%m-%d")
+                        home_clean = home_team.lower().replace(' ', '-').replace('.', '').replace('&', 'and')[:15]
+                        away_clean = away_team.lower().replace(' ', '-').replace('.', '').replace('&', 'and')[:15]
+                        channel_name = f"📊 {date_short}-{away_clean}-vs-{home_clean}"
+                        
+                        # Check if channel already exists
+                        existing_channel = discord.utils.get(soccer_category.channels, name=channel_name)
+                        if existing_channel:
+                            continue
+                        
+                        # Create channel
+                        channel = await soccer_category.create_text_channel(
+                            name=channel_name,
+                            topic=f"{away_team} vs {home_team} - {league_name} - {date}"
+                        )
+                        created_channels.append(channel)
+                        
+                        # Create match embed
+                        embed = discord.Embed(
+                            title=f"⚽ {away_team} vs {home_team}",
+                            description=f"**{league_name}**",
+                            color=0x00ff00,
+                            timestamp=datetime.now()
+                        )
+                        
+                        embed.add_field(name="📅 Date", value=date, inline=True)
+                        embed.add_field(name="⏰ Time", value=match_time, inline=True)
+                        embed.add_field(name="🏆 League", value=league_name, inline=True)
+                        
+                        # Add odds if available
+                        if "odds" in match and match["odds"]:
+                            odds = match["odds"]
+                            odds_text = []
+                            if "home_win" in odds:
+                                odds_text.append(f"🏠 {home_team}: {odds['home_win']}")
+                            if "draw" in odds:
+                                odds_text.append(f"🤝 Draw: {odds['draw']}")
+                            if "away_win" in odds:
+                                odds_text.append(f"✈️ {away_team}: {odds['away_win']}")
+                            
+                            if odds_text:
+                                embed.add_field(name="💰 Odds", value="\n".join(odds_text), inline=False)
+                        
+                        embed.set_footer(text=f"Match ID: {match_id}")
+                        
+                        # Send embed to channel
+                        await channel.send(embed=embed)
+                        
+                    except Exception as e:
+                        logger.error(f"Error creating channel for match {match.get('id', 'unknown')}: {e}")
+                        continue
+            
+            # Send success response
+            if created_channels:
+                embed = discord.Embed(
+                    title="✅ Soccer Channels Created",
+                    description=f"Successfully created {len(created_channels)} soccer match channels for {date}",
+                    color=0x00ff00
+                )
+                
+                # Add channel list (limit to first 10)
+                if len(created_channels) <= 10:
+                    channel_list = [f"{i+1}. {channel.mention}" for i, channel in enumerate(created_channels)]
+                    embed.add_field(name="📊 Created Channels", value="\n".join(channel_list), inline=False)
+                else:
+                    channel_list = [f"{i+1}. {channel.mention}" for i, channel in enumerate(created_channels[:10])]
+                    embed.add_field(name="📊 Created Channels", value="\n".join(channel_list), inline=False)
+                    embed.add_field(name="ℹ️ Note", value=f"Showing first 10 of {len(created_channels)} channels", inline=False)
+                
+                # Add league summary
+                if league_summary:
+                    summary_text = [f"⚽ {league}: {count} matches" for league, count in league_summary.items()]
+                    embed.add_field(name="🏆 Leagues", value="\n".join(summary_text), inline=True)
+                
+                embed.set_footer(text=f"Date: {date} | Soccer Bot")
+                await interaction.followup.send(embed=embed)
+            else:
+                await interaction.followup.send(f"📅 No new soccer channels created for {date} (may already exist)")
+                
+    except Exception as e:
+        logger.error(f"Error in create_soccer_channels: {e}")
+        await interaction.followup.send(f"❌ Error creating soccer channels: {str(e)}")
 
 async def create_cfb_channels(interaction: discord.Interaction, date: str):
     """Create CFB game channels - placeholder for now"""
