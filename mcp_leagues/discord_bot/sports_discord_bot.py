@@ -96,6 +96,132 @@ async def create_channels(interaction: discord.Interaction, sport: str):
         logger.error(f"Error creating {sport} channels: {e}")
         await interaction.followup.send(f"Error: {e}")
 
+@bot.tree.command(name="clear-channels", description="Clear all channels from selected sport category")
+@app_commands.describe(sport="Choose a sport category to clear")
+@app_commands.choices(sport=[
+    app_commands.Choice(name="Soccer", value="soccer"),
+    app_commands.Choice(name="MLB", value="mlb"),
+])
+async def clear_channels(interaction: discord.Interaction, sport: str):
+    """Clear all channels from a specific sport category"""
+    await interaction.response.defer()
+    
+    if not interaction.user.guild_permissions.manage_channels:
+        await interaction.followup.send("❌ You need 'Manage Channels' permission to use this command.")
+        return
+    
+    try:
+        logger.info(f"Clear channels command used by {interaction.user.name} for sport: {sport}")
+        
+        # Get the appropriate category
+        category_obj = None
+        category_name = ""
+        
+        if sport == "soccer":
+            # Use the specific soccer category ID you provided
+            category_obj = discord.utils.get(interaction.guild.categories, id=1407474278374576178)
+            category_name = "Soccer"
+        elif sport == "mlb":
+            # Use name lookup for MLB
+            category_obj = discord.utils.get(interaction.guild.categories, name="MLB GAMES")
+            category_name = "MLB"
+        
+        if not category_obj:
+            await interaction.followup.send(f"❌ {category_name} category not found.")
+            return
+        
+        # Get all text channels in the category
+        channels_to_delete = [ch for ch in category_obj.channels if isinstance(ch, discord.TextChannel)]
+        channel_count = len(channels_to_delete)
+        
+        if channel_count == 0:
+            await interaction.followup.send(f"ℹ️ No channels found in {category_name} category.")
+            return
+        
+        # Show what will be deleted
+        embed = discord.Embed(
+            title="🗑️ Clear Channels",
+            description=f"Found **{channel_count} channels** in {category_name} category.",
+            color=discord.Color.orange()
+        )
+        
+        # List first 10 channels
+        if channels_to_delete:
+            channel_names = [ch.name for ch in channels_to_delete[:10]]
+            if len(channels_to_delete) > 10:
+                channel_names.append(f"... and {len(channels_to_delete) - 10} more")
+            
+            embed.add_field(
+                name="Channels to delete:",
+                value="\\n".join([f"• #{name}" for name in channel_names]),
+                inline=False
+            )
+        
+        await interaction.followup.send(embed=embed)
+        
+        # Delete channels
+        deleted_count = 0
+        failed_deletions = []
+        
+        logger.info(f"🗑️ Attempting to delete {len(channels_to_delete)} channels from {category_name}...")
+        
+        for i, channel in enumerate(channels_to_delete):
+            try:
+                logger.info(f"🔄 Deleting channel {i+1}/{len(channels_to_delete)}: {channel.name}")
+                await channel.delete()
+                deleted_count += 1
+                logger.info(f"✅ Successfully deleted: {channel.name}")
+                
+                # Small delay to avoid rate limiting
+                await asyncio.sleep(0.5)
+                
+            except discord.Forbidden as e:
+                error_msg = f"Permission denied: {channel.name}"
+                logger.error(f"❌ {error_msg}: {e}")
+                failed_deletions.append(error_msg)
+            except discord.NotFound as e:
+                error_msg = f"Channel not found: {channel.name}"
+                logger.error(f"❌ {error_msg}: {e}")
+                failed_deletions.append(error_msg)
+            except Exception as e:
+                error_msg = f"Unknown error with {channel.name}: {str(e)}"
+                logger.error(f"❌ {error_msg}")
+                failed_deletions.append(error_msg)
+        
+        logger.info(f"🏁 Deletion complete: {deleted_count}/{len(channels_to_delete)} successful")
+        
+        # Send final result
+        if deleted_count > 0:
+            result_embed = discord.Embed(
+                title="✅ Clear Complete",
+                description=f"Successfully deleted **{deleted_count}** out of {channel_count} channels from {category_name} category.",
+                color=discord.Color.green()
+            )
+        else:
+            result_embed = discord.Embed(
+                title="⚠️ Clear Failed",
+                description=f"Could not delete any channels from {category_name} category. Check bot permissions.",
+                color=discord.Color.red()
+            )
+        
+        # Add failure details if any
+        if failed_deletions:
+            failure_text = "\\n".join(failed_deletions[:5])  # Show first 5 failures
+            if len(failed_deletions) > 5:
+                failure_text += f"\\n... and {len(failed_deletions) - 5} more failures"
+            result_embed.add_field(
+                name="❌ Failed Deletions",
+                value=failure_text,
+                inline=False
+            )
+        
+        await interaction.followup.send(embed=result_embed)
+        logger.info(f"Clear completed: {deleted_count}/{channel_count} channels deleted from {category_name}")
+        
+    except Exception as e:
+        logger.error(f"Error in clear-channels command: {e}")
+        await interaction.followup.send(f"❌ Error clearing channels: {str(e)}")
+
 async def create_soccer_channels(interaction: discord.Interaction, date: str):
     """Create soccer channels with H2H analysis"""
     # Convert YYYY-MM-DD to DD-MM-YYYY for soccer MCP
