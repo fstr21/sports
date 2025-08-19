@@ -342,7 +342,7 @@ async def get_team_form_analysis(team_id: int, team_name: str, league_id: int) -
         league_id: League ID
     """
     # Get recent matches using season-based search
-    current_season = "2024-2025"  # Adjust based on current season
+    current_season = "2025-2026"  # Updated for current season
     season_matches = await api_call('matches/', {
         'league_id': league_id,
         'season': current_season
@@ -463,7 +463,10 @@ def analyze_team_form_advanced(team_matches: List[Dict], team_name: str) -> Dict
         'home_record': home_record,
         'away_record': away_record,
         'betting_trends': betting_trends,
-        'matches': team_matches
+        'matches_summary': {
+            'total_matches': len(team_matches),
+            'recent_dates': [match_info['date'] for match_info in team_matches[:5]]
+        }
     }
 
 def analyze_betting_trends(recent_scores: List[Tuple], form_chars: List[str]) -> Dict:
