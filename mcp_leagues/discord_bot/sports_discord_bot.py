@@ -106,22 +106,22 @@ class SportsBot(commands.Bot):
         max_attempts = 3
         
         # First, let's debug what commands are actually defined
-        logger.info("🔍 DEBUGGING: Checking command tree before sync")
+        logger.info("DEBUGGING: Checking command tree before sync")
         local_commands = list(self.tree.get_commands())
-        logger.info(f"📊 Local commands in tree: {len(local_commands)}")
+        logger.info(f"Local commands in tree: {len(local_commands)}")
         
         for cmd in local_commands:
-            logger.info(f"  🎯 Found local command: /{cmd.name} - {cmd.description}")
+            logger.info(f"  Found local command: /{cmd.name} - {cmd.description}")
             logger.info(f"      Callback: {cmd.callback.__name__ if cmd.callback else 'None'}")
         
         if len(local_commands) == 0:
-            logger.error("❌ CRITICAL: No commands found in command tree!")
+            logger.error("CRITICAL: No commands found in command tree!")
             logger.error("   This means the @bot.tree.command decorators are not working")
             return False
         
         for attempt in range(max_attempts):
             try:
-                logger.info(f"🔄 Syncing commands (attempt {attempt + 1}/{max_attempts})")
+                logger.info(f"Syncing commands (attempt {attempt + 1}/{max_attempts})")
                 
                 # DON'T clear commands - this might be removing our commands
                 # self.tree.clear_commands(guild=None)
@@ -132,7 +132,7 @@ class SportsBot(commands.Bot):
                 # Sync globally 
                 synced = await self.tree.sync()
                 
-                logger.info(f"✅ Successfully synced {len(synced)} command(s)")
+                logger.info(f"Successfully synced {len(synced)} command(s)")
                 for cmd in synced:
                     logger.info(f"  - /{cmd.name}: {cmd.description}")
                 
