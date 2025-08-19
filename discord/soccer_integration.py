@@ -122,11 +122,11 @@ UEFA_STAGE_MAPPINGS = {
 
 # MCP Tools Available
 AVAILABLE_MCP_TOOLS = [
-    "get_matches",
-    "get_head_to_head",
-    "get_league_standings", 
-    "get_match_details",
-    "get_team_info"
+    "get_betting_matches",
+    "analyze_match_betting",
+    "get_team_form_analysis",
+    "get_h2h_betting_analysis",
+    "get_league_value_bets"
 ]
 
 # ============================================================================
@@ -382,13 +382,26 @@ class SoccerMCPClient:
         self.supported_tools = AVAILABLE_MCP_TOOLS
         self.logger = logging.getLogger(f"{__name__}.SoccerMCPClient")
         
+        # Get AUTH_KEY from environment
+        import os
+        auth_key = os.getenv('AUTH_KEY')
+        
         # HTTP client configuration
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "Discord-Soccer-Bot/1.0"
+        }
+        
+        # Add authentication header if AUTH_KEY is provided
+        if auth_key:
+            headers["Authorization"] = f"Bearer {auth_key}"
+            self.logger.info("Using AUTH_KEY for MCP server authentication")
+        else:
+            self.logger.warning("No AUTH_KEY provided - some features may be limited")
+        
         self.client_config = {
             "timeout": self.timeout,
-            "headers": {
-                "Content-Type": "application/json",
-                "User-Agent": "Discord-Soccer-Bot/1.0"
-            }
+            "headers": headers
         }
     
     @retry_with_backoff(max_retries=3, base_delay=1.0, max_delay=30.0)
@@ -470,9 +483,32 @@ class SoccerMCPClient:
                     bot_logger.log_operation_error(f"call_mcp_tool_{tool_name}", error, context)
                     raise error
                 
+                # Process MCP server response format
+                result = data["result"]
+                
+                # Handle MCP server's content array format
+                if isinstance(result, dict) and "content" in result:
+                    content = result["content"]
+                    if isinstance(content, list) and len(content) > 0:
+                        # Extract text from first content item
+                        first_content = content[0]
+                        if isinstance(first_content, dict) and "text" in first_content:
+                            try:
+                                # Parse the JSON text
+                                import json
+                                result = json.loads(first_content["text"])
+                            except json.JSONDecodeError as e:
+                                error = MCPDataError(
+                                    f"Failed to parse MCP response JSON: {str(e)}",
+                                    f"{tool_name}_json_parse",
+                                    context=context
+                                )
+                                bot_logger.log_operation_error(f"call_mcp_tool_{tool_name}", error, context)
+                                raise error
+                
                 # Log successful operation
                 duration = (datetime.utcnow() - start_time).total_seconds()
-                result_size = len(str(data["result"])) if data["result"] else 0
+                result_size = len(str(result)) if result else 0
                 bot_logger.log_operation_success(
                     f"call_mcp_tool_{tool_name}", 
                     context, 
@@ -481,7 +517,7 @@ class SoccerMCPClient:
                 )
                 
                 self.logger.debug(f"MCP tool {tool_name} completed successfully")
-                return data["result"]
+                return result
                 
         except httpx.TimeoutException as e:
             error = MCPTimeoutError(
@@ -536,32 +572,44 @@ class SoccerMCPClient:
             context = ErrorContext("get_matches_for_date", additional_data={"date": date, "league_filter": league_filter})
         
         try:
-            # Validate date format
+            # Validate date format (expects YYYY-MM-DD)
             self._validate_date_format(date)
             
-            arguments = {"date": date}
+            # Convert date to DD-MM-YYYY format for MCP server
+            parsed_date = datetime.strptime(date, "%Y-%m-%d")
+            mcp_date = parsed_date.strftime("%d-%m-%Y")
+            
+            arguments = {"date": mcp_date}
             
             # Add league filtering if specified
             if league_filter:
-                # Convert league codes to IDs for MCP server
-                league_ids = []
+                # Convert league codes to MCP server format
+                mcp_leagues = []
                 invalid_leagues = []
                 
+                # Map our league codes to MCP server league names
+                league_mapping = {
+                    "EPL": "EPL",
+                    "La Liga": "La Liga", 
+                    "MLS": "MLS"
+                }
+                
                 for league_code in league_filter:
-                    if league_code in SUPPORTED_LEAGUES:
-                        league_ids.append(SUPPORTED_LEAGUES[league_code]["id"])
+                    if league_code in league_mapping:
+                        mcp_leagues.append(league_mapping[league_code])
                     else:
                         invalid_leagues.append(league_code)
                 
                 if invalid_leagues:
-                    self.logger.warning(f"Invalid league codes provided: {invalid_leagues}")
+                    self.logger.warning(f"League codes not supported by MCP server: {invalid_leagues}")
                 
-                if league_ids:
-                    arguments["league_ids"] = league_ids
-                    self.logger.debug(f"Filtering matches for leagues: {league_filter} (IDs: {league_ids})")
+                if mcp_leagues:
+                    # Use the first league for filtering (MCP server takes single league)
+                    arguments["league_filter"] = mcp_leagues[0]
+                    self.logger.debug(f"Filtering matches for league: {mcp_leagues[0]}")
             
             # Call MCP tool with error handling
-            result = await self.call_mcp_tool("get_matches", arguments, context)
+            result = await self.call_mcp_tool("get_betting_matches", arguments, context)
             
             # Validate and process response
             return self._process_matches_response(result, date, league_filter, context)
@@ -1194,34 +1242,53 @@ class SoccerDataProcessor:
             
             matches_by_league = raw_matches['matches_by_league']
             
+            # Map MCP server league names to our league codes
+            league_name_mapping = {
+                "UEFA": "UEFA",
+                "EPL": "EPL", 
+                "LA LIGA": "La Liga",
+                "BUNDESLIGA": "Bundesliga",
+                "SERIE A": "Serie A",
+                "MLS": "MLS"
+            }
+            
             # Process matches by league priority order
             for league_code in LEAGUE_PRIORITY_ORDER:
-                if league_code not in matches_by_league:
+                # Find the league in the response (might have different name)
+                league_data = None
+                mcp_league_name = None
+                
+                # Try direct match first
+                if league_code in matches_by_league:
+                    league_data = matches_by_league[league_code]
+                    mcp_league_name = league_code
+                else:
+                    # Try mapped names
+                    for mcp_name, our_name in league_name_mapping.items():
+                        if our_name == league_code and mcp_name in matches_by_league:
+                            league_data = matches_by_league[mcp_name]
+                            mcp_league_name = mcp_name
+                            break
+                
+                if not league_data or not isinstance(league_data, list):
                     continue
                 
-                league_data = matches_by_league[league_code]
-                if not isinstance(league_data, dict) or 'matches' not in league_data:
-                    continue
-                
-                # Extract enhanced league information
-                league_info = league_data.get('league_info', {})
+                # Get league configuration
                 league_config = SUPPORTED_LEAGUES.get(league_code, {})
                 
+                # Create league object
                 league = League(
-                    id=league_info.get('id', league_config.get('id', 0)),
-                    name=league_info.get('name', league_config.get('name', league_code)),
-                    country=league_info.get('country', league_config.get('country', 'Unknown')),
-                    season=league_info.get('season', league_config.get('season_format')),
-                    logo_url=league_info.get('logo_url'),
+                    id=league_config.get('id', 0),
+                    name=league_config.get('name', league_code),
+                    country=league_config.get('country', 'Unknown'),
+                    season=league_config.get('season_format'),
                     priority=league_config.get('priority', 999),
-                    tournament_type=league_config.get('tournament_type', 'league'),
-                    stage=league_info.get('stage'),
-                    stage_name=league_info.get('stage_name')
+                    tournament_type=league_config.get('tournament_type', 'league')
                 )
                 
                 # Process matches for this league
                 league_matches = []
-                for match_data in league_data['matches']:
+                for match_data in league_data:
                     try:
                         processed_match = self._process_single_match(match_data, league, include_standings)
                         if processed_match:
@@ -1284,14 +1351,26 @@ class SoccerDataProcessor:
         try:
             # Extract basic match information
             match_id = match_data.get('id', 0)
-            date = match_data.get('date', '')
+            raw_date = match_data.get('date', '')
             time = match_data.get('time', '')
             venue = match_data.get('venue', 'TBD')
             status = match_data.get('status', 'scheduled')
             
-            # Extract team information with standings
-            home_team_data = match_data.get('home_team', {})
-            away_team_data = match_data.get('away_team', {})
+            # Convert date format from DD/MM/YYYY to YYYY-MM-DD
+            date = raw_date
+            if raw_date and '/' in raw_date:
+                try:
+                    from datetime import datetime
+                    parsed_date = datetime.strptime(raw_date, "%d/%m/%Y")
+                    date = parsed_date.strftime("%Y-%m-%d")
+                except ValueError:
+                    self.logger.warning(f"Could not parse date format: {raw_date}")
+                    date = raw_date
+            
+            # Extract team information with standings (handle MCP server format)
+            teams_data = match_data.get('teams', {})
+            home_team_data = teams_data.get('home', {})
+            away_team_data = teams_data.get('away', {})
             
             # Process home team with standings
             home_standing = None
