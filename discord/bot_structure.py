@@ -589,6 +589,51 @@ async def cleanup_command(interaction: discord.Interaction, days: int = 3):
 # UTILITY FUNCTIONS
 # ============================================================================
 
+async def mcp_call_from_discord(tool_name: str, arguments: dict):
+    """Make MCP call to soccer server from Discord - same format as schedule.py"""
+    import httpx
+    import json
+    
+    MCP_URL = "https://soccermcp-production.up.railway.app/mcp"
+    
+    payload = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "tools/call",
+        "params": {
+            "name": tool_name,
+            "arguments": arguments
+        }
+    }
+    
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(MCP_URL, json=payload)
+            result = response.json()
+            
+            if "result" in result and "content" in result["result"]:
+                return json.loads(result["result"]["content"][0]["text"])
+            else:
+                return {"error": f"Unexpected response format: {result}"}
+                
+    except Exception as e:
+        return {"error": f"Request failed: {e}"}
+
+def convert_to_american_odds(decimal_odds):
+    """Convert decimal odds to American format - same as schedule.py"""
+    try:
+        decimal = float(decimal_odds)
+        if decimal >= 2.0:
+            # Positive American odds
+            american = int((decimal - 1) * 100)
+            return f"+{american}"
+        else:
+            # Negative American odds  
+            american = int(-100 / (decimal - 1))
+            return str(american)
+    except (ValueError, ZeroDivisionError, TypeError):
+        return str(decimal_odds)
+
 def validate_date_input(date_string: str) -> str:
     """
     Validate and normalize date input for soccer API
@@ -618,58 +663,210 @@ def validate_date_input(date_string: str) -> str:
 
 async def handle_soccer_channel_creation(interaction: discord.Interaction, date: str):
     """
-    Handle soccer-specific channel creation workflow
+    Handle soccer-specific channel creation workflow - now uses comprehensive MCP analysis like schedule.py
     
     Args:
         interaction: Discord interaction object
-        date: Validated date string in YYYY-MM-DD format
+        date: Validated date string in YYYY-MM-DD format (needs to be converted to DD-MM-YYYY)
     """
     try:
-        # Import soccer MCP client here to avoid circular imports
-        from soccer_integration import SoccerMCPClient
+        # Convert date format from YYYY-MM-DD to DD-MM-YYYY for MCP compatibility
+        from datetime import datetime
+        parsed_date = datetime.strptime(date, "%Y-%m-%d")
+        mcp_date = parsed_date.strftime("%d-%m-%Y")
         
-        # Initialize MCP client
-        soccer_client = SoccerMCPClient()
+        # League configurations - same as schedule.py
+        LEAGUES = {
+            "EPL": {"id": 228, "name": "Premier League", "country": "England"},
+            "La Liga": {"id": 297, "name": "La Liga", "country": "Spain"}, 
+            "MLS": {"id": 168, "name": "MLS", "country": "USA"},
+            "Bundesliga": {"id": 241, "name": "Bundesliga", "country": "Germany"},
+            "Serie A": {"id": 253, "name": "Serie A", "country": "Italy"},
+            "UEFA": {"id": 310, "name": "UEFA Champions League", "country": "Europe"}
+        }
         
-        # Fetch matches for the date
-        try:
-            matches_data = await soccer_client.get_matches_for_date(date)
-        except Exception as e:
-            logging.getLogger(__name__).error(f"Failed to fetch soccer matches: {e}")
+        # Initialize comprehensive match search
+        embed = discord.Embed(
+            title="🔍 Searching for Soccer Matches",
+            description=f"Searching across 6 major leagues for {date}...",
+            color=0x0099ff
+        )
+        await interaction.followup.send(embed=embed)
+        
+        all_matches = []
+        leagues_with_matches = 0
+        total_matches = 0
+        
+        # Search each league using the enhanced MCP server (like schedule.py does)
+        for league_code, league_info in LEAGUES.items():
+            try:
+                # Call the new get_betting_matches tool we added
+                matches_data = await mcp_call_from_discord("get_betting_matches", {
+                    "date": mcp_date,
+                    "league_filter": league_code
+                })
+                
+                if "error" in matches_data:
+                    logger.warning(f"Error getting matches for {league_code}: {matches_data['error']}")
+                    continue
+                
+                # Extract matches for this league
+                matches_by_league = matches_data.get('matches_by_league', {})
+                league_matches = matches_by_league.get(league_code, [])
+                
+                if not league_matches:
+                    continue
+                
+                leagues_with_matches += 1
+                total_matches += len(league_matches)
+                
+                # Add matches with league context
+                for match in league_matches:
+                    all_matches.append({
+                        'match': match,
+                        'league': league_info,
+                        'league_code': league_code
+                    })
+            
+            except Exception as e:
+                logger.warning(f"Failed to get matches for {league_code}: {e}")
+                continue
+        
+        if total_matches == 0:
             embed = discord.Embed(
-                title="❌ MCP Server Error",
-                description="Failed to connect to Soccer MCP server. Please try again later.",
+                title="📅 No Matches Found",
+                description=f"No soccer matches found for {date} across all leagues",
+                color=0xffa500
+            )
+            await interaction.followup.send(embed=embed)
+            return
+        
+        # Send summary of found matches
+        embed = discord.Embed(
+            title="⚽ Soccer Matches Found",
+            description=f"Found {total_matches} matches across {leagues_with_matches} leagues for {date}",
+            color=0x00ff00
+        )
+        await interaction.followup.send(embed=embed)
+        
+        # Find or create soccer category
+        category = discord.utils.get(interaction.guild.categories, id=1407254164702101545)
+        if not category:
+            embed = discord.Embed(
+                title="❌ Category Not Found",
+                description="Soccer category (ID: 1407254164702101545) not found in this server",
                 color=0xff0000
             )
             await interaction.followup.send(embed=embed)
             return
         
-        # Process matches data
-        if not matches_data or 'matches_by_league' not in matches_data:
-            embed = discord.Embed(
-                title="📅 No Matches Found",
-                description=f"No soccer matches found for {date}",
-                color=0xffa500
-            )
-            await interaction.followup.send(embed=embed)
-            return
+        created_channels = []
         
-        # Process and create channels
-        processed_matches = bot.soccer_data_processor.process_match_data(matches_data)
-        
-        if not processed_matches:
-            embed = discord.Embed(
-                title="📅 No Valid Matches",
-                description=f"No valid soccer matches found for {date}",
-                color=0xffa500
-            )
-            await interaction.followup.send(embed=embed)
-            return
-        
-        # Create channels using SoccerChannelManager
-        created_channels = await bot.soccer_channel_manager.create_match_channels(
-            processed_matches, date, interaction.guild
-        )
+        # Create channels for each match (like schedule.py workflow)
+        for match_data in all_matches:
+            match = match_data['match']
+            league_info = match_data['league']
+            league_code = match_data['league_code']
+            
+            # Extract team info
+            teams = match.get('teams', {})
+            home_team = teams.get('home', {})
+            away_team = teams.get('away', {})
+            
+            home_name = home_team.get('name', 'TBD')
+            away_name = away_team.get('name', 'TBD')
+            
+            # Generate channel name (similar to schedule.py format)
+            channel_name = f"📊-{mcp_date.replace('-', '')}-{away_name.lower().replace(' ', '-')}-vs-{home_name.lower().replace(' ', '-')}"
+            
+            # Truncate if too long for Discord
+            if len(channel_name) > 100:
+                channel_name = channel_name[:97] + "..."
+            
+            try:
+                # Create channel
+                channel = await category.create_text_channel(
+                    name=channel_name,
+                    topic=f"{home_name} vs {away_name} | {league_info['name']} | {date}"
+                )
+                
+                created_channels.append(channel)
+                
+                # Create comprehensive embed with betting data (like schedule.py)
+                embed = discord.Embed(
+                    title=f"⚽ {home_name} vs {away_name}",
+                    description=f"**{league_info['name']}** ({league_info['country']})",
+                    color=0x00ff00
+                )
+                
+                # Add match details
+                embed.add_field(
+                    name="📅 Match Info",
+                    value=f"**Date:** {date}\n**Time:** {match.get('time', 'TBD')}\n**Status:** {match.get('status', 'scheduled')}\n**Match ID:** {match.get('id', 'N/A')}",
+                    inline=True
+                )
+                
+                # Add betting odds if available (same format as schedule.py)
+                odds = match.get('odds', {})
+                betting_text = "Not available"
+                
+                if odds and isinstance(odds, dict):
+                    match_winner = odds.get('match_winner', {})
+                    if match_winner:
+                        home_odds = match_winner.get('home')
+                        draw_odds = match_winner.get('draw')
+                        away_odds = match_winner.get('away')
+                        
+                        if home_odds or draw_odds or away_odds:
+                            betting_lines = []
+                            if home_odds:
+                                american_home = convert_to_american_odds(home_odds)
+                                betting_lines.append(f"**{home_name}:** {home_odds} ({american_home})")
+                            if draw_odds:
+                                american_draw = convert_to_american_odds(draw_odds)
+                                betting_lines.append(f"**Draw:** {draw_odds} ({american_draw})")
+                            if away_odds:
+                                american_away = convert_to_american_odds(away_odds)
+                                betting_lines.append(f"**{away_name}:** {away_odds} ({american_away})")
+                            
+                            betting_text = "\n".join(betting_lines)
+                            
+                            # Add over/under if available
+                            over_under = odds.get('over_under', {})
+                            if over_under:
+                                total = over_under.get('total')
+                                over = over_under.get('over')
+                                under = over_under.get('under')
+                                if total and over and under:
+                                    american_over = convert_to_american_odds(over)
+                                    american_under = convert_to_american_odds(under)
+                                    betting_text += f"\n\n**O/U {total}:** Over {over} ({american_over}), Under {under} ({american_under})"
+                
+                embed.add_field(
+                    name="💰 Betting Lines",
+                    value=betting_text,
+                    inline=True
+                )
+                
+                # Add instructions for H2H analysis
+                home_id = home_team.get('id')
+                away_id = away_team.get('id')
+                if home_id and away_id:
+                    embed.add_field(
+                        name="📊 Advanced Analysis",
+                        value=f"Use `/h2h` command with team IDs:\n**Home:** {home_id}\n**Away:** {away_id}",
+                        inline=False
+                    )
+                
+                # Send the match embed to the channel
+                await channel.send(embed=embed)
+                
+                # Small delay to avoid rate limits
+                await asyncio.sleep(0.5)
+                
+            except Exception as channel_error:
+                logger.error(f"Failed to create channel for {home_name} vs {away_name}: {channel_error}")
+                continue
         
         if not created_channels:
             embed = discord.Embed(
@@ -708,8 +905,8 @@ async def handle_soccer_channel_creation(interaction: discord.Interaction, date:
         
         # Add match summary by league
         league_summary = {}
-        for match in processed_matches:
-            league_name = match.league.name
+        for match_data in all_matches:
+            league_name = match_data['league']['name']
             if league_name not in league_summary:
                 league_summary[league_name] = 0
             league_summary[league_name] += 1
@@ -722,25 +919,16 @@ async def handle_soccer_channel_creation(interaction: discord.Interaction, date:
             embed.add_field(
                 name="🏆 Leagues",
                 value="\n".join(summary_text),
-                inline=True
+                inline=False
             )
         
-        embed.set_footer(text=f"Date: {date} | Soccer Bot")
         await interaction.followup.send(embed=embed)
         
-        # Post initial content to each channel
-        for channel, match in zip(created_channels, processed_matches):
-            try:
-                match_embed = bot.soccer_embed_builder.create_match_preview_embed(match)
-                await channel.send(embed=match_embed)
-            except Exception as e:
-                logging.getLogger(__name__).error(f"Failed to post initial content to {channel.name}: {e}")
-        
     except Exception as e:
-        logging.getLogger(__name__).error(f"Error in handle_soccer_channel_creation: {e}")
+        logger.error(f"Error in soccer channel creation: {e}")
         embed = discord.Embed(
-            title="❌ Unexpected Error",
-            description="An unexpected error occurred during channel creation",
+            title="❌ Soccer Channel Creation Error",
+            description="An unexpected error occurred while creating soccer channels",
             color=0xff0000
         )
         await interaction.followup.send(embed=embed)
@@ -1289,6 +1477,110 @@ async def soccer_standings_command(interaction: discord.Interaction,
         embed = discord.Embed(
             title="❌ Command Error",
             description="An unexpected error occurred while fetching league standings",
+            color=0xff0000
+        )
+        await interaction.followup.send(embed=embed)
+
+@bot.tree.command(name="h2h", description="Get comprehensive head-to-head analysis between two soccer teams")
+@discord.app_commands.describe(
+    home_team_id="ID of the home team",
+    away_team_id="ID of the away team", 
+    home_team_name="Name of the home team",
+    away_team_name="Name of the away team"
+)
+async def h2h_command(interaction: discord.Interaction, 
+                     home_team_id: int,
+                     away_team_id: int,
+                     home_team_name: str,
+                     away_team_name: str):
+    """Comprehensive head-to-head analysis like schedule.py provides"""
+    
+    await interaction.response.defer()
+    
+    try:
+        # Send initial processing message
+        embed = discord.Embed(
+            title="🔍 Analyzing Head-to-Head",
+            description=f"Fetching comprehensive H2H analysis for {home_team_name} vs {away_team_name}...",
+            color=0x0099ff
+        )
+        await interaction.followup.send(embed=embed)
+        
+        # Get H2H analysis using our enhanced MCP server
+        h2h_data = await mcp_call_from_discord("get_h2h_betting_analysis", {
+            "team_1_id": home_team_id,
+            "team_2_id": away_team_id,
+            "team_1_name": home_team_name,
+            "team_2_name": away_team_name
+        })
+        
+        if "error" in h2h_data:
+            embed = discord.Embed(
+                title="❌ H2H Analysis Error",
+                description=f"Failed to get H2H data: {h2h_data['error']}",
+                color=0xff0000
+            )
+            await interaction.followup.send(embed=embed)
+            return
+        
+        # Create comprehensive H2H embed
+        embed = discord.Embed(
+            title=f"⚽ H2H Analysis: {home_team_name} vs {away_team_name}",
+            description="Comprehensive historical matchup analysis",
+            color=0x00ff00
+        )
+        
+        # Add basic statistics
+        total_meetings = h2h_data.get('total_meetings', 0)
+        if total_meetings > 0:
+            team1_record = h2h_data.get('team_1_record', {})
+            team2_record = h2h_data.get('team_2_record', {})
+            draws = h2h_data.get('draws', {})
+            
+            embed.add_field(
+                name="📊 Overall Record",
+                value=f"**{team1_record.get('name', home_team_name)}:** {team1_record.get('wins', 0)} wins ({team1_record.get('win_rate', 0):.1f}%)\n"
+                      f"**{team2_record.get('name', away_team_name)}:** {team2_record.get('wins', 0)} wins ({team2_record.get('win_rate', 0):.1f}%)\n"
+                      f"**Draws:** {draws.get('count', 0)} ({draws.get('rate', 0):.1f}%)\n"
+                      f"**Total Meetings:** {total_meetings}",
+                inline=True
+            )
+            
+            # Add goals analysis
+            goals = h2h_data.get('goals', {})
+            if goals:
+                embed.add_field(
+                    name="⚽ Goals Analysis",
+                    value=f"**Avg per game:** {goals.get('average_per_game', 0):.2f}\n"
+                          f"**{home_team_name}:** {goals.get('team_1_total', 0)} total\n"
+                          f"**{away_team_name}:** {goals.get('team_2_total', 0)} total",
+                    inline=True
+                )
+            
+            # Add betting insights
+            betting_insights = h2h_data.get('betting_insights', {})
+            if betting_insights:
+                trend = betting_insights.get('goals_trend', 'Unknown trend')
+                embed.add_field(
+                    name="💰 Betting Insights",
+                    value=f"**Historical Trend:** {trend}",
+                    inline=False
+                )
+        else:
+            embed.add_field(
+                name="📊 No Historical Data",
+                value="No previous meetings found between these teams",
+                inline=False
+            )
+        
+        embed.set_footer(text=f"Data source: {h2h_data.get('data_source', 'Soccer MCP Server')}")
+        await interaction.followup.send(embed=embed)
+        
+    except Exception as e:
+        logger.error(f"Error in H2H command: {e}")
+        embed = discord.Embed(
+            title="❌ H2H Command Error",
+            description="An unexpected error occurred while fetching H2H analysis",
             color=0xff0000
         )
         await interaction.followup.send(embed=embed)
