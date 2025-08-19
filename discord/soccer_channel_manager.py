@@ -55,13 +55,13 @@ class ProcessedMatch:
 
 class SoccerChannelManager:
     """
-    Manages soccer-specific Discord channel operations
+    Manages soccer-specific Discord channel operations with comprehensive analytics enrichment
     Handles channel creation, naming, cleanup, and organization
     """
     
     def __init__(self, bot):
         """
-        Initialize the channel manager
+        Initialize the channel manager with comprehensive analytics support
         
         Args:
             bot: Discord bot instance
@@ -70,6 +70,10 @@ class SoccerChannelManager:
         self.category_name = "⚽ SOCCER"
         self.channel_prefix = "📊"
         self.logger = logging.getLogger(f"{__name__}.SoccerChannelManager")
+        
+        # Initialize channel enricher for comprehensive analytics
+        from soccer_channel_enricher import SoccerChannelEnricher
+        self.enricher = SoccerChannelEnricher()
         
         # Channel management settings
         self.max_channels_per_category = 50  # Discord limit
@@ -407,7 +411,7 @@ class SoccerChannelManager:
     
     async def _create_single_match_channel(self, match: ProcessedMatch, date: str, category: discord.CategoryChannel) -> Optional[discord.TextChannel]:
         """
-        Create a single match channel
+        Create a single match channel with comprehensive analytics content
         
         Args:
             match: ProcessedMatch object
@@ -425,6 +429,8 @@ class SoccerChannelManager:
             existing_channel = discord.utils.get(category.channels, name=channel_name)
             if existing_channel:
                 self.logger.info(f"Channel already exists: {channel_name}")
+                # Try to enrich existing channel if it's empty
+                await self._enrich_existing_channel_if_needed(existing_channel, match, date)
                 return existing_channel
             
             # Create channel topic (home vs away format for consistency)
@@ -440,6 +446,10 @@ class SoccerChannelManager:
             )
             
             self.logger.debug(f"Created channel: {channel_name} with topic: {topic}")
+            
+            # Enrich the channel with comprehensive analytics content
+            await self._enrich_new_channel(channel, match, date)
+            
             return channel
             
         except discord.HTTPException as e:
@@ -911,3 +921,126 @@ class SoccerChannelManager:
         except Exception:
             # On any error, assume there's recent activity to be safe
             return True
+
+    # ============================================================================
+    # CHANNEL ENRICHMENT METHODS
+    # ============================================================================
+
+    async def _enrich_new_channel(self, channel: discord.TextChannel, match: ProcessedMatch, date: str) -> bool:
+        """
+        Enrich a newly created channel with comprehensive analytics
+        
+        Args:
+            channel: Discord text channel to enrich
+            match: ProcessedMatch object with match details
+            date: Match date in YYYY-MM-DD format
+            
+        Returns:
+            bool: True if enrichment succeeded, False otherwise
+        """
+        try:
+            # Determine league code from match data
+            league_code = self._get_league_code_from_match(match)
+            
+            # Use enricher to populate channel with comprehensive analytics
+            success = await self.enricher.enrich_channel_on_creation(
+                channel=channel,
+                home_team=match.home_team.name,
+                away_team=match.away_team.name,
+                match_date=date,
+                league_code=league_code
+            )
+            
+            if success:
+                self.logger.info(f"Successfully enriched channel {channel.name} with comprehensive analytics")
+            else:
+                self.logger.warning(f"Channel enrichment failed for {channel.name}, but channel was created")
+            
+            return success
+            
+        except Exception as e:
+            self.logger.error(f"Error enriching channel {channel.name}: {e}")
+            # Don't fail channel creation if enrichment fails
+            return False
+
+    async def _enrich_existing_channel_if_needed(self, channel: discord.TextChannel, match: ProcessedMatch, date: str) -> bool:
+        """
+        Enrich an existing channel if it appears to be empty or missing content
+        
+        Args:
+            channel: Existing Discord text channel
+            match: ProcessedMatch object with match details
+            date: Match date in YYYY-MM-DD format
+            
+        Returns:
+            bool: True if enrichment was performed, False otherwise
+        """
+        try:
+            # Check if channel needs enrichment (has fewer than 3 messages)
+            message_count = 0
+            async for _ in channel.history(limit=5):
+                message_count += 1
+            
+            # If channel has few messages, it might need enrichment
+            if message_count < 3:
+                self.logger.info(f"Channel {channel.name} appears empty, enriching with analytics...")
+                
+                league_code = self._get_league_code_from_match(match)
+                
+                success = await self.enricher.enrich_channel_on_creation(
+                    channel=channel,
+                    home_team=match.home_team.name,
+                    away_team=match.away_team.name,
+                    match_date=date,
+                    league_code=league_code
+                )
+                
+                return success
+            
+            return False  # Channel doesn't need enrichment
+            
+        except Exception as e:
+            self.logger.error(f"Error checking/enriching existing channel {channel.name}: {e}")
+            return False
+
+    def _get_league_code_from_match(self, match: ProcessedMatch) -> str:
+        """
+        Determine league code from match data
+        
+        Args:
+            match: ProcessedMatch object
+            
+        Returns:
+            str: League code for supported leagues (EPL, La Liga, etc.)
+        """
+        # Map league IDs to codes based on soccer_integration.py SUPPORTED_LEAGUES
+        league_id_to_code = {
+            228: "EPL",           # Premier League
+            297: "La Liga",       # La Liga
+            168: "MLS",           # MLS
+            241: "Bundesliga",    # Bundesliga
+            253: "Serie A",       # Serie A
+            310: "UEFA"           # Champions League
+        }
+        
+        # Try to match by league ID first
+        if hasattr(match.league, 'id') and match.league.id in league_id_to_code:
+            return league_id_to_code[match.league.id]
+        
+        # Fall back to name matching
+        league_name = match.league.name.lower()
+        if "premier" in league_name or "england" in league_name:
+            return "EPL"
+        elif "la liga" in league_name or "spain" in league_name:
+            return "La Liga"
+        elif "mls" in league_name:
+            return "MLS"
+        elif "bundesliga" in league_name or "germany" in league_name:
+            return "Bundesliga"
+        elif "serie a" in league_name or "italy" in league_name:
+            return "Serie A"
+        elif "champions" in league_name or "uefa" in league_name:
+            return "UEFA"
+        
+        # Default to EPL if can't determine
+        return "EPL"
