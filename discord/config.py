@@ -1,10 +1,14 @@
 # Discord Bot Configuration
 """
 Configuration settings for Sports Betting Discord Bot
+Enhanced with comprehensive soccer integration support
 """
 
 import os
-from typing import Dict, List
+import logging
+from typing import Dict, List, Optional, Any
+from datetime import datetime, timedelta
+from dataclasses import dataclass
 
 # Bot Settings
 BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN', 'your-bot-token-here')
@@ -31,12 +35,75 @@ LEAGUE_CONFIG = {
     },
     "SOCCER": {
         "emoji": "⚽",
-        "active": True,  # EPL/La Liga active
+        "active": True,
         "category_name": "⚽ SOCCER",
-        "channels_per_day": 10,
-        "leagues": ["Premier League", "La Liga"],
+        "channels_per_day": 15,  # Increased for multi-league support
         "season_start": "2025-08-15",
-        "season_end": "2026-05-25"
+        "season_end": "2026-05-25",
+        "supported_leagues": {
+            "EPL": {
+                "id": 228,
+                "name": "Premier League",
+                "country": "England",
+                "priority": 1,
+                "active": True,
+                "color": 0x3d195b,
+                "season_format": "2025-26",
+                "tournament_type": "league"
+            },
+            "La Liga": {
+                "id": 297,
+                "name": "La Liga",
+                "country": "Spain", 
+                "priority": 2,
+                "active": True,
+                "color": 0xff6900,
+                "season_format": "2025-26",
+                "tournament_type": "league"
+            },
+            "MLS": {
+                "id": 168,
+                "name": "MLS",
+                "country": "USA",
+                "priority": 5,
+                "active": True,
+                "color": 0x005da6,
+                "season_format": "2025",
+                "tournament_type": "league"
+            },
+            "Bundesliga": {
+                "id": 241,
+                "name": "Bundesliga",
+                "country": "Germany",
+                "priority": 3,
+                "active": True,
+                "color": 0xd20515,
+                "season_format": "2025-26",
+                "tournament_type": "league"
+            },
+            "Serie A": {
+                "id": 253,
+                "name": "Serie A",
+                "country": "Italy",
+                "priority": 4,
+                "active": True,
+                "color": 0x0066cc,
+                "season_format": "2025-26",
+                "tournament_type": "league"
+            },
+            "UEFA": {
+                "id": 310,
+                "name": "UEFA Champions League",
+                "country": "Europe",
+                "priority": 0,  # Highest priority
+                "active": True,
+                "color": 0x00336a,
+                "season_format": "2025-26",
+                "tournament_type": "knockout"
+            }
+        },
+        "priority_leagues": ["UEFA", "EPL", "La Liga", "Bundesliga", "Serie A", "MLS"],
+        "default_leagues": ["EPL", "La Liga", "UEFA"]  # Default leagues for commands
     },
     "NBA": {
         "emoji": "🏀",
@@ -106,13 +173,51 @@ ADMIN_COMMANDS = [
     "broadcast"   # Send message to all channels
 ]
 
-# MCP Server URLs (from your existing infrastructure)
+# MCP Server Configuration
+@dataclass
+class MCPServerConfig:
+    """Configuration for MCP server connections"""
+    url: str
+    timeout: int = 30
+    max_retries: int = 3
+    retry_delay: float = 1.0
+    rate_limit_requests: int = 60
+    rate_limit_window: int = 60  # seconds
+    auth_required: bool = False
+
+# MCP Server URLs and configurations
 MCP_SERVERS = {
-    "MLB": "https://mlbmcp-production.up.railway.app/mcp",
-    "SOCCER": "https://soccermcp-production.up.railway.app/mcp", 
-    "CFB": "https://cfbmcp-production.up.railway.app/mcp",
-    "ODDS": "https://odds-mcp-v2-production.up.railway.app/mcp",
-    "ESPN_PLAYERS": "TBD"  # Your planned ESPN Player ID MCP
+    "MLB": MCPServerConfig(
+        url="https://mlbmcp-production.up.railway.app/mcp",
+        timeout=30,
+        max_retries=3,
+        rate_limit_requests=100
+    ),
+    "SOCCER": MCPServerConfig(
+        url=os.getenv('SOCCER_MCP_URL', 'https://soccermcp-production.up.railway.app/mcp'),
+        timeout=45,  # Soccer data can be more complex
+        max_retries=3,
+        rate_limit_requests=120,  # Higher limit for multi-league support
+        auth_required=bool(os.getenv('AUTH_KEY'))
+    ),
+    "CFB": MCPServerConfig(
+        url="https://cfbmcp-production.up.railway.app/mcp",
+        timeout=30,
+        max_retries=3,
+        rate_limit_requests=80
+    ),
+    "ODDS": MCPServerConfig(
+        url="https://odds-mcp-v2-production.up.railway.app/mcp",
+        timeout=20,
+        max_retries=2,
+        rate_limit_requests=50
+    ),
+    "ESPN_PLAYERS": MCPServerConfig(
+        url="TBD",  # Your planned ESPN Player ID MCP
+        timeout=25,
+        max_retries=3,
+        rate_limit_requests=60
+    )
 }
 
 # Subscription Tiers (for future implementation)
@@ -169,6 +274,63 @@ SUCCESS_MESSAGES = {
     "settings_updated": "⚙️ Settings updated successfully."
 }
 
+# Soccer-Specific Configuration
+SOCCER_CONFIG = {
+    "mcp_url": os.getenv('SOCCER_MCP_URL', 'https://soccermcp-production.up.railway.app/mcp'),
+    "auth_key": os.getenv('AUTH_KEY'),  # Required for Soccer MCP authentication
+    "default_date_format": "%Y-%m-%d",  # Format expected by Soccer MCP
+    "supported_date_formats": ["%m/%d/%Y", "%d-%m-%Y", "%Y-%m-%d"],
+    "max_matches_per_day": 50,  # Limit to prevent spam
+    "channel_retention_days": 3,
+    "enable_standings": True,
+    "enable_h2h_analysis": True,
+    "enable_betting_recommendations": True,
+    "max_leagues_per_request": 6,
+    "cache_duration_minutes": 15,  # Cache match data for 15 minutes
+    "embed_colors": {
+        "EPL": 0x3d195b,
+        "La Liga": 0xff6900,
+        "MLS": 0x005da6,
+        "Bundesliga": 0xd20515,
+        "Serie A": 0x0066cc,
+        "UEFA": 0x00336a,
+        "default": 0x00ff00
+    },
+    "rate_limiting": {
+        "requests_per_minute": 30,
+        "requests_per_hour": 300,
+        "burst_limit": 10,
+        "cooldown_seconds": 2
+    },
+    "error_handling": {
+        "max_retries": 3,
+        "retry_delay_seconds": 2,
+        "exponential_backoff": True,
+        "fallback_to_cache": True,
+        "graceful_degradation": True
+    }
+}
+
+# Environment Variable Validation
+REQUIRED_ENV_VARS = {
+    "DISCORD_BOT_TOKEN": {
+        "description": "Discord bot token for authentication",
+        "required": True,
+        "validation": lambda x: x and len(x) > 50
+    },
+    "SOCCER_MCP_URL": {
+        "description": "URL for Soccer MCP server",
+        "required": False,  # Has default
+        "default": "https://soccermcp-production.up.railway.app/mcp",
+        "validation": lambda x: x.startswith(('http://', 'https://'))
+    },
+    "AUTH_KEY": {
+        "description": "Authentication key for Soccer MCP server",
+        "required": False,  # Optional but recommended
+        "validation": lambda x: not x or len(x) > 10
+    }
+}
+
 # Feature Flags (for gradual rollout)
 FEATURES = {
     "live_updates": False,       # Live game tracking
@@ -176,5 +338,192 @@ FEATURES = {
     "ai_analysis": True,         # AI predictions
     "weather_integration": True, # Weather data
     "auto_channels": False,      # Automatic channel creation
-    "subscription_system": False # Payment integration
+    "subscription_system": False, # Payment integration
+    "soccer_integration": True,  # Enable soccer functionality
+    "multi_league_support": True, # Support multiple soccer leagues
+    "h2h_analysis": True,        # Head-to-head analysis
+    "betting_recommendations": True, # AI betting insights
+    "league_standings": True,    # League table display
+    "advanced_statistics": True, # Advanced match statistics
+    "channel_auto_cleanup": True # Automatic channel cleanup
 }
+
+# Configuration Validation Functions
+def validate_environment() -> Dict[str, Any]:
+    """
+    Validate all required environment variables and configuration
+    
+    Returns:
+        Dictionary with validation results and any errors
+    """
+    validation_results = {
+        "valid": True,
+        "errors": [],
+        "warnings": [],
+        "missing_optional": []
+    }
+    
+    # Check required environment variables
+    for var_name, config in REQUIRED_ENV_VARS.items():
+        value = os.getenv(var_name)
+        
+        if config["required"] and not value:
+            validation_results["valid"] = False
+            validation_results["errors"].append(
+                f"Missing required environment variable: {var_name} - {config['description']}"
+            )
+        elif not value and "default" in config:
+            validation_results["warnings"].append(
+                f"Using default value for {var_name}: {config['default']}"
+            )
+        elif value and "validation" in config:
+            try:
+                if not config["validation"](value):
+                    validation_results["valid"] = False
+                    validation_results["errors"].append(
+                        f"Invalid value for {var_name}: {config['description']}"
+                    )
+            except Exception as e:
+                validation_results["valid"] = False
+                validation_results["errors"].append(
+                    f"Validation error for {var_name}: {str(e)}"
+                )
+        elif not value and not config["required"]:
+            validation_results["missing_optional"].append(var_name)
+    
+    # Validate soccer-specific configuration
+    if FEATURES["soccer_integration"]:
+        soccer_validation = validate_soccer_config()
+        if not soccer_validation["valid"]:
+            validation_results["valid"] = False
+            validation_results["errors"].extend(soccer_validation["errors"])
+        validation_results["warnings"].extend(soccer_validation["warnings"])
+    
+    return validation_results
+
+def validate_soccer_config() -> Dict[str, Any]:
+    """
+    Validate soccer-specific configuration
+    
+    Returns:
+        Dictionary with soccer validation results
+    """
+    results = {
+        "valid": True,
+        "errors": [],
+        "warnings": []
+    }
+    
+    # Check Soccer MCP URL
+    soccer_url = SOCCER_CONFIG["mcp_url"]
+    if not soccer_url.startswith(('http://', 'https://')):
+        results["valid"] = False
+        results["errors"].append("Invalid Soccer MCP URL format")
+    
+    # Check AUTH_KEY if provided
+    auth_key = SOCCER_CONFIG["auth_key"]
+    if auth_key and len(auth_key) < 10:
+        results["warnings"].append("AUTH_KEY seems too short, may be invalid")
+    elif not auth_key:
+        results["warnings"].append("No AUTH_KEY provided - some Soccer MCP features may be limited")
+    
+    # Validate league configurations
+    soccer_leagues = LEAGUE_CONFIG["SOCCER"]["supported_leagues"]
+    for league_code, league_config in soccer_leagues.items():
+        if not all(key in league_config for key in ["id", "name", "country", "priority"]):
+            results["valid"] = False
+            results["errors"].append(f"Incomplete configuration for league: {league_code}")
+    
+    # Check rate limiting configuration
+    rate_config = SOCCER_CONFIG["rate_limiting"]
+    if rate_config["requests_per_minute"] > rate_config["requests_per_hour"]:
+        results["warnings"].append("Rate limiting: requests_per_minute exceeds hourly average")
+    
+    return results
+
+def get_active_soccer_leagues() -> List[str]:
+    """
+    Get list of currently active soccer leagues
+    
+    Returns:
+        List of active league codes sorted by priority
+    """
+    if not FEATURES["soccer_integration"]:
+        return []
+    
+    active_leagues = []
+    soccer_leagues = LEAGUE_CONFIG["SOCCER"]["supported_leagues"]
+    
+    for league_code, league_config in soccer_leagues.items():
+        if league_config.get("active", False):
+            active_leagues.append(league_code)
+    
+    # Sort by priority (lower number = higher priority)
+    priority_order = LEAGUE_CONFIG["SOCCER"]["priority_leagues"]
+    active_leagues.sort(key=lambda x: priority_order.index(x) if x in priority_order else 999)
+    
+    return active_leagues
+
+def get_soccer_league_config(league_code: str) -> Optional[Dict[str, Any]]:
+    """
+    Get configuration for a specific soccer league
+    
+    Args:
+        league_code: League code (e.g., "EPL", "La Liga")
+        
+    Returns:
+        League configuration dictionary or None if not found
+    """
+    soccer_leagues = LEAGUE_CONFIG["SOCCER"]["supported_leagues"]
+    return soccer_leagues.get(league_code)
+
+def is_feature_enabled(feature_name: str) -> bool:
+    """
+    Check if a specific feature is enabled
+    
+    Args:
+        feature_name: Name of the feature to check
+        
+    Returns:
+        True if feature is enabled, False otherwise
+    """
+    return FEATURES.get(feature_name, False)
+
+# Startup Configuration Check
+def perform_startup_checks() -> bool:
+    """
+    Perform comprehensive startup configuration checks
+    
+    Returns:
+        True if all critical checks pass, False otherwise
+    """
+    logger = logging.getLogger(__name__)
+    
+    logger.info("Performing startup configuration checks...")
+    
+    # Validate environment
+    env_validation = validate_environment()
+    
+    if not env_validation["valid"]:
+        logger.error("Environment validation failed:")
+        for error in env_validation["errors"]:
+            logger.error(f"  - {error}")
+        return False
+    
+    # Log warnings
+    for warning in env_validation["warnings"]:
+        logger.warning(warning)
+    
+    # Log missing optional variables
+    if env_validation["missing_optional"]:
+        logger.info(f"Optional environment variables not set: {', '.join(env_validation['missing_optional'])}")
+    
+    # Check feature dependencies
+    if FEATURES["soccer_integration"] and not FEATURES["multi_league_support"]:
+        logger.warning("Soccer integration enabled but multi-league support disabled")
+    
+    if FEATURES["h2h_analysis"] and not FEATURES["soccer_integration"]:
+        logger.warning("H2H analysis enabled but soccer integration disabled")
+    
+    logger.info("Startup configuration checks completed successfully")
+    return True
