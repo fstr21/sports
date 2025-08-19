@@ -895,117 +895,81 @@ def create_comprehensive_match_embed_v3(match, league, h2h_data=None, home_team=
     return embed
 
 def create_enhanced_match_embed(match, league, h2h_data=None, home_form_data=None, away_form_data=None, home_team=None, away_team=None, match_time=None):
-    """Create enhanced match embed with comprehensive form analysis and stats"""
+    """Create clean, minimalist match embed"""
     embed = discord.Embed(
         title=f"⚽ {away_team} vs {home_team}",
-        description=f"**{league}** - Enhanced Analysis & Recent Form",
+        description=f"**{league}** • {match_time}",
         color=0x00ff00,
         timestamp=datetime.now()
     )
     
-    # Basic match info
-    embed.add_field(
-        name="📅 Match Details",
-        value=f"**Time:** {match_time}\\n**League:** {league}\\n**Match ID:** {match.get('id', 'N/A')}",
-        inline=True
-    )
-    
-    # Add betting odds from match data
+    # Betting odds - clean single line
     odds = match.get("odds", {})
     if odds:
-        betting_lines = []
-        
         match_winner = odds.get('match_winner', {})
         if match_winner:
             home_odds = match_winner.get('home')
-            draw_odds = match_winner.get('draw')
+            draw_odds = match_winner.get('draw') 
             away_odds = match_winner.get('away')
         else:
             home_odds = odds.get('home_win')
             draw_odds = odds.get('draw')
             away_odds = odds.get('away_win')
         
-        if home_odds:
+        if home_odds and draw_odds and away_odds:
             american_home = convert_to_american_odds(home_odds)
-            betting_lines.append(f"**{home_team}:** {home_odds} ({american_home})")
-        if draw_odds:
             american_draw = convert_to_american_odds(draw_odds)
-            betting_lines.append(f"**Draw:** {draw_odds} ({american_draw})")
-        if away_odds:
             american_away = convert_to_american_odds(away_odds)
-            betting_lines.append(f"**{away_team}:** {away_odds} ({american_away})")
-        
-        # Add over/under if available
-        over_under = odds.get('over_under', {})
-        if over_under:
-            total = over_under.get('total')
-            over = over_under.get('over')
-            under = over_under.get('under')
-            if total and over and under:
-                american_over = convert_to_american_odds(over)
-                american_under = convert_to_american_odds(under)
-                betting_lines.append(f"**O/U {total}:** Over {over} ({american_over}), Under {under} ({american_under})")
-        
-        if betting_lines:
+            
+            odds_text = f"**{home_team}** {home_odds} ({american_home}) • **Draw** {draw_odds} ({american_draw}) • **{away_team}** {away_odds} ({american_away})"
+            
+            # Add O/U if available
+            over_under = odds.get('over_under', {})
+            if over_under:
+                total = over_under.get('total')
+                over = over_under.get('over')
+                under = over_under.get('under')
+                if total and over and under:
+                    american_over = convert_to_american_odds(over)
+                    american_under = convert_to_american_odds(under)
+                    odds_text += f"\\n**O/U {total}** Over {over} ({american_over}) • Under {under} ({american_under})"
+            
             embed.add_field(
-                name="💰 Betting Lines",
-                value="\\n".join(betting_lines),
+                name="💰 Betting Odds",
+                value=odds_text,
                 inline=False
             )
     
-    # Enhanced Recent Form Analysis for both teams (using correct field names)
-    if home_form_data and "error" not in home_form_data:
-        record = home_form_data.get('record', 'N/A')
-        form_string = home_form_data.get('form_string', 'N/A')
-        goals_for = home_form_data.get('goals_for', 0)
-        goals_against = home_form_data.get('goals_against', 0)
-        win_percentage = home_form_data.get('win_percentage', 0)
+    # Team Form - Very clean side by side
+    if home_form_data and away_form_data and "error" not in home_form_data and "error" not in away_form_data:
+        # Home team
+        home_record = home_form_data.get('record', 'N/A')
+        home_form = home_form_data.get('form_string', 'N/A')
+        home_win_pct = home_form_data.get('win_percentage', 0)
+        home_goals = f"{home_form_data.get('goals_for', 0)}-{home_form_data.get('goals_against', 0)}"
         
-        # Extract betting trends
-        betting_trends = home_form_data.get('betting_trends', {})
-        clean_sheet_pct = betting_trends.get('clean_sheet_percentage', 0)
-        btts_pct = betting_trends.get('both_teams_score_percentage', 0)
-        avg_goals = betting_trends.get('avg_total_goals', 0)
-        
-        home_form_text = f"**Form:** {form_string} ({record})\\n"
-        home_form_text += f"**Goals:** {goals_for} scored, {goals_against} conceded\\n"
-        home_form_text += f"**Win Rate:** {win_percentage:.0f}% | **Avg Goals:** {avg_goals:.1f}/game\\n"
-        home_form_text += f"**Clean Sheets:** {clean_sheet_pct:.0f}% | **BTTS:** {btts_pct:.0f}%"
+        # Away team  
+        away_record = away_form_data.get('record', 'N/A')
+        away_form = away_form_data.get('form_string', 'N/A')
+        away_win_pct = away_form_data.get('win_percentage', 0)
+        away_goals = f"{away_form_data.get('goals_for', 0)}-{away_form_data.get('goals_against', 0)}"
         
         embed.add_field(
-            name=f"🏠 {home_team} Recent Form",
-            value=home_form_text,
+            name=f"🏠 {home_team}",
+            value=f"**Form:** {home_form} ({home_record})\\n**Win Rate:** {home_win_pct:.0f}% • **Goals:** {home_goals}",
             inline=True
         )
-    
-    if away_form_data and "error" not in away_form_data:
-        record = away_form_data.get('record', 'N/A')
-        form_string = away_form_data.get('form_string', 'N/A')
-        goals_for = away_form_data.get('goals_for', 0)
-        goals_against = away_form_data.get('goals_against', 0)
-        win_percentage = away_form_data.get('win_percentage', 0)
-        
-        # Extract betting trends
-        betting_trends = away_form_data.get('betting_trends', {})
-        clean_sheet_pct = betting_trends.get('clean_sheet_percentage', 0)
-        btts_pct = betting_trends.get('both_teams_score_percentage', 0)
-        avg_goals = betting_trends.get('avg_total_goals', 0)
-        
-        away_form_text = f"**Form:** {form_string} ({record})\\n"
-        away_form_text += f"**Goals:** {goals_for} scored, {goals_against} conceded\\n"
-        away_form_text += f"**Win Rate:** {win_percentage:.0f}% | **Avg Goals:** {avg_goals:.1f}/game\\n"
-        away_form_text += f"**Clean Sheets:** {clean_sheet_pct:.0f}% | **BTTS:** {btts_pct:.0f}%"
         
         embed.add_field(
-            name=f"✈️ {away_team} Recent Form",
-            value=away_form_text,
+            name=f"✈️ {away_team}",
+            value=f"**Form:** {away_form} ({away_record})\\n**Win Rate:** {away_win_pct:.0f}% • **Goals:** {away_goals}",
             inline=True
         )
+        
+        # Spacer
+        embed.add_field(name="\\u200b", value="\\u200b", inline=True)
     
-    # Add spacer for better formatting
-    embed.add_field(name="\\u200b", value="\\u200b", inline=False)
-    
-    # Head-to-Head Analysis
+    # H2H - Single clean line
     if h2h_data and "error" not in h2h_data:
         total_meetings = h2h_data.get('total_meetings', 0)
         if total_meetings > 0:
@@ -1013,148 +977,55 @@ def create_enhanced_match_embed(match, league, h2h_data=None, home_form_data=Non
             team2_record = h2h_data.get('team_2_record', {})
             draws = h2h_data.get('draws', {})
             
-            h2h_text = f"**{total_meetings} meetings** | **{home_team}:** {team1_record.get('wins', 0)}W ({team1_record.get('win_rate', 0):.1f}%) | **{away_team}:** {team2_record.get('wins', 0)}W ({team2_record.get('win_rate', 0):.1f}%) | **Draws:** {draws.get('count', 0)}"
+            h2h_text = f"**{total_meetings} meetings** • {home_team} {team1_record.get('wins', 0)}W • {away_team} {team2_record.get('wins', 0)}W • {draws.get('count', 0)} draws"
             
             embed.add_field(
-                name="📊 Head-to-Head Record",
+                name="📊 Head-to-Head",
                 value=h2h_text,
                 inline=False
             )
-            
-            # Goals and betting analysis
-            goals = h2h_data.get('goals', {})
-            betting_insights = h2h_data.get('betting_insights', {})
-            
-            insights_text = ""
-            if goals:
-                avg_goals = goals.get('average_per_game', 0)
-                insights_text += f"**H2H Avg Goals:** {avg_goals:.2f}/game\\n"
-                
-                if avg_goals > 2.8:
-                    insights_text += "🔥 **OVER 2.5 Goals** - High-scoring history\\n"
-                elif avg_goals < 2.2:
-                    insights_text += "🛡️ **UNDER 2.5 Goals** - Low-scoring trend\\n"
-                else:
-                    insights_text += "⚖️ **Goals Market Balanced**\\n"
-            
-            if betting_insights:
-                trend = betting_insights.get('goals_trend', '')
-                if trend:
-                    insights_text += f"**Trend:** {trend}"
-            
-            if insights_text:
-                embed.add_field(
-                    name="💡 H2H Betting Analysis",
-                    value=insights_text,
-                    inline=True
-                )
-                
-            # Dominance analysis
-            team1_wins = team1_record.get('wins', 0)
-            team2_wins = team2_record.get('wins', 0)
-            
-            dominance_text = ""
-            if team1_wins > team2_wins * 2:
-                dominance_text = f"📈 **{home_team} DOMINATES** ({team1_record.get('win_rate', 0):.1f}% win rate)"
-            elif team2_wins > team1_wins * 2:
-                dominance_text = f"📈 **{away_team} DOMINATES** ({team2_record.get('win_rate', 0):.1f}% win rate)"
-            else:
-                dominance_text = "⚖️ **Balanced** matchup"
-            
+    
+    # Single betting insight line
+    if home_form_data and away_form_data:
+        insights = []
+        
+        # Form comparison
+        home_win_pct = home_form_data.get('win_percentage', 0)
+        away_win_pct = away_form_data.get('win_percentage', 0)
+        
+        if abs(home_win_pct - away_win_pct) > 25:
+            better_team = home_team if home_win_pct > away_win_pct else away_team
+            insights.append(f"🎯 **{better_team}** in better form")
+        
+        # Goals prediction
+        home_goals_avg = home_form_data.get('goals_for', 0) / 5
+        away_goals_avg = away_form_data.get('goals_for', 0) / 5
+        predicted_goals = home_goals_avg + away_goals_avg
+        
+        if predicted_goals > 2.8:
+            insights.append(f"📈 **OVER 2.5** likely ({predicted_goals:.1f} expected)")
+        elif predicted_goals < 2.0:
+            insights.append(f"📉 **UNDER 2.5** likely ({predicted_goals:.1f} expected)")
+        
+        if insights:
             embed.add_field(
-                name="🏆 Historical Dominance",
-                value=dominance_text,
-                inline=True
-            )
-        else:
-            embed.add_field(
-                name="📊 Head-to-Head",
-                value=f"**No historical meetings** between {home_team} and {away_team}",
+                name="💡 Key Insights",
+                value=" • ".join(insights),
                 inline=False
             )
     
-    # Enhanced Betting Recommendations based on form + H2H
-    if home_form_data and away_form_data and h2h_data:
-        recommendations = []
+    # Match result if finished
+    if match.get("status") == "finished":
+        home_goals = match.get('goals', {}).get('home_ft_goals', 0)
+        away_goals = match.get('goals', {}).get('away_ft_goals', 0)
         
-        # Get form data
-        home_form = home_form_data.get('form_analysis', {})
-        away_form = away_form_data.get('form_analysis', {})
-        
-        if home_form and away_form:
-            home_goals_avg = home_form.get('goals_scored', 0) / 5
-            home_conceded_avg = home_form.get('goals_conceded', 0) / 5
-            away_goals_avg = away_form.get('goals_scored', 0) / 5
-            away_conceded_avg = away_form.get('goals_conceded', 0) / 5
-            
-            # Expected goals calculation
-            expected_goals = (home_goals_avg + away_conceded_avg + away_goals_avg + home_conceded_avg) / 2
-            
-            if expected_goals > 2.8:
-                recommendations.append(f"🎯 **OVER 2.5 Goals** (Expected: {expected_goals:.1f})")
-            elif expected_goals < 2.2:
-                recommendations.append(f"🎯 **UNDER 2.5 Goals** (Expected: {expected_goals:.1f})")
-            
-            # Form momentum
-            home_points = (home_form.get('wins', 0) * 3) + home_form.get('draws', 0)
-            away_points = (away_form.get('wins', 0) * 3) + away_form.get('draws', 0)
-            
-            if home_points > away_points + 3:
-                recommendations.append(f"📈 **{home_team}** better recent form")
-            elif away_points > home_points + 3:
-                recommendations.append(f"📈 **{away_team}** better recent form")
-            
-            # Clean sheets analysis
-            home_cs = home_form.get('clean_sheets', 0)
-            away_cs = away_form.get('clean_sheets', 0)
-            
-            if home_cs >= 3 or away_cs >= 3:
-                recommendations.append("🛡️ **Strong defenses** - Consider BTTS NO")
-            elif home_cs <= 1 and away_cs <= 1:
-                recommendations.append("⚽ **Leaky defenses** - Consider BTTS YES")
-        
-        if recommendations:
-            embed.add_field(
-                name="🎯 Smart Betting Tips",
-                value="\\n".join(recommendations),
-                inline=False
-            )
+        embed.add_field(
+            name="⚽ Final Score",
+            value=f"**{home_team} {home_goals} - {away_goals} {away_team}**",
+            inline=False
+        )
     
-    # Enhanced match events analysis
-    events = match.get("events", [])
-    if events:
-        goal_events = [e for e in events if 'goal' in e.get('event_type', '').lower()]
-        card_events = [e for e in events if 'card' in e.get('event_type', '').lower()]
-        sub_events = [e for e in events if 'substitution' in e.get('event_type', '').lower()]
-        
-        if match.get("status") == "finished":
-            home_goals = match.get('goals', {}).get('home_ft_goals', 0)
-            away_goals = match.get('goals', {}).get('away_ft_goals', 0)
-            ht_home = match.get('goals', {}).get('home_ht_goals', 0)
-            ht_away = match.get('goals', {}).get('away_ht_goals', 0)
-            
-            match_summary = f"**Final:** {home_goals}-{away_goals} (HT: {ht_home}-{ht_away})\\n"
-            match_summary += f"**Events:** {len(goal_events)} goals, {len(card_events)} cards, {len(sub_events)} subs"
-            
-            # Add goal scorers if available
-            if goal_events:
-                scorers = []
-                for goal in goal_events[:3]:  # Show first 3 goals
-                    player = goal.get('player', {}).get('name', 'Unknown')
-                    minute = goal.get('event_minute', '?')
-                    team = "H" if goal.get('team') == 'home' else "A"
-                    scorers.append(f"{player} {minute}' ({team})")
-                
-                if scorers:
-                    match_summary += f"\\n**Scorers:** {', '.join(scorers)}"
-            
-            embed.add_field(
-                name="⚽ Match Completed",
-                value=match_summary,
-                inline=False
-            )
-    
-    embed.set_footer(text="Enhanced Analysis • Recent Form + H2H Data • Powered by Soccer MCP")
+    embed.set_footer(text="Enhanced Analysis • Powered by Soccer MCP")
     return embed
 
 async def create_mlb_channels(interaction: discord.Interaction, date: str):
