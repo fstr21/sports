@@ -25,8 +25,7 @@ from config import config
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-print("Starting Enhanced Sports Discord Bot v2.0")
-print(f"Discord Token: {'SET' if config.discord_token else 'NOT SET'}")
+# Print statements moved to main section
 
 
 class EnhancedSportsBot(commands.Bot):
@@ -432,12 +431,17 @@ async def run_bot():
         raise
 
 
-if __name__ == "__main__":
-    import sys
+async def main():
+    """Main function to run both Discord bot and health check server"""
+    port = int(os.getenv("PORT", 8080))
+    config_server = uvicorn.Config(app, host="0.0.0.0", port=port, log_level="info")
+    server = uvicorn.Server(config_server)
     
-    if len(sys.argv) > 1 and sys.argv[1] == "web":
-        # Run web server for health checks
-        uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
-    else:
-        # Run Discord bot
-        asyncio.run(run_bot())
+    # Run both Discord bot and health check server concurrently
+    await asyncio.gather(run_bot(), server.serve())
+
+
+if __name__ == "__main__":
+    print("Starting Enhanced Sports Discord Bot v2.0")
+    print(f"Discord Token: {'SET' if config.discord_token else 'MISSING'}")
+    asyncio.run(main())
