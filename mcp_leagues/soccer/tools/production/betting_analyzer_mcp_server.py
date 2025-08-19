@@ -7,6 +7,7 @@ Provides enhanced betting-focused tools for match analysis, team form assessment
 and value bet identification with confidence scoring.
 
 Based on the standalone enhanced_betting_analyzer.py but converted for MCP protocol.
+Updated: 2025-08-19 - Discord integration ready
 """
 
 import asyncio
