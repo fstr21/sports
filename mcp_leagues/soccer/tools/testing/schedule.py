@@ -81,11 +81,13 @@ def print_match_details(match, league_name):
     # Show betting odds if available
     odds = match.get('odds', {})
     if odds and isinstance(odds, dict):
-        home_odds = odds.get('home')
-        away_odds = odds.get('away') 
-        draw_odds = odds.get('draw')
-        
-        if home_odds or away_odds or draw_odds:
+        # Check for match_winner odds format
+        match_winner = odds.get('match_winner', {})
+        if match_winner:
+            home_odds = match_winner.get('home')
+            draw_odds = match_winner.get('draw')
+            away_odds = match_winner.get('away')
+            
             print(f"    Betting Lines:")
             if home_odds:
                 print(f"      {home_team}: {home_odds}")
@@ -93,8 +95,31 @@ def print_match_details(match, league_name):
                 print(f"      Draw: {draw_odds}")
             if away_odds:
                 print(f"      {away_team}: {away_odds}")
+            
+            # Show over/under if available
+            over_under = odds.get('over_under', {})
+            if over_under:
+                total = over_under.get('total')
+                over = over_under.get('over')
+                under = over_under.get('under')
+                if total and over and under:
+                    print(f"      Over/Under {total}: Over {over}, Under {under}")
         else:
-            print(f"    Betting Lines: Not available")
+            # Try old format
+            home_odds = odds.get('home')
+            away_odds = odds.get('away') 
+            draw_odds = odds.get('draw')
+            
+            if home_odds or away_odds or draw_odds:
+                print(f"    Betting Lines:")
+                if home_odds:
+                    print(f"      {home_team}: {home_odds}")
+                if draw_odds:
+                    print(f"      Draw: {draw_odds}")
+                if away_odds:
+                    print(f"      {away_team}: {away_odds}")
+            else:
+                print(f"    Betting Lines: Not available")
     else:
         print(f"    Betting Lines: Not available")
     
@@ -128,9 +153,17 @@ async def get_matches_for_date(date_string):
             print(f"  Error: {result['error']}")
             continue
         
+        # Debug: show the actual response data
+        print(f"  DEBUG: Total matches in response: {result.get('total_matches', 'N/A')}")
+        matches_by_league = result.get('matches_by_league', {})
+        print(f"  DEBUG: Leagues in response: {list(matches_by_league.keys())}")
+        
         # Extract matches for this league
         matches_by_league = result.get('matches_by_league', {})
+        # Try both the original league code and uppercase version
         league_matches = matches_by_league.get(league_code, [])
+        if not league_matches:
+            league_matches = matches_by_league.get(league_code.upper(), [])
         
         if not league_matches:
             print(f"  No matches found")
