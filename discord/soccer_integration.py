@@ -358,6 +358,173 @@ class ProcessedMatch:
         except ValueError:
             return self.time
 
+@dataclass
+class H2HHistoricalRecord:
+    """Historical head-to-head record from H2H endpoint"""
+    total_meetings: int
+    home_team_wins: int
+    away_team_wins: int
+    draws: int
+    home_team_goals_total: int
+    away_team_goals_total: int
+    avg_goals_per_game: float
+    last_meeting_date: Optional[str] = None
+    last_meeting_result: Optional[str] = None
+    
+    @property
+    def home_win_percentage(self) -> float:
+        """Calculate home team win percentage"""
+        return (self.home_team_wins / self.total_meetings * 100) if self.total_meetings > 0 else 0.0
+    
+    @property
+    def away_win_percentage(self) -> float:
+        """Calculate away team win percentage"""
+        return (self.away_team_wins / self.total_meetings * 100) if self.total_meetings > 0 else 0.0
+    
+    @property
+    def draw_percentage(self) -> float:
+        """Calculate draw percentage"""
+        return (self.draws / self.total_meetings * 100) if self.total_meetings > 0 else 0.0
+
+@dataclass
+class TeamAnalysis:
+    """Team analysis from matches endpoint (recent 10 matches)"""
+    team_name: str
+    recent_matches_count: int
+    form_record: Dict[str, int]  # {"wins": 3, "draws": 1, "losses": 1}
+    form_string: str  # "W-L-D-W-W"
+    goals_per_game: float
+    goals_against_per_game: float
+    clean_sheet_percentage: float
+    btts_percentage: float  # Both teams scored percentage
+    high_scoring_percentage: float  # 3+ goals percentage
+    card_discipline: Dict[str, float]  # {"yellow_per_game": 2.1, "red_total": 0}
+    advanced_metrics: Dict[str, Any] = field(default_factory=dict)  # Early goals, late drama, etc.
+    
+    @property
+    def win_percentage(self) -> float:
+        """Calculate win percentage"""
+        total_games = sum(self.form_record.values())
+        return (self.form_record["wins"] / total_games * 100) if total_games > 0 else 0.0
+    
+    @property
+    def points_per_game(self) -> float:
+        """Calculate points per game (3 for win, 1 for draw)"""
+        total_games = sum(self.form_record.values())
+        if total_games == 0:
+            return 0.0
+        points = (self.form_record["wins"] * 3) + self.form_record["draws"]
+        return points / total_games
+
+@dataclass
+class ComprehensiveInsights:
+    """Combined analysis from both H2H and matches endpoints"""
+    # H2H insights
+    h2h_dominance: str  # "home_team", "away_team", "balanced"
+    h2h_goals_trend: str  # "high_scoring", "low_scoring", "average"
+    
+    # Combined team form insights
+    form_momentum: str  # "home_advantage", "away_advantage", "neutral"
+    expected_goals_total: float  # Based on both teams' recent scoring
+    btts_probability: float  # Based on both teams' BTTS patterns
+    
+    # Betting recommendations (combining all data sources)
+    over_under_recommendation: str  # "Over 2.5", "Under 2.5", "Neutral"
+    btts_recommendation: str  # "BTTS Yes", "BTTS No", "Neutral"
+    match_outcome_lean: str  # "Home Win", "Away Win", "Draw", "Neutral"
+    cards_market_insight: str  # "High Cards", "Low Cards", "Average"
+    
+    # Supporting evidence
+    recommendation_reasoning: List[str] = field(default_factory=list)
+    confidence_level: str = "Medium"  # "High", "Medium", "Low"
+    
+    @classmethod
+    def from_dual_endpoint_data(cls, h2h_record: H2HHistoricalRecord, 
+                               home_analysis: TeamAnalysis, 
+                               away_analysis: TeamAnalysis) -> 'ComprehensiveInsights':
+        """Create comprehensive insights from both H2H and matches endpoint data"""
+        # Analyze H2H dominance
+        if h2h_record.total_meetings >= 5:
+            if h2h_record.home_win_percentage > 50:
+                h2h_dominance = "home_team"
+            elif h2h_record.away_win_percentage > 50:
+                h2h_dominance = "away_team"
+            else:
+                h2h_dominance = "balanced"
+        else:
+            h2h_dominance = "insufficient_data"
+        
+        # Analyze goals trend
+        if h2h_record.avg_goals_per_game > 2.5:
+            h2h_goals_trend = "high_scoring"
+        elif h2h_record.avg_goals_per_game < 2.0:
+            h2h_goals_trend = "low_scoring"
+        else:
+            h2h_goals_trend = "average"
+        
+        # Analyze form momentum
+        home_form_points = home_analysis.points_per_game if home_analysis else 0
+        away_form_points = away_analysis.points_per_game if away_analysis else 0
+        
+        if home_form_points > away_form_points + 0.5:
+            form_momentum = "home_advantage"
+        elif away_form_points > home_form_points + 0.5:
+            form_momentum = "away_advantage"
+        else:
+            form_momentum = "neutral"
+        
+        # Calculate expected goals
+        home_goals_avg = home_analysis.goals_per_game if home_analysis else 1.0
+        away_goals_avg = away_analysis.goals_per_game if away_analysis else 1.0
+        expected_goals_total = home_goals_avg + away_goals_avg
+        
+        # Calculate BTTS probability
+        home_btts = home_analysis.btts_percentage if home_analysis else 50.0
+        away_btts = away_analysis.btts_percentage if away_analysis else 50.0
+        btts_probability = (home_btts + away_btts) / 2
+        
+        # Generate recommendations
+        over_under_rec = "Over 2.5" if expected_goals_total > 2.5 else "Under 2.5"
+        btts_rec = "BTTS Yes" if btts_probability > 60 else "BTTS No"
+        
+        if form_momentum == "home_advantage":
+            match_outcome_lean = "Home Win"
+        elif form_momentum == "away_advantage":
+            match_outcome_lean = "Away Win"
+        else:
+            match_outcome_lean = "Neutral"
+        
+        # Cards market insight
+        home_cards = home_analysis.card_discipline.get("yellow_per_game", 2.0) if home_analysis else 2.0
+        away_cards = away_analysis.card_discipline.get("yellow_per_game", 2.0) if away_analysis else 2.0
+        avg_cards = (home_cards + away_cards) / 2
+        
+        if avg_cards > 4.0:
+            cards_market_insight = "High Cards"
+        elif avg_cards < 2.0:
+            cards_market_insight = "Low Cards"
+        else:
+            cards_market_insight = "Average"
+        
+        return cls(
+            h2h_dominance=h2h_dominance,
+            h2h_goals_trend=h2h_goals_trend,
+            form_momentum=form_momentum,
+            expected_goals_total=expected_goals_total,
+            btts_probability=btts_probability,
+            over_under_recommendation=over_under_rec,
+            btts_recommendation=btts_rec,
+            match_outcome_lean=match_outcome_lean,
+            cards_market_insight=cards_market_insight,
+            recommendation_reasoning=[
+                f"H2H: {h2h_dominance} dominance, {h2h_goals_trend} scoring",
+                f"Form: {form_momentum} based on recent performances",
+                f"Expected goals: {expected_goals_total:.1f}",
+                f"BTTS probability: {btts_probability:.1f}%"
+            ],
+            confidence_level="High" if h2h_record.total_meetings >= 10 else "Medium"
+        )
+
 # Import enhanced error handling system
 from soccer_error_handling import (
     SoccerBotError, MCPConnectionError, MCPTimeoutError, MCPDataError, 
@@ -1007,6 +1174,485 @@ class SoccerMCPClient:
             '_missing_fields': ['all_data'],
             'message': 'Head-to-head data is currently unavailable. Please try again later.'
         }
+    
+    async def get_team_recent_matches(self, team_id: int, league_id: int, limit: int = 10,
+                                    context: Optional[ErrorContext] = None) -> Dict[str, Any]:
+        """
+        Fetch recent matches for a specific team using matches endpoint
+        
+        Args:
+            team_id: Team identifier
+            league_id: League identifier
+            limit: Number of recent matches to fetch (default 10)
+            context: Error context for logging
+            
+        Returns:
+            Dictionary containing recent matches data for the team
+        """
+        if context is None:
+            context = ErrorContext(
+                "get_team_recent_matches",
+                additional_data={"team_id": team_id, "league_id": league_id, "limit": limit}
+            )
+        
+        try:
+            # Use get_betting_matches tool with team filter
+            arguments = {
+                "team_id": team_id,
+                "league_id": league_id,
+                "limit": limit,
+                "include_events": True  # Get detailed match events for analysis
+            }
+            
+            result = await self.call_mcp_tool("get_betting_matches", arguments, context)
+            
+            if not result or "error" in result:
+                self.logger.warning(f"No recent matches data for team {team_id}")
+                return self._create_fallback_team_matches_response(team_id, limit)
+            
+            # Process and validate team matches data
+            return self._process_team_matches_response(result, team_id, limit, context)
+            
+        except (MCPConnectionError, MCPTimeoutError, MCPDataError) as e:
+            # MCP-specific errors - attempt graceful degradation
+            self.logger.warning(f"MCP error fetching team matches for team {team_id}: {e}")
+            return self._create_fallback_team_matches_response(team_id, limit, str(e))
+            
+        except Exception as e:
+            error = MCPDataError(
+                f"Unexpected error fetching team matches for team {team_id}: {str(e)}",
+                "team_matches_fetch",
+                context=context
+            )
+            bot_logger.log_operation_error("get_team_recent_matches", error, context)
+            return self._create_fallback_team_matches_response(team_id, limit, str(e))
+    
+    def _process_team_matches_response(self, result: Dict[str, Any], team_id: int, 
+                                     limit: int, context: ErrorContext) -> Dict[str, Any]:
+        """Process and validate team matches response"""
+        try:
+            # Validate response structure
+            if not isinstance(result, dict):
+                raise MCPDataError("Invalid team matches response format", "team_matches_response", context=context)
+            
+            # Extract matches data
+            matches = result.get('matches', [])
+            if not isinstance(matches, list):
+                matches = []
+            
+            # Filter and process matches for the specific team
+            team_matches = []
+            for match in matches[:limit]:
+                if self._is_team_in_match(match, team_id):
+                    processed_match = self._process_single_team_match(match, team_id)
+                    if processed_match:
+                        team_matches.append(processed_match)
+            
+            return {
+                "team_id": team_id,
+                "recent_matches": team_matches,
+                "matches_count": len(team_matches),
+                "limit": limit,
+                "success": True
+            }
+            
+        except Exception as e:
+            bot_logger.log_graceful_degradation(
+                "process_team_matches_response",
+                ["team_matches_processing"],
+                ["raw_data"],
+                context
+            )
+            return self._create_fallback_team_matches_response(team_id, limit, str(e))
+    
+    def _is_team_in_match(self, match: Dict[str, Any], team_id: int) -> bool:
+        """Check if team is involved in the match"""
+        try:
+            teams = match.get('teams', {})
+            home_team = teams.get('home', {})
+            away_team = teams.get('away', {})
+            
+            return (home_team.get('id') == team_id or away_team.get('id') == team_id)
+        except Exception:
+            return False
+    
+    def _process_single_team_match(self, match: Dict[str, Any], team_id: int) -> Optional[Dict[str, Any]]:
+        """Process a single match from team perspective"""
+        try:
+            teams = match.get('teams', {})
+            home_team = teams.get('home', {})
+            away_team = teams.get('away', {})
+            
+            # Determine if team is home or away
+            is_home = home_team.get('id') == team_id
+            
+            # Extract match details
+            processed_match = {
+                "match_id": match.get('id'),
+                "date": match.get('date'),
+                "time": match.get('time'),
+                "home_team": home_team.get('name', 'Unknown'),
+                "away_team": away_team.get('name', 'Unknown'),
+                "home_goals": match.get('home_goals', 0),
+                "away_goals": match.get('away_goals', 0),
+                "team_is_home": is_home,
+                "status": match.get('status', 'completed'),
+                "venue": match.get('venue', ''),
+                
+                # Extract events for detailed analysis
+                "yellow_cards": self._extract_team_cards(match, team_id, 'yellow'),
+                "red_cards": self._extract_team_cards(match, team_id, 'red'),
+                "goals_scored": self._extract_team_goals(match, team_id),
+                "goals_conceded": self._extract_opponent_goals(match, team_id),
+                
+                # Additional match context
+                "league": match.get('league', {}),
+                "competition": match.get('competition', ''),
+                "round": match.get('round', '')
+            }
+            
+            return processed_match
+            
+        except Exception as e:
+            self.logger.warning(f"Error processing single team match: {e}")
+            return None
+    
+    def _extract_team_cards(self, match: Dict[str, Any], team_id: int, card_type: str) -> int:
+        """Extract card count for specific team"""
+        try:
+            events = match.get('events', [])
+            card_count = 0
+            
+            for event in events:
+                if (event.get('type') == f'{card_type}_card' and 
+                    event.get('team_id') == team_id):
+                    card_count += 1
+            
+            return card_count
+        except Exception:
+            return 0
+    
+    def _extract_team_goals(self, match: Dict[str, Any], team_id: int) -> List[Dict[str, Any]]:
+        """Extract goals scored by specific team"""
+        try:
+            events = match.get('events', [])
+            goals = []
+            
+            for event in events:
+                if (event.get('type') == 'goal' and 
+                    event.get('team_id') == team_id):
+                    goals.append({
+                        'minute': event.get('minute', 0),
+                        'player': event.get('player', 'Unknown'),
+                        'type': event.get('goal_type', 'regular')
+                    })
+            
+            return goals
+        except Exception:
+            return []
+    
+    def _extract_opponent_goals(self, match: Dict[str, Any], team_id: int) -> List[Dict[str, Any]]:
+        """Extract goals scored by opponent team"""
+        try:
+            events = match.get('events', [])
+            goals = []
+            
+            for event in events:
+                if (event.get('type') == 'goal' and 
+                    event.get('team_id') != team_id):
+                    goals.append({
+                        'minute': event.get('minute', 0),
+                        'player': event.get('player', 'Unknown'),
+                        'type': event.get('goal_type', 'regular')
+                    })
+            
+            return goals
+        except Exception:
+            return []
+    
+    def _create_fallback_team_matches_response(self, team_id: int, limit: int, error_message: str = None) -> Dict[str, Any]:
+        """Create fallback response when team matches cannot be fetched"""
+        return {
+            "team_id": team_id,
+            "recent_matches": [],
+            "matches_count": 0,
+            "limit": limit,
+            "success": False,
+            "error": error_message or "Unable to fetch team matches data",
+            "fallback": True,
+            "message": "Team analysis temporarily unavailable. Please try again later."
+        }
+    
+    async def get_h2h_direct_analysis(self, team1_id: int, team2_id: int, team1_name: str, team2_name: str,
+                                    context: Optional[ErrorContext] = None) -> Dict[str, Any]:
+        """
+        Fetch direct head-to-head record using H2H endpoint
+        
+        Args:
+            team1_id: First team's unique identifier (typically home team)
+            team2_id: Second team's unique identifier (typically away team)
+            team1_name: First team's name for logging
+            team2_name: Second team's name for logging
+            context: Error context for logging
+            
+        Returns:
+            Dictionary containing direct H2H historical record between the two teams
+        """
+        if context is None:
+            context = ErrorContext(
+                "get_h2h_direct_analysis",
+                additional_data={
+                    "team1_id": team1_id, "team2_id": team2_id,
+                    "team1_name": team1_name, "team2_name": team2_name
+                }
+            )
+        
+        try:
+            # Validate team IDs
+            if not isinstance(team1_id, int) or not isinstance(team2_id, int):
+                raise ValidationError(
+                    f"Invalid team IDs: {team1_id}, {team2_id}",
+                    "team_ids",
+                    f"{team1_id}, {team2_id}",
+                    "positive integers"
+                )
+            
+            if team1_id <= 0 or team2_id <= 0:
+                raise ValidationError(
+                    f"Team IDs must be positive: {team1_id}, {team2_id}",
+                    "team_ids",
+                    f"{team1_id}, {team2_id}",
+                    "positive integers greater than 0"
+                )
+            
+            if team1_id == team2_id:
+                raise ValidationError(
+                    f"Team IDs must be different: {team1_id}",
+                    "team_ids",
+                    f"{team1_id}, {team2_id}",
+                    "two different team IDs"
+                )
+            
+            # Use H2H endpoint specifically for direct historical record
+            arguments = {
+                "team1_id": team1_id,
+                "team2_id": team2_id,
+                "team1_name": team1_name,
+                "team2_name": team2_name,
+                "analysis_type": "direct_h2h",
+                "include_historical_meetings": True,
+                "include_goal_statistics": True
+            }
+            
+            # Call H2H endpoint
+            result = await self.call_mcp_tool("get_h2h_betting_analysis", arguments, context)
+            
+            # Process H2H response
+            return self._process_h2h_direct_response(result, team1_id, team2_id, team1_name, team2_name, context)
+            
+        except (MCPConnectionError, MCPTimeoutError, MCPDataError) as e:
+            # Handle MCP-specific errors with graceful degradation
+            bot_logger.log_graceful_degradation(
+                "get_h2h_direct_analysis",
+                ["h2h_historical_record"],
+                ["basic_structure"],
+                context
+            )
+            return self._create_fallback_h2h_direct_response(team1_id, team2_id, team1_name, team2_name, str(e))
+            
+        except ValidationError as e:
+            # Re-raise validation errors
+            raise e
+            
+        except Exception as e:
+            # Unexpected errors
+            error = MCPDataError(
+                f"Unexpected error fetching direct H2H data for {team1_name} vs {team2_name}: {str(e)}",
+                "h2h_direct_analysis",
+                context=context
+            )
+            bot_logger.log_operation_error("get_h2h_direct_analysis", error, context)
+            return self._create_fallback_h2h_direct_response(team1_id, team2_id, team1_name, team2_name, str(e))
+    
+    def _process_h2h_direct_response(self, result: Dict[str, Any], team1_id: int, team2_id: int,
+                                   team1_name: str, team2_name: str, context: ErrorContext) -> Dict[str, Any]:
+        """Process direct H2H endpoint response"""
+        try:
+            if not isinstance(result, dict):
+                raise MCPDataError("Invalid H2H direct response format", "h2h_direct_response", context=context)
+            
+            # Extract H2H statistics with defaults
+            h2h_stats = result.get('h2h_statistics', {})
+            
+            processed_response = {
+                "team1_id": team1_id,
+                "team2_id": team2_id,
+                "team1_name": team1_name,
+                "team2_name": team2_name,
+                "total_meetings": h2h_stats.get('total_meetings', 0),
+                "team1_wins": h2h_stats.get('team1_wins', 0),
+                "team2_wins": h2h_stats.get('team2_wins', 0),
+                "draws": h2h_stats.get('draws', 0),
+                "team1_goals_total": h2h_stats.get('team1_goals_total', 0),
+                "team2_goals_total": h2h_stats.get('team2_goals_total', 0),
+                "avg_goals_per_game": h2h_stats.get('avg_goals_per_game', 0.0),
+                "last_meeting_date": h2h_stats.get('last_meeting_date'),
+                "last_meeting_result": h2h_stats.get('last_meeting_result'),
+                "source": "h2h_endpoint",
+                "success": True
+            }
+            
+            # Add recent H2H meetings if available
+            if 'recent_meetings' in result:
+                processed_response['recent_meetings'] = result['recent_meetings']
+            
+            self.logger.debug(f"Successfully processed direct H2H data for {team1_name} vs {team2_name}")
+            return processed_response
+            
+        except Exception as e:
+            bot_logger.log_graceful_degradation(
+                "process_h2h_direct_response",
+                ["h2h_direct_processing"],
+                ["basic_structure"],
+                context
+            )
+            return self._create_fallback_h2h_direct_response(team1_id, team2_id, team1_name, team2_name, str(e))
+    
+    def _create_fallback_h2h_direct_response(self, team1_id: int, team2_id: int, 
+                                           team1_name: str, team2_name: str, error_message: str) -> Dict[str, Any]:
+        """Create fallback H2H direct response when data cannot be fetched"""
+        return {
+            "team1_id": team1_id,
+            "team2_id": team2_id,
+            "team1_name": team1_name,
+            "team2_name": team2_name,
+            "total_meetings": 0,
+            "team1_wins": 0,
+            "team2_wins": 0,
+            "draws": 0,
+            "team1_goals_total": 0,
+            "team2_goals_total": 0,
+            "avg_goals_per_game": 0.0,
+            "last_meeting_date": None,
+            "last_meeting_result": None,
+            "recent_meetings": [],
+            "source": "h2h_endpoint",
+            "success": False,
+            "error": error_message,
+            "fallback": True,
+            "message": f"Direct H2H data for {team1_name} vs {team2_name} is currently unavailable."
+        }
+    
+    async def get_comprehensive_match_analysis(self, home_team_id: int, away_team_id: int, 
+                                             home_team_name: str, away_team_name: str, league_id: int,
+                                             context: Optional[ErrorContext] = None) -> Dict[str, Any]:
+        """
+        Get comprehensive match analysis combining H2H endpoint data with matches endpoint data for both teams
+        
+        Args:
+            home_team_id: Home team identifier
+            away_team_id: Away team identifier
+            home_team_name: Home team name
+            away_team_name: Away team name
+            league_id: League identifier
+            context: Error context for logging
+            
+        Returns:
+            Dictionary containing comprehensive analysis from both endpoints
+        """
+        if context is None:
+            context = ErrorContext(
+                "get_comprehensive_match_analysis",
+                additional_data={
+                    "home_team_id": home_team_id, "away_team_id": away_team_id,
+                    "home_team_name": home_team_name, "away_team_name": away_team_name,
+                    "league_id": league_id
+                }
+            )
+        
+        try:
+            # Make three MCP calls concurrently for efficiency
+            h2h_task = self.get_h2h_direct_analysis(home_team_id, away_team_id, home_team_name, away_team_name, context)
+            home_matches_task = self.get_team_recent_matches(home_team_id, league_id, 10, context)
+            away_matches_task = self.get_team_recent_matches(away_team_id, league_id, 10, context)
+            
+            # Wait for all three calls to complete
+            h2h_data, home_matches_data, away_matches_data = await asyncio.gather(
+                h2h_task, home_matches_task, away_matches_task, return_exceptions=True
+            )
+            
+            # Handle exceptions from individual calls
+            if isinstance(h2h_data, Exception):
+                self.logger.warning(f"H2H data fetch failed: {h2h_data}")
+                h2h_data = self._create_fallback_h2h_direct_response(
+                    home_team_id, away_team_id, home_team_name, away_team_name, str(h2h_data)
+                )
+            
+            if isinstance(home_matches_data, Exception):
+                self.logger.warning(f"Home team matches fetch failed: {home_matches_data}")
+                home_matches_data = self._create_fallback_team_matches_response(home_team_id, 10, str(home_matches_data))
+            
+            if isinstance(away_matches_data, Exception):
+                self.logger.warning(f"Away team matches fetch failed: {away_matches_data}")
+                away_matches_data = self._create_fallback_team_matches_response(away_team_id, 10, str(away_matches_data))
+            
+            # Combine all data sources
+            comprehensive_analysis = {
+                "match_info": {
+                    "home_team_id": home_team_id,
+                    "away_team_id": away_team_id,
+                    "home_team_name": home_team_name,
+                    "away_team_name": away_team_name,
+                    "league_id": league_id
+                },
+                "h2h_analysis": h2h_data,
+                "home_team_analysis": home_matches_data,
+                "away_team_analysis": away_matches_data,
+                "data_sources": {
+                    "h2h_endpoint": h2h_data.get('success', False),
+                    "home_matches_endpoint": home_matches_data.get('success', False),
+                    "away_matches_endpoint": away_matches_data.get('success', False)
+                },
+                "analysis_timestamp": datetime.utcnow().isoformat(),
+                "success": True
+            }
+            
+            self.logger.info(f"Successfully fetched comprehensive analysis for {home_team_name} vs {away_team_name}")
+            return comprehensive_analysis
+            
+        except Exception as e:
+            error = MCPDataError(
+                f"Unexpected error in comprehensive match analysis for {home_team_name} vs {away_team_name}: {str(e)}",
+                "comprehensive_analysis",
+                context=context
+            )
+            bot_logger.log_operation_error("get_comprehensive_match_analysis", error, context)
+            
+            # Return fallback with partial data if possible
+            return {
+                "match_info": {
+                    "home_team_id": home_team_id,
+                    "away_team_id": away_team_id,
+                    "home_team_name": home_team_name,
+                    "away_team_name": away_team_name,
+                    "league_id": league_id
+                },
+                "h2h_analysis": self._create_fallback_h2h_direct_response(
+                    home_team_id, away_team_id, home_team_name, away_team_name, str(e)
+                ),
+                "home_team_analysis": self._create_fallback_team_matches_response(home_team_id, 10, str(e)),
+                "away_team_analysis": self._create_fallback_team_matches_response(away_team_id, 10, str(e)),
+                "data_sources": {
+                    "h2h_endpoint": False,
+                    "home_matches_endpoint": False,
+                    "away_matches_endpoint": False
+                },
+                "analysis_timestamp": datetime.utcnow().isoformat(),
+                "success": False,
+                "error": str(e),
+                "fallback": True,
+                "message": "Comprehensive analysis temporarily unavailable. Please try again later."
+            }
     
     async def get_betting_odds(self, match_id: int) -> Dict[str, Any]:
         """

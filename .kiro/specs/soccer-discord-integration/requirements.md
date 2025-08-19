@@ -8,39 +8,40 @@ This feature will integrate soccer data from the existing Soccer MCP server into
 
 ### Requirement 1
 
-**User Story:** As a Discord server administrator, I want to create soccer game channels for a specific date using a slash command, so that users can discuss and analyze upcoming soccer matches.
+**User Story:** As a Discord server administrator, I want to create soccer game channels for a specific date using a slash command, with each channel automatically populated with comprehensive H2H analysis, so that users have immediate access to detailed match analysis.
 
 #### Acceptance Criteria
 
 1. WHEN an administrator uses the `/create-channels` command THEN the system SHALL display a dropdown menu with sport options including "Soccer"
 2. WHEN the administrator selects "Soccer" from the dropdown THEN the system SHALL prompt for a date input in MM/DD/YYYY format
 3. WHEN a valid date is provided THEN the system SHALL fetch soccer matches from the Soccer MCP server for that date
-4. WHEN matches are found THEN the system SHALL create individual channels for each match under the "⚽ SOCCER" category
-5. WHEN no matches are found THEN the system SHALL display an informative message explaining no matches were scheduled for that date
+4. WHEN matches are found THEN the system SHALL create individual channels for each match under the "⚽ SOCCER" category AND automatically populate each channel with comprehensive H2H analysis
+5. WHEN each channel is created THEN the system SHALL immediately fetch and display both H2H data and comprehensive team analysis (recent 10 games) similar to schedule.py functionality
+6. WHEN no matches are found THEN the system SHALL display an informative message explaining no matches were scheduled for that date
 
 ### Requirement 2
 
-**User Story:** As a Discord user, I want soccer game channels to contain comprehensive match information and betting data, so that I can make informed betting decisions.
+**User Story:** As a Discord user, I want soccer game channels to be automatically populated with comprehensive match information, betting data, and detailed H2H analysis upon creation, so that I have immediate access to all relevant analysis without additional commands.
 
 #### Acceptance Criteria
 
-1. WHEN a soccer game channel is created THEN the system SHALL post an initial embed with match details including team names, date, time, and venue
-2. WHEN betting odds are available THEN the system SHALL display moneyline, draw, and over/under odds in both decimal and American formats
-3. WHEN team information is available THEN the system SHALL include team logos, recent form, and league standings position
-4. WHEN the match has historical data THEN the system SHALL provide head-to-head statistics between the teams
-5. WHEN match events occur THEN the system SHALL support future live updates (goals, cards, substitutions)
+1. WHEN a soccer game channel is created THEN the system SHALL automatically post multiple embeds: match preview, comprehensive H2H analysis, team analysis for both teams, and betting recommendations
+2. WHEN betting odds are available THEN the system SHALL display moneyline, draw, and over/under odds in both decimal and American formats in the match preview embed
+3. WHEN team information is available THEN the system SHALL automatically fetch and display recent 10 games analysis for each team including goals per game, clean sheets, card discipline, and advanced metrics
+4. WHEN H2H data exists THEN the system SHALL automatically display both historical H2H record AND recent H2H meetings with detailed match events (following schedule.py methodology)
+5. WHEN comprehensive analysis is complete THEN the system SHALL automatically generate and display specific betting recommendations based on team form and H2H patterns
 
 ### Requirement 3
 
-**User Story:** As a Discord user, I want to access detailed head-to-head analysis for any soccer match, so that I can understand historical performance patterns between teams.
+**User Story:** As a Discord user, I want to access comprehensive analysis using BOTH the H2H endpoint AND the matches endpoint, so that I can see both direct head-to-head history AND detailed individual team form analysis.
 
 #### Acceptance Criteria
 
-1. WHEN a user requests H2H analysis in a game channel THEN the system SHALL fetch comprehensive historical data between the two teams
-2. WHEN H2H data exists THEN the system SHALL display overall win/loss/draw records, goals scored/conceded, and home/away performance splits
-3. WHEN recent form data is available THEN the system SHALL show last 5-10 matches for each team with results, goals, and key statistics
-4. WHEN betting insights can be calculated THEN the system SHALL provide recommendations for Over/Under, BTTS (Both Teams to Score), and match outcome markets
-5. WHEN advanced metrics are available THEN the system SHALL include cards per game, clean sheet frequency, and goal timing patterns
+1. WHEN a game channel is created THEN the system SHALL make THREE MCP calls: one H2H endpoint call for direct head-to-head record, and two matches endpoint calls for recent 10 games of each team
+2. WHEN H2H endpoint data is available THEN the system SHALL display the direct historical record between the two teams (total meetings, wins/losses/draws, goals scored/conceded)
+3. WHEN matches endpoint data is processed THEN the system SHALL display detailed individual team analysis for both teams including recent form (W-L-D), goals per game, halftime performance, clean sheet frequency, and card discipline
+4. WHEN both data sources are combined THEN the system SHALL provide comprehensive betting insights using H2H patterns AND individual team form patterns for Over/Under, BTTS, and match outcome recommendations
+5. WHEN advanced metrics are calculated from matches data THEN the system SHALL include early/late goal patterns, comeback win frequency, home vs away performance splits, and late drama indicators
 
 ### Requirement 4
 
@@ -77,3 +78,15 @@ This feature will integrate soccer data from the existing Soccer MCP server into
 3. WHEN multiple leagues have matches on the same date THEN the system SHALL organize channels by league priority or alphabetically
 4. WHEN league-specific data is available THEN the system SHALL include competition context (league position, points, goal difference)
 5. WHEN tournament matches occur THEN the system SHALL handle knockout stages, group stages, and qualification rounds appropriately
+
+### Requirement 7
+
+**User Story:** As a Discord user, I want the system to provide intelligent betting recommendations based on comprehensive team analysis from the matches endpoint, so that I can make informed betting decisions with detailed statistical backing similar to the schedule.py functionality.
+
+#### Acceptance Criteria
+
+1. WHEN comprehensive team data is analyzed from recent matches THEN the system SHALL generate specific betting market recommendations (Over/Under 2.5, BTTS Yes/No, Cards markets) using the same methodology as schedule.py
+2. WHEN team attacking patterns are identified from match history THEN the system SHALL recommend Over 2.5 goals for teams averaging >2.0 goals per game or Under 2.5 for teams averaging <1.5 goals per game
+3. WHEN defensive patterns are analyzed from recent form THEN the system SHALL identify "leaky defense" (>2.0 goals conceded per game) or "solid defense" (<1.0 goals conceded per game) patterns with supporting statistics
+4. WHEN BTTS patterns are calculated from match events THEN the system SHALL recommend BTTS Yes for teams with >60% both-teams-score frequency or BTTS No for teams with <30% frequency based on recent 10 games
+5. WHEN advanced patterns are detected from comprehensive match data THEN the system SHALL identify late drama teams (frequent 75+ minute goals), high card count teams (>4 cards per game), comeback specialists, and early goal patterns for specialized betting markets

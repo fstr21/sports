@@ -16,6 +16,12 @@ from soccer_error_handling import (
     retry_with_backoff, GracefulDegradation, error_handler, bot_logger
 )
 
+# Import data classes for type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from soccer_integration import H2HHistoricalRecord, TeamAnalysis
+    from soccer_embed_builder import SoccerEmbedBuilder
+
 # Data classes for soccer integration
 from dataclasses import dataclass
 from typing import Optional
@@ -1091,3 +1097,5 @@ class SoccerChannelManager:
         except Exception as e:
             self.logger.error(f"Error in create_match_channel: {e}")
             return None
+    
+    

@@ -482,40 +482,57 @@ def create_comprehensive_match_embed(match, league_name, h2h_data=None):
             team2_record = h2h_data.get('team_2_record', {})
             draws = h2h_data.get('draws', {})
             
-            h2h_text = f"**Total Meetings:** {total_meetings}\n"
-            h2h_text += f"**{home_name}:** {team1_record.get('wins', 0)}W ({team1_record.get('win_rate', 0):.1f}%)\n"
-            h2h_text += f"**{away_name}:** {team2_record.get('wins', 0)}W ({team2_record.get('win_rate', 0):.1f}%)\n"
-            h2h_text += f"**Draws:** {draws.get('count', 0)} ({draws.get('rate', 0):.1f}%)"
+            h2h_text = f"**Meetings:** {total_meetings} | **{home_name}:** {team1_record.get('wins', 0)}W ({team1_record.get('win_rate', 0):.1f}%) | **{away_name}:** {team2_record.get('wins', 0)}W ({team2_record.get('win_rate', 0):.1f}%) | **Draws:** {draws.get('count', 0)}"
             
             embed.add_field(
-                name="📊 Head-to-Head Record",
+                name="📊 H2H Record",
                 value=h2h_text,
                 inline=False
             )
             
-            # Add goals analysis
+            # Add comprehensive goals and betting analysis
             goals = h2h_data.get('goals', {})
+            betting_insights = h2h_data.get('betting_insights', {})
+            
+            insights_text = ""
             if goals:
                 avg_goals = goals.get('average_per_game', 0)
-                embed.add_field(
-                    name="⚽ Historical Goals",
-                    value=f"**Avg per game:** {avg_goals:.2f}\n**{home_name} total:** {goals.get('team_1_total', 0)}\n**{away_name} total:** {goals.get('team_2_total', 0)}",
-                    inline=True
-                )
+                insights_text += f"**Avg Goals:** {avg_goals:.2f}/game\n"
+                
+                if avg_goals > 2.8:
+                    insights_text += "🔥 **OVER 2.5 Goals** - High-scoring history\n"
+                elif avg_goals < 2.2:
+                    insights_text += "🛡️ **UNDER 2.5 Goals** - Low-scoring trend\n"
+                else:
+                    insights_text += "⚖️ **Goals Market Balanced**\n"
             
-            # Add betting insights
-            betting_insights = h2h_data.get('betting_insights', {})
             if betting_insights:
-                trend = betting_insights.get('goals_trend', 'Balanced scoring')
+                trend = betting_insights.get('goals_trend', '')
+                if trend:
+                    insights_text += f"**Trend:** {trend}"
+            
+            if insights_text:
                 embed.add_field(
-                    name="💡 Betting Insights",
-                    value=f"**Historical Trend:** {trend}",
-                    inline=True
+                    name="💡 Betting Analysis",
+                    value=insights_text,
+                    inline=False
                 )
+        else:
+            # Even with 0 meetings, show that analysis was attempted
+            embed.add_field(
+                name="📊 H2H Analysis",
+                value=f"**No historical meetings** between {home_name} and {away_name}\nConsider recent form and league context for betting",
+                inline=False
+            )
     else:
+        # Show error details for debugging
+        error_msg = "Analysis in progress..."
+        if h2h_data and "error" in h2h_data:
+            error_msg = f"H2H data unavailable: {h2h_data['error']}"
+        
         embed.add_field(
-            name="📊 Head-to-Head Analysis",
-            value="No historical data available or analysis in progress...",
+            name="📊 H2H Analysis",
+            value=error_msg,
             inline=False
         )
     

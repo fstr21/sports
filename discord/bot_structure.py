@@ -663,141 +663,98 @@ def validate_date_input(date_string: str) -> str:
 
 async def handle_soccer_channel_creation(interaction: discord.Interaction, date: str):
     """
-    Handle soccer-specific channel creation workflow - now uses comprehensive MCP analysis like schedule.py
+    Enhanced soccer channel creation with automatic dual-endpoint analysis population
     
     Args:
         interaction: Discord interaction object
-        date: Validated date string in YYYY-MM-DD format (needs to be converted to DD-MM-YYYY)
+        date: Validated date string in YYYY-MM-DD format
     """
     try:
-        # Convert date format from YYYY-MM-DD to DD-MM-YYYY for MCP compatibility
-        from datetime import datetime
-        parsed_date = datetime.strptime(date, "%Y-%m-%d")
-        mcp_date = parsed_date.strftime("%d-%m-%Y")
-        
-        # League configurations - same as schedule.py
-        LEAGUES = {
-            "EPL": {"id": 228, "name": "Premier League", "country": "England"},
-            "La Liga": {"id": 297, "name": "La Liga", "country": "Spain"}, 
-            "MLS": {"id": 168, "name": "MLS", "country": "USA"},
-            "Bundesliga": {"id": 241, "name": "Bundesliga", "country": "Germany"},
-            "Serie A": {"id": 253, "name": "Serie A", "country": "Italy"},
-            "UEFA": {"id": 310, "name": "UEFA Champions League", "country": "Europe"}
-        }
-        
-        # Initialize comprehensive match search
-        embed = discord.Embed(
+        # Initialize progress tracking
+        progress_embed = discord.Embed(
             title="🔍 Searching for Soccer Matches",
             description=f"Searching across 6 major leagues for {date}...",
             color=0x0099ff
         )
-        await interaction.followup.send(embed=embed)
+        progress_message = await interaction.followup.send(embed=progress_embed)
         
-        all_matches = []
-        leagues_with_matches = 0
-        total_matches = 0
+        # Use the enhanced soccer channel manager for comprehensive analysis
+        result = await bot.soccer_channel_manager.create_match_channels_with_comprehensive_analysis(
+            date, interaction.guild, interaction
+        )
         
-        # Search each league using the enhanced MCP server (like schedule.py does)
-        for league_code, league_info in LEAGUES.items():
-            try:
-                # Call the new get_betting_matches tool we added
-                matches_data = await mcp_call_from_discord("get_betting_matches", {
-                    "date": mcp_date,
-                    "league_filter": league_code
-                })
-                
-                if "error" in matches_data:
-                    logger.warning(f"Error getting matches for {league_code}: {matches_data['error']}")
-                    continue
-                
-                # Extract matches for this league
-                matches_by_league = matches_data.get('matches_by_league', {})
-                league_matches = matches_by_league.get(league_code, [])
-                
-                if not league_matches:
-                    continue
-                
-                leagues_with_matches += 1
-                total_matches += len(league_matches)
-                
-                # Add matches with league context
-                for match in league_matches:
-                    all_matches.append({
-                        'match': match,
-                        'league': league_info,
-                        'league_code': league_code
-                    })
+        # Update progress with final results
+        if result["successful_creations"] > 0:
+            final_embed = discord.Embed(
+                title="✅ Soccer Channels Created with Analysis",
+                description=f"Successfully created {result['successful_creations']} channels with comprehensive dual-endpoint analysis",
+                color=0x00ff00
+            )
             
-            except Exception as e:
-                logger.warning(f"Failed to get matches for {league_code}: {e}")
-                continue
+            # Add channel summary
+            if result["created_channels"]:
+                channel_list = []
+                total_shown = 0
+                for league, channels in result["created_channels"].items():
+                    for channel in channels[:5]:  # Show max 5 per league
+                        if total_shown < 10:  # Discord embed limit
+                            channel_list.append(f"⚽ {channel.mention}")
+                            total_shown += 1
+                
+                if channel_list:
+                    final_embed.add_field(
+                        name="📊 Created Channels",
+                        value="\n".join(channel_list),
+                        inline=False
+                    )
+            
+            # Add analysis summary
+            final_embed.add_field(
+                name="🔍 Analysis Features",
+                value="• Match Preview with Odds\n• H2H Historical Record\n• Home Team Analysis\n• Away Team Analysis\n• Betting Insights",
+                inline=True
+            )
+            
+            if result["failed_creations"] > 0:
+                final_embed.add_field(
+                    name="⚠️ Partial Success",
+                    value=f"{result['failed_creations']} channels failed to create",
+                    inline=True
+                )
         
-        if total_matches == 0:
-            embed = discord.Embed(
+        elif result["total_matches"] == 0:
+            final_embed = discord.Embed(
                 title="📅 No Matches Found",
                 description=f"No soccer matches found for {date} across all leagues",
                 color=0xffa500
             )
-            await interaction.followup.send(embed=embed)
-            return
         
-        # Send summary of found matches
-        embed = discord.Embed(
-            title="⚽ Soccer Matches Found",
-            description=f"Found {total_matches} matches across {leagues_with_matches} leagues for {date}",
-            color=0x00ff00
-        )
-        await interaction.followup.send(embed=embed)
-        
-        # Find or create soccer category
-        category = discord.utils.get(interaction.guild.categories, id=1407254164702101545)
-        if not category:
-            embed = discord.Embed(
-                title="❌ Category Not Found",
-                description="Soccer category (ID: 1407254164702101545) not found in this server",
+        else:
+            final_embed = discord.Embed(
+                title="❌ Channel Creation Failed",
+                description="Failed to create soccer match channels. Check logs for details.",
                 color=0xff0000
             )
-            await interaction.followup.send(embed=embed)
-            return
-        
-        created_channels = []
-        
-        # Create channels for each match (like schedule.py workflow)
-        for match_data in all_matches:
-            match = match_data['match']
-            league_info = match_data['league']
-            league_code = match_data['league_code']
             
-            # Extract team info
-            teams = match.get('teams', {})
-            home_team = teams.get('home', {})
-            away_team = teams.get('away', {})
-            
-            home_name = home_team.get('name', 'TBD')
-            away_name = away_team.get('name', 'TBD')
-            
-            # Generate channel name (similar to schedule.py format)
-            channel_name = f"📊-{mcp_date.replace('-', '')}-{away_name.lower().replace(' ', '-')}-vs-{home_name.lower().replace(' ', '-')}"
-            
-            # Truncate if too long for Discord
-            if len(channel_name) > 100:
-                channel_name = channel_name[:97] + "..."
-            
-            try:
-                # Create channel
-                channel = await category.create_text_channel(
-                    name=channel_name,
-                    topic=f"{home_name} vs {away_name} | {league_info['name']} | {date}"
+            if result["errors"]:
+                error_summary = "\n".join(result["errors"][:3])  # Show first 3 errors
+                final_embed.add_field(
+                    name="Error Details",
+                    value=error_summary,
+                    inline=False
                 )
-                
-                created_channels.append(channel)
-                
-                # Create comprehensive embed with betting data (like schedule.py)
-                embed = discord.Embed(
-                    title=f"⚽ {home_name} vs {away_name}",
-                    description=f"**{league_info['name']}** ({league_info['country']})",
-                    color=0x00ff00
-                )
+        
+        # Update the progress message with final results
+        await progress_message.edit(embed=final_embed)
+        
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Error in enhanced soccer channel creation: {e}")
+        error_embed = discord.Embed(
+            title="❌ Channel Creation Error",
+            description="An unexpected error occurred during channel creation",
+            color=0xff0000
+        )
+        await interaction.followup.send(embed=error_embed)
                 
                 # Add match details
                 embed.add_field(
