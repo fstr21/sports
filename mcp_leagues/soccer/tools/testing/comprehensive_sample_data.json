@@ -1,0 +1,1133 @@
+[
+  {
+    "basic_info": {
+      "match_id": 924870,
+      "date": "24/05/2025",
+      "time": "14:15",
+      "status": "finished",
+      "minute": -1,
+      "winner": "home",
+      "has_extra_time": false,
+      "has_penalties": false
+    },
+    "teams": {
+      "home_team": {
+        "id": 4883,
+        "name": "Real Madrid"
+      },
+      "away_team": {
+        "id": 4885,
+        "name": "Real Sociedad"
+      }
+    },
+    "goals": {
+      "halftime": {
+        "home": 1,
+        "away": 0
+      },
+      "fulltime": {
+        "home": 2,
+        "away": 0
+      },
+      "extra_time": {
+        "home": -1,
+        "away": -1
+      },
+      "penalties": {
+        "home": -1,
+        "away": -1
+      }
+    },
+    "events_breakdown": {
+      "total_events": 11,
+      "goals": [
+        {
+          "minute": 38,
+          "team": "home",
+          "player": "K. Mbapp\u00e9",
+          "assist": null
+        },
+        {
+          "minute": 83,
+          "team": "home",
+          "player": "K. Mbapp\u00e9",
+          "assist": "Vin\u00edcius J\u00fanior"
+        }
+      ],
+      "yellow_cards": [],
+      "red_cards": [],
+      "substitutions": [
+        {
+          "minute": 46,
+          "team": "away",
+          "player_in": "Jon Ander Olasagasti",
+          "player_out": "Pablo Mar\u00edn"
+        },
+        {
+          "minute": 55,
+          "team": "home",
+          "player_in": "Vin\u00edcius J\u00fanior",
+          "player_out": "Brahim D\u00edaz"
+        },
+        {
+          "minute": 56,
+          "team": "home",
+          "player_in": "Vallejo",
+          "player_out": "A. Tchouam\u00e9ni"
+        },
+        {
+          "minute": 70,
+          "team": "away",
+          "player_in": "Mart\u00edn Zubimendi",
+          "player_out": "Be\u00f1at Turrientes"
+        },
+        {
+          "minute": 71,
+          "team": "away",
+          "player_in": "Mikel Oyarzabal",
+          "player_out": "A. Mariezkurrena"
+        },
+        {
+          "minute": 71,
+          "team": "away",
+          "player_in": "Barrenetxea",
+          "player_out": "Sergio G\u00f3mez"
+        },
+        {
+          "minute": 77,
+          "team": "home",
+          "player_in": "Gonzalo Garc\u00eda",
+          "player_out": "Lucas V\u00e1zquez"
+        },
+        {
+          "minute": 84,
+          "team": "away",
+          "player_in": "Brais M\u00e9ndez",
+          "player_out": "L. Su\u010di\u0107"
+        },
+        {
+          "minute": 87,
+          "team": "home",
+          "player_in": "Chema Andr\u00e9s",
+          "player_out": "L. Modri\u0107"
+        }
+      ],
+      "other_events": []
+    },
+    "goal_timing": {
+      "first_half_goals": 1,
+      "second_half_goals": 1,
+      "early_goals": 0,
+      "late_goals": 1,
+      "goal_minutes": [
+        38,
+        83
+      ]
+    },
+    "card_discipline": {
+      "home_yellow_cards": 0,
+      "away_yellow_cards": 0,
+      "home_red_cards": 0,
+      "away_red_cards": 0,
+      "total_cards": 0,
+      "card_minutes": []
+    },
+    "substitution_analysis": {
+      "home_subs": 4,
+      "away_subs": 5,
+      "early_subs": 3,
+      "late_subs": 3,
+      "substitution_minutes": [
+        46,
+        55,
+        56,
+        70,
+        71,
+        71,
+        77,
+        84,
+        87
+      ]
+    },
+    "odds": {
+      "available": true,
+      "match_winner": {
+        "home": 1.36,
+        "draw": 5.65,
+        "away": 7.18
+      },
+      "over_under": {
+        "total": 3.5,
+        "over": 1.83,
+        "under": 2.0
+      },
+      "other_markets": {
+        "handicap": {
+          "market": -1.5,
+          "home": 1.94,
+          "away": 1.95
+        },
+        "last_modified_timestamp": 1748104337
+      }
+    },
+    "additional_info": {
+      "match_preview": {
+        "has_preview": true,
+        "word_count": 568,
+        "excitement_rating": 7.44
+      },
+      "venue": {},
+      "referee": {},
+      "weather": {},
+      "attendance": null,
+      "formations": {}
+    },
+    "insights": {
+      "match_result": "home_win",
+      "halftime_result": "home_leading",
+      "comeback_win": null,
+      "clean_sheet": {
+        "home": true,
+        "away": false
+      },
+      "high_scoring": false,
+      "low_scoring": false,
+      "both_teams_scored": false,
+      "disciplinary_heavy": false,
+      "early_goal": false,
+      "late_drama": true
+    },
+    "raw_events": [
+      {
+        "event_type": "goal",
+        "event_minute": "38",
+        "team": "home",
+        "player": {
+          "id": 64301,
+          "name": "K. Mbapp\u00e9"
+        },
+        "assist_player": null
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "46",
+        "team": "away",
+        "player_in": {
+          "id": 44027,
+          "name": "Jon Ander Olasagasti"
+        },
+        "player_out": {
+          "id": 44026,
+          "name": "Pablo Mar\u00edn"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "55",
+        "team": "home",
+        "player_in": {
+          "id": 82254,
+          "name": "Vin\u00edcius J\u00fanior"
+        },
+        "player_out": {
+          "id": 82222,
+          "name": "Brahim D\u00edaz"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "56",
+        "team": "home",
+        "player_in": {
+          "id": 48709,
+          "name": "Vallejo"
+        },
+        "player_out": {
+          "id": 82245,
+          "name": "A. Tchouam\u00e9ni"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "70",
+        "team": "away",
+        "player_in": {
+          "id": 82268,
+          "name": "Mart\u00edn Zubimendi"
+        },
+        "player_out": {
+          "id": 82264,
+          "name": "Be\u00f1at Turrientes"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "71",
+        "team": "away",
+        "player_in": {
+          "id": 82280,
+          "name": "Mikel Oyarzabal"
+        },
+        "player_out": {
+          "id": 247931,
+          "name": "A. Mariezkurrena"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "71",
+        "team": "away",
+        "player_in": {
+          "id": 82270,
+          "name": "Barrenetxea"
+        },
+        "player_out": {
+          "id": 61715,
+          "name": "Sergio G\u00f3mez"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "77",
+        "team": "home",
+        "player_in": {
+          "id": 194798,
+          "name": "Gonzalo Garc\u00eda"
+        },
+        "player_out": {
+          "id": 82251,
+          "name": "Lucas V\u00e1zquez"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "83",
+        "team": "home",
+        "player": {
+          "id": 64301,
+          "name": "K. Mbapp\u00e9"
+        },
+        "assist_player": {
+          "id": 82254,
+          "name": "Vin\u00edcius J\u00fanior"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "84",
+        "team": "away",
+        "player_in": {
+          "id": 82256,
+          "name": "Brais M\u00e9ndez"
+        },
+        "player_out": {
+          "id": 40905,
+          "name": "L. Su\u010di\u0107"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "87",
+        "team": "home",
+        "player_in": {
+          "id": 239049,
+          "name": "Chema Andr\u00e9s"
+        },
+        "player_out": {
+          "id": 82239,
+          "name": "L. Modri\u0107"
+        }
+      }
+    ],
+    "team_context": {
+      "is_home": true,
+      "opponent": {
+        "id": 4885,
+        "name": "Real Sociedad"
+      },
+      "result_from_team_perspective": "W"
+    }
+  },
+  {
+    "basic_info": {
+      "match_id": 924865,
+      "date": "18/05/2025",
+      "time": "17:00",
+      "status": "finished",
+      "minute": -1,
+      "winner": "away",
+      "has_extra_time": false,
+      "has_penalties": false
+    },
+    "teams": {
+      "home_team": {
+        "id": 3019,
+        "name": "Sevilla"
+      },
+      "away_team": {
+        "id": 4883,
+        "name": "Real Madrid"
+      }
+    },
+    "goals": {
+      "halftime": {
+        "home": 0,
+        "away": 0
+      },
+      "fulltime": {
+        "home": 0,
+        "away": 2
+      },
+      "extra_time": {
+        "home": -1,
+        "away": -1
+      },
+      "penalties": {
+        "home": -1,
+        "away": -1
+      }
+    },
+    "events_breakdown": {
+      "total_events": 14,
+      "goals": [
+        {
+          "minute": 75,
+          "team": "away",
+          "player": "K. Mbapp\u00e9",
+          "assist": "L. Modri\u0107"
+        },
+        {
+          "minute": 87,
+          "team": "away",
+          "player": "J. Bellingham",
+          "assist": "Gonzalo Garc\u00eda"
+        }
+      ],
+      "yellow_cards": [
+        {
+          "minute": 66,
+          "team": "away",
+          "player": "J. Bellingham",
+          "card_type": "yellow_card"
+        }
+      ],
+      "red_cards": [
+        {
+          "minute": 12,
+          "team": "home",
+          "player": "L. Bad\u00e9",
+          "card_type": "red_card"
+        },
+        {
+          "minute": 46,
+          "team": "home",
+          "player": "Isaac",
+          "card_type": "red_card"
+        }
+      ],
+      "substitutions": [
+        {
+          "minute": 46,
+          "team": "home",
+          "player_in": "Isaac",
+          "player_out": "D. Luk\u00e9bakio"
+        },
+        {
+          "minute": 52,
+          "team": "home",
+          "player_in": "Adri\u00e0 Pedrosa",
+          "player_out": "A. Pascual"
+        },
+        {
+          "minute": 58,
+          "team": "away",
+          "player_in": "Victor Mu\u00f1oz",
+          "player_out": "Endrick"
+        },
+        {
+          "minute": 66,
+          "team": "away",
+          "player_in": "Gonzalo Garc\u00eda",
+          "player_out": "Vallejo"
+        },
+        {
+          "minute": 77,
+          "team": "away",
+          "player_in": "Lucas V\u00e1zquez",
+          "player_out": "A. G\u00fcler"
+        },
+        {
+          "minute": 77,
+          "team": "away",
+          "player_in": "Dani Ceballos",
+          "player_out": "Fran Garc\u00eda"
+        },
+        {
+          "minute": 77,
+          "team": "home",
+          "player_in": "Peque Fern\u00e1ndez",
+          "player_out": "Juanlu S\u00e1nchez"
+        },
+        {
+          "minute": 78,
+          "team": "home",
+          "player_in": "A. Sambi Lokonga",
+          "player_out": "Suso"
+        },
+        {
+          "minute": 82,
+          "team": "home",
+          "player_in": "Manu Bueno",
+          "player_out": "D. Sow"
+        }
+      ],
+      "other_events": []
+    },
+    "goal_timing": {
+      "first_half_goals": 0,
+      "second_half_goals": 2,
+      "early_goals": 0,
+      "late_goals": 2,
+      "goal_minutes": [
+        75,
+        87
+      ]
+    },
+    "card_discipline": {
+      "home_yellow_cards": 0,
+      "away_yellow_cards": 1,
+      "home_red_cards": 2,
+      "away_red_cards": 0,
+      "total_cards": 3,
+      "card_minutes": [
+        12,
+        46,
+        66
+      ]
+    },
+    "substitution_analysis": {
+      "home_subs": 5,
+      "away_subs": 4,
+      "early_subs": 3,
+      "late_subs": 5,
+      "substitution_minutes": [
+        46,
+        52,
+        58,
+        66,
+        77,
+        77,
+        77,
+        78,
+        82
+      ]
+    },
+    "odds": {
+      "available": true,
+      "match_winner": {
+        "home": 3.2,
+        "draw": 3.7,
+        "away": 2.14
+      },
+      "over_under": {
+        "total": 2.75,
+        "over": 1.71,
+        "under": 2.2
+      },
+      "other_markets": {
+        "handicap": {
+          "market": "+0.5",
+          "home": 1.74,
+          "away": 2.21
+        },
+        "last_modified_timestamp": 1747594864
+      }
+    },
+    "additional_info": {
+      "match_preview": {
+        "has_preview": true,
+        "word_count": 597,
+        "excitement_rating": 6.97
+      },
+      "venue": {},
+      "referee": {},
+      "weather": {},
+      "attendance": null,
+      "formations": {}
+    },
+    "insights": {
+      "match_result": "away_win",
+      "halftime_result": "tied",
+      "comeback_win": "second_half_winner",
+      "clean_sheet": {
+        "home": false,
+        "away": true
+      },
+      "high_scoring": false,
+      "low_scoring": false,
+      "both_teams_scored": false,
+      "disciplinary_heavy": false,
+      "early_goal": false,
+      "late_drama": true
+    },
+    "raw_events": [
+      {
+        "event_type": "red_card",
+        "event_minute": "12",
+        "team": "home",
+        "player": {
+          "id": 41434,
+          "name": "L. Bad\u00e9"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "46",
+        "team": "home",
+        "player_in": {
+          "id": 41525,
+          "name": "Isaac"
+        },
+        "player_out": {
+          "id": 41038,
+          "name": "D. Luk\u00e9bakio"
+        }
+      },
+      {
+        "event_type": "red_card",
+        "event_minute": "46",
+        "team": "home",
+        "player": {
+          "id": 41525,
+          "name": "Isaac"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "52",
+        "team": "home",
+        "player_in": {
+          "id": 41444,
+          "name": "Adri\u00e0 Pedrosa"
+        },
+        "player_out": {
+          "id": 249750,
+          "name": "A. Pascual"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "58",
+        "team": "away",
+        "player_in": {
+          "id": 262621,
+          "name": "Victor Mu\u00f1oz"
+        },
+        "player_out": {
+          "id": 56562,
+          "name": "Endrick"
+        }
+      },
+      {
+        "event_type": "yellow_card",
+        "event_minute": "66",
+        "team": "away",
+        "player": {
+          "id": 82225,
+          "name": "J. Bellingham"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "66",
+        "team": "away",
+        "player_in": {
+          "id": 194798,
+          "name": "Gonzalo Garc\u00eda"
+        },
+        "player_out": {
+          "id": 48709,
+          "name": "Vallejo"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "75",
+        "team": "away",
+        "player": {
+          "id": 64301,
+          "name": "K. Mbapp\u00e9"
+        },
+        "assist_player": {
+          "id": 82239,
+          "name": "L. Modri\u0107"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "77",
+        "team": "away",
+        "player_in": {
+          "id": 82251,
+          "name": "Lucas V\u00e1zquez"
+        },
+        "player_out": {
+          "id": 82233,
+          "name": "A. G\u00fcler"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "77",
+        "team": "away",
+        "player_in": {
+          "id": 82227,
+          "name": "Dani Ceballos"
+        },
+        "player_out": {
+          "id": 82212,
+          "name": "Fran Garc\u00eda"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "77",
+        "team": "home",
+        "player_in": {
+          "id": 83015,
+          "name": "Peque Fern\u00e1ndez"
+        },
+        "player_out": {
+          "id": 41500,
+          "name": "Juanlu S\u00e1nchez"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "78",
+        "team": "home",
+        "player_in": {
+          "id": 42528,
+          "name": "A. Sambi Lokonga"
+        },
+        "player_out": {
+          "id": 41468,
+          "name": "Suso"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "82",
+        "team": "home",
+        "player_in": {
+          "id": 41462,
+          "name": "Manu Bueno"
+        },
+        "player_out": {
+          "id": 40995,
+          "name": "D. Sow"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "87",
+        "team": "away",
+        "player": {
+          "id": 82225,
+          "name": "J. Bellingham"
+        },
+        "assist_player": {
+          "id": 194798,
+          "name": "Gonzalo Garc\u00eda"
+        }
+      }
+    ],
+    "team_context": {
+      "is_home": false,
+      "opponent": {
+        "id": 3019,
+        "name": "Sevilla"
+      },
+      "result_from_team_perspective": "W"
+    }
+  },
+  {
+    "basic_info": {
+      "match_id": 924856,
+      "date": "14/05/2025",
+      "time": "19:30",
+      "status": "finished",
+      "minute": -1,
+      "winner": "home",
+      "has_extra_time": false,
+      "has_penalties": false
+    },
+    "teams": {
+      "home_team": {
+        "id": 4883,
+        "name": "Real Madrid"
+      },
+      "away_team": {
+        "id": 2802,
+        "name": "Mallorca"
+      }
+    },
+    "goals": {
+      "halftime": {
+        "home": 0,
+        "away": 1
+      },
+      "fulltime": {
+        "home": 2,
+        "away": 1
+      },
+      "extra_time": {
+        "home": -1,
+        "away": -1
+      },
+      "penalties": {
+        "home": -1,
+        "away": -1
+      }
+    },
+    "events_breakdown": {
+      "total_events": 13,
+      "goals": [
+        {
+          "minute": 11,
+          "team": "away",
+          "player": "M. Valjent",
+          "assist": null
+        },
+        {
+          "minute": 68,
+          "team": "home",
+          "player": "K. Mbapp\u00e9",
+          "assist": "L. Modri\u0107"
+        },
+        {
+          "minute": 90,
+          "team": "home",
+          "player": "Jacobo Naveros",
+          "assist": "Vallejo"
+        }
+      ],
+      "yellow_cards": [
+        {
+          "minute": 39,
+          "team": "away",
+          "player": "Antonio S\u00e1nchez",
+          "card_type": "yellow_card"
+        },
+        {
+          "minute": 55,
+          "team": "away",
+          "player": "Sam\u00fa Costa",
+          "card_type": "yellow_card"
+        },
+        {
+          "minute": 82,
+          "team": "away",
+          "player": "Pablo Maffeo",
+          "card_type": "yellow_card"
+        }
+      ],
+      "red_cards": [],
+      "substitutions": [
+        {
+          "minute": 59,
+          "team": "away",
+          "player_in": "Omar Mascarell",
+          "player_out": "Antonio S\u00e1nchez"
+        },
+        {
+          "minute": 59,
+          "team": "away",
+          "player_in": "Dani Rodr\u00edguez",
+          "player_out": "C. Larin"
+        },
+        {
+          "minute": 64,
+          "team": "home",
+          "player_in": "Vallejo",
+          "player_out": "Mario Rivas"
+        },
+        {
+          "minute": 74,
+          "team": "home",
+          "player_in": "Gonzalo Garc\u00eda",
+          "player_out": "Endrick"
+        },
+        {
+          "minute": 77,
+          "team": "away",
+          "player_in": "Pablo Maffeo",
+          "player_out": "Toni Lato"
+        },
+        {
+          "minute": 77,
+          "team": "away",
+          "player_in": "J. Mojica",
+          "player_out": "Mateu Morey"
+        },
+        {
+          "minute": 84,
+          "team": "away",
+          "player_in": "Marc Domenech",
+          "player_out": "Darder"
+        }
+      ],
+      "other_events": []
+    },
+    "goal_timing": {
+      "first_half_goals": 1,
+      "second_half_goals": 2,
+      "early_goals": 1,
+      "late_goals": 1,
+      "goal_minutes": [
+        11,
+        68,
+        90
+      ]
+    },
+    "card_discipline": {
+      "home_yellow_cards": 0,
+      "away_yellow_cards": 3,
+      "home_red_cards": 0,
+      "away_red_cards": 0,
+      "total_cards": 3,
+      "card_minutes": [
+        39,
+        55,
+        82
+      ]
+    },
+    "substitution_analysis": {
+      "home_subs": 2,
+      "away_subs": 5,
+      "early_subs": 2,
+      "late_subs": 3,
+      "substitution_minutes": [
+        59,
+        59,
+        64,
+        74,
+        77,
+        77,
+        84
+      ]
+    },
+    "odds": {
+      "available": true,
+      "match_winner": {
+        "home": 1.42,
+        "draw": 4.85,
+        "away": 7.0
+      },
+      "over_under": {
+        "total": 3.0,
+        "over": 1.93,
+        "under": 1.95
+      },
+      "other_markets": {
+        "handicap": {
+          "market": -1.5,
+          "home": 2.18,
+          "away": 1.73
+        },
+        "last_modified_timestamp": 1747258271
+      }
+    },
+    "additional_info": {
+      "match_preview": {
+        "has_preview": true,
+        "word_count": 545,
+        "excitement_rating": 5.97
+      },
+      "venue": {},
+      "referee": {},
+      "weather": {},
+      "attendance": null,
+      "formations": {}
+    },
+    "insights": {
+      "match_result": "home_win",
+      "halftime_result": "away_leading",
+      "comeback_win": "home_comeback",
+      "clean_sheet": {
+        "home": false,
+        "away": false
+      },
+      "high_scoring": true,
+      "low_scoring": false,
+      "both_teams_scored": true,
+      "disciplinary_heavy": false,
+      "early_goal": true,
+      "late_drama": true
+    },
+    "raw_events": [
+      {
+        "event_type": "goal",
+        "event_minute": "11",
+        "team": "away",
+        "player": {
+          "id": 37496,
+          "name": "M. Valjent"
+        },
+        "assist_player": null
+      },
+      {
+        "event_type": "yellow_card",
+        "event_minute": "39",
+        "team": "away",
+        "player": {
+          "id": 37510,
+          "name": "Antonio S\u00e1nchez"
+        }
+      },
+      {
+        "event_type": "yellow_card",
+        "event_minute": "55",
+        "team": "away",
+        "player": {
+          "id": 82608,
+          "name": "Sam\u00fa Costa"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "59",
+        "team": "away",
+        "player_in": {
+          "id": 37504,
+          "name": "Omar Mascarell"
+        },
+        "player_out": {
+          "id": 37510,
+          "name": "Antonio S\u00e1nchez"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "59",
+        "team": "away",
+        "player_in": {
+          "id": 37508,
+          "name": "Dani Rodr\u00edguez"
+        },
+        "player_out": {
+          "id": 43626,
+          "name": "C. Larin"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "64",
+        "team": "home",
+        "player_in": {
+          "id": 48709,
+          "name": "Vallejo"
+        },
+        "player_out": {
+          "id": 262763,
+          "name": "Mario Rivas"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "68",
+        "team": "home",
+        "player": {
+          "id": 64301,
+          "name": "K. Mbapp\u00e9"
+        },
+        "assist_player": {
+          "id": 82239,
+          "name": "L. Modri\u0107"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "74",
+        "team": "home",
+        "player_in": {
+          "id": 194798,
+          "name": "Gonzalo Garc\u00eda"
+        },
+        "player_out": {
+          "id": 56562,
+          "name": "Endrick"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "77",
+        "team": "away",
+        "player_in": {
+          "id": 37492,
+          "name": "Pablo Maffeo"
+        },
+        "player_out": {
+          "id": 37490,
+          "name": "Toni Lato"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "77",
+        "team": "away",
+        "player_in": {
+          "id": 31497,
+          "name": "J. Mojica"
+        },
+        "player_out": {
+          "id": 45173,
+          "name": "Mateu Morey"
+        }
+      },
+      {
+        "event_type": "yellow_card",
+        "event_minute": "82",
+        "team": "away",
+        "player": {
+          "id": 37492,
+          "name": "Pablo Maffeo"
+        }
+      },
+      {
+        "event_type": "substitution",
+        "event_minute": "84",
+        "team": "away",
+        "player_in": {
+          "id": 235524,
+          "name": "Marc Domenech"
+        },
+        "player_out": {
+          "id": 82474,
+          "name": "Darder"
+        }
+      },
+      {
+        "event_type": "goal",
+        "event_minute": "90",
+        "team": "home",
+        "player": {
+          "id": 214581,
+          "name": "Jacobo Naveros"
+        },
+        "assist_player": {
+          "id": 48709,
+          "name": "Vallejo"
+        }
+      }
+    ],
+    "team_context": {
+      "is_home": true,
+      "opponent": {
+        "id": 2802,
+        "name": "Mallorca"
+      },
+      "result_from_team_perspective": "W"
+    }
+  }
+]

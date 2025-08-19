@@ -1,0 +1,16 @@
+[
+  {
+    "league_id": 228,
+    "league_name": "Premier League",
+    "country": {
+      "id": 8,
+      "name": "england"
+    },
+    "is_cup": false,
+    "season": {
+      "is_active": true,
+      "year": "2025-2026"
+    },
+    "stage": []
+  }
+]

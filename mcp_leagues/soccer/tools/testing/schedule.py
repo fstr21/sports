@@ -207,7 +207,7 @@ async def get_enhanced_h2h_data(home_team_id, away_team_id):
         return {"error": f"Request failed: {e}"}
 
 async def get_team_recent_matches(team_id, league_id, limit=10):
-    """Get recent matches for a specific team using matches endpoint"""
+    """Get recent matches for a specific team using matches endpoint - improved version"""
     import os
     AUTH_KEY = os.environ.get("AUTH_KEY", "a9f37754a540df435e8c40ed89c08565166524ed")
     
@@ -218,114 +218,236 @@ async def get_team_recent_matches(team_id, league_id, limit=10):
                 params={
                     "team_id": team_id,
                     "league_id": league_id,
-                    "season": "2024-2025",  # Get recent completed season
+                    "season": "2024-2025",  # Get recent completed season  
                     "auth_token": AUTH_KEY
                 }
             )
             
             if response.status_code == 200:
                 data = response.json()
-                # Extract matches from the response structure
-                matches = []
+                all_matches = []
+                
+                # Extract matches from the API response structure
                 if isinstance(data, list) and data:
                     for league_data in data:
-                        if 'stage' in league_data:
-                            for stage in league_data['stage']:
-                                if 'matches' in stage:
-                                    matches.extend(stage['matches'])
+                        if isinstance(league_data, dict):
+                            # Check for direct matches
+                            if 'matches' in league_data:
+                                all_matches.extend(league_data['matches'])
+                            # Check for stage-based matches
+                            elif 'stage' in league_data:
+                                for stage in league_data['stage']:
+                                    if 'matches' in stage:
+                                        all_matches.extend(stage['matches'])
                 
-                # Filter for completed matches and limit
-                completed_matches = [
-                    match for match in matches 
-                    if match.get('status') in ['complete', 'finished', 'full-time']
-                ]
+                # Filter for matches involving this team and completed games
+                team_matches = []
+                for match in all_matches:
+                    teams = match.get('teams', {})
+                    home_team = teams.get('home', {})
+                    away_team = teams.get('away', {})
+                    
+                    home_id = home_team.get('id')
+                    away_id = away_team.get('id')
+                    
+                    # Check if this match involves our team
+                    if home_id == team_id or away_id == team_id:
+                        # Only include finished matches
+                        if match.get('status') in ['finished', 'complete', 'full-time']:
+                            is_home = (home_id == team_id)
+                            opponent = away_team if is_home else home_team
+                            
+                            # Calculate result for this team
+                            goals = match.get('goals', {})
+                            home_goals = goals.get('home_ft_goals', 0)
+                            away_goals = goals.get('away_ft_goals', 0)
+                            
+                            if is_home:
+                                team_goals = home_goals
+                                opponent_goals = away_goals
+                            else:
+                                team_goals = away_goals
+                                opponent_goals = home_goals
+                            
+                            if team_goals > opponent_goals:
+                                result = 'W'
+                            elif team_goals < opponent_goals:
+                                result = 'L'
+                            else:
+                                result = 'D'
+                            
+                            team_matches.append({
+                                'match': match,
+                                'is_home': is_home,
+                                'opponent': opponent,
+                                'result': result,
+                                'team_goals': team_goals,
+                                'opponent_goals': opponent_goals,
+                                'date': match.get('date', ''),
+                                'events': match.get('events', [])
+                            })
                 
                 # Sort by date (most recent first) and limit
-                completed_matches.sort(key=lambda x: x.get('date', ''), reverse=True)
-                return completed_matches[:limit]
+                from datetime import datetime
+                def parse_date(date_str):
+                    try:
+                        return datetime.strptime(date_str, "%d/%m/%Y")
+                    except:
+                        return datetime.min
+                
+                team_matches.sort(key=lambda x: parse_date(x['date']), reverse=True)
+                return team_matches[:limit]
             else:
+                print(f"Error getting matches: {response.status_code}")
                 return []
                 
     except Exception as e:
         print(f"Error getting recent matches: {e}")
         return []
 
+async def find_recent_h2h_meetings_improved(team_1_id, team_2_id, league_id, max_meetings=5):
+    """Find recent H2H meetings using the original proven methodology"""
+    import os
+    from datetime import datetime, timedelta
+    
+    AUTH_KEY = os.environ.get("AUTH_KEY", "a9f37754a540df435e8c40ed89c08565166524ed")
+    h2h_meetings = []
+    
+    # Search recent dates systematically (your original approach)
+    end_date = datetime.now()
+    search_days = 365  # Search last year
+    
+    for i in range(0, search_days, 7):  # Check weekly to be more efficient
+        if len(h2h_meetings) >= max_meetings:
+            break
+            
+        search_date = (end_date - timedelta(days=i)).strftime("%d-%m-%Y")
+        
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                response = await client.get(
+                    "https://api.soccerdataapi.com/matches/",
+                    params={
+                        "league_id": league_id,
+                        "date": search_date,
+                        "auth_token": AUTH_KEY
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    # Extract matches from response
+                    matches = []
+                    if isinstance(data, list) and data:
+                        for league_data in data:
+                            if isinstance(league_data, dict):
+                                if 'matches' in league_data:
+                                    matches.extend(league_data['matches'])
+                                elif 'stage' in league_data:
+                                    for stage in league_data['stage']:
+                                        if 'matches' in stage:
+                                            matches.extend(stage['matches'])
+                    
+                    # Look for H2H meetings
+                    for match in matches:
+                        teams = match.get('teams', {})
+                        home_team = teams.get('home', {})
+                        away_team = teams.get('away', {})
+                        
+                        home_id = home_team.get('id')
+                        away_id = away_team.get('id')
+                        
+                        # Check if this is a meeting between our two teams
+                        if ((home_id == team_1_id and away_id == team_2_id) or 
+                            (home_id == team_2_id and away_id == team_1_id)):
+                            
+                            if match.get('status') in ['finished', 'complete', 'full-time']:
+                                team_1_is_home = (home_id == team_1_id)
+                                
+                                h2h_meetings.append({
+                                    'date': search_date,
+                                    'match': match,
+                                    'team_1_is_home': team_1_is_home
+                                })
+                                
+                                print(f"    Found H2H meeting: {search_date}")
+        
+        except Exception as e:
+            continue  # Skip failed requests
+    
+    # Sort by date (most recent first)
+    from datetime import datetime
+    def parse_date(date_str):
+        try:
+            return datetime.strptime(date_str, "%d-%m-%Y")
+        except:
+            return datetime.min
+    
+    h2h_meetings.sort(key=lambda x: parse_date(x['date']), reverse=True)
+    return h2h_meetings[:max_meetings]
+
+# Import comprehensive data extraction functions
+from comprehensive_data_extractor import (
+    extract_comprehensive_match_data,
+    get_comprehensive_team_matches,
+    print_comprehensive_match_summary
+)
+
 async def get_custom_h2h_analysis(home_team_id, away_team_id, home_team_name, away_team_name, league_id):
-    """Create custom H2H analysis using recent matches approach"""
-    print("  Fetching recent matches for both teams...")
+    """Create custom H2H analysis using comprehensive data extraction"""
+    print("  Fetching comprehensive match data...")
     
-    # Get recent matches for both teams
-    home_recent = await get_team_recent_matches(home_team_id, league_id, 15)
-    away_recent = await get_team_recent_matches(away_team_id, league_id, 15)
+    # Get comprehensive recent matches for both teams
+    print(f"    Getting {home_team_name} comprehensive match data...")
+    home_comprehensive = await get_comprehensive_team_matches(home_team_id, league_id, 10)
     
-    # Find matches where they played each other
-    h2h_matches = []
+    print(f"    Getting {away_team_name} comprehensive match data...")
+    away_comprehensive = await get_comprehensive_team_matches(away_team_id, league_id, 10)
     
-    for home_match in home_recent:
-        teams = home_match.get('teams', {})
-        home_in_match = teams.get('home', {}).get('id')
-        away_in_match = teams.get('away', {}).get('id')
-        
-        # Check if this match involved both teams
-        if ((home_in_match == home_team_id and away_in_match == away_team_id) or
-            (home_in_match == away_team_id and away_in_match == home_team_id)):
-            h2h_matches.append(home_match)
-    
-    # Also check away team's matches (to catch any missed)
-    for away_match in away_recent:
-        teams = away_match.get('teams', {})
-        home_in_match = teams.get('home', {}).get('id')
-        away_in_match = teams.get('away', {}).get('id')
-        
-        # Check if this match involved both teams and isn't already added
-        if ((home_in_match == home_team_id and away_in_match == away_team_id) or
-            (home_in_match == away_team_id and away_in_match == home_team_id)):
-            # Check if not already in list
-            match_id = away_match.get('id')
-            if not any(m.get('id') == match_id for m in h2h_matches):
-                h2h_matches.append(away_match)
-    
-    # Sort H2H matches by date (most recent first)
-    h2h_matches.sort(key=lambda x: x.get('date', ''), reverse=True)
+    # Find recent H2H meetings using date-by-date search
+    print("    Searching for recent H2H meetings...")
+    h2h_meetings = await find_recent_h2h_meetings_improved(home_team_id, away_team_id, league_id, 5)
     
     return {
         'home_team_name': home_team_name,
         'away_team_name': away_team_name,
-        'home_recent_matches': home_recent[:10],  # Last 10 games each team
-        'away_recent_matches': away_recent[:10],
-        'h2h_recent_matches': h2h_matches[:5],  # Last 5 H2H meetings
-        'total_recent_h2h': len(h2h_matches)
+        'home_team_id': home_team_id,
+        'away_team_id': away_team_id,
+        'home_comprehensive_matches': home_comprehensive,
+        'away_comprehensive_matches': away_comprehensive,
+        'h2h_recent_meetings': h2h_meetings,
+        'league_id': league_id
     }
 
 def print_custom_h2h_analysis(custom_data):
-    """Print custom H2H analysis based on recent matches"""
-    print(f"\n{'='*50}")
-    print("CUSTOM H2H ANALYSIS (Recent Matches Approach)")
-    print(f"{'='*50}")
+    """Print comprehensive custom H2H analysis with ALL available data"""
+    print(f"\n{'='*70}")
+    print("COMPREHENSIVE CUSTOM H2H ANALYSIS (All Available Data)")
+    print(f"{'='*70}")
     
     home_name = custom_data.get('home_team_name', 'Home Team')
     away_name = custom_data.get('away_team_name', 'Away Team')
     
-    home_recent = custom_data.get('home_recent_matches', [])
-    away_recent = custom_data.get('away_recent_matches', [])
-    h2h_recent = custom_data.get('h2h_recent_matches', [])
+    home_comprehensive = custom_data.get('home_comprehensive_matches', [])
+    away_comprehensive = custom_data.get('away_comprehensive_matches', [])
+    h2h_meetings = custom_data.get('h2h_recent_meetings', [])
     
-    print(f"🔍 RECENT FORM ANALYSIS:")
-    print(f"  {home_name}: {len(home_recent)} recent matches analyzed")
-    print(f"  {away_name}: {len(away_recent)} recent matches analyzed") 
-    print(f"  Recent H2H meetings found: {len(h2h_recent)}")
+    print(f"[COMPREHENSIVE DATA SOURCES]:")
+    print(f"  {home_name}: {len(home_comprehensive)} matches with full event data")
+    print(f"  {away_name}: {len(away_comprehensive)} matches with full event data") 
+    print(f"  Recent H2H meetings found: {len(h2h_meetings)}")
+    print(f"  Data includes: goals, assists, cards, substitutions, timing, odds, insights")
     
-    if h2h_recent:
-        print(f"\n⚔️ RECENT HEAD-TO-HEAD MEETINGS:")
-        print("-" * 40)
+    # Show recent H2H meetings with full details
+    if h2h_meetings:
+        print(f"\n[RECENT HEAD-TO-HEAD MEETINGS] (Date Search Method):")
+        print("-" * 50)
         
-        home_wins = 0
-        away_wins = 0
-        draws = 0
-        total_goals = 0
-        
-        for i, match in enumerate(h2h_recent, 1):
-            date = match.get('date', 'Unknown')
+        for i, meeting in enumerate(h2h_meetings, 1):
+            match = meeting['match']
+            date = meeting['date']
+            
             teams = match.get('teams', {})
             home_team = teams.get('home', {})
             away_team = teams.get('away', {})
@@ -333,104 +455,326 @@ def print_custom_h2h_analysis(custom_data):
             
             home_goals = goals.get('home_ft_goals', 0)
             away_goals = goals.get('away_ft_goals', 0)
-            total_goals += home_goals + away_goals
             
-            # Determine who was home/away in this specific match
-            match_home_name = home_team.get('name', 'Unknown')
-            match_away_name = away_team.get('name', 'Unknown')
+            print(f"  {i}. {date}: {home_team.get('name')} {home_goals}-{away_goals} {away_team.get('name')}")
             
-            print(f"  {i}. {date}: {match_home_name} {home_goals}-{away_goals} {match_away_name}")
-            
-            # Track wins from perspective of our current home/away teams
-            if home_team.get('id') == custom_data.get('home_team_id'):
-                # Home team was home in this match
-                if home_goals > away_goals:
-                    home_wins += 1
-                elif away_goals > home_goals:
-                    away_wins += 1
-                else:
-                    draws += 1
-            else:
-                # Home team was away in this match
-                if away_goals > home_goals:
-                    home_wins += 1
-                elif home_goals > away_goals:
-                    away_wins += 1
-                else:
-                    draws += 1
-            
-            # Show match events if available
+            # Show detailed match events
             events = match.get('events', [])
             if events:
-                goals_events = [e for e in events if e.get('type') == 'goal']
-                cards_events = [e for e in events if e.get('type') in ['yellow_card', 'red_card']]
-                print(f"     Events: {len(goals_events)} goals, {len(cards_events)} cards")
-        
-        if len(h2h_recent) > 0:
-            avg_goals = total_goals / len(h2h_recent)
-            print(f"\n📊 RECENT H2H SUMMARY:")
-            print(f"  {home_name}: {home_wins} wins")
-            print(f"  {away_name}: {away_wins} wins") 
-            print(f"  Draws: {draws}")
-            print(f"  Average goals per game: {avg_goals:.2f}")
+                goal_events = [e for e in events if 'goal' in e.get('type', '').lower()]
+                card_events = [e for e in events if 'card' in e.get('type', '').lower()]
+                sub_events = [e for e in events if 'substitution' in e.get('type', '').lower()]
+                
+                print(f"     Match Events: {len(goal_events)} goals, {len(card_events)} cards, {len(sub_events)} subs")
+                
+                # Show goal scorers if available
+                if goal_events:
+                    goal_info = []
+                    for goal in goal_events[:3]:  # Show first 3 goals
+                        player = goal.get('player', {}).get('name', 'Unknown')
+                        minute = goal.get('minute', '?')
+                        goal_info.append(f"{player} {minute}'")
+                    if goal_info:
+                        print(f"     Goal scorers: {', '.join(goal_info)}")
             
-            if avg_goals > 2.8:
-                print(f"  🔥 High-scoring recent meetings - consider Over 2.5")
-            elif avg_goals < 2.0:
-                print(f"  🛡️ Low-scoring recent meetings - consider Under 2.5")
+            # Show odds if available
+            odds = match.get('odds', {})
+            if odds:
+                match_winner = odds.get('match_winner', {})
+                if match_winner:
+                    home_odds = match_winner.get('home', 'N/A')
+                    away_odds = match_winner.get('away', 'N/A')
+                    print(f"     Historical odds: {home_odds} - {away_odds}")
     
-    # Recent form summary
-    print(f"\n📈 RECENT FORM SUMMARY:")
-    print("-" * 25)
+    # COMPREHENSIVE TEAM ANALYSIS WITH ALL AVAILABLE DATA
+    print(f"\n[COMPREHENSIVE TEAM ANALYSIS] - All Available Data:")
+    print("=" * 70)
     
-    def analyze_team_form(matches, team_name):
-        if not matches:
+    def analyze_team_comprehensive_data(comprehensive_matches, team_name):
+        if not comprehensive_matches:
+            print(f"\n{team_name}: No comprehensive match data found")
             return
         
-        wins = 0
-        draws = 0 
-        losses = 0
-        goals_for = 0
-        goals_against = 0
+        print(f"\n{team_name.upper()} - COMPLETE DATA BREAKDOWN:")
+        print("-" * 50)
         
-        for match in matches[:5]:  # Last 5 games
-            teams = match.get('teams', {})
-            goals = match.get('goals', {})
+        # Basic form analysis
+        recent_5 = comprehensive_matches[:5]
+        wins = draws = losses = 0
+        goals_for = goals_against = 0
+        ht_goals_for = ht_goals_against = 0
+        form_string = []
+        
+        # Advanced metrics
+        total_cards = home_wins = away_wins = 0
+        early_goals = late_goals = clean_sheets = 0
+        comebacks = both_scored = high_scoring = 0
+        total_yellow_cards = total_red_cards = 0
+        early_subs = late_subs = 0
+        
+        print("\n  RECENT MATCHES (Last 5 with ALL data):")
+        for i, match_data in enumerate(recent_5, 1):
+            basic = match_data['basic_info']
+            teams = match_data['teams']
+            goals = match_data['goals']
+            events = match_data['events_breakdown']
+            timing = match_data['goal_timing']
+            cards = match_data['card_discipline']
+            subs = match_data['substitution_analysis']
+            insights = match_data['insights']
+            context = match_data['team_context']
             
-            home_goals = goals.get('home_ft_goals', 0)
-            away_goals = goals.get('away_ft_goals', 0)
+            # Basic match info
+            opponent_name = context['opponent']['name']
+            venue = "vs" if context['is_home'] else "@"
+            result = context['result_from_team_perspective']
             
-            # Determine if team was home or away
-            home_team_id = teams.get('home', {}).get('id')
-            if home_team_id == (home_recent[0].get('teams', {}).get('home', {}).get('id') if home_recent else None):
-                # This logic needs team ID - simplified for now
-                goals_for += home_goals
-                goals_against += away_goals
-                if home_goals > away_goals:
-                    wins += 1
-                elif home_goals < away_goals:
-                    losses += 1
+            home_score = goals['fulltime']['home']
+            away_score = goals['fulltime']['away']
+            ht_home = goals['halftime']['home']
+            ht_away = goals['halftime']['away']
+            
+            print(f"    {i}. {basic['date']}: {venue} {opponent_name} {result} {home_score}-{away_score}")
+            print(f"       HT: {ht_home}-{ht_away} | Events: {events['total_events']} | Cards: {cards['total_cards']}")
+            
+            # Show goal details if available
+            if events['goals']:
+                goal_times = [str(g['minute']) for g in events['goals']]
+                print(f"       Goals at: {', '.join(goal_times)} min")
+            
+            # Show key insights
+            key_insights = []
+            if insights['clean_sheet']['home'] or insights['clean_sheet']['away']:
+                key_insights.append("Clean sheet")
+            if insights['comeback_win']:
+                key_insights.append(f"Comeback: {insights['comeback_win']}")
+            if insights['early_goal']:
+                key_insights.append("Early goal")
+            if insights['late_drama']:
+                key_insights.append("Late drama")
+            if insights['both_teams_scored']:
+                key_insights.append("BTTS")
+            if insights['high_scoring']:
+                key_insights.append("High scoring")
+            
+            if key_insights:
+                print(f"       Insights: {', '.join(key_insights)}")
+            
+            # Update aggregated stats
+            if result == 'W':
+                wins += 1
+                if context['is_home']:
+                    home_wins += 1
                 else:
-                    draws += 1
+                    away_wins += 1
+            elif result == 'D':
+                draws += 1
+            else:
+                losses += 1
+            
+            # Goals stats (from team perspective)
+            if context['is_home']:
+                goals_for += home_score
+                goals_against += away_score
+                ht_goals_for += ht_home
+                ht_goals_against += ht_away
+            else:
+                goals_for += away_score
+                goals_against += home_score
+                ht_goals_for += ht_away
+                ht_goals_against += ht_home
+            
+            form_string.append(result)
+            
+            # Advanced metrics
+            total_cards += cards['total_cards']
+            total_yellow_cards += (cards['home_yellow_cards'] + cards['away_yellow_cards'])
+            total_red_cards += (cards['home_red_cards'] + cards['away_red_cards'])
+            early_subs += subs['early_subs']
+            late_subs += subs['late_subs']
+            
+            if timing['early_goals'] > 0:
+                early_goals += 1
+            if timing['late_goals'] > 0:
+                late_goals += 1
+            if context['is_home'] and insights['clean_sheet']['home']:
+                clean_sheets += 1
+            elif not context['is_home'] and insights['clean_sheet']['away']:
+                clean_sheets += 1
+            if insights['comeback_win']:
+                comebacks += 1
+            if insights['both_teams_scored']:
+                both_scored += 1
+            if insights['high_scoring']:
+                high_scoring += 1
         
-        form = f"{wins}W-{draws}D-{losses}L"
-        print(f"  {team_name}: {form} (last 5 games)")
-        if len(matches) >= 5:
-            avg_goals_for = goals_for / 5
-            avg_goals_against = goals_against / 5
-            print(f"    Avg goals scored: {avg_goals_for:.1f}")
-            print(f"    Avg goals conceded: {avg_goals_against:.1f}")
+        # COMPREHENSIVE SUMMARY STATISTICS
+        total_games = len(recent_5)
+        if total_games > 0:
+            print(f"\n  [BASIC FORM SUMMARY]:")
+            win_pct = (wins / total_games) * 100
+            avg_goals_for = goals_for / total_games
+            avg_goals_against = goals_against / total_games
+            avg_ht_for = ht_goals_for / total_games
+            avg_ht_against = ht_goals_against / total_games
+            
+            print(f"    Record: {wins}W-{draws}D-{losses}L ({win_pct:.1f}% win rate)")
+            print(f"    Form: {'-'.join(form_string)}")
+            print(f"    Goals per game: {avg_goals_for:.1f} for, {avg_goals_against:.1f} against")
+            print(f"    Halftime goals: {avg_ht_for:.1f} for, {avg_ht_against:.1f} against")
+            
+            print(f"\n  [ADVANCED METRICS] (Data you can analyze):")
+            print(f"    Home vs Away: {home_wins}W at home, {away_wins}W away")
+            print(f"    Clean sheets: {clean_sheets}/{total_games} ({clean_sheets/total_games*100:.1f}%)")
+            print(f"    Early goals (0-15min): {early_goals}/{total_games} games")
+            print(f"    Late drama (75+min): {late_goals}/{total_games} games")
+            print(f"    Both teams scored: {both_scored}/{total_games} games")
+            print(f"    High scoring (3+ goals): {high_scoring}/{total_games} games")
+            print(f"    Comeback wins: {comebacks}")
+            
+            print(f"\n  [DISCIPLINARY DATA]:")
+            print(f"    Total cards per game: {total_cards/total_games:.1f}")
+            print(f"    Yellow cards per game: {total_yellow_cards/total_games:.1f}")
+            print(f"    Red cards total: {total_red_cards}")
+            
+            print(f"\n  [SUBSTITUTION PATTERNS]:")
+            print(f"    Early subs per game: {early_subs/total_games:.1f} (injuries/tactical)")
+            print(f"    Late subs per game: {late_subs/total_games:.1f} (time management)")
+            
+            print(f"\n  [BETTING INSIGHTS FROM COMPREHENSIVE DATA]:")
+            if avg_goals_for > 2.0:
+                print("    [STRONG ATTACK] Excellent goal scoring form")
+            elif avg_goals_for < 1.0:
+                print("    [WEAK ATTACK] Struggling to find the net")
+            
+            if avg_goals_against < 1.0:
+                print("    [SOLID DEFENSE] Very tight at the back")
+            elif avg_goals_against > 2.0:
+                print("    [LEAKY DEFENSE] Conceding too easily")
+            
+            if both_scored / total_games > 0.6:
+                print("    [BTTS YES] Both teams score frequently")
+            elif both_scored / total_games < 0.3:
+                print("    [BTTS NO] Often one-sided games")
+            
+            if high_scoring / total_games > 0.6:
+                print("    [OVER 2.5] Frequently involved in high-scoring games")
+            elif high_scoring / total_games < 0.3:
+                print("    [UNDER 2.5] Often involved in low-scoring affairs")
+            
+            if late_goals / total_games > 0.6:
+                print("    [LATE DRAMA] Frequent late goals - good for in-play betting")
+            
+            if total_cards / total_games > 4:
+                print("    [CARDS MARKET] High card count team")
     
-    analyze_team_form(home_recent, home_name)
-    analyze_team_form(away_recent, away_name)
+    analyze_team_comprehensive_data(home_comprehensive, home_name)
+    analyze_team_comprehensive_data(away_comprehensive, away_name)
     
-    print(f"\n💡 CUSTOM ANALYSIS BENEFITS:")
-    print("  ✅ Based on recent actual match data")
-    print("  ✅ Includes detailed match events")
-    print("  ✅ Shows recent form context")
-    print("  ✅ More granular than overall H2H stats")
+    # Enhanced betting insights based on comprehensive data
+    print(f"\n[ENHANCED BETTING RECOMMENDATIONS]:")
+    print("=" * 50)
     
-    print(f"\n{'='*50}")
+    if home_comprehensive and away_comprehensive:
+        # Calculate comprehensive attacking/defensive trends using all available data
+        home_matches = home_comprehensive[:5]
+        away_matches = away_comprehensive[:5]
+        
+        # Extract goals data from comprehensive format
+        home_goals_for = home_goals_against = 0
+        away_goals_for = away_goals_against = 0
+        home_btts = away_btts = 0
+        home_high_scoring = away_high_scoring = 0
+        
+        for match in home_matches:
+            context = match['team_context']
+            goals = match['goals']
+            insights = match['insights']
+            
+            if context['is_home']:
+                home_goals_for += goals['fulltime']['home']
+                home_goals_against += goals['fulltime']['away']
+            else:
+                home_goals_for += goals['fulltime']['away']
+                home_goals_against += goals['fulltime']['home']
+                
+            if insights['both_teams_scored']:
+                home_btts += 1
+            if insights['high_scoring']:
+                home_high_scoring += 1
+        
+        for match in away_matches:
+            context = match['team_context']
+            goals = match['goals']
+            insights = match['insights']
+            
+            if context['is_home']:
+                away_goals_for += goals['fulltime']['home']
+                away_goals_against += goals['fulltime']['away']
+            else:
+                away_goals_for += goals['fulltime']['away']
+                away_goals_against += goals['fulltime']['home']
+                
+            if insights['both_teams_scored']:
+                away_btts += 1
+            if insights['high_scoring']:
+                away_high_scoring += 1
+        
+        home_avg_for = home_goals_for / len(home_matches)
+        home_avg_against = home_goals_against / len(home_matches)
+        away_avg_for = away_goals_for / len(away_matches)
+        away_avg_against = away_goals_against / len(away_matches)
+        
+        expected_goals = (home_avg_for + away_avg_against + away_avg_for + home_avg_against) / 2
+        btts_probability = (home_btts + away_btts) / (len(home_matches) + len(away_matches))
+        high_scoring_prob = (home_high_scoring + away_high_scoring) / (len(home_matches) + len(away_matches))
+        
+        print(f"Expected total goals (comprehensive): {expected_goals:.2f}")
+        print(f"BTTS probability: {btts_probability:.1%}")
+        print(f"High scoring probability: {high_scoring_prob:.1%}")
+        
+        # Enhanced recommendations
+        if expected_goals > 2.8:
+            print("[STRONG] Over 2.5 Goals - High-scoring teams")
+        elif expected_goals < 2.2:
+            print("[STRONG] Under 2.5 Goals - Low-scoring affair likely")
+        else:
+            print("[NEUTRAL] Goals market balanced")
+            
+        if btts_probability > 0.6:
+            print("[STRONG] Both Teams to Score YES")
+        elif btts_probability < 0.3:
+            print("[STRONG] Both Teams to Score NO")
+        else:
+            print("[NEUTRAL] BTTS market balanced")
+        
+        # Form momentum using comprehensive data
+        home_form = [match['team_context']['result_from_team_perspective'] for match in home_matches[:3]]
+        away_form = [match['team_context']['result_from_team_perspective'] for match in away_matches[:3]]
+        
+        home_momentum = home_form.count('W') - home_form.count('L')
+        away_momentum = away_form.count('W') - away_form.count('L')
+        
+        if home_momentum > away_momentum + 1:
+            print(f"[MOMENTUM] {home_name} has better recent momentum")
+        elif away_momentum > home_momentum + 1:
+            print(f"[MOMENTUM] {away_name} has better recent momentum")
+        else:
+            print("[NEUTRAL] Similar recent momentum for both teams")
+    
+    print(f"\n[COMPREHENSIVE DATA METHODOLOGY]:")
+    print("[OK] Complete match data extraction with ALL available fields")
+    print("[OK] Halftime/fulltime scores for HT/FT betting analysis")
+    print("[OK] Goal timing patterns (early/late goal trends)")
+    print("[OK] Card discipline tracking (yellow/red cards per game)")
+    print("[OK] Substitution timing analysis (tactical vs injury subs)")
+    print("[OK] Clean sheet, comeback, and BTTS pattern analysis")
+    print("[OK] Home vs away performance breakdowns")
+    print("[OK] Advanced betting market insights (Over/Under, BTTS, Cards)")
+    print("[OK] Historical H2H combined with comprehensive recent form")
+    print("[OK] All data available for custom filtering and analysis")
+    
+    print(f"\n{'='*70}")
 
 def print_h2h_summary(h2h_data, home_team, away_team, enhanced_data=None):
     """Print comprehensive H2H analysis summary"""
@@ -448,7 +792,7 @@ def print_h2h_summary(h2h_data, home_team, away_team, enhanced_data=None):
         print("No historical meetings found between these teams")
         return
     
-    print(f"📊 OVERALL HISTORICAL RECORD ({total_meetings} meetings)")
+    print(f"[OVERALL HISTORICAL RECORD] ({total_meetings} meetings)")
     print("=" * 50)
     
     # Team records
@@ -467,7 +811,7 @@ def print_h2h_summary(h2h_data, home_team, away_team, enhanced_data=None):
         team1_home = stats.get("team1_at_home", {})
         team2_home = stats.get("team2_at_home", {})
         
-        print(f"\n🏠 HOME vs AWAY PERFORMANCE BREAKDOWN")
+        print(f"\n[HOME vs AWAY PERFORMANCE BREAKDOWN]")
         print("=" * 50)
         
         # Team 1 (home team) at home performance
@@ -508,7 +852,7 @@ def print_h2h_summary(h2h_data, home_team, away_team, enhanced_data=None):
     goals = h2h_data.get('goals', {})
     if goals:
         avg_goals = goals.get('average_per_game', 0)
-        print(f"\n⚽ GOALS ANALYSIS")
+        print(f"\n[GOALS ANALYSIS]")
         print("=" * 50)
         print(f"  Average total goals per game: {avg_goals:.2f}")
         print(f"  {team1_record.get('name', home_team)} total goals: {goals.get('team_1_total', 0)} ({goals.get('team_1_total', 0)/total_meetings:.1f} per game)")
@@ -516,7 +860,7 @@ def print_h2h_summary(h2h_data, home_team, away_team, enhanced_data=None):
     
     # Enhanced betting insights
     betting_insights = h2h_data.get('betting_insights', {})
-    print(f"\n💰 BETTING INSIGHTS & RECOMMENDATIONS")
+    print(f"\n[BETTING INSIGHTS & RECOMMENDATIONS]")
     print("=" * 50)
     
     if betting_insights:
@@ -524,11 +868,11 @@ def print_h2h_summary(h2h_data, home_team, away_team, enhanced_data=None):
         
         avg_goals = goals.get('average_per_game', 0) if goals else 0
         if avg_goals > 2.8:
-            print(f"  ✅ STRONG BET: 'Over 2.5 Goals' (Historical avg: {avg_goals:.2f})")
+            print(f"  [STRONG BET] 'Over 2.5 Goals' (Historical avg: {avg_goals:.2f})")
         elif avg_goals < 2.2:
-            print(f"  ✅ STRONG BET: 'Under 2.5 Goals' (Historical avg: {avg_goals:.2f})")
+            print(f"  [STRONG BET] 'Under 2.5 Goals' (Historical avg: {avg_goals:.2f})")
         else:
-            print(f"  ⚠️ NEUTRAL: Goals market unpredictable (Historical avg: {avg_goals:.2f})")
+            print(f"  [NEUTRAL] Goals market unpredictable (Historical avg: {avg_goals:.2f})")
     
     # Dominance and venue analysis
     if team1_record and team2_record:
@@ -536,15 +880,15 @@ def print_h2h_summary(h2h_data, home_team, away_team, enhanced_data=None):
         team2_wins = team2_record.get('wins', 0)
         overall_win_rate = team1_record.get('win_rate', 0)
         
-        print(f"\n🏆 DOMINANCE & VENUE ANALYSIS")
+        print(f"\n[DOMINANCE & VENUE ANALYSIS]")
         print("=" * 50)
         
         if team1_wins > team2_wins * 2:
-            print(f"  🔥 {team1_record.get('name', home_team)} DOMINATES this matchup ({overall_win_rate:.1f}% win rate)")
+            print(f"  [DOMINANCE] {team1_record.get('name', home_team)} DOMINATES this matchup ({overall_win_rate:.1f}% win rate)")
         elif team2_wins > team1_wins * 2:
-            print(f"  🔥 {team2_record.get('name', away_team)} DOMINATES this matchup")
+            print(f"  [DOMINANCE] {team2_record.get('name', away_team)} DOMINATES this matchup")
         else:
-            print(f"  ⚖️ Competitive matchup - no clear historical dominance")
+            print(f"  [BALANCED] Competitive matchup - no clear historical dominance")
         
         # Venue advantage analysis
         if enhanced_data and "stats" in enhanced_data:
@@ -554,11 +898,11 @@ def print_h2h_summary(h2h_data, home_team, away_team, enhanced_data=None):
             if team1_home:
                 home_win_rate = (team1_home.get("team1_wins_at_home", 0) / team1_home.get("team1_games_played_at_home", 1) * 100)
                 if home_win_rate > overall_win_rate + 10:
-                    print(f"  🏠 VENUE ADVANTAGE: {team1_record.get('name', home_team)} much stronger at home ({home_win_rate:.1f}% vs {overall_win_rate:.1f}% overall)")
+                    print(f"  [VENUE ADVANTAGE] {team1_record.get('name', home_team)} much stronger at home ({home_win_rate:.1f}% vs {overall_win_rate:.1f}% overall)")
                 elif home_win_rate < overall_win_rate - 10:
-                    print(f"  🛫 VENUE DISADVANTAGE: {team1_record.get('name', home_team)} weaker at home than overall")
+                    print(f"  [VENUE DISADVANTAGE] {team1_record.get('name', home_team)} weaker at home than overall")
                 else:
-                    print(f"  🏠 No significant home advantage pattern")
+                    print(f"  [NEUTRAL] No significant home advantage pattern")
     
     print(f"\n" + "=" * 80)
 
