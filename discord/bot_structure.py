@@ -1293,6 +1293,125 @@ async def soccer_standings_command(interaction: discord.Interaction,
         )
         await interaction.followup.send(embed=embed)
 
+@bot.tree.command(name="clear", description="Clear all channels from a sport category")
+@discord.app_commands.describe(
+    category="Select the sport category to clear"
+)
+@discord.app_commands.choices(category=[
+    discord.app_commands.Choice(name="Soccer", value="soccer"),
+    discord.app_commands.Choice(name="MLB", value="mlb")
+])
+async def clear_command(interaction: discord.Interaction, 
+                       category: discord.app_commands.Choice[str]):
+    """Clear all channels from a specific sport category"""
+    
+    # Check if user has admin permissions
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message(
+            "❌ You need administrator permissions to use this command.", 
+            ephemeral=True
+        )
+        return
+    
+    await interaction.response.defer()
+    
+    try:
+        category_value = category.value.lower()
+        
+        # Define category IDs for each sport
+        category_ids = {
+            "soccer": "1407254164702101545",  # The correct soccer category ID
+            "mlb": None  # Add MLB category ID when available
+        }
+        
+        target_category_id = category_ids.get(category_value)
+        
+        if not target_category_id:
+            embed = discord.Embed(
+                title="❌ Category Not Configured",
+                description=f"Category ID not configured for {category.name}",
+                color=0xff0000
+            )
+            await interaction.followup.send(embed=embed)
+            return
+        
+        # Find the category by ID
+        target_category = discord.utils.get(interaction.guild.categories, id=int(target_category_id))
+        
+        if not target_category:
+            embed = discord.Embed(
+                title="❌ Category Not Found",
+                description=f"Could not find {category.name} category in this server",
+                color=0xff0000
+            )
+            await interaction.followup.send(embed=embed)
+            return
+        
+        # Get all channels in the category
+        channels_to_delete = [channel for channel in target_category.channels 
+                            if isinstance(channel, discord.TextChannel)]
+        
+        if not channels_to_delete:
+            embed = discord.Embed(
+                title="ℹ️ No Channels to Clear",
+                description=f"No channels found in {category.name} category",
+                color=0x0099ff
+            )
+            await interaction.followup.send(embed=embed)
+            return
+        
+        # Delete channels
+        deleted_count = 0
+        failed_count = 0
+        
+        embed = discord.Embed(
+            title="🧹 Clearing Channels",
+            description=f"Clearing {len(channels_to_delete)} channels from {category.name} category...",
+            color=0xffa500
+        )
+        await interaction.followup.send(embed=embed)
+        
+        for channel in channels_to_delete:
+            try:
+                await channel.delete()
+                deleted_count += 1
+                # Small delay to avoid rate limits
+                await asyncio.sleep(0.5)
+            except Exception as e:
+                logger.error(f"Failed to delete channel {channel.name}: {e}")
+                failed_count += 1
+        
+        # Send completion summary
+        if failed_count == 0:
+            embed = discord.Embed(
+                title="✅ Clear Complete",
+                description=f"Successfully cleared {deleted_count} channels from {category.name} category",
+                color=0x00ff00
+            )
+        else:
+            embed = discord.Embed(
+                title="⚠️ Clear Partially Complete",
+                description=f"Cleared {deleted_count} channels, failed to delete {failed_count} channels from {category.name} category",
+                color=0xffa500
+            )
+        
+        embed.add_field(
+            name="📊 Summary",
+            value=f"**Deleted:** {deleted_count}\n**Failed:** {failed_count}\n**Total:** {len(channels_to_delete)}",
+            inline=True
+        )
+        
+        await interaction.followup.send(embed=embed)
+        
+    except Exception as e:
+        logger.error(f"Error in clear command: {e}")
+        embed = discord.Embed(
+            title="❌ Clear Error",
+            description="An unexpected error occurred while clearing channels",
+            color=0xff0000
+        )
+        await interaction.followup.send(embed=embed)
+
 # ============================================================================
 # BOT STARTUP
 # ============================================================================

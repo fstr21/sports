@@ -196,11 +196,21 @@ async def clear_command(interaction: discord.Interaction, category: str):
             await interaction.followup.send("❌ You need 'Manage Channels' permission to use this command.")
             return
         
-        # Find the category
-        category_obj = discord.utils.get(interaction.guild.categories, name=category)
-        if not category_obj:
-            await interaction.followup.send(f"❌ Category '{category}' not found.")
-            return
+        # Find the category - use specific IDs for certain sports
+        category_obj = None
+        
+        # Special handling for soccer - use specific category ID
+        if category == "⚽ SOCCER GAMES":
+            category_obj = discord.utils.get(interaction.guild.categories, id=1407254164702101545)
+            if not category_obj:
+                await interaction.followup.send(f"❌ Soccer category not found (ID: 1407254164702101545).")
+                return
+        else:
+            # For other sports, use category name lookup
+            category_obj = discord.utils.get(interaction.guild.categories, name=category)
+            if not category_obj:
+                await interaction.followup.send(f"❌ Category '{category}' not found.")
+                return
         
         # Get all text channels in the category
         channels_to_delete = [ch for ch in category_obj.channels if isinstance(ch, discord.TextChannel)]
