@@ -360,6 +360,167 @@ async def sync_command(interaction: discord.Interaction):
         logger.error(f"Manual sync failed: {e}")
         await interaction.followup.send(f"❌ Sync failed: {str(e)}")
 
+async def get_comprehensive_h2h_analysis(home_team_id: int, away_team_id: int, home_team_name: str, away_team_name: str):
+    """Get comprehensive H2H analysis using the enhanced MCP server - like schedule.py"""
+    payload = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "tools/call",
+        "params": {
+            "name": "get_h2h_betting_analysis",
+            "arguments": {
+                "team_1_id": home_team_id,
+                "team_2_id": away_team_id,
+                "team_1_name": home_team_name,
+                "team_2_name": away_team_name
+            }
+        }
+    }
+    
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(SOCCER_MCP_URL, json=payload)
+            result = response.json()
+            
+            if "result" in result and "content" in result["result"]:
+                import json
+                return json.loads(result["result"]["content"][0]["text"])
+            else:
+                return {"error": f"Unexpected response format: {result}"}
+                
+    except Exception as e:
+        return {"error": f"H2H analysis failed: {e}"}
+
+def convert_to_american_odds(decimal_odds):
+    """Convert decimal odds to American format - same as schedule.py"""
+    try:
+        decimal = float(decimal_odds)
+        if decimal >= 2.0:
+            # Positive American odds
+            american = int((decimal - 1) * 100)
+            return f"+{american}"
+        else:
+            # Negative American odds  
+            american = int(-100 / (decimal - 1))
+            return str(american)
+    except (ValueError, ZeroDivisionError, TypeError):
+        return str(decimal_odds)
+
+def create_comprehensive_match_embed(match, league_name, h2h_data=None):
+    """Create comprehensive match embed with H2H analysis - like schedule.py"""
+    teams = match.get("teams", {})
+    home_team = teams.get("home", {})
+    away_team = teams.get("away", {})
+    
+    home_name = home_team.get("name", "Unknown")
+    away_name = away_team.get("name", "Unknown")
+    
+    embed = discord.Embed(
+        title=f"⚽ {home_name} vs {away_name}",
+        description=f"**{league_name}** - Comprehensive Analysis",
+        color=0x00ff00,
+        timestamp=datetime.now()
+    )
+    
+    # Basic match info
+    embed.add_field(
+        name="📅 Match Details",
+        value=f"**Time:** {match.get('time', 'TBD')}\n**Status:** {match.get('status', 'scheduled')}\n**Match ID:** {match.get('id', 'N/A')}",
+        inline=True
+    )
+    
+    # Enhanced betting odds (same format as schedule.py)
+    odds = match.get("odds", {})
+    if odds:
+        betting_lines = []
+        
+        # Check for match_winner format
+        match_winner = odds.get('match_winner', {})
+        if match_winner:
+            home_odds = match_winner.get('home')
+            draw_odds = match_winner.get('draw')
+            away_odds = match_winner.get('away')
+        else:
+            # Fall back to direct format
+            home_odds = odds.get('home_win')
+            draw_odds = odds.get('draw')
+            away_odds = odds.get('away_win')
+        
+        if home_odds:
+            american_home = convert_to_american_odds(home_odds)
+            betting_lines.append(f"**{home_name}:** {home_odds} ({american_home})")
+        if draw_odds:
+            american_draw = convert_to_american_odds(draw_odds)
+            betting_lines.append(f"**Draw:** {draw_odds} ({american_draw})")
+        if away_odds:
+            american_away = convert_to_american_odds(away_odds)
+            betting_lines.append(f"**{away_name}:** {away_odds} ({american_away})")
+        
+        # Add over/under if available
+        over_under = odds.get('over_under', {})
+        if over_under:
+            total = over_under.get('total')
+            over = over_under.get('over')
+            under = over_under.get('under')
+            if total and over and under:
+                american_over = convert_to_american_odds(over)
+                american_under = convert_to_american_odds(under)
+                betting_lines.append(f"**O/U {total}:** Over {over} ({american_over}), Under {under} ({american_under})")
+        
+        if betting_lines:
+            embed.add_field(
+                name="💰 Betting Lines",
+                value="\n".join(betting_lines),
+                inline=True
+            )
+    
+    # Add comprehensive H2H analysis if available
+    if h2h_data and "error" not in h2h_data:
+        total_meetings = h2h_data.get('total_meetings', 0)
+        if total_meetings > 0:
+            team1_record = h2h_data.get('team_1_record', {})
+            team2_record = h2h_data.get('team_2_record', {})
+            draws = h2h_data.get('draws', {})
+            
+            h2h_text = f"**Total Meetings:** {total_meetings}\n"
+            h2h_text += f"**{home_name}:** {team1_record.get('wins', 0)}W ({team1_record.get('win_rate', 0):.1f}%)\n"
+            h2h_text += f"**{away_name}:** {team2_record.get('wins', 0)}W ({team2_record.get('win_rate', 0):.1f}%)\n"
+            h2h_text += f"**Draws:** {draws.get('count', 0)} ({draws.get('rate', 0):.1f}%)"
+            
+            embed.add_field(
+                name="📊 Head-to-Head Record",
+                value=h2h_text,
+                inline=False
+            )
+            
+            # Add goals analysis
+            goals = h2h_data.get('goals', {})
+            if goals:
+                avg_goals = goals.get('average_per_game', 0)
+                embed.add_field(
+                    name="⚽ Historical Goals",
+                    value=f"**Avg per game:** {avg_goals:.2f}\n**{home_name} total:** {goals.get('team_1_total', 0)}\n**{away_name} total:** {goals.get('team_2_total', 0)}",
+                    inline=True
+                )
+            
+            # Add betting insights
+            betting_insights = h2h_data.get('betting_insights', {})
+            if betting_insights:
+                trend = betting_insights.get('goals_trend', 'Balanced scoring')
+                embed.add_field(
+                    name="💡 Betting Insights",
+                    value=f"**Historical Trend:** {trend}",
+                    inline=True
+                )
+    else:
+        embed.add_field(
+            name="📊 Head-to-Head Analysis",
+            value="No historical data available or analysis in progress...",
+            inline=False
+        )
+    
+    return embed
+
 @bot.tree.command(name="create-channels", description="Create game channels for a specific date")
 @app_commands.describe(
     sport="Select the sport to create channels for",
@@ -636,11 +797,12 @@ async def create_soccer_channels(interaction: discord.Interaction, date: str):
             total_matches = 0
             created_channels = []
             
-            # Get or create soccer category
+            # Get the specific soccer category by ID
             guild = interaction.guild
-            soccer_category = discord.utils.get(guild.categories, name="⚽ SOCCER")
+            soccer_category = discord.utils.get(guild.categories, id=1407254164702101545)
             if not soccer_category:
-                soccer_category = await guild.create_category("⚽ SOCCER")
+                await interaction.followup.send("❌ Soccer category (ID: 1407254164702101545) not found in this server")
+                return
             
             # Process matches by league
             league_summary = {}
@@ -678,36 +840,35 @@ async def create_soccer_channels(interaction: discord.Interaction, date: str):
                         )
                         created_channels.append(channel)
                         
-                        # Create match embed
-                        embed = discord.Embed(
+                        # Send initial embed (basic info)
+                        initial_embed = discord.Embed(
                             title=f"⚽ {away_team} vs {home_team}",
-                            description=f"**{league_name}**",
-                            color=0x00ff00,
+                            description=f"**{league_name}** - Loading comprehensive analysis...",
+                            color=0x0099ff,
                             timestamp=datetime.now()
                         )
+                        initial_embed.add_field(name="Status", value="🔄 Fetching H2H analysis...", inline=False)
+                        initial_message = await channel.send(embed=initial_embed)
                         
-                        embed.add_field(name="📅 Date", value=date, inline=True)
-                        embed.add_field(name="⏰ Time", value=match_time, inline=True)
-                        embed.add_field(name="🏆 League", value=league_name, inline=True)
+                        # Get team IDs for comprehensive analysis
+                        home_team_id = teams.get("home", {}).get("id")
+                        away_team_id = teams.get("away", {}).get("id")
                         
-                        # Add odds if available
-                        if "odds" in match and match["odds"]:
-                            odds = match["odds"]
-                            odds_text = []
-                            if "home_win" in odds:
-                                odds_text.append(f"🏠 {home_team}: {odds['home_win']}")
-                            if "draw" in odds:
-                                odds_text.append(f"🤝 Draw: {odds['draw']}")
-                            if "away_win" in odds:
-                                odds_text.append(f"✈️ {away_team}: {odds['away_win']}")
-                            
-                            if odds_text:
-                                embed.add_field(name="💰 Odds", value="\n".join(odds_text), inline=False)
+                        # Get comprehensive H2H analysis (like schedule.py does)
+                        h2h_data = None
+                        if home_team_id and away_team_id:
+                            h2h_data = await get_comprehensive_h2h_analysis(
+                                home_team_id, away_team_id, home_team, away_team
+                            )
                         
-                        embed.set_footer(text=f"Match ID: {match_id}")
+                        # Create comprehensive embed with H2H analysis
+                        comprehensive_embed = create_comprehensive_match_embed(match, league_name, h2h_data)
                         
-                        # Send embed to channel
-                        await channel.send(embed=embed)
+                        # Update the initial message with comprehensive analysis
+                        await initial_message.edit(embed=comprehensive_embed)
+                        
+                        # Small delay between matches to avoid overwhelming MCP server
+                        await asyncio.sleep(1.0)
                         
                     except Exception as e:
                         logger.error(f"Error creating channel for match {match.get('id', 'unknown')}: {e}")
