@@ -2,7 +2,7 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "python soccer_mcp_server.py"
+startCommand = "python tools/production/betting_analyzer_mcp_server.py"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 
