@@ -428,3 +428,159 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ===== Enhancements: proxies, richer logging, 404 skip, offline mode =====
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+# Configure session retries for transient network errors
+retry_strategy = Retry(
+    total=3,
+    backoff_factor=0.6,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["GET", "HEAD"]
+)
+adapter = HTTPAdapter(max_retries=retry_strategy)
+SESSION.mount("https://", adapter)
+SESSION.mount("http://", adapter)
+SESSION.trust_env = True  # allow system proxies if present
+
+CLI_PROXY = None  # filled from CLI if provided
+
+def set_session_proxy(proxy_url: str):
+    global CLI_PROXY
+    CLI_PROXY = proxy_url
+    if proxy_url:
+        SESSION.proxies.update({"http": proxy_url, "https": proxy_url})
+
+def polite_get(url: str, sleep: float = DEFAULT_SLEEP, **kwargs) -> requests.Response:
+    headers = kwargs.pop("headers", {})
+    headers.setdefault("User-Agent", USER_AGENT)
+    headers.setdefault("Accept-Encoding", "gzip, deflate")
+    headers.setdefault("Accept", "text/plain, text/html;q=0.9, */*;q=0.8")
+    headers.setdefault("Connection", "close")
+    attempt = 0
+    delay = sleep
+    last_err = None
+    while True:
+        try:
+            if attempt > 0:
+                print(f"Retrying GET ({attempt}) {url}")
+                time.sleep(delay)
+            resp = SESSION.get(url, headers=headers, timeout=25, **kwargs)
+            if resp.status_code == 404:
+                print(f"   -> 404 Not Found (likely no index for this date or weekend/holiday)")
+                resp.raise_for_status()  # let caller handle, we'll catch upstream
+            if resp.status_code in (429, 403) or resp.status_code >= 500:
+                print(f"   -> HTTP {resp.status_code}, will retry")
+                attempt += 1
+                delay = min(30, delay * 1.7)
+                continue
+            print(f"   -> HTTP {resp.status_code}")
+            resp.raise_for_status()
+            return resp
+        except requests.RequestException as e:
+            last_err = e
+            attempt += 1
+            if attempt > 6:
+                print(f"ERROR: giving up on {url}: {e}")
+                raise
+            delay = min(30, delay * 1.7)
+
+# Offline mode: read local master.idx files instead of downloading
+OFFLINE_DIR = None
+
+def set_offline_dir(path: str):
+    global OFFLINE_DIR
+    OFFLINE_DIR = path
+
+def master_idx_local_path_for_date(d: date) -> str:
+    fname = f"master.{d.strftime('%Y%m%d')}.idx"
+    return os.path.join(OFFLINE_DIR, fname)
+
+def iterate_master_days(start: date, end: date, forms: List[str]) -> List[Dict]:
+    cur = start
+    acc = []
+    total = (end - start).days + 1
+    idx = 0
+    while cur <= end:
+        idx += 1
+        url = master_idx_url_for_date(cur)
+        print(f"[{idx}/{total}] Fetching master.idx for {cur.isoformat()} -> {url}")
+        try:
+            if OFFLINE_DIR:
+                local_path = master_idx_local_path_for_date(cur)
+                if os.path.exists(local_path):
+                    print(f"   reading local {local_path}")
+                    with open(local_path, "r", encoding="utf-8", errors="ignore") as f:
+                        text = f.read()
+                    day_items = parse_master_idx(text, forms)
+                    print(f"   {len(day_items)} matching filings (local)")
+                    acc.extend(day_items)
+                else:
+                    print("   (no local file; skipping this date)")
+            else:
+                resp = polite_get(url)
+                day_items = parse_master_idx(resp.text, forms)
+                print(f"   {len(day_items)} matching filings")
+                acc.extend(day_items)
+        except requests.HTTPError as he:
+            # Handle 404 quietly and move on
+            if getattr(he.response, "status_code", None) == 404:
+                print("   (skip: 404)")
+            else:
+                print(f"   (skip due to HTTP error): {he}")
+        except Exception as e:
+            print(f"   (skip {cur.isoformat()}): {e}")
+        time.sleep(DEFAULT_SLEEP)
+        cur = cur + timedelta(days=1)
+    print(f"Collected {len(acc)} filings across {total} days.")
+    return acc
+
+# Extend CLI
+def parse_args():
+    ap = argparse.ArgumentParser(description="Scan EDGAR (master.idx) for reverse-split fractional-share language. Extra-verbose.")
+    ap.add_argument("--since", type=int, default=DEFAULT_SINCE_DAYS, help="Days back from today (mutually exclusive with --start/--end).")
+    ap.add_argument("--start", type=str, help="Start date YYYY-MM-DD")
+    ap.add_argument("--end", type=str, help="End date YYYY-MM-DD (inclusive)")
+    ap.add_argument("--forms", type=str, default=",".join(DEFAULT_FORMS), help="Comma-separated form types, e.g., 8-K,DEF 14A")
+    ap.add_argument("--export", type=str, help="Optional CSV export path (defaults to ./results.csv)")
+    ap.add_argument("--sleep", type=float, default=DEFAULT_SLEEP, help="Seconds between HTTP requests")
+    ap.add_argument("--verbose", action="store_true", help="Verbose per-filing details")
+    ap.add_argument("--proxy", type=str, help="Optional HTTP(S) proxy URL, e.g., http://user:pass@host:port")
+    ap.add_argument("--offline-dir", type=str, help="Optional path to a folder containing local master.YYYYMMDD.idx files")
+    return ap.parse_args()
+
+# Hook into main to set proxy/offline if provided
+_old_main = main
+def main():
+    print("EDGAR Reverse-Split Scanner (master.idx, verbose+proxy/offline)")
+    print("User-Agent:", USER_AGENT)
+    args = parse_args()
+    forms = [f.strip() for f in args.forms.split(",") if f.strip()]
+    if args.proxy:
+        print("Using proxy:", args.proxy)
+        set_session_proxy(args.proxy)
+    if args.offline_dir:
+        print("Offline mode:", args.offline_dir)
+        set_offline_dir(args.offline_dir)
+
+    if args.start or args.end:
+        if not args.start or not args.end:
+            print("Provide both --start and --end, or use --since.", file=sys.stderr)
+            sys.exit(2)
+        start = dateparser.parse(args.start).replace(tzinfo=timezone.utc)
+        end = dateparser.parse(args.end).replace(tzinfo=timezone.utc)
+    else:
+        end = datetime.now(timezone.utc)
+        start = end - timedelta(days=args.since)
+
+    print(f"Date range: {start.date()} to {end.date()}  | Forms: {forms}")
+    global DEFAULT_SLEEP
+    DEFAULT_SLEEP = max(0.6, float(args.sleep))
+
+    run(start, end, forms, export_path=args.export, verbose=args.verbose)
+# Replace the old main
+globals()['main'] = main
+# ===== End Enhancements =====

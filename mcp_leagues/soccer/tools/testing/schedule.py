@@ -12,11 +12,14 @@ import sys
 # Your MCP server URL
 MCP_URL = "https://soccermcp-production.up.railway.app/mcp"
 
-# League configurations - only leagues supported by your MCP server
+# League configurations - all leagues supported by your MCP server
 LEAGUES = {
     "EPL": {"id": 228, "name": "Premier League", "country": "England"},
     "La Liga": {"id": 297, "name": "La Liga", "country": "Spain"}, 
-    "MLS": {"id": 168, "name": "MLS", "country": "USA"}
+    "MLS": {"id": 168, "name": "MLS", "country": "USA"},
+    "Bundesliga": {"id": 241, "name": "Bundesliga", "country": "Germany"},
+    "Serie A": {"id": 253, "name": "Serie A", "country": "Italy"},
+    "UEFA": {"id": 310, "name": "UEFA Champions League", "country": "Europe"}
 }
 
 async def mcp_call(tool_name: str, arguments: dict):
@@ -114,10 +117,12 @@ async def get_matches_for_date(date_string):
         print("-" * 40)
         
         # Call MCP tool for this league
+        print(f"  Calling MCP with league_filter: '{league_code}'")
         result = await mcp_call("get_betting_matches", {
             "date": date_string,
             "league_filter": league_code
         })
+        print(f"  Response: {result.get('error', 'Success')}")
         
         if "error" in result:
             print(f"  Error: {result['error']}")
@@ -158,7 +163,7 @@ def print_help():
     """Print usage instructions"""
     print("Soccer Schedule Finder")
     print("=" * 50)
-    print("Enter a date to find upcoming matches across 3 major leagues")
+    print("Enter a date to find upcoming matches across 6 major leagues")
     print("\nSupported Leagues:")
     for code, info in LEAGUES.items():
         print(f"  - {info['name']} ({info['country']})")

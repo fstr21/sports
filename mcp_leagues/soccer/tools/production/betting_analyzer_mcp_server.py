@@ -35,7 +35,10 @@ if not AUTH_TOKEN:
 TARGET_LEAGUES = {
     'MLS': {'id': 168, 'name': 'Major League Soccer', 'country': 'USA'},
     'EPL': {'id': 228, 'name': 'Premier League', 'country': 'England'},
-    'La Liga': {'id': 297, 'name': 'La Liga', 'country': 'Spain'}
+    'La Liga': {'id': 297, 'name': 'La Liga', 'country': 'Spain'},
+    'Bundesliga': {'id': 241, 'name': 'Bundesliga', 'country': 'Germany'},
+    'Serie A': {'id': 253, 'name': 'Serie A', 'country': 'Italy'},
+    'UEFA': {'id': 310, 'name': 'UEFA Champions League', 'country': 'Europe'}
 }
 
 # HTTP client
