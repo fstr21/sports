@@ -855,11 +855,12 @@ async def create_soccer_channels(interaction: discord.Interaction, date: str):
                         away_team_id = teams.get("away", {}).get("id")
                         
                         # Get comprehensive H2H analysis (like schedule.py does)
+                        # TEMPORARILY DISABLED until soccer MCP server is redeployed with new tools
                         h2h_data = None
-                        if home_team_id and away_team_id:
-                            h2h_data = await get_comprehensive_h2h_analysis(
-                                home_team_id, away_team_id, home_team, away_team
-                            )
+                        # if home_team_id and away_team_id:
+                        #     h2h_data = await get_comprehensive_h2h_analysis(
+                        #         home_team_id, away_team_id, home_team, away_team
+                        #     )
                         
                         # Create comprehensive embed with H2H analysis
                         comprehensive_embed = create_comprehensive_match_embed(match, league_name, h2h_data)
