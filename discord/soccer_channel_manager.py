@@ -1044,3 +1044,50 @@ class SoccerChannelManager:
         
         # Default to EPL if can't determine
         return "EPL"
+    
+    # ============================================================================
+    # SINGULAR CHANNEL CREATION METHOD (for compatibility)
+    # ============================================================================
+    
+    async def create_match_channel(self, match: ProcessedMatch) -> Optional[discord.TextChannel]:
+        """
+        Create a single match channel (compatibility method for bot_structure.py)
+        
+        Args:
+            match: ProcessedMatch object
+            
+        Returns:
+            Created channel or None if failed
+        """
+        try:
+            # Get guild from bot - this is a simplified approach
+            guild = None
+            if hasattr(self.bot, 'guilds') and self.bot.guilds:
+                guild = self.bot.guilds[0]  # Use first guild
+            
+            if not guild:
+                self.logger.error("No guild available for channel creation")
+                return None
+            
+            # Get or create category
+            category = await self.get_or_create_soccer_category(guild)
+            if not category:
+                self.logger.error("Failed to get or create soccer category")
+                return None
+            
+            # Extract date from match
+            match_date = match.date or datetime.now().strftime("%Y-%m-%d")
+            
+            # Create single channel with enrichment
+            channel = await self._create_single_match_channel(match, match_date, category)
+            
+            if channel:
+                self.logger.info(f"Successfully created enriched channel: {channel.name}")
+                return channel
+            else:
+                self.logger.error("Failed to create match channel")
+                return None
+                
+        except Exception as e:
+            self.logger.error(f"Error in create_match_channel: {e}")
+            return None
