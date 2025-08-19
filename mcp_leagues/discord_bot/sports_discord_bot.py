@@ -93,21 +93,9 @@ class EnhancedSportsBot(commands.Bot):
             logger.error(f"Auto-sync failed: {e}")
     
     def _update_command_choices(self):
-        """Update command choices based on available sports"""
+        """Log available sports (choices are defined statically)"""
         available_sports = self.sport_manager.get_available_sports()
-        sport_choices = []
-        
-        for sport_name in available_sports:
-            display_name = sport_name.upper()
-            sport_choices.append(app_commands.Choice(name=display_name, value=sport_name))
-        
-        # Update choices for create_channels and clear_channels commands
-        for command in [create_channels, clear_channels]:
-            for param in command.parameters:
-                if param.name == "sport":
-                    param.choices = sport_choices
-        
-        logger.info(f"Updated command choices for {len(sport_choices)} sports")
+        logger.info(f"Available sports for commands: {', '.join(available_sports)}")
 
 
 # Initialize bot
@@ -136,6 +124,10 @@ async def sync_commands(interaction: discord.Interaction):
 
 @bot.tree.command(name="create-channels", description="Create game channels for selected sport")
 @app_commands.describe(sport="Choose a sport")
+@app_commands.choices(sport=[
+    app_commands.Choice(name="Soccer", value="soccer"),
+    app_commands.Choice(name="MLB", value="mlb"),
+])
 async def create_channels(interaction: discord.Interaction, sport: app_commands.Choice[str]):
     """Create channels for today's games using sport handlers"""
     await interaction.response.defer()
@@ -224,6 +216,10 @@ async def create_channels(interaction: discord.Interaction, sport: app_commands.
 
 @bot.tree.command(name="clear-channels", description="Clear all channels from selected sport category")
 @app_commands.describe(sport="Choose a sport category to clear")
+@app_commands.choices(sport=[
+    app_commands.Choice(name="Soccer", value="soccer"),
+    app_commands.Choice(name="MLB", value="mlb"),
+])
 async def clear_channels(interaction: discord.Interaction, sport: app_commands.Choice[str]):
     """Clear all channels from a specific sport category using sport handlers"""
     await interaction.response.defer()

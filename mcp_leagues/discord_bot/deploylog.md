@@ -1,121 +1,171 @@
-2025-08-19 23:23:21,906 - WARNING - PyNaCl is not installed, voice will NOT be supported
+Discord Token: SET
 
-Starting Simple Sports Discord Bot
+2025-08-19 23:31:15,172 - WARNING - PyNaCl is not installed, voice will NOT be supported
+
+2025-08-19 23:31:15,172 - INFO - Enhanced bot initialized with configuration for: soccer, mlb
+
+2025-08-19 23:31:15,174 - INFO - logging in using static token
+
+2025-08-19 23:31:15,515 - INFO - Setting up enhanced bot...
+
+2025-08-19 23:31:15,583 - INFO - Loading sport handlers...
+
+2025-08-19 23:31:15,589 - INFO - Loaded sport handler: soccer
+
+2025-08-19 23:31:15,593 - INFO - Loaded sport handler: mlb
+
+2025-08-19 23:31:15,593 - INFO - Sport manager loaded with 2 sports: soccer, mlb
+
+2025-08-19 23:31:15,593 - ERROR - Bot failed to start: property 'choices' of 'Parameter' object has no setter
+
+Traceback (most recent call last):
+
+  File "/app/sports_discord_bot.py", line 447, in <module>
+
+    asyncio.run(run_bot())
+
+  File "/root/.nix-profile/lib/python3.12/asyncio/runners.py", line 194, in run
+
+    return runner.run(main)
+
+           ^^^^^^^^^^^^^^^^
+
+  File "/root/.nix-profile/lib/python3.12/asyncio/runners.py", line 118, in run
+
+    return self._loop.run_until_complete(task)
+
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ 
+
+  File "/root/.nix-profile/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+
+    return future.result()
+
+           ^^^^^^^^^^^^^^^
+
+  File "/app/sports_discord_bot.py", line 433, in run_bot
+
+    await bot.start(bot.config.discord_token)
+
+  File "/opt/venv/lib/python3.12/site-packages/discord/client.py", line 846, in start
+
+    await self.login(token)
+
+  File "/opt/venv/lib/python3.12/site-packages/discord/client.py", line 689, in login
+
+    await self.setup_hook()
+
+  File "/app/sports_discord_bot.py", line 72, in setup_hook
+
+    self._update_command_choices()
+
+  File "/app/sports_discord_bot.py", line 108, in _update_command_choices
+
+    param.choices = sport_choices
+
+    ^^^^^^^^^^^^^
+
+AttributeError: property 'choices' of 'Parameter' object has no setter
+
+2025-08-19 23:31:15,652 - ERROR - Unclosed connector
+
+connections: ['deque([(<aiohttp.client_proto.ResponseHandler object at 0x7fb13e576e70>, 9192712.535307545)])']
+
+connector: <aiohttp.connector.TCPConnector object at 0x7fb13e773ec0>
+
+Starting Enhanced Sports Discord Bot v2.0
 
 Discord Token: SET
 
-2025-08-19 23:23:21,909 - INFO - logging in using static token
+2025-08-19 23:31:18,105 - WARNING - PyNaCl is not installed, voice will NOT be supported
 
-INFO:     Started server process [1]
+2025-08-19 23:31:18,106 - INFO - Enhanced bot initialized with configuration for: soccer, mlb
 
-INFO:     Waiting for application startup.
+2025-08-19 23:31:18,108 - INFO - logging in using static token
 
-INFO:     Application startup complete.
+2025-08-19 23:31:18,433 - INFO - Setting up enhanced bot...
 
-INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+2025-08-19 23:31:18,505 - INFO - Loading sport handlers...
 
-INFO:     100.64.0.2:39197 - "GET /health HTTP/1.1" 200 OK
+2025-08-19 23:31:18,513 - INFO - Loaded sport handler: soccer
 
-2025-08-19 23:23:22,462 - INFO - Shard ID None has connected to Gateway (Session ID: 4ba8eee7834d6ed333cd003d98208f36).
+2025-08-19 23:31:18,517 - INFO - Loaded sport handler: mlb
 
-2025-08-19 23:23:24,474 - INFO - Bot ready: SportsBot#7289
+2025-08-19 23:31:18,518 - INFO - Sport manager loaded with 2 sports: soccer, mlb
 
-2025-08-19 23:23:24,628 - INFO - Synced 2 commands
-
-2025-08-19 23:24:14,998 - INFO - Clear channels command used by fostersfreebies for sport: soccer
-
-2025-08-19 23:24:15,235 - INFO - 🗑️ Attempting to delete 4 channels from Soccer...
-
-2025-08-19 23:24:15,235 - INFO - 🔄 Deleting channel 1/4: osasuna-vs-real-madri
-
-2025-08-19 23:24:15,377 - INFO - ✅ Successfully deleted: osasuna-vs-real-madri
-
-2025-08-19 23:24:15,878 - INFO - 🔄 Deleting channel 2/4: club-brugg-vs-rangers
-
-2025-08-19 23:24:16,004 - INFO - ✅ Successfully deleted: club-brugg-vs-rangers
-
-2025-08-19 23:24:16,505 - INFO - 🔄 Deleting channel 3/4: qarabag-vs-ferencvaro
-
-2025-08-19 23:24:16,690 - INFO - ✅ Successfully deleted: qarabag-vs-ferencvaro
-
-2025-08-19 23:24:17,191 - INFO - 🔄 Deleting channel 4/4: pafos-vs-red-star-b
-
-2025-08-19 23:24:17,346 - INFO - ✅ Successfully deleted: pafos-vs-red-star-b
-
-2025-08-19 23:24:17,848 - INFO - 🏁 Deletion complete: 4/4 successful
-
-2025-08-19 23:24:18,008 - ERROR - Error in clear-channels command: 400 Bad Request (error code: 10003): Unknown Channel
-
-2025-08-19 23:24:18,081 - ERROR - Ignoring exception in command 'clear-channels'
+2025-08-19 23:31:18,518 - ERROR - Bot failed to start: property 'choices' of 'Parameter' object has no setter
 
 Traceback (most recent call last):
 
-  File "/app/sports_discord_bot.py", line 218, in clear_channels
+  File "/app/sports_discord_bot.py", line 447, in <module>
 
-    await interaction.followup.send(embed=result_embed)
+    asyncio.run(run_bot())
 
-  File "/opt/venv/lib/python3.12/site-packages/discord/webhook/async_.py", line 1904, in send
+  File "/root/.nix-profile/lib/python3.12/asyncio/runners.py", line 194, in run
 
-    data = await adapter.execute_webhook(
+    return runner.run(main)
 
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^
 
-  File "/opt/venv/lib/python3.12/site-packages/discord/webhook/async_.py", line 226, in request
+  File "/root/.nix-profile/lib/python3.12/asyncio/runners.py", line 118, in run
 
-    raise HTTPException(response, data)
+    return self._loop.run_until_complete(task)
 
-discord.errors.HTTPException: 400 Bad Request (error code: 10003): Unknown Channel
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
- 
+  File "/root/.nix-profile/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
 
-During handling of the above exception, another exception occurred:
+    return future.result()
 
- 
+           ^^^^^^^^^^^^^^^
 
-Traceback (most recent call last):
+  File "/app/sports_discord_bot.py", line 433, in run_bot
 
-  File "/opt/venv/lib/python3.12/site-packages/discord/app_commands/commands.py", line 859, in _do_call
+    await bot.start(bot.config.discord_token)
 
-    return await self._callback(interaction, **params)  # type: ignore
+  File "/opt/venv/lib/python3.12/site-packages/discord/client.py", line 846, in start[stage-0  9/10] RUN printf '\nPATH=/opt/venv/bin:$PATH' >> /root/.profile
 
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[stage-0  9/10] RUN printf '\nPATH=/opt/venv/bin:$PATH' >> /root/.profile  ✔ 109 ms
 
-  File "/app/sports_discord_bot.py", line 223, in clear_channels
+[stage-0 10/10] COPY . /app
 
-    await interaction.followup.send(f"❌ Error clearing channels: {str(e)}")
+[stage-0 10/10] COPY . /app  ✔ 23 ms
 
-  File "/opt/venv/lib/python3.12/site-packages/discord/webhook/async_.py", line 1904, in send
+[auth] sharing credentials for production-us-east4-eqdc4a.railway-registry.com
 
-    data = await adapter.execute_webhook(
+[auth] sharing credentials for production-us-east4-eqdc4a.railway-registry.com  ✔ 0 ms
 
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+importing to docker
 
-  File "/opt/venv/lib/python3.12/site-packages/discord/webhook/async_.py", line 226, in request
+importing to docker  ✔ 11 sec
 
-    raise HTTPException(response, data)
+=== Successfully Built! ===
 
-discord.errors.HTTPException: 400 Bad Request (error code: 10003): Unknown Channel
+Run:
 
- 
+docker run -it production-us-east4-eqdc4a.railway-registry.com/b85f0795-6086-4394-91bf-210a596d3426:9e5485b0-9176-472b-9dbc-baec86efe408
 
-The above exception was the direct cause of the following exception:
+Build time: 24.02 seconds
 
- 
+====================
 
-Traceback (most recent call last):
+Starting Healthcheck
 
-  File "/opt/venv/lib/python3.12/site-packages/discord/app_commands/tree.py", line 1310, in _call
+====================
 
-    await command._invoke_with_namespace(interaction, namespace)
+Path: /health
 
-  File "/opt/venv/lib/python3.12/site-packages/discord/app_commands/commands.py", line 884, in _invoke_with_namespace
+Retry window: 5m0s
 
-    return await self._do_call(interaction, transformed_values)
+Attempt #1 failed with service unavailable. Continuing to retry for 4m58s
 
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Attempt #2 failed with service unavailable. Continuing to retry for 4m55s
 
-  File "/opt/venv/lib/python3.12/site-packages/discord/app_commands/commands.py", line 877, in _do_call
+Attempt #3 failed with service unavailable. Continuing to retry for 4m43s
 
-    raise CommandInvokeError(self, e) from e
+Attempt #4 failed with service unavailable. Continuing to retry for 4m37s
 
-discord.app_commands.errors.CommandInvokeError: Command 'clear-channels' raised an exception: HTTPException: 400 Bad Request (error code: 10003): Unknown Channel
+Attempt #5 failed with service unavailable. Continuing to retry for 4m28s
+
+Attempt #6 failed with service unavailable. Continuing to retry for 4m12s
