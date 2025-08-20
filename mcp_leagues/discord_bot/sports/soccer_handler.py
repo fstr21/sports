@@ -210,7 +210,7 @@ class SoccerHandler(BaseSportHandler):
             matches = []
             for league, league_matches in data["matches_by_league"].items():
                 for match_data in league_matches:
-                    match = self._convert_to_match_object(match_data, league)
+                    match = self._convert_to_match_object(match_data, league, mcp_date)
                     if match:
                         matches.append(match)
             
@@ -252,12 +252,15 @@ class SoccerHandler(BaseSportHandler):
         embed.set_footer(text="Soccer Analysis powered by Soccer MCP")
         return embed
     
-    def _convert_to_match_object(self, match_data: Dict[str, Any], league: str) -> Optional[Match]:
+    def _convert_to_match_object(self, match_data: Dict[str, Any], league: str, match_date: str = None) -> Optional[Match]:
         """Convert MCP match data to Match object"""
         try:
             teams = match_data.get("teams", {})
             home_team = teams.get("home", {}).get("name", "Unknown")
             away_team = teams.get("away", {}).get("name", "Unknown")
+            
+            # Use the match date from the data or passed parameter
+            date = match_data.get("date", match_date)
             
             return Match(
                 id=str(match_data.get("id", "")),
@@ -269,6 +272,7 @@ class SoccerHandler(BaseSportHandler):
                 status=match_data.get("status", "scheduled"),
                 additional_data={
                     "time": match_data.get("time", "TBD"),
+                    "date": date,  # Store the match date for MCP calls
                     "home_id": teams.get("home", {}).get("id"),
                     "away_id": teams.get("away", {}).get("id"),
                     "league_info": match_data.get("league_info", {}),
@@ -306,14 +310,17 @@ class SoccerHandler(BaseSportHandler):
                 await message.edit(embed=embed)
                 return
             
-            # Get comprehensive analysis
-            h2h_data, home_form_data, away_form_data = await self._get_comprehensive_analysis(
-                home_id, away_id, match.home_team, match.away_team, match.additional_data.get('league_info', {}).get('id', self.default_league_id)
+            # Get comprehensive analysis with match date
+            match_date = match.additional_data.get('date', datetime.now().strftime("%d-%m-%Y"))
+            h2h_data, home_form_data, away_form_data, match_analysis_data = await self._get_comprehensive_analysis(
+                home_id, away_id, match.home_team, match.away_team, 
+                match.additional_data.get('league_info', {}).get('id', self.default_league_id),
+                match_date
             )
             
             # Create enhanced embed
             embed = self._create_comprehensive_embed(
-                match, h2h_data, home_form_data, away_form_data
+                match, h2h_data, home_form_data, away_form_data, match_analysis_data
             )
             
             # Update the message
@@ -329,8 +336,8 @@ class SoccerHandler(BaseSportHandler):
             except Exception as fallback_error:
                 logger.error(f"Fallback embed update failed: {fallback_error}")
     
-    async def _get_comprehensive_analysis(self, home_id: str, away_id: str, home_team: str, away_team: str, league_id: int):
-        """Get H2H and form analysis for both teams"""
+    async def _get_comprehensive_analysis(self, home_id: str, away_id: str, home_team: str, away_team: str, league_id: int, match_date: str = None):
+        """Get H2H, form analysis, and comprehensive match betting analysis for both teams"""
         try:
             # Get H2H analysis
             h2h_response = await self.mcp_client.call_mcp(
@@ -366,18 +373,37 @@ class SoccerHandler(BaseSportHandler):
                 }
             )
             
+            # Get comprehensive match betting analysis
+            match_analysis_response = None
+            if match_date:
+                # Map league_id to league code for the MCP call
+                league_map = {228: "EPL", 297: "La Liga", 168: "MLS"}
+                league_code = league_map.get(league_id, "EPL")
+                
+                match_analysis_response = await self.mcp_client.call_mcp(
+                    self.config['mcp_url'],
+                    "analyze_match_betting",
+                    {
+                        "home_team": home_team,
+                        "away_team": away_team,
+                        "league": league_code,
+                        "match_date": match_date
+                    }
+                )
+            
             # Parse responses
             h2h_data = await self.mcp_client.parse_mcp_content(h2h_response) if h2h_response.success else None
             home_form_data = await self.mcp_client.parse_mcp_content(home_form_response) if home_form_response.success else None
             away_form_data = await self.mcp_client.parse_mcp_content(away_form_response) if away_form_response.success else None
+            match_analysis_data = await self.mcp_client.parse_mcp_content(match_analysis_response) if match_analysis_response and match_analysis_response.success else None
             
-            return h2h_data, home_form_data, away_form_data
+            return h2h_data, home_form_data, away_form_data, match_analysis_data
             
         except Exception as e:
             logger.error(f"Error getting comprehensive analysis: {e}")
-            return None, None, None
+            return None, None, None, None
     
-    def _create_comprehensive_embed(self, match: Match, h2h_data: Dict = None, home_form_data: Dict = None, away_form_data: Dict = None) -> discord.Embed:
+    def _create_comprehensive_embed(self, match: Match, h2h_data: Dict = None, home_form_data: Dict = None, away_form_data: Dict = None, match_analysis_data: Dict = None) -> discord.Embed:
         """Create comprehensive match embed with all analysis"""
         embed = discord.Embed(
             title=f"⚽ {match.away_team} vs {match.home_team}",
@@ -409,8 +435,12 @@ class SoccerHandler(BaseSportHandler):
         if away_form_data and "error" not in away_form_data:
             self._add_team_form_to_embed(embed, away_form_data, match.away_team, "✈️ Away Team Form")
         
-        # Add betting recommendations
-        if h2h_data and home_form_data and away_form_data:
+        # Add comprehensive match analysis predictions
+        if match_analysis_data and "error" not in match_analysis_data:
+            self._add_match_predictions_to_embed(embed, match_analysis_data, match.home_team, match.away_team)
+        
+        # Add betting recommendations (fallback if match analysis not available)
+        elif h2h_data and home_form_data and away_form_data:
             self._add_betting_recommendations_to_embed(embed, h2h_data, home_form_data, away_form_data, match.home_team, match.away_team)
         
         embed.set_footer(text="Comprehensive analysis powered by Soccer MCP")
@@ -561,6 +591,69 @@ class SoccerHandler(BaseSportHandler):
                 inline=False
             )
     
+    def _add_match_predictions_to_embed(self, embed: discord.Embed, match_analysis_data: Dict[str, Any], home_team: str, away_team: str):
+        """Add comprehensive match predictions from analyze_match_betting to embed"""
+        try:
+            # Winner prediction
+            prediction = match_analysis_data.get('prediction', {})
+            if prediction:
+                outcome = prediction.get('most_likely_outcome', 'Unknown')
+                confidence = prediction.get('confidence_score', 0)
+                
+                prediction_text = f"**Prediction:** {outcome}"
+                if confidence > 0:
+                    prediction_text += f" ({confidence:.1f}% confidence)"
+                
+                embed.add_field(
+                    name="🎯 Match Prediction",
+                    value=prediction_text,
+                    inline=True
+                )
+            
+            # Goals prediction
+            goals_prediction = match_analysis_data.get('goals_prediction', {})
+            if goals_prediction:
+                goals_pred = goals_prediction.get('prediction', 'Unknown')
+                goals_confidence = goals_prediction.get('confidence', 0)
+                
+                goals_text = f"**Goals:** {goals_pred}"
+                if goals_confidence > 0:
+                    goals_text += f" ({goals_confidence:.1f}% confidence)"
+                
+                embed.add_field(
+                    name="⚽ Goals Prediction",
+                    value=goals_text,
+                    inline=True
+                )
+            
+            # Key insights
+            insights = match_analysis_data.get('key_insights', [])
+            if insights:
+                insights_text = "\n".join([f"• {insight}" for insight in insights[:4]])  # Show top 4 insights
+                embed.add_field(
+                    name="💡 Key Insights",
+                    value=insights_text,
+                    inline=False
+                )
+            
+            # Risk assessment
+            risk_level = match_analysis_data.get('risk_level', '')
+            if risk_level:
+                risk_emoji = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🔴"}.get(risk_level.upper(), "⚪")
+                embed.add_field(
+                    name="⚠️ Risk Level",
+                    value=f"{risk_emoji} **{risk_level.upper()}**",
+                    inline=True
+                )
+                
+        except Exception as e:
+            logger.error(f"Error adding match predictions to embed: {e}")
+            embed.add_field(
+                name="🎯 Analysis",
+                value="Comprehensive analysis available but formatting error occurred",
+                inline=False
+            )
+
     def _convert_to_american_odds(self, decimal_odds) -> str:
         """Convert decimal odds to American format"""
         try:
