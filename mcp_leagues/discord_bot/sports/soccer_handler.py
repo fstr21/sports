@@ -493,12 +493,16 @@ class SoccerHandler(BaseSportHandler):
         """Add head-to-head analysis to embed"""
         total_meetings = h2h_data.get('total_meetings', 0)
         
+        # Always show H2H section
         if total_meetings > 0:
             team1_record = h2h_data.get('team_1_record', {})
             team2_record = h2h_data.get('team_2_record', {})
             draws = h2h_data.get('draws', {})
             
-            h2h_text = f"**{total_meetings} meetings** | **{home_team}:** {team1_record.get('wins', 0)}W ({team1_record.get('win_rate', 0):.1f}%) | **{away_team}:** {team2_record.get('wins', 0)}W ({team2_record.get('win_rate', 0):.1f}%) | **Draws:** {draws.get('count', 0)}"
+            h2h_text = f"**{total_meetings} meetings**\n"
+            h2h_text += f"**{home_team}:** {team1_record.get('wins', 0)}W ({team1_record.get('win_rate', 0):.1f}%)\n"
+            h2h_text += f"**{away_team}:** {team2_record.get('wins', 0)}W ({team2_record.get('win_rate', 0):.1f}%)\n"
+            h2h_text += f"**Draws:** {draws.get('count', 0)}"
             
             embed.add_field(
                 name="📊 Head-to-Head Record",
@@ -525,29 +529,49 @@ class SoccerHandler(BaseSportHandler):
                     inline=False
                 )
         else:
+            # Show that teams haven't met before - still useful info
             embed.add_field(
-                name="📊 Head-to-Head",
-                value=f"**No historical meetings** between {home_team} and {away_team}",
+                name="📊 Head-to-Head Record",
+                value=f"**First meeting** between {home_team} and {away_team}\nNo historical data available",
                 inline=False
             )
     
     def _add_team_form_to_embed(self, embed: discord.Embed, form_data: Dict[str, Any], team_name: str, field_name: str):
         """Add team form analysis to embed"""
-        recent_form = form_data.get('recent_form', {})
-        if recent_form:
-            form_record = recent_form.get('last_5_games', {})
-            wins = form_record.get('wins', 0)
-            draws = form_record.get('draws', 0)
-            losses = form_record.get('losses', 0)
-            goals_for = recent_form.get('goals_scored', 0)
-            goals_against = recent_form.get('goals_conceded', 0)
+        try:
+            # Handle the actual MCP form data structure
+            record = form_data.get('record', 'N/A')
+            form_rating = form_data.get('form_rating', 0)
+            win_percentage = form_data.get('win_percentage', 0)
+            goals_for = form_data.get('goals_for', 0)
+            goals_against = form_data.get('goals_against', 0)
             
-            form_text = f"**{team_name} Recent Form:** {wins}W-{draws}D-{losses}L\n"
-            form_text += f"**Goals:** {goals_for} scored, {goals_against} conceded"
-            
+            if record != 'N/A' or form_rating > 0:
+                form_text = f"**{team_name}**\n"
+                form_text += f"Record: {record}\n"
+                form_text += f"Form Rating: {form_rating:.1f}/10\n"
+                if win_percentage > 0:
+                    form_text += f"Win Rate: {win_percentage:.1f}%\n"
+                if goals_for > 0 or goals_against > 0:
+                    form_text += f"Goals: {goals_for} for, {goals_against} against"
+                
+                embed.add_field(
+                    name=field_name,
+                    value=form_text,
+                    inline=True
+                )
+            else:
+                # Show basic info even if no recent matches
+                embed.add_field(
+                    name=field_name,
+                    value=f"**{team_name}**\nNo recent form data available",
+                    inline=True
+                )
+        except Exception as e:
+            logger.error(f"Error adding team form to embed: {e}")
             embed.add_field(
                 name=field_name,
-                value=form_text,
+                value=f"**{team_name}**\nForm analysis error",
                 inline=True
             )
     
