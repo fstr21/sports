@@ -10,7 +10,7 @@ from typing import List, Dict, Any, Optional
 import discord
 
 from core.base_sport_handler import BaseSportHandler, Match, ChannelCreationResult, ClearResult
-from sports.soccer_embed_formatter import SoccerEmbedFormatter
+from sports.soccer_embed_formatter import ImprovedSoccerEmbedFormatter
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ class SoccerHandler(BaseSportHandler):
         """Initialize soccer handler with soccer-specific configuration"""
         super().__init__(sport_name, config, mcp_client)
         self.default_league_id = config.get('default_league_id', 297)  # La Liga default
-        self.formatter = SoccerEmbedFormatter(config)
+        self.formatter = ImprovedSoccerEmbedFormatter(config)
         
     async def create_channels(self, interaction: discord.Interaction, date: str) -> ChannelCreationResult:
         """

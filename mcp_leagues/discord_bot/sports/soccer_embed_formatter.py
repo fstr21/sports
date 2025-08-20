@@ -212,6 +212,86 @@ class ImprovedSoccerEmbedFormatter:
             embed.add_field(name=f"{emoji} {title}", value="No recent form data.", inline=True)
             
     # [IMPROVEMENT] Marked as a static method as it doesn't use 'self'.
+    def create_loading_embed(self, home_team: str, away_team: str, league: str, match_time: str = "TBD") -> discord.Embed:
+        """Create initial loading embed for a match"""
+        embed = discord.Embed(
+            title=f"{self.emojis['vs']} {home_team} vs {away_team}",
+            description=f"**{league}** • {match_time}\n🔄 Loading comprehensive analysis...",
+            color=self.embed_color,
+            timestamp=datetime.now()
+        )
+        embed.set_footer(text="Loading analysis...")
+        return embed
+    
+    def create_basic_embed(self, home_team: str, away_team: str, league: str, match_time: str = "TBD", odds_data: Dict = None) -> discord.Embed:
+        """Create basic match embed without comprehensive analysis (fallback)"""
+        embed = discord.Embed(
+            title=f"{self.emojis['vs']} {home_team} vs {away_team}",
+            description=f"**{league}** • {match_time}",
+            color=self.embed_color,
+            timestamp=datetime.now()
+        )
+        
+        if odds_data:
+            self._add_betting_odds(embed, odds_data, home_team, away_team)
+        
+        embed.set_footer(text="Basic match info • Powered by Soccer MCP")
+        return embed
+    
+    def _add_match_predictions(self, embed: discord.Embed, match_analysis_data: Dict[str, Any]):
+        """Add match predictions with clean formatting"""
+        try:
+            predictions = match_analysis_data.get('predictions', {})
+            match_winner = predictions.get('match_winner', {})
+            goals_pred = predictions.get('goals', {})
+            insights = predictions.get('key_insights', [])
+            
+            # Winner prediction
+            if match_winner:
+                prediction = match_winner.get('prediction', 'Unknown')
+                confidence = match_winner.get('confidence_percentage', 0)
+                
+                if confidence > 0:
+                    embed.add_field(
+                        name=f"{self.emojis['prediction']} {self.titles['prediction']}",
+                        value=f"**{prediction}** ({confidence}%)",
+                        inline=True
+                    )
+            
+            # Goals prediction
+            if goals_pred and goals_pred.get('prediction') != 'No prediction available':
+                expected_goals = goals_pred.get('expected_goals', 0)
+                if expected_goals > 0:
+                    if expected_goals > 2.5:
+                        goals_text = f"{self.emojis['fire']} **Over 2.5** ({expected_goals} exp)"
+                    else:
+                        goals_text = f"{self.emojis['shield']} **Under 2.5** ({expected_goals} exp)"
+                    
+                    embed.add_field(
+                        name=f"{self.emojis['goals']} {self.titles['goals']}",
+                        value=goals_text,
+                        inline=True
+                    )
+            
+            # Key insights - only actionable ones
+            if insights:
+                clean_insights = []
+                for insight in insights[:3]:
+                    if "Home Team Form:" in insight or "Away Team Form:" in insight:
+                        continue  # Skip form insights (shown elsewhere)
+                    if len(insight) < 60:  # Only short, actionable insights
+                        clean_insights.append(f"• {insight}")
+                
+                if clean_insights:
+                    embed.add_field(
+                        name=f"{self.emojis['insights']} {self.titles['insights']}",
+                        value="\n".join(clean_insights),
+                        inline=False
+                    )
+                    
+        except Exception as e:
+            logger.error(f"Error adding match predictions: {e}")
+
     @staticmethod
     def _convert_to_american_odds(decimal_odds) -> str:
         """Convert decimal odds to American format."""
