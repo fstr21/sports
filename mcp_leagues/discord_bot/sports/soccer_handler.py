@@ -296,17 +296,17 @@ class SoccerHandler(BaseSportHandler):
                 match_date
             )
             
-            # Create enhanced embed using formatter
+            # Create enhanced embed using formatter with kwargs
             embed = self.formatter.create_comprehensive_embed(
-                match.home_team,
-                match.away_team,
-                match.league,
-                match.additional_data.get('time', 'TBD'),
-                match.odds,
-                h2h_data,
-                home_form_data,
-                away_form_data,
-                match_analysis_data
+                home_team=match.home_team,
+                away_team=match.away_team,
+                league=match.league,
+                match_time=match.additional_data.get('time', 'TBD'),
+                odds_data=match.odds,
+                h2h_data=h2h_data,
+                home_form_data=home_form_data,
+                away_form_data=away_form_data,
+                match_analysis_data=match_analysis_data
             )
             
             # Update the message
