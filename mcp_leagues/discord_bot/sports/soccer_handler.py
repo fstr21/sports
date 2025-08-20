@@ -404,20 +404,12 @@ class SoccerHandler(BaseSportHandler):
             return None, None, None, None
     
     def _create_comprehensive_embed(self, match: Match, h2h_data: Dict = None, home_form_data: Dict = None, away_form_data: Dict = None, match_analysis_data: Dict = None) -> discord.Embed:
-        """Create comprehensive match embed with all analysis"""
+        """Create comprehensive match embed with clean, professional formatting"""
         embed = discord.Embed(
             title=f"⚽ {match.away_team} vs {match.home_team}",
-            description=f"**{match.league}** - Comprehensive Analysis",
-            color=self.config.get('embed_color', 0x00ff00),
+            description=f"**{match.league}** • {match.additional_data.get('time', 'TBD')}",
+            color=0x2F3136,  # Discord dark theme color
             timestamp=datetime.now()
-        )
-        
-        # Basic match info
-        match_time = match.additional_data.get('time', 'TBD')
-        embed.add_field(
-            name="📅 Match Info",
-            value=f"**Time:** {match_time}\\n**League:** {match.league}",
-            inline=True
         )
         
         # Add betting odds
@@ -443,7 +435,7 @@ class SoccerHandler(BaseSportHandler):
         elif h2h_data and home_form_data and away_form_data:
             self._add_betting_recommendations_to_embed(embed, h2h_data, home_form_data, away_form_data, match.home_team, match.away_team)
         
-        embed.set_footer(text="Comprehensive analysis powered by Soccer MCP")
+        embed.set_footer(text="Powered by Soccer MCP • Enhanced Analysis")
         return embed
     
     def _add_betting_odds_to_embed(self, embed: discord.Embed, odds: Dict[str, Any], home_team: str, away_team: str):
@@ -484,8 +476,8 @@ class SoccerHandler(BaseSportHandler):
         
         if betting_lines:
             embed.add_field(
-                name="💰 Betting Lines",
-                value="\n".join(betting_lines),
+                name="💰 Odds",
+                value=" • ".join(betting_lines),  # Horizontal layout to save space
                 inline=False
             )
     
@@ -493,51 +485,51 @@ class SoccerHandler(BaseSportHandler):
         """Add head-to-head analysis to embed"""
         total_meetings = h2h_data.get('total_meetings', 0)
         
-        # Always show H2H section
+        # Always show H2H section with cleaner formatting
         if total_meetings > 0:
             team1_record = h2h_data.get('team_1_record', {})
             team2_record = h2h_data.get('team_2_record', {})
             draws = h2h_data.get('draws', {})
             
+            # Clean, compact H2H display
             h2h_text = f"**{total_meetings} meetings**\n"
-            h2h_text += f"**{home_team}:** {team1_record.get('wins', 0)}W ({team1_record.get('win_rate', 0):.1f}%)\n"
-            h2h_text += f"**{away_team}:** {team2_record.get('wins', 0)}W ({team2_record.get('win_rate', 0):.1f}%)\n"
-            h2h_text += f"**Draws:** {draws.get('count', 0)}"
+            h2h_text += f"• **{home_team}:** {team1_record.get('wins', 0)}W ({team1_record.get('win_rate', 0):.0f}%)\n"
+            h2h_text += f"• **{away_team}:** {team2_record.get('wins', 0)}W ({team2_record.get('win_rate', 0):.0f}%)\n"
+            h2h_text += f"• **Draws:** {draws.get('count', 0)}"
             
             embed.add_field(
-                name="📊 Head-to-Head Record",
+                name="📊 Head-to-Head",
                 value=h2h_text,
                 inline=False
             )
             
-            # Goals analysis
+            # Compact goals analysis
             goals = h2h_data.get('goals', {})
             if goals:
                 avg_goals = goals.get('average_per_game', 0)
-                insights_text = f"**Avg Goals:** {avg_goals:.2f}/game\n"
                 
                 if avg_goals > 2.8:
-                    insights_text += "🔥 **OVER 2.5 Goals** - High-scoring history"
+                    trend_text = f"🔥 **Over 2.5 Goals** ({avg_goals:.1f} avg)"
                 elif avg_goals < 2.2:
-                    insights_text += "🛡️ **UNDER 2.5 Goals** - Low-scoring trend"
+                    trend_text = f"🛡️ **Under 2.5 Goals** ({avg_goals:.1f} avg)"
                 else:
-                    insights_text += "⚖️ **Goals Market Balanced**"
+                    trend_text = f"⚖️ **Balanced** ({avg_goals:.1f} avg goals)"
                 
                 embed.add_field(
-                    name="💡 H2H Betting Analysis",
-                    value=insights_text,
-                    inline=False
+                    name="💡 Goals Trend",
+                    value=trend_text,
+                    inline=True
                 )
         else:
-            # Show that teams haven't met before - still useful info
+            # Compact first meeting display
             embed.add_field(
-                name="📊 Head-to-Head Record",
-                value=f"**First meeting** between {home_team} and {away_team}\nNo historical data available",
+                name="📊 Head-to-Head",
+                value="**First meeting** - No historical data",
                 inline=False
             )
     
     def _add_team_form_to_embed(self, embed: discord.Embed, form_data: Dict[str, Any], team_name: str, field_name: str):
-        """Add team form analysis to embed"""
+        """Add team form analysis to embed with clean formatting"""
         try:
             # Handle the actual MCP form data structure
             record = form_data.get('record', 'N/A')
@@ -547,31 +539,42 @@ class SoccerHandler(BaseSportHandler):
             goals_against = form_data.get('goals_against', 0)
             
             if record != 'N/A' or form_rating > 0:
-                form_text = f"**{team_name}**\n"
-                form_text += f"Record: {record}\n"
-                form_text += f"Form Rating: {form_rating:.1f}/10\n"
+                # Compact form display with key metrics only
+                form_text = f"**{record}** | **{form_rating:.1f}/10**"
+                
                 if win_percentage > 0:
-                    form_text += f"Win Rate: {win_percentage:.1f}%\n"
+                    form_text += f"\n{win_percentage:.0f}% win rate"
+                    
                 if goals_for > 0 or goals_against > 0:
-                    form_text += f"Goals: {goals_for} for, {goals_against} against"
+                    form_text += f"\n{goals_for} for, {goals_against} against"
+                
+                # Add form rating emoji
+                if form_rating >= 7:
+                    form_emoji = "🔥"
+                elif form_rating >= 5:
+                    form_emoji = "⚡"
+                elif form_rating >= 3:
+                    form_emoji = "📈"
+                else:
+                    form_emoji = "📉"
                 
                 embed.add_field(
-                    name=field_name,
+                    name=f"{form_emoji} {field_name}",
                     value=form_text,
                     inline=True
                 )
             else:
-                # Show basic info even if no recent matches
+                # Compact no data display
                 embed.add_field(
-                    name=field_name,
-                    value=f"**{team_name}**\nNo recent form data available",
+                    name=f"📊 {field_name}",
+                    value="No recent UEFA form",
                     inline=True
                 )
         except Exception as e:
             logger.error(f"Error adding team form to embed: {e}")
             embed.add_field(
-                name=field_name,
-                value=f"**{team_name}**\nForm analysis error",
+                name=f"❌ {field_name}",
+                value="Form data error",
                 inline=True
             )
     
@@ -616,67 +619,61 @@ class SoccerHandler(BaseSportHandler):
             )
     
     def _add_match_predictions_to_embed(self, embed: discord.Embed, match_analysis_data: Dict[str, Any], home_team: str, away_team: str):
-        """Add comprehensive match predictions from analyze_match_betting to embed"""
+        """Add comprehensive match predictions with clean formatting"""
         try:
-            # Winner prediction
-            prediction = match_analysis_data.get('prediction', {})
-            if prediction:
-                outcome = prediction.get('most_likely_outcome', 'Unknown')
-                confidence = prediction.get('confidence_score', 0)
+            # Extract prediction data
+            predictions = match_analysis_data.get('predictions', {})
+            match_winner = predictions.get('match_winner', {})
+            goals_pred = predictions.get('goals', {})
+            insights = predictions.get('key_insights', [])
+            
+            # Winner prediction - compact format
+            if match_winner:
+                prediction = match_winner.get('prediction', 'Unknown')
+                confidence = match_winner.get('confidence_percentage', 0)
                 
-                prediction_text = f"**Prediction:** {outcome}"
                 if confidence > 0:
-                    prediction_text += f" ({confidence:.1f}% confidence)"
-                
-                embed.add_field(
-                    name="🎯 Match Prediction",
-                    value=prediction_text,
-                    inline=True
-                )
+                    embed.add_field(
+                        name="🎯 Prediction",
+                        value=f"**{prediction}** ({confidence}%)",
+                        inline=True
+                    )
             
-            # Goals prediction
-            goals_prediction = match_analysis_data.get('goals_prediction', {})
-            if goals_prediction:
-                goals_pred = goals_prediction.get('prediction', 'Unknown')
-                goals_confidence = goals_prediction.get('confidence', 0)
-                
-                goals_text = f"**Goals:** {goals_pred}"
-                if goals_confidence > 0:
-                    goals_text += f" ({goals_confidence:.1f}% confidence)"
-                
-                embed.add_field(
-                    name="⚽ Goals Prediction",
-                    value=goals_text,
-                    inline=True
-                )
+            # Goals prediction - compact format  
+            if goals_pred and goals_pred.get('prediction') != 'No prediction available':
+                expected_goals = goals_pred.get('expected_goals', 0)
+                if expected_goals > 0:
+                    if expected_goals > 2.5:
+                        goals_text = f"🔥 **Over 2.5** ({expected_goals} exp)"
+                    else:
+                        goals_text = f"🛡️ **Under 2.5** ({expected_goals} exp)"
+                    
+                    embed.add_field(
+                        name="⚽ Goals",
+                        value=goals_text,
+                        inline=True
+                    )
             
-            # Key insights
-            insights = match_analysis_data.get('key_insights', [])
+            # Key insights - clean bullets, max 3 lines
             if insights:
-                insights_text = "\n".join([f"• {insight}" for insight in insights[:4]])  # Show top 4 insights
-                embed.add_field(
-                    name="💡 Key Insights",
-                    value=insights_text,
-                    inline=False
-                )
-            
-            # Risk assessment
-            risk_level = match_analysis_data.get('risk_level', '')
-            if risk_level:
-                risk_emoji = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🔴"}.get(risk_level.upper(), "⚪")
-                embed.add_field(
-                    name="⚠️ Risk Level",
-                    value=f"{risk_emoji} **{risk_level.upper()}**",
-                    inline=True
-                )
+                clean_insights = []
+                for insight in insights[:3]:
+                    # Clean up insight text
+                    if "Home Team Form:" in insight or "Away Team Form:" in insight:
+                        continue  # Skip form insights (shown elsewhere)
+                    if len(insight) < 60:  # Only short, actionable insights
+                        clean_insights.append(f"• {insight}")
+                
+                if clean_insights:
+                    embed.add_field(
+                        name="💡 Insights",
+                        value="\n".join(clean_insights),
+                        inline=False
+                    )
                 
         except Exception as e:
             logger.error(f"Error adding match predictions to embed: {e}")
-            embed.add_field(
-                name="🎯 Analysis",
-                value="Comprehensive analysis available but formatting error occurred",
-                inline=False
-            )
+            # Don't show error to users, just log it
 
     def _convert_to_american_odds(self, decimal_odds) -> str:
         """Convert decimal odds to American format"""
