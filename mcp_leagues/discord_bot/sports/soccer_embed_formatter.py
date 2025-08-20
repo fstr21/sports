@@ -174,3 +174,31 @@ class DynamicLayoutSoccerEmbedFormatter:
             "value": "\n".join(lines),
             "inline": True
         }
+
+    def create_loading_embed(self, home_team: str, away_team: str, league: str, match_time: str = "TBD") -> discord.Embed:
+        """Create initial loading embed for a match"""
+        embed = discord.Embed(
+            title=f"{self.emojis['vs']} {home_team} vs {away_team}",
+            description=f"**{league}** • {match_time}\n🔄 Loading comprehensive analysis...",
+            color=self.config['embed_color'],
+            timestamp=datetime.now()
+        )
+        embed.set_footer(text="Loading analysis...")
+        return embed
+    
+    def create_basic_embed(self, home_team: str, away_team: str, league: str, match_time: str = "TBD", odds_data: Dict = None) -> discord.Embed:
+        """Create basic match embed without comprehensive analysis (fallback)"""
+        embed = discord.Embed(
+            title=f"{self.emojis['vs']} {home_team} vs {away_team}",
+            description=f"**{league}** • {match_time}",
+            color=self.config['embed_color'],
+            timestamp=datetime.now()
+        )
+        
+        if odds_data:
+            odds_field = self._prepare_odds_field(odds_data, home_team, away_team)
+            if odds_field:
+                embed.add_field(**odds_field)
+        
+        embed.set_footer(text="Basic match info • Powered by Soccer MCP")
+        return embed
