@@ -231,3 +231,17 @@ class SyncManager:
         
         embed.set_footer(text="Command Sync System")
         return embed
+    
+    def get_sync_status(self):
+        """
+        Get current synchronization status
+        
+        Returns:
+            Dictionary with sync status information
+        """
+        return {
+            "last_sync": self._last_sync,
+            "last_sync_success": self._last_sync_success,
+            "commands_count": self._commands_count,
+            "sync_in_progress": self._sync_in_progress
+        }

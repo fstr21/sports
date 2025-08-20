@@ -174,7 +174,7 @@ async def create_channels(interaction: discord.Interaction, sport: app_commands.
             
             embed.add_field(
                 name="📊 Summary",
-                value=f"**Created:** {result.channels_created}\\n**Total Games:** {result.total_matches}",
+                value=f"**Created:** {result.channels_created}\n**Total Games:** {result.total_matches}",
                 inline=True
             )
             
@@ -207,7 +207,7 @@ async def create_channels(interaction: discord.Interaction, sport: app_commands.
         )
         embed.add_field(
             name="💡 Try:",
-            value="• Check if the MCP service is available\\n• Try again in a few moments\\n• Contact an administrator if this persists",
+            value="• Check if the MCP service is available\n• Try again in a few moments\n• Contact an administrator if this persists",
             inline=False
         )
         await interaction.followup.send(embed=embed)
@@ -260,7 +260,7 @@ async def clear_channels(interaction: discord.Interaction, sport: app_commands.C
             
             embed.add_field(
                 name="📊 Summary",
-                value=f"**Deleted:** {result.channels_deleted}\\n**Total Found:** {result.total_channels}",
+                value=f"**Deleted:** {result.channels_deleted}\n**Total Found:** {result.total_channels}",
                 inline=True
             )
             
@@ -336,8 +336,10 @@ async def status_command(interaction: discord.Interaction):
     
     # Last sync info
     sync_status = bot.sync_manager.get_sync_status()
-    if sync_status.last_sync:
-        sync_text = f"✅ {sync_status.last_sync.strftime('%Y-%m-%d %H:%M:%S')}" if sync_status.last_sync_success else f"❌ {sync_status.last_sync.strftime('%Y-%m-%d %H:%M:%S')}"
+    if sync_status.get("last_sync"):
+        last_sync = sync_status["last_sync"]
+        sync_success = sync_status["last_sync_success"]
+        sync_text = f"✅ {last_sync.strftime('%Y-%m-%d %H:%M:%S')}" if sync_success else f"❌ {last_sync.strftime('%Y-%m-%d %H:%M:%S')}"
         embed.add_field(
             name="🔄 Last Sync",
             value=sync_text,
@@ -370,10 +372,10 @@ async def help_command(interaction: discord.Interaction):
     embed.add_field(
         name="📝 Commands",
         value=(
-            "`/create-channels <sport>` - Create channels for today's games\\n"
-            "`/clear-channels <sport>` - Clear all channels for a sport\\n"
-            "`/status` - Show bot status and health\\n"
-            "`/sync` - Sync bot commands (Admin only)\\n"
+            "`/create-channels <sport>` - Create channels for today's games\n"
+            "`/clear-channels <sport>` - Clear all channels for a sport\n"
+            "`/status` - Show bot status and health\n"
+            "`/sync` - Sync bot commands (Admin only)\n"
             "`/help` - Show this help message"
         ),
         inline=False
@@ -383,11 +385,11 @@ async def help_command(interaction: discord.Interaction):
     embed.add_field(
         name="✨ Features",
         value=(
-            "• Comprehensive match analysis\\n"
-            "• Head-to-head statistics\\n"
-            "• Team form analysis\\n"
-            "• Betting odds and recommendations\\n"
-            "• Robust error handling\\n"
+            "• Comprehensive match analysis\n"
+            "• Head-to-head statistics\n"
+            "• Team form analysis\n"
+            "• Betting odds and recommendations\n"
+            "• Robust error handling\n"
             "• Modular sport architecture"
         ),
         inline=False

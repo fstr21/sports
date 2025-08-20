@@ -241,7 +241,7 @@ class SoccerHandler(BaseSportHandler):
         match_time = match.additional_data.get('time', 'TBD')
         embed.add_field(
             name="📅 Match Info",
-            value=f"**Time:** {match_time}\\n**League:** {match.league}",
+            value=f"**Time:** {match_time}\n**League:** {match.league}",
             inline=True
         )
         
@@ -283,7 +283,7 @@ class SoccerHandler(BaseSportHandler):
         """Create initial loading embed for a match"""
         embed = discord.Embed(
             title=f"⚽ {match.away_team} vs {match.home_team}",
-            description=f"**{match.league}**\\n🔄 Loading comprehensive analysis...",
+            description=f"**{match.league}**\n🔄 Loading comprehensive analysis...",
             color=self.config.get('embed_color', 0x00ff00),
             timestamp=datetime.now()
         )
@@ -455,7 +455,7 @@ class SoccerHandler(BaseSportHandler):
         if betting_lines:
             embed.add_field(
                 name="💰 Betting Lines",
-                value="\\n".join(betting_lines),
+                value="\n".join(betting_lines),
                 inline=False
             )
     
@@ -480,7 +480,7 @@ class SoccerHandler(BaseSportHandler):
             goals = h2h_data.get('goals', {})
             if goals:
                 avg_goals = goals.get('average_per_game', 0)
-                insights_text = f"**Avg Goals:** {avg_goals:.2f}/game\\n"
+                insights_text = f"**Avg Goals:** {avg_goals:.2f}/game\n"
                 
                 if avg_goals > 2.8:
                     insights_text += "🔥 **OVER 2.5 Goals** - High-scoring history"
@@ -512,7 +512,7 @@ class SoccerHandler(BaseSportHandler):
             goals_for = recent_form.get('goals_scored', 0)
             goals_against = recent_form.get('goals_conceded', 0)
             
-            form_text = f"**{team_name} Recent Form:** {wins}W-{draws}D-{losses}L\\n"
+            form_text = f"**{team_name} Recent Form:** {wins}W-{draws}D-{losses}L\n"
             form_text += f"**Goals:** {goals_for} scored, {goals_against} conceded"
             
             embed.add_field(
@@ -557,7 +557,7 @@ class SoccerHandler(BaseSportHandler):
         if recommendations:
             embed.add_field(
                 name="🎯 Smart Betting Tips",
-                value="\\n".join(recommendations),
+                value="\n".join(recommendations),
                 inline=False
             )
     
