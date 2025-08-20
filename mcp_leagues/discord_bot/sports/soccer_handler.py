@@ -72,13 +72,8 @@ class SoccerHandler(BaseSportHandler):
                         topic=f"{match.away_team} vs {match.home_team} - {match.league}"
                     )
                     
-                    # Create and send initial embed using formatter
-                    initial_embed = self.formatter.create_loading_embed(
-                        match.home_team, 
-                        match.away_team, 
-                        match.league, 
-                        match.additional_data.get('time', 'TBD')
-                    )
+                    # Create and send initial embed
+                    initial_embed = self._create_loading_embed(match)
                     message = await channel.send(embed=initial_embed)
                     
                     # Get comprehensive analysis and update embed
@@ -229,13 +224,27 @@ class SoccerHandler(BaseSportHandler):
     
     async def format_match_analysis(self, match: Match) -> discord.Embed:
         """Create formatted Discord embed for soccer match analysis (legacy fallback)"""
-        return self.formatter.create_basic_embed(
-            match.home_team,
-            match.away_team,
-            match.league,
-            match.additional_data.get('time', 'TBD'),
-            match.odds
+        embed = discord.Embed(
+            title=f"⚽ {match.away_team} vs {match.home_team}",
+            description=f"**{match.league}** - Comprehensive Analysis",
+            color=self.config.get('embed_color', 0x00ff00),
+            timestamp=datetime.now()
         )
+        
+        # Basic match info
+        match_time = match.additional_data.get('time', 'TBD')
+        embed.add_field(
+            name="📅 Match Info",
+            value=f"**Time:** {match_time}\n**League:** {match.league}",
+            inline=True
+        )
+        
+        # Add betting odds if available
+        if match.odds:
+            self._add_betting_odds_to_embed(embed, match.odds, match.home_team, match.away_team)
+        
+        embed.set_footer(text="Soccer Analysis powered by Soccer MCP")
+        return embed
     
     def _convert_to_match_object(self, match_data: Dict[str, Any], league: str, match_date: str = None) -> Optional[Match]:
         """Convert MCP match data to Match object"""
@@ -268,8 +277,7 @@ class SoccerHandler(BaseSportHandler):
             logger.error(f"Error converting match data: {e}")
             return None
     
-    # Removed: All formatting methods moved to soccer_embed_formatter.py
-    # This keeps the soccer handler focused on business logic only
+    # All formatting methods are included in this class for simplicity
     
     def _create_loading_embed(self, match: Match) -> discord.Embed:
         """Create initial loading embed for a match"""
