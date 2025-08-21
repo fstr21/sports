@@ -244,10 +244,12 @@ class MLBHandler(BaseSportHandler):
             logger.error(f"Error fetching MLB games: {e}")
             return []
     
+
+
     async def format_match_analysis(self, match: Match) -> discord.Embed:
         """
-        Create a compact, formatted Discord embed for MLB game analysis.
-        This version uses fields and code blocks for a clean, table-like layout.
+        Create a single, compact, and comprehensive Discord embed for MLB game analysis.
+        This version solves text wrapping and merges all team form data.
         
         Args:
             match: Match object with data to format
@@ -285,20 +287,30 @@ class MLBHandler(BaseSportHandler):
         except Exception:
             pass # Keep original time if parsing fails
         
-        # Extract records, streaks, and run differentials
+        # Extract records, streaks, win %, games back, and run differentials
         away_record, home_record = "0-0", "0-0"
         away_streak, home_streak = "N/A", "N/A"
+        away_winpct, home_winpct = ".000", ".000"
+        away_gb, home_gb = "-", "-"
         away_diff_val, home_diff_val = 0, 0
 
         if not isinstance(away_form, Exception) and away_form:
             away_data = away_form.get("data", {}).get("form", {})
             away_record = f"{away_data.get('wins', 0)}-{away_data.get('losses', 0)}"
             away_streak = away_data.get("streak", "N/A")
+            win_pct = away_data.get('win_percentage', 0)
+            if isinstance(win_pct, (int, float)) and win_pct > 0:
+                away_winpct = f".{int(win_pct * 1000):03d}"
+            away_gb = str(away_data.get("games_back", "-"))
 
         if not isinstance(home_form, Exception) and home_form:
             home_data = home_form.get("data", {}).get("form", {})
             home_record = f"{home_data.get('wins', 0)}-{home_data.get('losses', 0)}"
             home_streak = home_data.get("streak", "N/A")
+            win_pct = home_data.get('win_percentage', 0)
+            if isinstance(win_pct, (int, float)) and win_pct > 0:
+                home_winpct = f".{int(win_pct * 1000):03d}"
+            home_gb = str(home_data.get("games_back", "-"))
             
         if not isinstance(away_trends, Exception) and away_trends:
             away_diff_val = away_trends.get("data", {}).get("trends", {}).get("run_differential", 0)
@@ -318,41 +330,58 @@ class MLBHandler(BaseSportHandler):
             timestamp=datetime.now()
         )
 
-        # --- 3. Betting Lines Field ---
+        # --- 3. Betting Lines Field (Reformatted to prevent wrapping) ---
         
         betting_lines_content = "```\n"
         if not isinstance(betting_odds, Exception) and betting_odds:
-            # API format is "HomeTeam Odds | AwayTeam Odds"
-            ml_parts = betting_odds.get("moneyline", "N/A | N/A").split(' | ')
-            sp_parts = betting_odds.get("spread", "N/A | N/A").split(' | ')
+            # Shorten team names for headers
+            away_team_short = (match.away_team.split()[-1])[:10]
+            home_team_short = (match.home_team.split()[-1])[:10]
+            
+            # Extract odds values
+            ml_home_odds, ml_away_odds = "N/A", "N/A"
+            sp_home_line, sp_away_line = "N/A", "N/A"
             total_line = betting_odds.get("total", "N/A")
+            
+            if betting_odds.get("moneyline"):
+                ml_parts = betting_odds["moneyline"].split(' | ')
+                if len(ml_parts) == 2:
+                    ml_home_odds = ml_parts[0].replace(match.home_team, "").strip()
+                    ml_away_odds = ml_parts[1].replace(match.away_team, "").strip()
 
-            ml_home, ml_away = (ml_parts[0].strip(), ml_parts[1].strip()) if len(ml_parts) == 2 else ("N/A", "N/A")
-            sp_home, sp_away = (sp_parts[0].strip(), sp_parts[1].strip()) if len(sp_parts) == 2 else ("N/A", "N/A")
+            if betting_odds.get("spread"):
+                sp_parts = betting_odds["spread"].split(' | ')
+                if len(sp_parts) == 2:
+                    sp_home_line = sp_parts[0].replace(match.home_team, "").strip()
+                    sp_away_line = sp_parts[1].replace(match.away_team, "").strip()
 
-            # We format Away team first for a consistent column layout
-            betting_lines_content += f"ML:     {ml_away:<25} | {ml_home}\n"
-            betting_lines_content += f"Spread: {sp_away:<25} | {sp_home}\n"
-            betting_lines_content += f"Total:  {total_line}\n"
+            betting_lines_content += f"LINE   | {away_team_short:<16} | {home_team_short}\n"
+            betting_lines_content += "----------------------------------------\n"
+            betting_lines_content += f"ML     | {ml_away_odds:<16} | {ml_home_odds}\n"
+            betting_lines_content += f"Spread | {sp_away_line:<16} | {sp_home_line}\n"
+            betting_lines_content += f"Total  | {total_line}\n"
+
         else:
             betting_lines_content += "Betting lines are not available for this game.\n"
         betting_lines_content += "```"
         embed.add_field(name="💰 Live Betting Lines", value=betting_lines_content, inline=False)
 
-        # --- 4. Team Form Field ---
+        # --- 4. Team Form Field (Expanded with all data) ---
 
         team_form_content = "```\n"
-        team_form_content += "Team             REC      STRK   Run Diff\n"
-        team_form_content += "------------------------------------------\n"
-        team_form_content += f"{match.away_team:<16} {away_record:<8} {away_streak:<6} {away_diff_val:+d}\n"
-        team_form_content += f"{match.home_team:<16} {home_record:<8} {home_streak:<6} {home_diff_val:+d}\n"
+        team_form_content += "Team             REC      Win%   STRK   GB     Run Diff\n"
+        team_form_content += "---------------------------------------------------------\n"
+        team_form_content += f"{match.away_team:<16} {away_record:<8} {away_winpct:<6} {away_streak:<6} {away_gb:<6} {away_diff_val:+d}\n"
+        team_form_content += f"{match.home_team:<16} {home_record:<8} {home_winpct:<6} {home_streak:<6} {home_gb:<6} {home_diff_val:+d}\n"
         team_form_content += "```"
         embed.add_field(name="📊 Team Form", value=team_form_content, inline=False)
         
         embed.set_footer(text="MLB Analysis powered by MLB MCP")
         return embed
     
+
     
+
     def _parse_moneyline(self, ml_string: str, match: Match) -> Dict[str, str]:
         """Parse moneyline string and return formatted home/away odds"""
         if not ml_string or ml_string == "N/A":
