@@ -291,7 +291,15 @@ async def clear_channels(interaction: discord.Interaction, sport: app_commands.C
             description=f"An unexpected error occurred: {str(e)}",
             color=discord.Color.red()
         )
-        await interaction.followup.send(embed=embed)
+        try:
+            await interaction.followup.send(embed=embed)
+        except discord.NotFound:
+            # Interaction may have expired, try edit_original_response
+            try:
+                await interaction.edit_original_response(embed=embed)
+            except:
+                # If all else fails, just log the error
+                logger.error(f"Failed to send error response for clear-channels: {str(e)}")
 
 
 @bot.tree.command(name="status", description="Show bot status and available sports")

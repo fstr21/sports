@@ -339,16 +339,27 @@ class MLBHandler(BaseSportHandler):
         away_team_id = match.additional_data.get("away_team_id")
         
         if home_team_id and away_team_id:
+            logger.info(f"Creating enhanced analysis for {match.away_team} @ {match.home_team} (teams: {away_team_id} @ {home_team_id})")
+            
             # 2. Team Form Analysis Embed
             form_embed = await self.create_team_form_embed(match, home_team_id, away_team_id)
             if form_embed:
                 embeds.append(form_embed)
+                logger.info(f"Added team form embed for {match.away_team} @ {match.home_team}")
+            else:
+                logger.warning(f"Failed to create team form embed for {match.away_team} @ {match.home_team}")
             
             # 3. Scoring Trends Analysis Embed  
             scoring_embed = await self.create_scoring_trends_embed(match, home_team_id, away_team_id)
             if scoring_embed:
                 embeds.append(scoring_embed)
+                logger.info(f"Added scoring trends embed for {match.away_team} @ {match.home_team}")
+            else:
+                logger.warning(f"Failed to create scoring trends embed for {match.away_team} @ {match.home_team}")
+        else:
+            logger.warning(f"Missing team IDs for {match.away_team} @ {match.home_team}: home={home_team_id}, away={away_team_id}")
         
+        logger.info(f"Generated {len(embeds)} embeds for {match.away_team} @ {match.home_team}")
         return embeds
     
     async def create_team_form_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
@@ -371,7 +382,9 @@ class MLBHandler(BaseSportHandler):
             
             # Away team form
             if not isinstance(away_form_result, Exception) and away_form_result:
-                away_data = away_form_result.get("data", {}).get("form", {})
+                logger.debug(f"Away team form result: {away_form_result}")
+                # Data is already parsed, no need for double nesting
+                away_data = away_form_result.get("form", {}) if "form" in away_form_result else away_form_result
                 wins = away_data.get("wins", 0)
                 losses = away_data.get("losses", 0)
                 win_pct = away_data.get("win_percentage", "N/A")
@@ -386,7 +399,9 @@ class MLBHandler(BaseSportHandler):
             
             # Home team form
             if not isinstance(home_form_result, Exception) and home_form_result:
-                home_data = home_form_result.get("data", {}).get("form", {})
+                logger.debug(f"Home team form result: {home_form_result}")
+                # Data is already parsed, no need for double nesting
+                home_data = home_form_result.get("form", {}) if "form" in home_form_result else home_form_result
                 wins = home_data.get("wins", 0)
                 losses = home_data.get("losses", 0)
                 win_pct = home_data.get("win_percentage", "N/A")
@@ -433,7 +448,9 @@ class MLBHandler(BaseSportHandler):
             
             # Away team scoring
             if not isinstance(away_trends_result, Exception) and away_trends_result:
-                away_trends = away_trends_result.get("data", {}).get("trends", {})
+                logger.debug(f"Away team trends result: {away_trends_result}")
+                # Data is already parsed, no need for double nesting
+                away_trends = away_trends_result.get("trends", {}) if "trends" in away_trends_result else away_trends_result
                 rpg = away_trends.get("runs_per_game", 0)
                 rapg = away_trends.get("runs_allowed_per_game", 0)
                 diff = away_trends.get("run_differential", 0)
@@ -447,7 +464,9 @@ class MLBHandler(BaseSportHandler):
             
             # Home team scoring
             if not isinstance(home_trends_result, Exception) and home_trends_result:
-                home_trends = home_trends_result.get("data", {}).get("trends", {})
+                logger.debug(f"Home team trends result: {home_trends_result}")
+                # Data is already parsed, no need for double nesting
+                home_trends = home_trends_result.get("trends", {}) if "trends" in home_trends_result else home_trends_result
                 rpg = home_trends.get("runs_per_game", 0)
                 rapg = home_trends.get("runs_allowed_per_game", 0)
                 diff = home_trends.get("run_differential", 0)
@@ -486,12 +505,14 @@ class MLBHandler(BaseSportHandler):
                 logger.error(f"MLB MCP tool {tool_name} error: {response.error}")
                 return None
             
-            if not response.data.get("ok"):
-                error_msg = response.data.get("error", "Unknown error")
-                logger.error(f"MLB MCP tool {tool_name} returned error: {error_msg}")
+            # Parse MCP content properly
+            parsed_data = await self.mcp_client.parse_mcp_content(response)
+            if not parsed_data:
+                logger.error(f"MLB MCP tool {tool_name} returned no parseable data")
                 return None
             
-            return response.data
+            logger.debug(f"MLB MCP tool {tool_name} returned data successfully")
+            return parsed_data
             
         except Exception as e:
             logger.error(f"Error calling MLB MCP tool {tool_name}: {e}")
