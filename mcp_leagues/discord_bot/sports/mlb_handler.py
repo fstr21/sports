@@ -542,22 +542,44 @@ class MLBHandler(BaseSportHandler):
     async def create_pitcher_matchup_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
         """Create pitcher matchup analysis using getMLBPitcherMatchup"""
         try:
-            # Call the MCP tool directly (not using helper method due to different response format)
-            response = await self.mcp_client.call_mcp(
-                self.config['mcp_url'],
-                "getMLBPitcherMatchup",
-                {"teams": [away_team_id, home_team_id]}
-            )
+            # Use raw HTTP call to bypass MCP client parsing issues
+            import httpx
             
-            if not response.success:
-                logger.warning(f"Pitcher matchup MCP call failed: {response.error}")
-                return None
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/call",
+                "params": {
+                    "name": "getMLBPitcherMatchup",
+                    "arguments": {"teams": [away_team_id, home_team_id]}
+                }
+            }
             
-            # Handle the response - pitcher matchup might return data directly
-            pitcher_data = response.data
-            if not pitcher_data:
-                logger.warning(f"No pitcher matchup data available for teams {away_team_id}, {home_team_id}")
-                return None
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(self.config['mcp_url'], json=payload)
+                response.raise_for_status()
+                result = response.json()
+                
+                if "error" in result:
+                    logger.warning(f"Pitcher matchup JSON-RPC error: {result['error']}")
+                    return None
+                
+                mcp_result = result.get("result", {})
+                logger.debug(f"Raw pitcher matchup result: {mcp_result}")
+                
+                # Handle different response formats
+                if "content" in mcp_result and isinstance(mcp_result["content"], list):
+                    # Parse JSON from content array
+                    import json
+                    content_text = mcp_result["content"][0]["text"]
+                    pitcher_data = json.loads(content_text)
+                else:
+                    # Use direct data
+                    pitcher_data = mcp_result
+                
+                if not pitcher_data:
+                    logger.warning(f"No pitcher matchup data available for teams {away_team_id}, {home_team_id}")
+                    return None
             
             # Create pitcher matchup embed
             embed = discord.Embed(
