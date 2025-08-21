@@ -184,10 +184,10 @@ class MLBHandler(BaseSportHandler):
             # MLB uses YYYY-MM-DD format directly
             mcp_date = date
             
-            # Call MLB MCP
+            # Call MLB MCP using correct tool name
             response = await self.mcp_client.call_mcp(
                 self.config['mcp_url'],
-                "get_games",  # Assuming this is the MLB MCP tool name
+                "getMLBScheduleET",  # Correct MLB MCP tool name
                 {"date": mcp_date}
             )
             
@@ -195,20 +195,25 @@ class MLBHandler(BaseSportHandler):
                 logger.error(f"MLB MCP error: {response.error}")
                 return []
             
-            # Parse MCP response
-            data = await self.mcp_client.parse_mcp_content(response)
-            if not data:
+            # Parse MCP response - getMLBScheduleET returns data in result.data.games
+            if not response.data:
+                logger.info(f"No MLB response data for {date}")
+                return []
+            
+            # Extract games from the response structure
+            # getMLBScheduleET returns: result.data.games
+            response_data = response.data
+            if isinstance(response_data, dict):
+                games_data = response_data.get('games', [])
+            else:
+                games_data = response_data
+            
+            if not games_data:
                 logger.info(f"No MLB games found for {date}")
                 return []
             
             # Convert to Match objects
             matches = []
-            
-            # Handle different possible response formats
-            games_data = data
-            if isinstance(data, dict):
-                # Try different possible keys for games data
-                games_data = data.get('games', data.get('schedule', data.get('data', [])))
             
             if isinstance(games_data, list):
                 for game_data in games_data:
@@ -305,39 +310,50 @@ class MLBHandler(BaseSportHandler):
         return embed
     
     def _convert_to_match_object(self, game_data: Dict[str, Any]) -> Optional[Match]:
-        """Convert MCP game data to Match object"""
+        """Convert getMLBScheduleET game data to Match object"""
         try:
-            # Handle different possible data structures
-            home_team = (
-                game_data.get("home_team") or 
-                game_data.get("home", {}).get("name") or
-                game_data.get("teams", {}).get("home", {}).get("name") or
-                "Unknown Home"
-            )
+            # Handle getMLBScheduleET data structure
+            # Structure: game has home_team{name, id} and away_team{name, id}
+            home_team_data = game_data.get("home_team", {})
+            away_team_data = game_data.get("away_team", {})
             
-            away_team = (
-                game_data.get("away_team") or
-                game_data.get("away", {}).get("name") or
-                game_data.get("teams", {}).get("away", {}).get("name") or
-                "Unknown Away"
-            )
+            # Also try the nested structure from raw MCP response
+            if not home_team_data:
+                home_team_data = game_data.get("home", {})
+            if not away_team_data:
+                away_team_data = game_data.get("away", {})
+            
+            home_team = home_team_data.get("name", "Unknown Home")
+            away_team = away_team_data.get("name", "Unknown Away")
+            
+            # Extract start time from nested structure
+            start_time_data = game_data.get("start_time", {})
+            if isinstance(start_time_data, dict):
+                game_time = start_time_data.get("formatted", start_time_data.get("raw", "TBD"))
+            else:
+                game_time = game_data.get("start_et", str(start_time_data) if start_time_data else "TBD")
+            
+            # Extract status
+            status_data = game_data.get("status", {})
+            if isinstance(status_data, dict):
+                status = status_data.get("raw", "Scheduled")
+            else:
+                status = str(status_data) if status_data else "Scheduled"
             
             return Match(
-                id=str(game_data.get("id", game_data.get("game_id", ""))),
+                id=str(game_data.get("game_pk", game_data.get("gamePk", game_data.get("id", "")))),
                 home_team=home_team,
                 away_team=away_team,
                 league="MLB",
-                datetime=None,  # Could parse game time if needed
+                datetime=None,
                 odds=game_data.get("odds"),
-                status=game_data.get("status", "scheduled"),
+                status=status,
                 additional_data={
-                    "time": game_data.get("time", game_data.get("start_time", "TBD")),
-                    "home_record": game_data.get("home_record"),
-                    "away_record": game_data.get("away_record"),
-                    "home_pitcher": game_data.get("home_pitcher"),
-                    "away_pitcher": game_data.get("away_pitcher"),
-                    "venue": game_data.get("venue"),
-                    "weather": game_data.get("weather"),
+                    "time": game_time,
+                    "venue": game_data.get("venue", "Unknown Venue"),
+                    "home_team_id": home_team_data.get("id"),
+                    "away_team_id": away_team_data.get("id"),
+                    "matchup": game_data.get("matchup", f"{away_team} @ {home_team}"),
                     "raw_data": game_data
                 }
             )
