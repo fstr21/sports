@@ -388,13 +388,7 @@ class MLBHandler(BaseSportHandler):
             else:
                 logger.warning(f"Failed to create scoring trends embed for {match.away_team} @ {match.home_team}")
             
-            # 4. Pitcher Matchup Analysis Embed
-            pitcher_embed = await self.create_pitcher_matchup_embed(match, home_team_id, away_team_id)
-            if pitcher_embed:
-                embeds.append(pitcher_embed)
-                logger.info(f"Added pitcher matchup embed for {match.away_team} @ {match.home_team}")
-            else:
-                logger.warning(f"Failed to create pitcher matchup embed for {match.away_team} @ {match.home_team}")
+            # 4. Pitcher Matchup Analysis - Disabled (will implement with player analysis later)
         else:
             logger.warning(f"Missing team IDs for {match.away_team} @ {match.home_team}: home={home_team_id}, away={away_team_id}")
         
