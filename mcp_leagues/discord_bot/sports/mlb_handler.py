@@ -782,18 +782,31 @@ class MLBHandler(BaseSportHandler):
                                     player_props_data[market] = market_data["outcomes"]
                                     break
                 
-                # Step 3: Create embed with player props
+                # Step 3: Collect all player names for stats lookup
+                all_player_names = set()
+                for market_data in player_props_data.values():
+                    for outcome in market_data:
+                        if outcome.get("name") == "Over":
+                            player_name = outcome.get("description", "")
+                            if player_name:
+                                all_player_names.add(player_name)
+                
+                # Step 4: Get player stats for all players with betting lines
+                player_stats = await self.get_player_stats_by_names(
+                    list(all_player_names), home_team_id, away_team_id
+                )
+                
+                # Step 5: Create embed with player props + stats
                 embed = discord.Embed(
-                    title=f"🎯 Player Props • {match.away_team} @ {match.home_team}",
-                    description="Live betting markets for key players",
+                    title=f"🎯 Player Props + Stats • {match.away_team} @ {match.home_team}",
+                    description="Live betting markets with recent performance",
                     color=0x1E88E5,
                     timestamp=datetime.now()
                 )
                 
-                # Add player hits props
+                # Add player hits props with stats
                 if "batter_hits" in player_props_data:
                     hits_text = ""
-                    # Group by player name and show Over lines only
                     processed_players = set()
                     for outcome in player_props_data["batter_hits"]:
                         if outcome.get("name") == "Over":  # Only show Over lines
@@ -803,10 +816,26 @@ class MLBHandler(BaseSportHandler):
                             
                             if player_name and player_name not in processed_players:
                                 processed_players.add(player_name)
+                                
+                                # Format betting line
                                 if isinstance(price, int):
-                                    hits_text += f"**{player_name}** O{point}: {price:+d}\n"
+                                    betting_line = f"O{point}: {price:+d}"
                                 else:
-                                    hits_text += f"**{player_name}** O{point}: {price}\n"
+                                    betting_line = f"O{point}: {price}"
+                                
+                                # Add stats if available
+                                stats_info = ""
+                                if player_name in player_stats:
+                                    stats = player_stats[player_name]
+                                    avg_hits = stats.get("avg_hits", 0)
+                                    hit_streak = stats.get("hit_streak", 0)
+                                    recent_games = stats.get("recent_games", 0)
+                                    
+                                    stats_info = f" • {avg_hits}H/G L{recent_games}"
+                                    if hit_streak > 0:
+                                        stats_info += f" • {hit_streak}G streak"
+                                
+                                hits_text += f"**{player_name}** {betting_line}{stats_info}\n"
                                 
                                 if len(processed_players) >= 6:  # Limit to 6 players
                                     break
@@ -818,10 +847,9 @@ class MLBHandler(BaseSportHandler):
                             inline=True
                         )
                 
-                # Add home run props
+                # Add home run props with stats
                 if "batter_home_runs" in player_props_data:
                     hr_text = ""
-                    # Group by player name and show Over lines only
                     processed_players = set()
                     for outcome in player_props_data["batter_home_runs"]:
                         if outcome.get("name") == "Over":  # Only show Over lines
@@ -831,10 +859,26 @@ class MLBHandler(BaseSportHandler):
                             
                             if player_name and player_name not in processed_players and point == 0.5:  # Only 0.5 HR line
                                 processed_players.add(player_name)
+                                
+                                # Format betting line
                                 if isinstance(price, int):
-                                    hr_text += f"**{player_name}** O{point}: {price:+d}\n"
+                                    betting_line = f"O{point}: {price:+d}"
                                 else:
-                                    hr_text += f"**{player_name}** O{point}: {price}\n"
+                                    betting_line = f"O{point}: {price}"
+                                
+                                # Add stats if available
+                                stats_info = ""
+                                if player_name in player_stats:
+                                    stats = player_stats[player_name]
+                                    recent_hrs = stats.get("recent_hrs", 0)
+                                    hr_streak = stats.get("hr_streak", 0)
+                                    recent_games = stats.get("recent_games", 0)
+                                    
+                                    stats_info = f" • {recent_hrs}HR L{recent_games}G"
+                                    if hr_streak > 0:
+                                        stats_info += f" • {hr_streak}G streak"
+                                
+                                hr_text += f"**{player_name}** {betting_line}{stats_info}\n"
                                 
                                 if len(processed_players) >= 6:  # Limit to 6 players
                                     break
@@ -875,9 +919,10 @@ class MLBHandler(BaseSportHandler):
                         )
                 
                 # Add footer info
+                stats_note = "Stats: H/G = Hits per game, L5 = Last 5 games" if player_stats else "Player statistics not available"
                 embed.add_field(
-                    name="ℹ️ Player Props Info",
-                    value="Only showing Over lines for main markets\nNo alternate lines included\nLines subject to change",
+                    name="ℹ️ Player Props + Stats Info",
+                    value=f"Betting: Over lines only, no alternate lines\n{stats_note}\nLines subject to change",
                     inline=False
                 )
                 
@@ -891,6 +936,109 @@ class MLBHandler(BaseSportHandler):
         except Exception as e:
             logger.error(f"Error creating player props embed: {e}")
             return None
+    
+    async def get_player_stats_by_names(self, player_names: List[str], home_team_id: int, away_team_id: int) -> Dict[str, Dict]:
+        """Get player stats for players with betting lines"""
+        try:
+            # Get rosters for both teams to find player IDs
+            home_roster_task = self.call_mlb_mcp_tool("getMLBTeamRoster", {"teamId": home_team_id})
+            away_roster_task = self.call_mlb_mcp_tool("getMLBTeamRoster", {"teamId": away_team_id})
+            
+            home_roster_result, away_roster_result = await asyncio.gather(
+                home_roster_task, away_roster_task, return_exceptions=True
+            )
+            
+            # Build name -> player_id mapping
+            player_id_map = {}
+            
+            for roster_result in [home_roster_result, away_roster_result]:
+                if not isinstance(roster_result, Exception) and "data" in roster_result:
+                    players = roster_result["data"].get("players", [])
+                    for player in players:
+                        full_name = player.get("fullName", "")
+                        player_id = player.get("playerId")
+                        if full_name and player_id:
+                            player_id_map[full_name] = {
+                                "playerId": player_id,
+                                "position": player.get("position", ""),
+                                "number": player.get("primaryNumber", "")
+                            }
+            
+            # Find player IDs for betting props players
+            found_player_ids = []
+            name_to_id = {}
+            
+            for prop_name in player_names:
+                # Try exact match first
+                if prop_name in player_id_map:
+                    found_player_ids.append(player_id_map[prop_name]["playerId"])
+                    name_to_id[prop_name] = player_id_map[prop_name]["playerId"]
+                else:
+                    # Try partial matching (last name)
+                    prop_last_name = prop_name.split()[-1].lower() if " " in prop_name else prop_name.lower()
+                    for roster_name, info in player_id_map.items():
+                        roster_last_name = roster_name.split()[-1].lower() if " " in roster_name else roster_name.lower()
+                        if prop_last_name == roster_last_name:
+                            found_player_ids.append(info["playerId"])
+                            name_to_id[prop_name] = info["playerId"]
+                            break
+            
+            if not found_player_ids:
+                logger.warning("No matching player IDs found for betting props players")
+                return {}
+            
+            # Get recent stats and streaks in parallel
+            stats_task = self.call_mlb_mcp_tool("getMLBPlayerLastN", {"player_ids": found_player_ids, "games": 5})
+            streaks_task = self.call_mlb_mcp_tool("getMLBPlayerStreaks", {"player_ids": found_player_ids})
+            
+            stats_result, streaks_result = await asyncio.gather(
+                stats_task, streaks_task, return_exceptions=True
+            )
+            
+            # Process results
+            player_stats = {}
+            
+            # Add recent stats
+            if not isinstance(stats_result, Exception) and "data" in stats_result:
+                results = stats_result["data"].get("results", {})
+                for player_name, player_id in name_to_id.items():
+                    player_id_str = str(player_id)
+                    if player_id_str in results:
+                        stats_data = results[player_id_str]
+                        games = stats_data.get("games", [])
+                        
+                        # Calculate recent performance
+                        recent_hits = sum(game.get("hits", 0) for game in games)
+                        recent_hrs = sum(game.get("homeRuns", 0) for game in games)
+                        games_count = len(games)
+                        
+                        player_stats[player_name] = {
+                            "recent_hits": recent_hits,
+                            "recent_hrs": recent_hrs, 
+                            "recent_games": games_count,
+                            "avg_hits": round(recent_hits / games_count, 1) if games_count > 0 else 0,
+                            "position": player_id_map.get(player_name, {}).get("position", "")
+                        }
+            
+            # Add streaks data
+            if not isinstance(streaks_result, Exception) and "data" in streaks_result:
+                results = streaks_result["data"].get("results", {})
+                for player_name, player_id in name_to_id.items():
+                    player_id_str = str(player_id)
+                    if player_id_str in results and player_name in player_stats:
+                        streaks_data = results[player_id_str].get("streaks", {})
+                        player_stats[player_name].update({
+                            "hit_streak": streaks_data.get("current_hit_streak", 0),
+                            "multi_hit_games": streaks_data.get("multi_hit_games", 0),
+                            "hr_streak": streaks_data.get("current_hr_streak", 0)
+                        })
+            
+            logger.info(f"Found stats for {len(player_stats)} players with betting lines")
+            return player_stats
+            
+        except Exception as e:
+            logger.error(f"Error getting player stats: {e}")
+            return {}
     
     async def create_pitcher_matchup_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
         """Create pitcher matchup analysis using getMLBPitcherMatchup"""
