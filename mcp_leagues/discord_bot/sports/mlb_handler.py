@@ -254,105 +254,227 @@ class MLBHandler(BaseSportHandler):
         Returns:
             Discord embed with formatted match analysis
         """
+        # Get team information for enhanced context and betting odds
+        home_team_id = match.additional_data.get("home_team_id")
+        away_team_id = match.additional_data.get("away_team_id")
+        
+        # Get team form data and betting odds in parallel
+        team_data_tasks = []
+        if home_team_id and away_team_id:
+            team_data_tasks = [
+                self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": home_team_id}),
+                self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": away_team_id}),
+                self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": home_team_id}),
+                self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": away_team_id}),
+                self.get_betting_odds_for_game(match)
+            ]
+            
+            home_form, away_form, home_trends, away_trends, betting_odds = await asyncio.gather(
+                *team_data_tasks, return_exceptions=True
+            )
+        else:
+            home_form = away_form = home_trends = away_trends = betting_odds = None
+        
+        # Extract basic game info
+        game_time = match.additional_data.get('time', match.additional_data.get('start_time', 'TBD'))
+        venue = match.additional_data.get('venue', 'TBD')
+        
+        # Create compact header format
+        embed_title = f"🏟️ **{venue.upper()}** • {game_time}"
+        
+        # Extract team records and form data
+        away_record = "N/A"
+        home_record = "N/A" 
+        away_winpct = "N/A"
+        home_winpct = "N/A"
+        away_streak = "N/A"
+        home_streak = "N/A"
+        away_diff = "N/A"
+        home_diff = "N/A"
+        home_gb = ""
+        
+        if not isinstance(away_form, Exception) and away_form:
+            away_data = away_form.get("data", {}).get("form", {})
+            away_wins = away_data.get("wins", 0)
+            away_losses = away_data.get("losses", 0)
+            away_record = f"{away_wins}-{away_losses}"
+            away_winpct = f"{away_data.get('win_percentage', 'N/A')}"
+            away_streak = away_data.get("streak", "N/A")
+            
+        if not isinstance(home_form, Exception) and home_form:
+            home_data = home_form.get("data", {}).get("form", {})
+            home_wins = home_data.get("wins", 0)
+            home_losses = home_data.get("losses", 0)
+            home_record = f"{home_wins}-{home_losses}"
+            home_winpct = f"{home_data.get('win_percentage', 'N/A')}"
+            home_streak = home_data.get("streak", "N/A")
+            games_back = home_data.get("games_back", "N/A")
+            if games_back not in ["N/A", "-"]:
+                home_gb = f" • {games_back} GB"
+        
+        if not isinstance(away_trends, Exception) and away_trends:
+            away_trends_data = away_trends.get("data", {}).get("trends", {})
+            away_diff_val = away_trends_data.get("run_differential", 0)
+            away_diff = f"{away_diff_val:+d}" if away_diff_val != 0 else "0"
+            
+        if not isinstance(home_trends, Exception) and home_trends:
+            home_trends_data = home_trends.get("data", {}).get("trends", {})
+            home_diff_val = home_trends_data.get("run_differential", 0)
+            home_diff = f"{home_diff_val:+d}" if home_diff_val != 0 else "0"
+        
+        # Create team matchup line
+        team_matchup = f"**{match.away_team}** ({away_record}) @ **{match.home_team}** ({home_record})"
+        
+        # Create quick stats
+        quick_stats = f"📊 **Quick Stats**\n"
+        quick_stats += f"{match.away_team}: {away_winpct} Win% • {away_streak} • {away_diff} Run Diff\n"
+        quick_stats += f"{match.home_team}: {home_winpct} Win% • {home_streak} • {home_diff} Run Diff{home_gb}"
+        
+        # Create betting lines section
+        betting_lines = "🎲 **Betting Lines**\n"
+        if not isinstance(betting_odds, Exception) and betting_odds:
+            ml_line = betting_odds.get("moneyline", "N/A")
+            spread_line = betting_odds.get("spread", "N/A") 
+            total_line = betting_odds.get("total", "N/A")
+            
+            betting_lines += f"ML: {ml_line}\n"
+            betting_lines += f"SPREAD: {spread_line}\n"
+            betting_lines += f"Total: {total_line}"
+        else:
+            betting_lines += "Lines not available"
+        
+        # Create the embed
         embed = discord.Embed(
-            title=f"⚾ {match.away_team} @ {match.home_team}",
-            description="**MLB Game Analysis**",
+            title=embed_title,
+            description=f"{team_matchup}\n\n{quick_stats}\n\n{betting_lines}",
             color=self.config.get('embed_color', 0x0066cc),
             timestamp=datetime.now()
         )
         
-        # Get team information for enhanced context
-        home_team_id = match.additional_data.get("home_team_id")
-        away_team_id = match.additional_data.get("away_team_id")
-        
-        # Basic game info with enhanced team context
-        game_time = match.additional_data.get('time', match.additional_data.get('start_time', 'TBD'))
-        venue = match.additional_data.get('venue', 'TBD')
-        
-        embed.add_field(
-            name="📅 Game Info",
-            value=f"**Time:** {game_time}\\n**Venue:** {venue}\\n**League:** MLB",
-            inline=True
-        )
-        
-        # Add division/league context if team IDs are available
-        if home_team_id and away_team_id:
-            try:
-                home_info, away_info = await asyncio.gather(
-                    self.get_team_info(home_team_id),
-                    self.get_team_info(away_team_id),
-                    return_exceptions=True
-                )
-                
-                if (not isinstance(home_info, Exception) and home_info and 
-                    not isinstance(away_info, Exception) and away_info):
-                    
-                    home_division = home_info.get('division', 'Unknown')
-                    away_division = away_info.get('division', 'Unknown')
-                    
-                    # Check if it's a division rivalry
-                    if home_division == away_division and home_division != 'Unknown':
-                        division_context = f"🔥 **Division Rivalry**\\n{home_division}"
-                    else:
-                        # Show both divisions if different
-                        division_context = f"**Away:** {away_division}\\n**Home:** {home_division}"
-                    
-                    embed.add_field(
-                        name="🏆 Division Context",
-                        value=division_context,
-                        inline=True
-                    )
-            except Exception as e:
-                logger.debug(f"Could not get team division info: {e}")
-        
-        # Add team records if available
-        home_record = match.additional_data.get('home_record')
-        away_record = match.additional_data.get('away_record')
-        
-        if home_record or away_record:
-            records_text = ""
-            if away_record:
-                records_text += f"**{match.away_team}:** {away_record}\\n"
-            if home_record:
-                records_text += f"**{match.home_team}:** {home_record}"
-            
-            embed.add_field(
-                name="📊 Team Records",
-                value=records_text,
-                inline=True
-            )
-        
-        # Add pitching matchup if available
-        home_pitcher = match.additional_data.get('home_pitcher')
-        away_pitcher = match.additional_data.get('away_pitcher')
-        
-        if home_pitcher or away_pitcher:
-            pitching_text = ""
-            if away_pitcher:
-                pitching_text += f"**{match.away_team}:** {away_pitcher}\\n"
-            if home_pitcher:
-                pitching_text += f"**{match.home_team}:** {home_pitcher}"
-            
-            embed.add_field(
-                name="🥎 Pitching Matchup",
-                value=pitching_text,
-                inline=False
-            )
-        
-        # Add betting odds if available
-        if match.odds:
-            self._add_betting_odds_to_embed(embed, match.odds, match.home_team, match.away_team)
-        
-        # Add game status
-        if match.status and match.status != "scheduled":
-            embed.add_field(
-                name="🎮 Status",
-                value=match.status.title(),
-                inline=True
-            )
-        
         embed.set_footer(text="MLB Analysis powered by MLB MCP")
         return embed
+    
+    async def get_betting_odds_for_game(self, match: Match) -> Dict[str, str]:
+        """Get betting odds for a specific game and format them"""
+        try:
+            import httpx
+            
+            odds_url = "https://odds-mcp-v2-production.up.railway.app/mcp"
+            
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "tools/call",
+                "id": 1,
+                "params": {
+                    "name": "getOdds",
+                    "arguments": {
+                        "sport": "baseball_mlb",
+                        "markets": "h2h,spreads,totals",
+                        "regions": "us"
+                    }
+                }
+            }
+            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(odds_url, json=payload)
+                response.raise_for_status()
+                result = response.json()
+                
+                if "result" not in result or "data" not in result["result"]:
+                    return {}
+                
+                odds_data = result["result"]["data"]["odds"]
+                if not odds_data:
+                    return {}
+                
+                # Find our specific game by team names
+                target_game = None
+                for game in odds_data:
+                    away_team = game.get("away_team", "").lower()
+                    home_team = game.get("home_team", "").lower()
+                    
+                    # Match team names (handle different name formats)
+                    if (match.away_team.lower() in away_team or away_team in match.away_team.lower()) and \
+                       (match.home_team.lower() in home_team or home_team in match.home_team.lower()):
+                        target_game = game
+                        break
+                
+                if not target_game or "bookmakers" not in target_game or not target_game["bookmakers"]:
+                    return {}
+                
+                # Use first bookmaker
+                bookmaker = target_game["bookmakers"][0]
+                formatted_odds = {}
+                
+                # Process each market
+                for market in bookmaker.get("markets", []):
+                    market_key = market.get("key")
+                    
+                    if market_key == "h2h":
+                        # Moneyline
+                        outcomes = market.get("outcomes", [])
+                        if len(outcomes) >= 2:
+                            home_ml = away_ml = "N/A"
+                            for outcome in outcomes:
+                                name = outcome.get("name", "")
+                                price = outcome.get("price")
+                                if isinstance(price, int):
+                                    price_str = f"{price:+d}" if price < 0 else f"+{price}"
+                                else:
+                                    price_str = str(price)
+                                
+                                if match.home_team.lower() in name.lower():
+                                    home_ml = f"{match.home_team} {price_str}"
+                                elif match.away_team.lower() in name.lower():
+                                    away_ml = f"{match.away_team} {price_str}"
+                            
+                            formatted_odds["moneyline"] = f"{home_ml} | {away_ml}"
+                    
+                    elif market_key == "spreads":
+                        # Spread (Run Line)
+                        outcomes = market.get("outcomes", [])
+                        if len(outcomes) >= 2:
+                            home_spread = away_spread = "N/A"
+                            for outcome in outcomes:
+                                name = outcome.get("name", "")
+                                price = outcome.get("price")
+                                point = outcome.get("point", 0)
+                                
+                                price_str = f"({price:+d})" if isinstance(price, int) else f"({price})"
+                                spread_str = f"{point:+g}"
+                                
+                                if match.home_team.lower() in name.lower():
+                                    home_spread = f"{match.home_team} {spread_str} {price_str}"
+                                elif match.away_team.lower() in name.lower():
+                                    away_spread = f"{match.away_team} {spread_str} {price_str}"
+                            
+                            formatted_odds["spread"] = f"{home_spread} | {away_spread}"
+                    
+                    elif market_key == "totals":
+                        # Over/Under
+                        outcomes = market.get("outcomes", [])
+                        if len(outcomes) >= 2:
+                            over_odds = under_odds = "N/A"
+                            total_points = outcomes[0].get("point", 0) if outcomes else 0
+                            
+                            for outcome in outcomes:
+                                name = outcome.get("name", "")
+                                price = outcome.get("price")
+                                
+                                price_str = f"({price:+d})" if isinstance(price, int) else f"({price})"
+                                
+                                if name.lower() == "over":
+                                    over_odds = price_str
+                                elif name.lower() == "under":
+                                    under_odds = price_str
+                            
+                            formatted_odds["total"] = f"O/U {total_points} {over_odds}/{under_odds}"
+                
+                return formatted_odds
+                
+        except Exception as e:
+            logger.error(f"Error getting betting odds: {e}")
+            return {}
     
     async def create_comprehensive_game_analysis(self, match: Match) -> List[discord.Embed]:
         """
@@ -427,6 +549,10 @@ class MLBHandler(BaseSportHandler):
                 timestamp=datetime.now()
             )
             
+            # Collect team form data
+            away_form_data = {}
+            home_form_data = {}
+            
             # Away team form
             if isinstance(away_form_result, Exception):
                 logger.error(f"Exception getting away team form for team {away_team_id}: {away_form_result}")
@@ -436,17 +562,13 @@ class MLBHandler(BaseSportHandler):
                 logger.info(f"Away team form result for team {away_team_id}: {away_form_result}")
                 # Extract form data from the nested structure: data.form
                 away_data = away_form_result.get("data", {}).get("form", {})
-                wins = away_data.get("wins", 0)
-                losses = away_data.get("losses", 0)
-                win_pct = away_data.get("win_percentage", "N/A")
-                streak = away_data.get("streak", "N/A")
-                games_back = away_data.get("games_back", "N/A")
-                
-                embed.add_field(
-                    name=f"✈️ {match.away_team} (Away)",
-                    value=f"**Record:** {wins}-{losses}\n**Win %:** {win_pct}\n**Streak:** {streak}\n**GB:** {games_back}",
-                    inline=True
-                )
+                away_form_data = {
+                    "wins": away_data.get("wins", 0),
+                    "losses": away_data.get("losses", 0),
+                    "win_pct": away_data.get("win_percentage", "N/A"),
+                    "streak": away_data.get("streak", "N/A"),
+                    "games_back": away_data.get("games_back", "N/A")
+                }
             
             # Home team form  
             if isinstance(home_form_result, Exception):
@@ -457,16 +579,62 @@ class MLBHandler(BaseSportHandler):
                 logger.info(f"Home team form result for team {home_team_id}: {home_form_result}")
                 # Extract form data from the nested structure: data.form
                 home_data = home_form_result.get("data", {}).get("form", {})
-                wins = home_data.get("wins", 0)
-                losses = home_data.get("losses", 0)
-                win_pct = home_data.get("win_percentage", "N/A")
-                streak = home_data.get("streak", "N/A")
-                games_back = home_data.get("games_back", "N/A")
+                home_form_data = {
+                    "wins": home_data.get("wins", 0),
+                    "losses": home_data.get("losses", 0),
+                    "win_pct": home_data.get("win_percentage", "N/A"),
+                    "streak": home_data.get("streak", "N/A"),
+                    "games_back": home_data.get("games_back", "N/A")
+                }
+            
+            # Create aligned two-column table format
+            if away_form_data or home_form_data:
+                # Format team names for header (max 30 chars each side)
+                away_header = f"**{match.away_team} (Away)**"
+                home_header = f"**{match.home_team} (Home)**"
+                
+                # Create the aligned table
+                form_table = "```\n"
+                form_table += f"{away_header:<32} | {home_header}\n"
+                form_table += f"{'─' * 32}|{'─' * 32}\n"
+                
+                # Record line
+                away_record = f"- Record: {away_form_data.get('wins', 0)}-{away_form_data.get('losses', 0)}" if away_form_data else "- Record: N/A"
+                home_record = f"- Record: {home_form_data.get('wins', 0)}-{home_form_data.get('losses', 0)}" if home_form_data else "- Record: N/A"
+                form_table += f"{away_record:<32} | {home_record}\n"
+                
+                # Win % line
+                away_winpct = f"- Win %: {away_form_data.get('win_pct', 'N/A')}" if away_form_data else "- Win %: N/A"
+                home_winpct = f"- Win %: {home_form_data.get('win_pct', 'N/A')}" if home_form_data else "- Win %: N/A"
+                form_table += f"{away_winpct:<32} | {home_winpct}\n"
+                
+                # Streak line
+                away_streak = f"- Streak: {away_form_data.get('streak', 'N/A')}" if away_form_data else "- Streak: N/A"
+                home_streak = f"- Streak: {home_form_data.get('streak', 'N/A')}" if home_form_data else "- Streak: N/A"
+                form_table += f"{away_streak:<32} | {home_streak}\n"
+                
+                # Games Back line
+                away_gb = f"- Games Back: {away_form_data.get('games_back', 'N/A')}" if away_form_data else "- Games Back: N/A"
+                home_gb = f"- Games Back: {home_form_data.get('games_back', 'N/A')}" if home_form_data else "- Games Back: N/A"
+                
+                # Format Games Back with "GB" suffix if it's a number
+                if home_form_data and home_form_data.get('games_back') != 'N/A' and home_form_data.get('games_back') != '-':
+                    home_gb = f"- Games Back: {home_form_data.get('games_back')} GB"
+                elif home_form_data and home_form_data.get('games_back') == '-':
+                    home_gb = "- Games Back: -"
+                    
+                if away_form_data and away_form_data.get('games_back') != 'N/A' and away_form_data.get('games_back') != '-':
+                    away_gb = f"- Games Back: {away_form_data.get('games_back')} GB"
+                elif away_form_data and away_form_data.get('games_back') == '-':
+                    away_gb = "- Games Back: -"
+                
+                form_table += f"{away_gb:<32} | {home_gb}\n"
+                form_table += "```"
                 
                 embed.add_field(
-                    name=f"🏠 {match.home_team} (Home)",
-                    value=f"**Record:** {wins}-{losses}\n**Win %:** {win_pct}\n**Streak:** {streak}\n**GB:** {games_back}",
-                    inline=True
+                    name="📊 **Team Form:**",
+                    value=form_table,
+                    inline=False
                 )
             
             # Add matchup analysis
@@ -501,36 +669,77 @@ class MLBHandler(BaseSportHandler):
                 timestamp=datetime.now()
             )
             
+            # Collect scoring trends data
+            away_trends_data = {}
+            home_trends_data = {}
+            
             # Away team scoring
             if not isinstance(away_trends_result, Exception) and away_trends_result:
                 logger.debug(f"Away team trends result: {away_trends_result}")
                 # Extract trends data from the nested structure: data.trends
                 away_trends = away_trends_result.get("data", {}).get("trends", {})
-                rpg = away_trends.get("runs_per_game", 0)
-                rapg = away_trends.get("runs_allowed_per_game", 0)
-                diff = away_trends.get("run_differential", 0)
-                games_played = away_trends.get("games_played", 0)
-                
-                embed.add_field(
-                    name=f"⚔️ {match.away_team} Offense",
-                    value=f"**Runs/Game:** {rpg:.1f}\n**Allowed/Game:** {rapg:.1f}\n**Run Diff:** {diff:+d}\n**Games:** {games_played}",
-                    inline=True
-                )
+                away_trends_data = {
+                    "rpg": away_trends.get("runs_per_game", 0),
+                    "rapg": away_trends.get("runs_allowed_per_game", 0),
+                    "diff": away_trends.get("run_differential", 0),
+                    "games_played": away_trends.get("games_played", 0)
+                }
             
             # Home team scoring
             if not isinstance(home_trends_result, Exception) and home_trends_result:
                 logger.debug(f"Home team trends result: {home_trends_result}")
                 # Extract trends data from the nested structure: data.trends
                 home_trends = home_trends_result.get("data", {}).get("trends", {})
-                rpg = home_trends.get("runs_per_game", 0)
-                rapg = home_trends.get("runs_allowed_per_game", 0)
-                diff = home_trends.get("run_differential", 0)
-                games_played = home_trends.get("games_played", 0)
+                home_trends_data = {
+                    "rpg": home_trends.get("runs_per_game", 0),
+                    "rapg": home_trends.get("runs_allowed_per_game", 0),
+                    "diff": home_trends.get("run_differential", 0),
+                    "games_played": home_trends.get("games_played", 0)
+                }
+            
+            # Create aligned two-column table format
+            if away_trends_data or home_trends_data:
+                # Format team names for header
+                away_header = f"**{match.away_team}**"
+                home_header = f"**{match.home_team}**"
+                
+                # Create the aligned table
+                trends_table = "```\n"
+                trends_table += f"{away_header:<32} | {home_header}\n"
+                trends_table += f"{'─' * 32}|{'─' * 32}\n"
+                
+                # Runs per game line
+                away_rpg = f"⚾ Runs/Game: {away_trends_data.get('rpg', 0):.1f}" if away_trends_data else "⚾ Runs/Game: N/A"
+                home_rpg = f"⚾ Runs/Game: {home_trends_data.get('rpg', 0):.1f}" if home_trends_data else "⚾ Runs/Game: N/A"
+                trends_table += f"{away_rpg:<32} | {home_rpg}\n"
+                
+                # Runs allowed per game line
+                away_rapg = f"🚫 Allowed/Game: {away_trends_data.get('rapg', 0):.1f}" if away_trends_data else "🚫 Allowed/Game: N/A"
+                home_rapg = f"🚫 Allowed/Game: {home_trends_data.get('rapg', 0):.1f}" if home_trends_data else "🚫 Allowed/Game: N/A"
+                trends_table += f"{away_rapg:<32} | {home_rapg}\n"
+                
+                # Run differential line with appropriate emoji
+                if away_trends_data:
+                    away_diff = away_trends_data.get('diff', 0)
+                    away_emoji = "📈" if away_diff > 0 else "📉" if away_diff < 0 else "➖"
+                    away_diff_text = f"{away_emoji} Run Diff: {away_diff:+d}"
+                else:
+                    away_diff_text = "📊 Run Diff: N/A"
+                
+                if home_trends_data:
+                    home_diff = home_trends_data.get('diff', 0)
+                    home_emoji = "📈" if home_diff > 0 else "📉" if home_diff < 0 else "➖"
+                    home_diff_text = f"{home_emoji} Run Diff: {home_diff:+d}"
+                else:
+                    home_diff_text = "📊 Run Diff: N/A"
+                
+                trends_table += f"{away_diff_text:<32} | {home_diff_text}\n"
+                trends_table += "```"
                 
                 embed.add_field(
-                    name=f"🏠 {match.home_team} Offense",
-                    value=f"**Runs/Game:** {rpg:.1f}\n**Allowed/Game:** {rapg:.1f}\n**Run Diff:** {diff:+d}\n**Games:** {games_played}",
-                    inline=True
+                    name="📈 **Scoring Trends:**",
+                    value=trends_table,
+                    inline=False
                 )
             
             # Add analysis
