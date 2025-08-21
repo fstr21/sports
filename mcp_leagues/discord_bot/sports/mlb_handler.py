@@ -195,18 +195,24 @@ class MLBHandler(BaseSportHandler):
                 logger.error(f"MLB MCP error: {response.error}")
                 return []
             
-            # Parse MCP response - getMLBScheduleET returns data in result.data.games
+            # Parse MCP response
+            # MCPClient.data contains the "result" from JSON-RPC
+            # getMLBScheduleET structure: result.data.games
             if not response.data:
                 logger.info(f"No MLB response data for {date}")
                 return []
             
-            # Extract games from the response structure
-            # getMLBScheduleET returns: result.data.games
-            response_data = response.data
-            if isinstance(response_data, dict):
-                games_data = response_data.get('games', [])
-            else:
-                games_data = response_data
+            # Check if the MCP call was successful
+            if not response.data.get("ok"):
+                error_msg = response.data.get("error", "Unknown MLB MCP error")
+                logger.error(f"MLB MCP returned error: {error_msg}")
+                return []
+            
+            # Extract games from: response.data.data.games
+            mcp_data = response.data.get("data", {})
+            games_data = mcp_data.get("games", [])
+            
+            logger.info(f"MLB MCP returned {len(games_data)} games for {date}")
             
             if not games_data:
                 logger.info(f"No MLB games found for {date}")
@@ -216,10 +222,14 @@ class MLBHandler(BaseSportHandler):
             matches = []
             
             if isinstance(games_data, list):
-                for game_data in games_data:
+                for i, game_data in enumerate(games_data):
+                    logger.debug(f"Processing game {i+1}: {game_data.get('matchup', 'Unknown matchup')}")
                     match = self._convert_to_match_object(game_data)
                     if match:
                         matches.append(match)
+                        logger.debug(f"Successfully converted: {match.away_team} @ {match.home_team}")
+                    else:
+                        logger.warning(f"Failed to convert game data: {game_data}")
             elif isinstance(games_data, dict):
                 # Handle nested structure (e.g., games by date)
                 for key, value in games_data.items():
