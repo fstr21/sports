@@ -202,14 +202,21 @@ class MLBHandler(BaseSportHandler):
             # Parse MCP content properly
             parsed_data = await self.mcp_client.parse_mcp_content(response)
             if not parsed_data:
-                logger.info(f"No parseable MLB data for {date}")
+                logger.error(f"No parseable MLB data for {date}")
                 return []
+            
+            logger.info(f"Raw MCP response structure: {response.data}")
+            logger.info(f"Parsed MLB data structure: {parsed_data}")
+            logger.info(f"Parsed data keys: {list(parsed_data.keys()) if isinstance(parsed_data, dict) else 'Not a dict'}")
             
             # Extract games from parsed data
             games_data = parsed_data.get("games", [])
             
-            logger.debug(f"Parsed MLB data structure: {list(parsed_data.keys())}")
-            logger.debug(f"First game sample: {games_data[0] if games_data else 'No games'}")
+            logger.info(f"Games data extracted: {len(games_data)} games")
+            if games_data:
+                logger.info(f"First game sample: {games_data[0]}")
+            else:
+                logger.warning(f"No games found in parsed data. Full parsed data: {parsed_data}")
             
             logger.info(f"MLB MCP returned {len(games_data)} games for {date}")
             
