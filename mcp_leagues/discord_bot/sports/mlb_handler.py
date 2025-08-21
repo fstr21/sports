@@ -246,7 +246,8 @@ class MLBHandler(BaseSportHandler):
     
     async def format_match_analysis(self, match: Match) -> discord.Embed:
         """
-        Create formatted Discord embed for MLB game analysis
+        Create a compact, formatted Discord embed for MLB game analysis.
+        This version uses fields and code blocks for a clean, table-like layout.
         
         Args:
             match: Match object with data to format
@@ -259,152 +260,98 @@ class MLBHandler(BaseSportHandler):
         away_team_id = match.additional_data.get("away_team_id")
         
         # Get team form data and betting odds in parallel
-        team_data_tasks = []
+        tasks = []
         if home_team_id and away_team_id:
-            team_data_tasks = [
+            tasks = [
                 self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": home_team_id}),
                 self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": away_team_id}),
                 self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": home_team_id}),
                 self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": away_team_id}),
                 self.get_betting_odds_for_game(match)
             ]
-            
-            home_form, away_form, home_trends, away_trends, betting_odds = await asyncio.gather(
-                *team_data_tasks, return_exceptions=True
-            )
+            home_form, away_form, home_trends, away_trends, betting_odds = await asyncio.gather(*tasks, return_exceptions=True)
         else:
             home_form = away_form = home_trends = away_trends = betting_odds = None
         
-        # Extract basic game info
-        raw_game_time = match.additional_data.get('time', match.additional_data.get('start_time', 'TBD'))
-        venue = match.additional_data.get('venue', 'TBD')
+        # --- 1. Data Extraction and Formatting ---
         
-        # Format timestamp to user-friendly format (e.g., "1:10 PM CT")
+        # Format game time
+        raw_game_time = match.additional_data.get('time', match.additional_data.get('start_time', 'TBD'))
+        game_time = raw_game_time
         try:
             if raw_game_time != 'TBD' and 'T' in raw_game_time:
-                from datetime import datetime
-                # Parse ISO format like "2025-08-21T13:10:00-04:00"
                 dt = datetime.fromisoformat(raw_game_time.replace('Z', '+00:00'))
-                game_time = dt.strftime("%I:%M %p CT").lstrip('0')  # Remove leading zero from hour
-            else:
-                game_time = raw_game_time
+                game_time = dt.strftime("%I:%M %p CT").lstrip('0')
         except Exception:
-            game_time = raw_game_time
+            pass # Keep original time if parsing fails
         
-        # Create compact header format like Image #2
-        embed_title = f"**{venue.upper()}** • {game_time}"
-        
-        # Extract team records and form data
-        away_record = "N/A"
-        home_record = "N/A" 
-        away_winpct = "N/A"
-        home_winpct = "N/A"
-        away_streak = "N/A"
-        home_streak = "N/A"
-        away_diff = "N/A"
-        home_diff = "N/A"
-        home_gb = ""
-        
+        # Extract records, streaks, and run differentials
+        away_record, home_record = "0-0", "0-0"
+        away_streak, home_streak = "N/A", "N/A"
+        away_diff_val, home_diff_val = 0, 0
+
         if not isinstance(away_form, Exception) and away_form:
             away_data = away_form.get("data", {}).get("form", {})
-            away_wins = away_data.get("wins", 0)
-            away_losses = away_data.get("losses", 0)
-            away_record = f"{away_wins}-{away_losses}"
-            
-            # Calculate win percentage from wins/losses if not provided directly
-            win_pct_val = away_data.get('win_percentage', 0)
-            if not win_pct_val and away_wins and away_losses:
-                win_pct_val = away_wins / (away_wins + away_losses)
-            
-            if isinstance(win_pct_val, (int, float)) and win_pct_val > 0:
-                away_winpct = f".{int(win_pct_val * 1000):03d}"
-            else:
-                away_winpct = ".453"  # Default from Image #2
-            away_streak = away_data.get("streak", "W2")
-            
+            away_record = f"{away_data.get('wins', 0)}-{away_data.get('losses', 0)}"
+            away_streak = away_data.get("streak", "N/A")
+
         if not isinstance(home_form, Exception) and home_form:
             home_data = home_form.get("data", {}).get("form", {})
-            home_wins = home_data.get("wins", 0)
-            home_losses = home_data.get("losses", 0)
-            home_record = f"{home_wins}-{home_losses}"
+            home_record = f"{home_data.get('wins', 0)}-{home_data.get('losses', 0)}"
+            home_streak = home_data.get("streak", "N/A")
             
-            # Calculate win percentage from wins/losses if not provided directly
-            win_pct_val = home_data.get('win_percentage', 0)
-            if not win_pct_val and home_wins and home_losses:
-                win_pct_val = home_wins / (home_wins + home_losses)
-            
-            if isinstance(win_pct_val, (int, float)) and win_pct_val > 0:
-                home_winpct = f".{int(win_pct_val * 1000):03d}"
-            else:
-                home_winpct = ".460"  # Default from Image #2
-            home_streak = home_data.get("streak", "L2")
-            games_back = home_data.get("games_back", "N/A")
-            if games_back not in ["N/A", "-"] and games_back != 0:
-                home_gb = f"         {games_back} GB"
-        
         if not isinstance(away_trends, Exception) and away_trends:
-            away_trends_data = away_trends.get("data", {}).get("trends", {})
-            away_diff_val = away_trends_data.get("run_differential", 0)
-            away_diff = f"{away_diff_val:+d} Run Diff" if away_diff_val != 0 else "0 Run Diff"
-            
+            away_diff_val = away_trends.get("data", {}).get("trends", {}).get("run_differential", 0)
+
         if not isinstance(home_trends, Exception) and home_trends:
-            home_trends_data = home_trends.get("data", {}).get("trends", {})
-            home_diff_val = home_trends_data.get("run_differential", 0)
-            home_diff = f"{home_diff_val:+d} Run Diff" if home_diff_val != 0 else "0 Run Diff"
+            home_diff_val = home_trends.get("data", {}).get("trends", {}).get("run_differential", 0)
+
+        # --- 2. Embed Creation ---
+
+        embed_title = f"{match.away_team} @ {match.home_team}"
+        venue = match.additional_data.get('venue', 'TBD')
         
-        # Create team matchup line
-        team_matchup = f"**{match.away_team}** ({away_record}) @ **{match.home_team}** ({home_record})"
-        
-        # Create team form section with proper alignment using code blocks
-        team_form = f"**Team Form**\n```\n{match.away_team:<15} {away_winpct} Win%  {away_streak:<6} {away_diff}\n{match.home_team:<15} {home_winpct} Win%  {home_streak:<6} {home_diff}{home_gb}\n```"
-        
-        # Create betting lines section using actual fetched data
-        betting_lines = "**Live Betting Lines**\n```\n"
-        if not isinstance(betting_odds, Exception) and betting_odds:
-            # Extract betting data
-            ml_data = self._parse_moneyline(betting_odds.get("moneyline", ""), match)
-            spread_data = self._parse_spread(betting_odds.get("spread", ""), match)
-            total_data = betting_odds.get("total", "N/A")
-            
-            # Format moneyline using actual data
-            if ml_data:
-                home_odds = ml_data.get('home', 'N/A')
-                away_odds = ml_data.get('away', 'N/A')
-                betting_lines += f"ML            {match.home_team} {home_odds}                {match.away_team} {away_odds}\n"
-            else:
-                betting_lines += f"ML            {match.home_team} +560                {match.away_team} -1000\n"
-            
-            # Format spread using actual data
-            if spread_data:
-                home_spread = spread_data.get('home', 'N/A')
-                away_spread = spread_data.get('away', 'N/A')
-                betting_lines += f"Spread        {match.home_team} {home_spread}         {match.away_team} {away_spread}\n"
-            else:
-                betting_lines += f"Spread        {match.home_team} -3.5 (-112)         {match.away_team} -3.5 (-118)\n"
-            
-            # Format total using actual data
-            if total_data and total_data != "N/A":
-                betting_lines += f"Total         {total_data}"
-            else:
-                betting_lines += "Total         O/U 12.5 (+102/-136)"
-        else:
-            # Default values when no betting data available
-            betting_lines += f"ML            {match.home_team} +560                {match.away_team} -1000\n"
-            betting_lines += f"Spread        {match.home_team} -3.5 (-112)         {match.away_team} -3.5 (-118)\n"
-            betting_lines += "Total         O/U 12.5 (+102/-136)"
-        
-        betting_lines += "\n```"
-        
-        # Create the embed
         embed = discord.Embed(
             title=embed_title,
-            description=f"{team_matchup}\n\n{team_form}\n\n{betting_lines}",
+            description=f"🏟️ {venue} • ⏰ {game_time}",
             color=self.config.get('embed_color', 0x0066cc),
             timestamp=datetime.now()
         )
+
+        # --- 3. Betting Lines Field ---
         
-        embed.set_footer(text="MLB Analysis powered by MLB MCP • Updated Format • Today at 2:51 PM")
+        betting_lines_content = "```\n"
+        if not isinstance(betting_odds, Exception) and betting_odds:
+            # API format is "HomeTeam Odds | AwayTeam Odds"
+            ml_parts = betting_odds.get("moneyline", "N/A | N/A").split(' | ')
+            sp_parts = betting_odds.get("spread", "N/A | N/A").split(' | ')
+            total_line = betting_odds.get("total", "N/A")
+
+            ml_home, ml_away = (ml_parts[0].strip(), ml_parts[1].strip()) if len(ml_parts) == 2 else ("N/A", "N/A")
+            sp_home, sp_away = (sp_parts[0].strip(), sp_parts[1].strip()) if len(sp_parts) == 2 else ("N/A", "N/A")
+
+            # We format Away team first for a consistent column layout
+            betting_lines_content += f"ML:     {ml_away:<25} | {ml_home}\n"
+            betting_lines_content += f"Spread: {sp_away:<25} | {sp_home}\n"
+            betting_lines_content += f"Total:  {total_line}\n"
+        else:
+            betting_lines_content += "Betting lines are not available for this game.\n"
+        betting_lines_content += "```"
+        embed.add_field(name="💰 Live Betting Lines", value=betting_lines_content, inline=False)
+
+        # --- 4. Team Form Field ---
+
+        team_form_content = "```\n"
+        team_form_content += "Team             REC      STRK   Run Diff\n"
+        team_form_content += "------------------------------------------\n"
+        team_form_content += f"{match.away_team:<16} {away_record:<8} {away_streak:<6} {away_diff_val:+d}\n"
+        team_form_content += f"{match.home_team:<16} {home_record:<8} {home_streak:<6} {home_diff_val:+d}\n"
+        team_form_content += "```"
+        embed.add_field(name="📊 Team Form", value=team_form_content, inline=False)
+        
+        embed.set_footer(text="MLB Analysis powered by MLB MCP")
         return embed
+    
     
     def _parse_moneyline(self, ml_string: str, match: Match) -> Dict[str, str]:
         """Parse moneyline string and return formatted home/away odds"""
