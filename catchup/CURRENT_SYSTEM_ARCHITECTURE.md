@@ -112,11 +112,12 @@ sports_discord_bot.py                 # Main entry point
 - **Complete Coverage**: All 30 MLB teams, full season data
 
 #### Discord Integration
-Generates **4 comprehensive embeds** per game:
+Generates **5 comprehensive embeds** per game:
 1. **Enhanced Game Analysis**: Venue, divisions, rivalry detection
 2. **Team Form Analysis**: Records, streaks, games back
 3. **Scoring Trends**: Runs per game, run differential
 4. **Betting Odds**: Live moneylines, spreads, totals
+5. **Player Props + Stats**: Live betting markets with performance data and emojis
 
 ---
 
@@ -195,10 +196,11 @@ Generates **4 comprehensive embeds** per game:
    ├── Enhanced Game Analysis Embed
    ├── Team Form Analysis Embed
    ├── Scoring Trends Analysis Embed
-   └── Betting Odds Analysis Embed
+   ├── Betting Odds Analysis Embed
+   └── Player Props + Stats Embed (with performance emojis)
    
 5. Discord Response
-   └── 4 comprehensive embeds per game sent to channel
+   └── 5 comprehensive embeds per game sent to channel
 ```
 
 ### Soccer H2H Analysis Flow
@@ -241,12 +243,13 @@ payload = {
 
 ### Discord Embed Architecture
 ```python
-# 4-Embed MLB Analysis Pattern
+# 5-Embed MLB Analysis Pattern
 embeds = [
     enhanced_game_analysis,    # Venue, divisions, context
     team_form_analysis,        # Records, streaks, standings
     scoring_trends_analysis,   # Offensive/defensive stats
-    betting_odds_analysis      # Live moneylines, spreads, totals
+    betting_odds_analysis,     # Live moneylines, spreads, totals
+    player_props_stats         # Live betting props + performance data with emojis
 ]
 ```
 
