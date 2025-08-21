@@ -395,6 +395,14 @@ class MLBHandler(BaseSportHandler):
                 logger.info(f"Added betting odds embed for {match.away_team} @ {match.home_team}")
             else:
                 logger.warning(f"Failed to create betting odds embed for {match.away_team} @ {match.home_team}")
+
+            # 5. Player Props Analysis (NEW)
+            player_props_embed = await self.create_player_props_embed(match, home_team_id, away_team_id)
+            if player_props_embed:
+                embeds.append(player_props_embed)
+                logger.info(f"Added player props embed for {match.away_team} @ {match.home_team}")
+            else:
+                logger.warning(f"Failed to create player props embed for {match.away_team} @ {match.home_team}")
         else:
             logger.warning(f"Missing team IDs for {match.away_team} @ {match.home_team}: home={home_team_id}, away={away_team_id}")
         
@@ -688,6 +696,176 @@ class MLBHandler(BaseSportHandler):
                 
         except Exception as e:
             logger.error(f"Error creating betting odds embed: {e}")
+            return None
+    
+    async def create_player_props_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
+        """Create player props analysis using Odds MCP v2 for hits, home runs, strikeouts only"""
+        try:
+            import httpx
+            
+            odds_url = "https://odds-mcp-v2-production.up.railway.app/mcp"
+            
+            # Step 1: Get event ID for this specific game
+            events_payload = {
+                "jsonrpc": "2.0",
+                "method": "tools/call",
+                "id": 1,
+                "params": {
+                    "name": "getEvents",
+                    "arguments": {"sport": "baseball_mlb"}
+                }
+            }
+            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                # Get events (games) to find our specific game
+                events_response = await client.post(odds_url, json=events_payload)
+                events_response.raise_for_status()
+                events_result = events_response.json()
+                
+                if "result" not in events_result or "data" not in events_result["result"]:
+                    logger.warning("No events data from Odds MCP")
+                    return None
+                
+                events = events_result["result"]["data"]["events"]
+                
+                # Find our specific game by matching team names
+                target_event = None
+                for event in events:
+                    home_team = event.get("home_team", "").lower()
+                    away_team = event.get("away_team", "").lower()
+                    
+                    # Normalize team names for matching
+                    match_home = match.home_team.lower()
+                    match_away = match.away_team.lower()
+                    
+                    if (match_home in home_team or home_team in match_home) and \
+                       (match_away in away_team or away_team in match_away):
+                        target_event = event
+                        break
+                
+                if not target_event:
+                    logger.warning(f"Could not find event for {match.away_team} @ {match.home_team}")
+                    return None
+                
+                event_id = target_event["id"]
+                logger.info(f"Found event ID {event_id} for {match.away_team} @ {match.home_team}")
+                
+                # Step 2: Get player props for specific markets
+                target_markets = ["batter_hits", "batter_home_runs", "pitcher_strikeouts"]
+                player_props_data = {}
+                
+                for market in target_markets:
+                    props_payload = {
+                        "jsonrpc": "2.0",
+                        "method": "tools/call",
+                        "id": 1,
+                        "params": {
+                            "name": "getEventOdds",
+                            "arguments": {
+                                "sport": "baseball_mlb",
+                                "event_id": event_id,
+                                "markets": market
+                            }
+                        }
+                    }
+                    
+                    props_response = await client.post(odds_url, json=props_payload)
+                    props_response.raise_for_status()
+                    props_result = props_response.json()
+                    
+                    if "result" in props_result and "data" in props_result["result"]:
+                        event_data = props_result["result"]["data"]["event"]
+                        if "bookmakers" in event_data and event_data["bookmakers"]:
+                            bookmaker = event_data["bookmakers"][0]
+                            for market_data in bookmaker.get("markets", []):
+                                if market_data.get("key") == market:
+                                    player_props_data[market] = market_data["outcomes"]
+                                    break
+                
+                # Step 3: Create embed with player props
+                embed = discord.Embed(
+                    title=f"🎯 Player Props • {match.away_team} @ {match.home_team}",
+                    description="Live betting markets for key players",
+                    color=0x1E88E5,
+                    timestamp=datetime.now()
+                )
+                
+                # Add player hits props
+                if "batter_hits" in player_props_data:
+                    hits_text = ""
+                    for outcome in player_props_data["batter_hits"][:6]:  # Show top 6 players
+                        name = outcome.get("name", "").replace(" Over", "").replace(" Under", "")
+                        if " Over " in outcome.get("description", ""):
+                            line = outcome.get("description", "").split(" Over ")[1].split(" ")[0]
+                            price = outcome.get("price")
+                            if isinstance(price, int):
+                                hits_text += f"**{name}** O{line}: {price:+d}\n"
+                            else:
+                                hits_text += f"**{name}** O{line}: {price}\n"
+                    
+                    if hits_text:
+                        embed.add_field(
+                            name="⚾ Player Hits",
+                            value=hits_text.strip(),
+                            inline=True
+                        )
+                
+                # Add home run props
+                if "batter_home_runs" in player_props_data:
+                    hr_text = ""
+                    for outcome in player_props_data["batter_home_runs"][:6]:  # Show top 6 players
+                        name = outcome.get("name", "").replace(" Over", "").replace(" Under", "")
+                        if " Over " in outcome.get("description", ""):
+                            line = outcome.get("description", "").split(" Over ")[1].split(" ")[0]
+                            price = outcome.get("price")
+                            if isinstance(price, int):
+                                hr_text += f"**{name}** O{line}: {price:+d}\n"
+                            else:
+                                hr_text += f"**{name}** O{line}: {price}\n"
+                    
+                    if hr_text:
+                        embed.add_field(
+                            name="🏠 Home Runs",
+                            value=hr_text.strip(),
+                            inline=True
+                        )
+                
+                # Add strikeout props
+                if "pitcher_strikeouts" in player_props_data:
+                    k_text = ""
+                    for outcome in player_props_data["pitcher_strikeouts"]:
+                        name = outcome.get("name", "").replace(" Over", "").replace(" Under", "")
+                        if " Over " in outcome.get("description", ""):
+                            line = outcome.get("description", "").split(" Over ")[1].split(" ")[0]
+                            price = outcome.get("price")
+                            if isinstance(price, int):
+                                k_text += f"**{name}** O{line}: {price:+d}\n"
+                            else:
+                                k_text += f"**{name}** O{line}: {price}\n"
+                    
+                    if k_text:
+                        embed.add_field(
+                            name="🔥 Pitcher Strikeouts",
+                            value=k_text.strip(),
+                            inline=True
+                        )
+                
+                # Add footer info
+                embed.add_field(
+                    name="ℹ️ Player Props Info",
+                    value="Only showing Over lines for main markets\nNo alternate lines included\nLines subject to change",
+                    inline=False
+                )
+                
+                embed.set_footer(text="Player Props • Powered by The Odds API")
+                
+                if not any(market in player_props_data for market in target_markets):
+                    embed.add_field(name="❌ No Props Available", value="Player props not available for this game", inline=False)
+                
+                return embed
+                
+        except Exception as e:
+            logger.error(f"Error creating player props embed: {e}")
             return None
     
     async def create_pitcher_matchup_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
