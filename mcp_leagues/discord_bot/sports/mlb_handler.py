@@ -199,22 +199,17 @@ class MLBHandler(BaseSportHandler):
                 logger.error(f"MLB MCP error: {response.error}")
                 return []
             
-            # Parse MCP response
-            # MCPClient.data contains the "result" from JSON-RPC
-            # getMLBScheduleET structure: result.data.games
-            if not response.data:
-                logger.info(f"No MLB response data for {date}")
+            # Parse MCP content properly
+            parsed_data = await self.mcp_client.parse_mcp_content(response)
+            if not parsed_data:
+                logger.info(f"No parseable MLB data for {date}")
                 return []
             
-            # Check if the MCP call was successful
-            if not response.data.get("ok"):
-                error_msg = response.data.get("error", "Unknown MLB MCP error")
-                logger.error(f"MLB MCP returned error: {error_msg}")
-                return []
+            # Extract games from parsed data
+            games_data = parsed_data.get("games", [])
             
-            # Extract games from: response.data.data.games
-            mcp_data = response.data.get("data", {})
-            games_data = mcp_data.get("games", [])
+            logger.debug(f"Parsed MLB data structure: {list(parsed_data.keys())}")
+            logger.debug(f"First game sample: {games_data[0] if games_data else 'No games'}")
             
             logger.info(f"MLB MCP returned {len(games_data)} games for {date}")
             
@@ -521,6 +516,8 @@ class MLBHandler(BaseSportHandler):
     def _convert_to_match_object(self, game_data: Dict[str, Any]) -> Optional[Match]:
         """Convert getMLBScheduleET game data to Match object"""
         try:
+            logger.debug(f"Converting game data: {game_data}")
+            
             # Handle getMLBScheduleET data structure
             # Structure: game has home_team{name, id} and away_team{name, id}
             home_team_data = game_data.get("home_team", {})
@@ -534,6 +531,10 @@ class MLBHandler(BaseSportHandler):
             
             home_team = home_team_data.get("name", "Unknown Home")
             away_team = away_team_data.get("name", "Unknown Away")
+            home_team_id = home_team_data.get("id")
+            away_team_id = away_team_data.get("id")
+            
+            logger.debug(f"Extracted team IDs: home={home_team_id} ({home_team}), away={away_team_id} ({away_team})")
             
             # Extract start time from nested structure
             start_time_data = game_data.get("start_time", {})
@@ -560,8 +561,8 @@ class MLBHandler(BaseSportHandler):
                 additional_data={
                     "time": game_time,
                     "venue": game_data.get("venue", "Unknown Venue"),
-                    "home_team_id": home_team_data.get("id"),
-                    "away_team_id": away_team_data.get("id"),
+                    "home_team_id": home_team_id,
+                    "away_team_id": away_team_id,
                     "matchup": game_data.get("matchup", f"{away_team} @ {home_team}"),
                     "raw_data": game_data
                 }
