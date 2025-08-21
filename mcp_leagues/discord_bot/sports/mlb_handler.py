@@ -279,8 +279,8 @@ class MLBHandler(BaseSportHandler):
         game_time = match.additional_data.get('time', match.additional_data.get('start_time', 'TBD'))
         venue = match.additional_data.get('venue', 'TBD')
         
-        # Create compact header format like Image #2
-        embed_title = f"**{venue.upper()}** • {game_time}"
+        # Create compact header format like Image #2 - TEST CHANGE
+        embed_title = f"**{venue.upper()}** • {game_time} • TEST"
         
         # Extract team records and form data
         away_record = "N/A"
