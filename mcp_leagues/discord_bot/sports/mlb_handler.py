@@ -804,12 +804,12 @@ class MLBHandler(BaseSportHandler):
                     timestamp=datetime.now()
                 )
                 
-                # Add player hits props with stats
+                # Add player hits props with stats (O0.5 hits only)
                 if "batter_hits" in player_props_data:
                     hits_text = ""
                     processed_players = set()
                     for outcome in player_props_data["batter_hits"]:
-                        if outcome.get("name") == "Over":  # Only show Over lines
+                        if outcome.get("name") == "Over" and outcome.get("point", 0) == 0.5:  # Only O0.5 hits
                             player_name = outcome.get("description", "")
                             point = outcome.get("point", 0)
                             price = outcome.get("price")
