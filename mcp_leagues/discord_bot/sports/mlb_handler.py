@@ -388,7 +388,13 @@ class MLBHandler(BaseSportHandler):
             else:
                 logger.warning(f"Failed to create scoring trends embed for {match.away_team} @ {match.home_team}")
             
-            # 4. Pitcher Matchup Analysis - Disabled (will implement with player analysis later)
+            # 4. Betting Odds Analysis
+            odds_embed = await self.create_betting_odds_embed(match, home_team_id, away_team_id)
+            if odds_embed:
+                embeds.append(odds_embed)
+                logger.info(f"Added betting odds embed for {match.away_team} @ {match.home_team}")
+            else:
+                logger.warning(f"Failed to create betting odds embed for {match.away_team} @ {match.home_team}")
         else:
             logger.warning(f"Missing team IDs for {match.away_team} @ {match.home_team}: home={home_team_id}, away={away_team_id}")
         
@@ -531,6 +537,157 @@ class MLBHandler(BaseSportHandler):
             
         except Exception as e:
             logger.error(f"Error creating scoring trends embed: {e}")
+            return None
+    
+    async def create_betting_odds_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
+        """Create betting odds analysis using Odds MCP v2"""
+        try:
+            # Call odds MCP directly for MLB betting lines
+            import httpx
+            
+            odds_url = "https://odds-mcp-v2-production.up.railway.app/mcp"
+            
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "tools/call",
+                "id": 1,
+                "params": {
+                    "name": "getOdds",
+                    "arguments": {
+                        "sport": "baseball_mlb",
+                        "markets": "h2h,spreads,totals",
+                        "regions": "us"
+                    }
+                }
+            }
+            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(odds_url, json=payload)
+                response.raise_for_status()
+                result = response.json()
+                
+                if "result" not in result or "data" not in result["result"]:
+                    logger.warning(f"No odds data returned for MLB")
+                    return None
+                
+                odds_data = result["result"]["data"]["odds"]
+                if not odds_data:
+                    logger.warning(f"No MLB games found with odds")
+                    return None
+                
+                # Find our specific game by team names
+                target_game = None
+                for game in odds_data:
+                    away_team = game.get("away_team", "")
+                    home_team = game.get("home_team", "")
+                    
+                    # Match team names (handle different name formats)
+                    if (match.away_team in away_team or away_team in match.away_team) and \
+                       (match.home_team in home_team or home_team in match.home_team):
+                        target_game = game
+                        break
+                
+                if not target_game:
+                    logger.warning(f"No odds found for {match.away_team} @ {match.home_team}")
+                    return None
+                
+                logger.debug(f"Found odds for {target_game.get('away_team')} @ {target_game.get('home_team')}")
+                
+                # Create betting odds embed
+                embed = discord.Embed(
+                    title=f"💰 Betting Odds: {match.away_team} vs {match.home_team}",
+                    color=0x00FF00,  # Green color for money/betting
+                    timestamp=datetime.now()
+                )
+                
+                if "bookmakers" not in target_game or not target_game["bookmakers"]:
+                    embed.add_field(name="❌ No Odds Available", value="Betting lines not available for this game", inline=False)
+                    return embed
+                
+                # Use first bookmaker (usually FanDuel)
+                bookmaker = target_game["bookmakers"][0]
+                bookmaker_name = bookmaker.get("title", "Sportsbook")
+                
+                embed.add_field(
+                    name="🏪 Sportsbook",
+                    value=bookmaker_name,
+                    inline=True
+                )
+                
+                # Process each market
+                for market in bookmaker.get("markets", []):
+                    market_key = market.get("key")
+                    
+                    if market_key == "h2h":
+                        # Moneyline
+                        ml_text = ""
+                        for outcome in market.get("outcomes", []):
+                            name = outcome.get("name")
+                            price = outcome.get("price")
+                            if isinstance(price, int):
+                                ml_text += f"**{name}:** {price:+d}\\n"
+                            else:
+                                ml_text += f"**{name}:** {price}\\n"
+                        
+                        if ml_text:
+                            embed.add_field(
+                                name="💵 Moneyline (ML)",
+                                value=ml_text.strip(),
+                                inline=True
+                            )
+                    
+                    elif market_key == "spreads":
+                        # Run Line
+                        spread_text = ""
+                        for outcome in market.get("outcomes", []):
+                            name = outcome.get("name")
+                            price = outcome.get("price")
+                            point = outcome.get("point", 0)
+                            
+                            if isinstance(price, int):
+                                spread_text += f"**{name} ({point:+g}):** {price:+d}\\n"
+                            else:
+                                spread_text += f"**{name} ({point:+g}):** {price}\\n"
+                        
+                        if spread_text:
+                            embed.add_field(
+                                name="📊 Run Line (RL)",
+                                value=spread_text.strip(),
+                                inline=True
+                            )
+                    
+                    elif market_key == "totals":
+                        # Over/Under
+                        total_text = ""
+                        for outcome in market.get("outcomes", []):
+                            name = outcome.get("name")
+                            price = outcome.get("price")
+                            point = outcome.get("point", 0)
+                            
+                            if isinstance(price, int):
+                                total_text += f"**{name} {point}:** {price:+d}\\n"
+                            else:
+                                total_text += f"**{name} {point}:** {price}\\n"
+                        
+                        if total_text:
+                            embed.add_field(
+                                name="🎯 Total (O/U)",
+                                value=total_text.strip(),
+                                inline=True
+                            )
+                
+                # Add betting notes
+                embed.add_field(
+                    name="📝 Betting Notes",
+                    value="American odds format (+/-)\nNegative = Favorite, Positive = Underdog\nLines subject to change",
+                    inline=False
+                )
+                
+                embed.set_footer(text=f"Betting Odds • Powered by {bookmaker_name}")
+                return embed
+                
+        except Exception as e:
+            logger.error(f"Error creating betting odds embed: {e}")
             return None
     
     async def create_pitcher_matchup_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
