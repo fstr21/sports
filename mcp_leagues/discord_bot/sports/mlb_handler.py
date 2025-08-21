@@ -806,8 +806,8 @@ class MLBHandler(BaseSportHandler):
                 
                 # Add player hits props with stats (O0.5 hits only) - Table format
                 if "batter_hits" in player_props_data:
-                    hits_text = "```\nPlayer          Line  Odds   Avg H/G  L5 Streak\n"
-                    hits_text += "----------------------------------------------\n"
+                    hits_text = "```\nPlayer               Line  Odds    Avg H/G  L5 Streak\n"
+                    hits_text += "----------------------------------------------------\n"
                     processed_players = set()
                     
                     for outcome in player_props_data["batter_hits"]:
@@ -849,14 +849,16 @@ class MLBHandler(BaseSportHandler):
                                     else:
                                         streak_info = "--"
                                 
-                                # Format name with padding and emoji
-                                name_display = f"{player_name[:14]:<14}{emoji}"
+                                # Format with proper padding for alignment
+                                name_with_emoji = f"{player_name}{emoji}"
+                                name_display = f"{name_with_emoji:<18}"  # Wider padding
                                 line_display = f"O{point}"
+                                odds_display = f"{odds_str:<7}"  # Fixed width for odds
                                 avg_display = f"{avg_hits:.1f}"
                                 
-                                hits_text += f"{name_display} {line_display}  {odds_str:<6} {avg_display:<7} {streak_info}\n"
+                                hits_text += f"{name_display} {line_display}  {odds_display} {avg_display:<8} {streak_info}\n"
                                 
-                                if len(processed_players) >= 6:  # Limit to 6 players
+                                if len(processed_players) >= 10:  # Increase to 10 players
                                     break
                     
                     hits_text += "```"
@@ -870,8 +872,8 @@ class MLBHandler(BaseSportHandler):
                 
                 # Add home run props with stats - Table format
                 if "batter_home_runs" in player_props_data:
-                    hr_text = "```\nPlayer          Line  Odds   L5 HR\n"
-                    hr_text += "--------------------------------\n"
+                    hr_text = "```\nPlayer               Line  Odds    L5 HR\n"
+                    hr_text += "--------------------------------------\n"
                     processed_players = set()
                     
                     for outcome in player_props_data["batter_home_runs"]:
@@ -906,14 +908,16 @@ class MLBHandler(BaseSportHandler):
                                     elif hr_streak > 0:
                                         emoji = "⚡"
                                 
-                                # Format display
-                                name_display = f"{player_name[:14]:<14}{emoji}"
+                                # Format with proper alignment
+                                name_with_emoji = f"{player_name}{emoji}"
+                                name_display = f"{name_with_emoji:<18}"
                                 line_display = f"O{point}"
+                                odds_display = f"{odds_str:<7}"
                                 hr_display = f"{recent_hrs} HR"
                                 
-                                hr_text += f"{name_display} {line_display}  {odds_str:<6} {hr_display}\n"
+                                hr_text += f"{name_display} {line_display}  {odds_display} {hr_display}\n"
                                 
-                                if len(processed_players) >= 6:  # Limit to 6 players
+                                if len(processed_players) >= 10:  # Increase to 10 players
                                     break
                     
                     hr_text += "```"
@@ -927,8 +931,8 @@ class MLBHandler(BaseSportHandler):
                 
                 # Add strikeout props - Table format
                 if "pitcher_strikeouts" in player_props_data:
-                    k_text = "```\nPlayer          Line  Odds\n"
-                    k_text += "-------------------------\n"
+                    k_text = "```\nPlayer               Line  Odds\n"
+                    k_text += "-----------------------------\n"
                     processed_players = set()
                     
                     for outcome in player_props_data["pitcher_strikeouts"]:
@@ -946,13 +950,14 @@ class MLBHandler(BaseSportHandler):
                                 else:
                                     odds_str = str(price)
                                 
-                                # Format display
-                                name_display = f"{player_name[:15]:<15}"
+                                # Format with proper alignment
+                                name_display = f"{player_name:<18}"
                                 line_display = f"O{point}"
+                                odds_display = f"{odds_str}"
                                 
-                                k_text += f"{name_display} {line_display}  {odds_str}\n"
+                                k_text += f"{name_display} {line_display}  {odds_display}\n"
                                 
-                                if len(processed_players) >= 6:  # Limit to 6 players
+                                if len(processed_players) >= 6:  # Keep pitchers at 6 (usually only 2 starters)
                                     break
                     
                     k_text += "```"
