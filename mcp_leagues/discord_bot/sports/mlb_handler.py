@@ -298,7 +298,11 @@ class MLBHandler(BaseSportHandler):
             away_wins = away_data.get("wins", 0)
             away_losses = away_data.get("losses", 0)
             away_record = f"{away_wins}-{away_losses}"
-            away_winpct = f".{int(away_data.get('win_percentage', 0) * 1000):03d}" if away_data.get('win_percentage') else ".000"
+            win_pct_val = away_data.get('win_percentage', 0)
+            if isinstance(win_pct_val, (int, float)) and win_pct_val > 0:
+                away_winpct = f".{int(win_pct_val * 1000):03d}"
+            else:
+                away_winpct = ".000"
             away_streak = away_data.get("streak", "N/A")
             
         if not isinstance(home_form, Exception) and home_form:
@@ -306,7 +310,11 @@ class MLBHandler(BaseSportHandler):
             home_wins = home_data.get("wins", 0)
             home_losses = home_data.get("losses", 0)
             home_record = f"{home_wins}-{home_losses}"
-            home_winpct = f".{int(home_data.get('win_percentage', 0) * 1000):03d}" if home_data.get('win_percentage') else ".000"
+            win_pct_val = home_data.get('win_percentage', 0)
+            if isinstance(win_pct_val, (int, float)) and win_pct_val > 0:
+                home_winpct = f".{int(win_pct_val * 1000):03d}"
+            else:
+                home_winpct = ".000"
             home_streak = home_data.get("streak", "N/A")
             games_back = home_data.get("games_back", "N/A")
             if games_back not in ["N/A", "-"] and games_back != 0:
