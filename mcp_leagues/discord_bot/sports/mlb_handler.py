@@ -376,8 +376,12 @@ class MLBHandler(BaseSportHandler):
             )
             
             # Away team form
-            if not isinstance(away_form_result, Exception) and away_form_result:
-                logger.debug(f"Away team form result: {away_form_result}")
+            if isinstance(away_form_result, Exception):
+                logger.error(f"Exception getting away team form for team {away_team_id}: {away_form_result}")
+            elif not away_form_result:
+                logger.warning(f"No form data returned for away team {away_team_id}")
+            elif away_form_result:
+                logger.info(f"Away team form result for team {away_team_id}: {away_form_result}")
                 # Data is already parsed, no need for double nesting
                 away_data = away_form_result.get("form", {}) if "form" in away_form_result else away_form_result
                 wins = away_data.get("wins", 0)
@@ -392,9 +396,13 @@ class MLBHandler(BaseSportHandler):
                     inline=True
                 )
             
-            # Home team form
-            if not isinstance(home_form_result, Exception) and home_form_result:
-                logger.debug(f"Home team form result: {home_form_result}")
+            # Home team form  
+            if isinstance(home_form_result, Exception):
+                logger.error(f"Exception getting home team form for team {home_team_id}: {home_form_result}")
+            elif not home_form_result:
+                logger.warning(f"No form data returned for home team {home_team_id}")
+            elif home_form_result:
+                logger.info(f"Home team form result for team {home_team_id}: {home_form_result}")
                 # Data is already parsed, no need for double nesting
                 home_data = home_form_result.get("form", {}) if "form" in home_form_result else home_form_result
                 wins = home_data.get("wins", 0)
