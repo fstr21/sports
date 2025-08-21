@@ -205,18 +205,11 @@ class MLBHandler(BaseSportHandler):
                 logger.error(f"No parseable MLB data for {date}")
                 return []
             
-            logger.info(f"Raw MCP response structure: {response.data}")
-            logger.info(f"Parsed MLB data structure: {parsed_data}")
-            logger.info(f"Parsed data keys: {list(parsed_data.keys()) if isinstance(parsed_data, dict) else 'Not a dict'}")
+            # Extract games from parsed data - games are nested in data.games
+            games_data = parsed_data.get("data", {}).get("games", [])
             
-            # Extract games from parsed data
-            games_data = parsed_data.get("games", [])
-            
-            logger.info(f"Games data extracted: {len(games_data)} games")
-            if games_data:
-                logger.info(f"First game sample: {games_data[0]}")
-            else:
-                logger.warning(f"No games found in parsed data. Full parsed data: {parsed_data}")
+            logger.debug(f"Parsed data keys: {list(parsed_data.keys()) if isinstance(parsed_data, dict) else 'Not a dict'}")
+            logger.debug(f"First game sample: {games_data[0] if games_data else 'No games'}")
             
             logger.info(f"MLB MCP returned {len(games_data)} games for {date}")
             
@@ -526,29 +519,33 @@ class MLBHandler(BaseSportHandler):
             logger.debug(f"Converting game data: {game_data}")
             
             # Handle getMLBScheduleET data structure
-            # Structure: game has home_team{name, id} and away_team{name, id}
-            home_team_data = game_data.get("home_team", {})
-            away_team_data = game_data.get("away_team", {})
+            # Current structure: game has home{teamId, name} and away{teamId, name}
+            home_team_data = game_data.get("home", {})
+            away_team_data = game_data.get("away", {})
             
-            # Also try the nested structure from raw MCP response
+            # Fallback to old structure if needed
             if not home_team_data:
-                home_team_data = game_data.get("home", {})
+                home_team_data = game_data.get("home_team", {})
             if not away_team_data:
-                away_team_data = game_data.get("away", {})
+                away_team_data = game_data.get("away_team", {})
             
             home_team = home_team_data.get("name", "Unknown Home")
             away_team = away_team_data.get("name", "Unknown Away")
-            home_team_id = home_team_data.get("id")
-            away_team_id = away_team_data.get("id")
+            home_team_id = home_team_data.get("teamId") or home_team_data.get("id")
+            away_team_id = away_team_data.get("teamId") or away_team_data.get("id")
             
             logger.debug(f"Extracted team IDs: home={home_team_id} ({home_team}), away={away_team_id} ({away_team})")
             
-            # Extract start time from nested structure
-            start_time_data = game_data.get("start_time", {})
-            if isinstance(start_time_data, dict):
-                game_time = start_time_data.get("formatted", start_time_data.get("raw", "TBD"))
-            else:
-                game_time = game_data.get("start_et", str(start_time_data) if start_time_data else "TBD")
+            # Extract start time - current structure uses start_et directly
+            game_time = game_data.get("start_et", "TBD")
+            
+            # Fallback to nested structure if needed
+            if game_time == "TBD":
+                start_time_data = game_data.get("start_time", {})
+                if isinstance(start_time_data, dict):
+                    game_time = start_time_data.get("formatted", start_time_data.get("raw", "TBD"))
+                else:
+                    game_time = str(start_time_data) if start_time_data else "TBD"
             
             # Extract status
             status_data = game_data.get("status", {})
@@ -558,7 +555,7 @@ class MLBHandler(BaseSportHandler):
                 status = str(status_data) if status_data else "Scheduled"
             
             return Match(
-                id=str(game_data.get("game_pk", game_data.get("gamePk", game_data.get("id", "")))),
+                id=str(game_data.get("gamePk", game_data.get("game_pk", game_data.get("id", "")))),
                 home_team=home_team,
                 away_team=away_team,
                 league="MLB",

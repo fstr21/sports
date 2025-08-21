@@ -158,7 +158,9 @@ async def create_channels(interaction: discord.Interaction, sport: app_commands.
         
         # Get today's date
         today = datetime.now().strftime("%Y-%m-%d")
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")
         
+        logger.info(f"Current time: {current_time}")
         logger.info(f"Creating {sport.value} channels for {today} - requested by {interaction.user.name}")
         
         # Use sport handler to create channels
