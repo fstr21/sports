@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-08-20T20:36:36.139785",
+  "tool_tested": "roster",
+  "server_url": "https://mlbmcp-production.up.railway.app/mcp",
+  "tests": [
+    {
+      "team": "yankees",
+      "success": true,
+      "players": 26
+    },
+    {
+      "team": "dodgers",
+      "success": true,
+      "players": 26
+    },
+    {
+      "team": "guardians",
+      "success": true,
+      "players": 26
+    }
+  ],
+  "summary": {
+    "total_tests": 3,
+    "successful_tests": 3,
+    "failed_tests": 0
+  }
+}

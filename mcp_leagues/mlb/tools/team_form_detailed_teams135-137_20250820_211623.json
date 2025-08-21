@@ -1,0 +1,98 @@
+{
+  "teams": [
+    135,
+    137
+  ],
+  "season": 2025,
+  "timestamp": "2025-08-20T21:16:22.889371",
+  "team_forms": {
+    "135": {
+      "team_id": 135,
+      "team_name": "San Diego Padres",
+      "basic_record": {
+        "wins": 70,
+        "losses": 56,
+        "games_played": 126,
+        "win_percentage": ".556",
+        "games_back": "2.0"
+      },
+      "streak_info": {
+        "type": "winning",
+        "count": 1,
+        "display": "🔥 1-game winning streak",
+        "emoji": "🔥"
+      },
+      "recent_form": {
+        "last_10": "0-0",
+        "home_record": "0-0",
+        "away_record": "0-0"
+      },
+      "raw_form": {
+        "wins": 70,
+        "losses": 56,
+        "win_percentage": ".556",
+        "games_back": "2.0",
+        "streak": "W1",
+        "last_10": "0-0",
+        "home_record": "0-0",
+        "away_record": "0-0"
+      }
+    },
+    "137": {
+      "team_id": 137,
+      "team_name": "San Francisco Giants",
+      "basic_record": {
+        "wins": 61,
+        "losses": 65,
+        "games_played": 126,
+        "win_percentage": ".484",
+        "games_back": "11.0"
+      },
+      "streak_info": {
+        "type": "losing",
+        "count": 1,
+        "display": "❄️ 1-game losing streak",
+        "emoji": "❄️"
+      },
+      "recent_form": {
+        "last_10": "0-0",
+        "home_record": "0-0",
+        "away_record": "0-0"
+      },
+      "raw_form": {
+        "wins": 61,
+        "losses": 65,
+        "win_percentage": ".484",
+        "games_back": "11.0",
+        "streak": "L1",
+        "last_10": "0-0",
+        "home_record": "0-0",
+        "away_record": "0-0"
+      }
+    }
+  },
+  "comparison": {
+    "team1": "San Diego Padres",
+    "team2": "San Francisco Giants",
+    "record_leader": "San Diego Padres",
+    "momentum_leader": "San Diego Padres"
+  },
+  "summary": {
+    "teams_analyzed": 2,
+    "combined_stats": {
+      "total_wins": 131,
+      "total_losses": 121,
+      "total_games": 252
+    },
+    "best_record": {
+      "team": "San Diego Padres",
+      "wins": 70,
+      "losses": 56
+    },
+    "worst_record": {
+      "team": "San Francisco Giants",
+      "wins": 61,
+      "losses": 65
+    }
+  }
+}

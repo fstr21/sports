@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-08-20T20:36:36.592243",
+  "tool_tested": "player_stats",
+  "server_url": "https://mlbmcp-production.up.railway.app/mcp",
+  "tests": [
+    {
+      "scenario": "Aaron Judge hitting (last 5 games)",
+      "success": true,
+      "players": 1
+    },
+    {
+      "scenario": "Multiple players hitting",
+      "success": true,
+      "players": 2
+    },
+    {
+      "scenario": "Gerrit Cole pitching (last 5 starts)",
+      "success": true,
+      "players": 1
+    }
+  ],
+  "summary": {
+    "total_tests": 3,
+    "successful_tests": 3,
+    "failed_tests": 0
+  }
+}

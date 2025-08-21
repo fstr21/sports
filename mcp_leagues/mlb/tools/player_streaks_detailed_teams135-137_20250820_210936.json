@@ -1,0 +1,435 @@
+{
+  "teams": [
+    135,
+    137
+  ],
+  "season": 2025,
+  "lookback_games": 20,
+  "timestamp": "2025-08-20T21:09:35.384238",
+  "team_rosters": {
+    "135": {
+      "team_name": "San Diego Padres",
+      "total_players": 26,
+      "position_players": 13,
+      "players": [
+        {
+          "playerId": 669369,
+          "fullName": "Bryce Johnson",
+          "primaryNumber": "29",
+          "position": "CF",
+          "status": "Active"
+        },
+        {
+          "playerId": 553869,
+          "fullName": "Elias Díaz",
+          "primaryNumber": "17",
+          "position": "C",
+          "status": "Active"
+        },
+        {
+          "playerId": 665487,
+          "fullName": "Fernando Tatis Jr.",
+          "primaryNumber": "23",
+          "position": "RF",
+          "status": "Active"
+        },
+        {
+          "playerId": 666023,
+          "fullName": "Freddy Fermin",
+          "primaryNumber": "54",
+          "position": "C",
+          "status": "Active"
+        },
+        {
+          "playerId": 657757,
+          "fullName": "Gavin Sheets",
+          "primaryNumber": "30",
+          "position": "LF",
+          "status": "Active"
+        },
+        {
+          "playerId": 701538,
+          "fullName": "Jackson Merrill",
+          "primaryNumber": "3",
+          "position": "CF",
+          "status": "Active"
+        },
+        {
+          "playerId": 630105,
+          "fullName": "Jake Cronenworth",
+          "primaryNumber": "9",
+          "position": "2B",
+          "status": "Active"
+        },
+        {
+          "playerId": 578428,
+          "fullName": "Jose Iglesias",
+          "primaryNumber": "7",
+          "position": "2B",
+          "status": "Active"
+        },
+        {
+          "playerId": 650333,
+          "fullName": "Luis Arraez",
+          "primaryNumber": "4",
+          "position": "1B",
+          "status": "Active"
+        },
+        {
+          "playerId": 592518,
+          "fullName": "Manny Machado",
+          "primaryNumber": "13",
+          "position": "3B",
+          "status": "Active"
+        },
+        {
+          "playerId": 657656,
+          "fullName": "Ramón Laureano",
+          "primaryNumber": "5",
+          "position": "RF",
+          "status": "Active"
+        },
+        {
+          "playerId": 656811,
+          "fullName": "Ryan O'Hearn",
+          "primaryNumber": "32",
+          "position": "1B",
+          "status": "Active"
+        },
+        {
+          "playerId": 593428,
+          "fullName": "Xander Bogaerts",
+          "primaryNumber": "2",
+          "position": "SS",
+          "status": "Active"
+        }
+      ]
+    },
+    "137": {
+      "team_name": "San Francisco Giants",
+      "total_players": 26,
+      "position_players": 13,
+      "players": [
+        {
+          "playerId": 668800,
+          "fullName": "Andrew Knizner",
+          "primaryNumber": "21",
+          "position": "C",
+          "status": "Active"
+        },
+        {
+          "playerId": 669477,
+          "fullName": "Casey Schmitt",
+          "primaryNumber": "10",
+          "position": "3B",
+          "status": "Active"
+        },
+        {
+          "playerId": 683766,
+          "fullName": "Christian Koss",
+          "primaryNumber": "50",
+          "position": "2B",
+          "status": "Active"
+        },
+        {
+          "playerId": 642086,
+          "fullName": "Dominic Smith",
+          "primaryNumber": "7",
+          "position": "1B",
+          "status": "Active"
+        },
+        {
+          "playerId": 687551,
+          "fullName": "Drew Gilbert",
+          "primaryNumber": "61",
+          "position": "CF",
+          "status": "Active"
+        },
+        {
+          "playerId": 687529,
+          "fullName": "Grant McCray",
+          "primaryNumber": "58",
+          "position": "CF",
+          "status": "Active"
+        },
+        {
+          "playerId": 671218,
+          "fullName": "Heliot Ramos",
+          "primaryNumber": "17",
+          "position": "LF",
+          "status": "Active"
+        },
+        {
+          "playerId": 808982,
+          "fullName": "Jung Hoo Lee",
+          "primaryNumber": "51",
+          "position": "CF",
+          "status": "Active"
+        },
+        {
+          "playerId": 672275,
+          "fullName": "Patrick Bailey",
+          "primaryNumber": "14",
+          "position": "C",
+          "status": "Active"
+        },
+        {
+          "playerId": 646240,
+          "fullName": "Rafael Devers",
+          "primaryNumber": "16",
+          "position": "DH",
+          "status": "Active"
+        },
+        {
+          "playerId": 666149,
+          "fullName": "Tyler Fitzgerald",
+          "primaryNumber": "49",
+          "position": "2B",
+          "status": "Active"
+        },
+        {
+          "playerId": 642715,
+          "fullName": "Willy Adames",
+          "primaryNumber": "2",
+          "position": "SS",
+          "status": "Active"
+        },
+        {
+          "playerId": 527038,
+          "fullName": "Wilmer Flores",
+          "primaryNumber": "41",
+          "position": "1B",
+          "status": "Active"
+        }
+      ]
+    }
+  },
+  "player_streaks": {
+    "135": {
+      "team_name": "San Diego Padres",
+      "players": {
+        "669369": {
+          "player_id": 669369,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 1,
+            "longest_hit_streak_in_period": 3,
+            "current_multi_hit_streak": 0,
+            "current_hr_streak": 0,
+            "multi_hit_games": 3,
+            "multi_hit_frequency": "3/20",
+            "games_analyzed": 20
+          },
+          "lookback_games": 20
+        },
+        "553869": {
+          "player_id": 553869,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 0,
+            "longest_hit_streak_in_period": 3,
+            "current_multi_hit_streak": 0,
+            "current_hr_streak": 0,
+            "multi_hit_games": 2,
+            "multi_hit_frequency": "2/20",
+            "games_analyzed": 20
+          },
+          "lookback_games": 20
+        },
+        "665487": {
+          "player_id": 665487,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 4,
+            "longest_hit_streak_in_period": 5,
+            "current_multi_hit_streak": 1,
+            "current_hr_streak": 0,
+            "multi_hit_games": 6,
+            "multi_hit_frequency": "6/20",
+            "games_analyzed": 20
+          },
+          "lookback_games": 20
+        },
+        "666023": {
+          "player_id": 666023,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 1,
+            "longest_hit_streak_in_period": 4,
+            "current_multi_hit_streak": 0,
+            "current_hr_streak": 0,
+            "multi_hit_games": 5,
+            "multi_hit_frequency": "5/20",
+            "games_analyzed": 20
+          },
+          "lookback_games": 20
+        },
+        "657757": {
+          "player_id": 657757,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 0,
+            "longest_hit_streak_in_period": 3,
+            "current_multi_hit_streak": 0,
+            "current_hr_streak": 0,
+            "multi_hit_games": 1,
+            "multi_hit_frequency": "1/20",
+            "games_analyzed": 20
+          },
+          "lookback_games": 20
+        },
+        "701538": {
+          "player_id": 701538,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 4,
+            "longest_hit_streak_in_period": 5,
+            "current_multi_hit_streak": 0,
+            "current_hr_streak": 0,
+            "multi_hit_games": 6,
+            "multi_hit_frequency": "6/20",
+            "games_analyzed": 20
+          },
+          "lookback_games": 20
+        }
+      }
+    },
+    "137": {
+      "team_name": "San Francisco Giants",
+      "players": {
+        "668800": {
+          "player_id": 668800,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 0,
+            "longest_hit_streak_in_period": 2,
+            "current_multi_hit_streak": 0,
+            "current_hr_streak": 0,
+            "multi_hit_games": 2,
+            "multi_hit_frequency": "2/20",
+            "games_analyzed": 20
+          },
+          "lookback_games": 20
+        },
+        "669477": {
+          "player_id": 669477,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 4,
+            "longest_hit_streak_in_period": 6,
+            "current_multi_hit_streak": 0,
+            "current_hr_streak": 0,
+            "multi_hit_games": 3,
+            "multi_hit_frequency": "3/20",
+            "games_analyzed": 20
+          },
+          "lookback_games": 20
+        },
+        "683766": {
+          "player_id": 683766,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 0,
+            "longest_hit_streak_in_period": 5,
+            "current_multi_hit_streak": 0,
+            "current_hr_streak": 0,
+            "multi_hit_games": 7,
+            "multi_hit_frequency": "7/20",
+            "games_analyzed": 20
+          },
+          "lookback_games": 20
+        },
+        "642086": {
+          "player_id": 642086,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 15,
+            "longest_hit_streak_in_period": 15,
+            "current_multi_hit_streak": 0,
+            "current_hr_streak": 0,
+            "multi_hit_games": 4,
+            "multi_hit_frequency": "4/20",
+            "games_analyzed": 20
+          },
+          "lookback_games": 20
+        },
+        "687551": {
+          "player_id": 687551,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 0,
+            "longest_hit_streak_in_period": 1,
+            "current_multi_hit_streak": 0,
+            "current_hr_streak": 0,
+            "multi_hit_games": 1,
+            "multi_hit_frequency": "1/10",
+            "games_analyzed": 10
+          },
+          "lookback_games": 20
+        },
+        "687529": {
+          "player_id": 687529,
+          "season": 2025,
+          "streaks": {
+            "current_hit_streak": 0,
+            "longest_hit_streak_in_period": 1,
+            "current_multi_hit_streak": 0,
+            "current_hr_streak": 0,
+            "multi_hit_games": 1,
+            "multi_hit_frequency": "1/10",
+            "games_analyzed": 10
+          },
+          "lookback_games": 20
+        }
+      }
+    }
+  },
+  "summary": {
+    "total_players_analyzed": 12,
+    "teams_analyzed": 2,
+    "team_summaries": {
+      "135": {
+        "players_analyzed": 6,
+        "active_hit_streaks": 4,
+        "hot_hitters": 2,
+        "cold_streaks": 2,
+        "best_streaks": {
+          "longest_hit_streak": {
+            "player": "Fernando Tatis Jr.",
+            "games": 5
+          },
+          "most_multi_hits": {
+            "player": "Fernando Tatis Jr.",
+            "games": 6
+          }
+        },
+        "team_totals": {
+          "total_hit_streaks": 10,
+          "total_multi_hits": 23,
+          "total_games_analyzed": 120
+        }
+      },
+      "137": {
+        "players_analyzed": 6,
+        "active_hit_streaks": 2,
+        "hot_hitters": 2,
+        "cold_streaks": 4,
+        "best_streaks": {
+          "longest_hit_streak": {
+            "player": "Dominic Smith",
+            "games": 15
+          },
+          "most_multi_hits": {
+            "player": "Christian Koss",
+            "games": 7
+          }
+        },
+        "team_totals": {
+          "total_hit_streaks": 19,
+          "total_multi_hits": 18,
+          "total_games_analyzed": 100
+        }
+      }
+    }
+  }
+}

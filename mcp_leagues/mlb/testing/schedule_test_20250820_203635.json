@@ -1,0 +1,42 @@
+{
+  "timestamp": "2025-08-20T20:36:35.596692",
+  "tool_tested": "schedule",
+  "server_url": "https://mlbmcp-production.up.railway.app/mcp",
+  "tests": [
+    {
+      "scenario": "Default (today)",
+      "success": true,
+      "games": 14
+    },
+    {
+      "scenario": "Explicit today",
+      "success": true,
+      "games": 14
+    },
+    {
+      "scenario": "Yesterday",
+      "success": true,
+      "games": 16
+    },
+    {
+      "scenario": "Tomorrow",
+      "success": true,
+      "games": 9
+    },
+    {
+      "scenario": "Peak season date",
+      "success": true,
+      "games": 1
+    },
+    {
+      "scenario": "Off-season date",
+      "success": true,
+      "games": 0
+    }
+  ],
+  "summary": {
+    "total_tests": 6,
+    "successful_tests": 6,
+    "failed_tests": 0
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-08-20T20:36:37.133404",
+  "tool_tested": "advanced_tools",
+  "server_url": "https://mlbmcp-production.up.railway.app/mcp",
+  "tests": [
+    {
+      "tool": "getMLBPitcherMatchup",
+      "success": true
+    },
+    {
+      "tool": "getMLBTeamForm",
+      "success": true
+    },
+    {
+      "tool": "getMLBPlayerStreaks",
+      "success": true
+    },
+    {
+      "tool": "getMLBTeamScoringTrends",
+      "success": true
+    }
+  ],
+  "summary": {
+    "total_tests": 4,
+    "successful_tests": 4,
+    "failed_tests": 0
+  }
+}

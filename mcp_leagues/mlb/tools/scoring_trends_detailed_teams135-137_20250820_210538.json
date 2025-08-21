@@ -1,0 +1,116 @@
+{
+  "teams": [
+    135,
+    137
+  ],
+  "season": 2025,
+  "timestamp": "2025-08-20T21:05:38.437663",
+  "team_trends": {
+    "135": {
+      "team_id": 135,
+      "team_name": "San Diego Padres",
+      "basic_trends": {
+        "runs_per_game": 4.15,
+        "runs_allowed_per_game": 3.78,
+        "run_differential": 47,
+        "run_differential_per_game": 0.37,
+        "games_played": 126
+      },
+      "season_totals": {
+        "total_runs_scored": 523,
+        "total_runs_allowed": 476
+      },
+      "performance_analysis": {
+        "offense": {
+          "rating": "📉 Below Average",
+          "description": "Struggling offense"
+        },
+        "defense": {
+          "rating": "💪 Strong",
+          "description": "Good pitching staff"
+        },
+        "overall": {
+          "rating": "✅ Good",
+          "description": "Above .500 team"
+        }
+      },
+      "raw_trends": {
+        "runs_per_game": 4.15,
+        "runs_allowed_per_game": 3.78,
+        "run_differential": 47,
+        "run_differential_per_game": 0.37,
+        "total_runs_scored": 523,
+        "total_runs_allowed": 476,
+        "games_played": 126
+      }
+    },
+    "137": {
+      "team_id": 137,
+      "team_name": "San Francisco Giants",
+      "basic_trends": {
+        "runs_per_game": 4.05,
+        "runs_allowed_per_game": 4.09,
+        "run_differential": -5,
+        "run_differential_per_game": -0.04,
+        "games_played": 126
+      },
+      "season_totals": {
+        "total_runs_scored": 510,
+        "total_runs_allowed": 515
+      },
+      "performance_analysis": {
+        "offense": {
+          "rating": "📉 Below Average",
+          "description": "Struggling offense"
+        },
+        "defense": {
+          "rating": "📊 Average",
+          "description": "League average pitching"
+        },
+        "overall": {
+          "rating": "📊 Average",
+          "description": "Around .500 team"
+        }
+      },
+      "raw_trends": {
+        "runs_per_game": 4.05,
+        "runs_allowed_per_game": 4.09,
+        "run_differential": -5,
+        "run_differential_per_game": -0.04,
+        "total_runs_scored": 510,
+        "total_runs_allowed": 515,
+        "games_played": 126
+      }
+    }
+  },
+  "comparison": {
+    "team1": "San Diego Padres",
+    "team2": "San Francisco Giants",
+    "offensive_leader": "San Diego Padres",
+    "defensive_leader": "San Diego Padres",
+    "overall_leader": "San Diego Padres"
+  },
+  "summary": {
+    "teams_analyzed": 2,
+    "combined_stats": {
+      "total_runs_scored": 1033,
+      "total_runs_allowed": 991,
+      "total_games": 252,
+      "combined_differential": 42
+    },
+    "best_performers": {
+      "offense": {
+        "team": "San Diego Padres",
+        "runs_per_game": 4.15
+      },
+      "defense": {
+        "team": "San Diego Padres",
+        "runs_allowed_per_game": 3.78
+      },
+      "overall": {
+        "team": "San Diego Padres",
+        "run_differential": 47
+      }
+    }
+  }
+}

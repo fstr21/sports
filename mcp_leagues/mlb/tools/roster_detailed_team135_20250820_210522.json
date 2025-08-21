@@ -1,0 +1,229 @@
+{
+  "team_id": 135,
+  "season": 2025,
+  "timestamp": "2025-08-20T21:05:21.951470",
+  "players": [
+    {
+      "player_id": 670970,
+      "full_name": "Adrian Morejon",
+      "jersey_number": "50",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 669369,
+      "full_name": "Bryce Johnson",
+      "jersey_number": "29",
+      "position": "CF",
+      "position_category": "Outfielder",
+      "status": "Active"
+    },
+    {
+      "player_id": 688158,
+      "full_name": "David Morgan",
+      "jersey_number": "66",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 656302,
+      "full_name": "Dylan Cease",
+      "jersey_number": "84",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 553869,
+      "full_name": "Elias Díaz",
+      "jersey_number": "17",
+      "position": "C",
+      "position_category": "Catcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 665487,
+      "full_name": "Fernando Tatis Jr.",
+      "jersey_number": "23",
+      "position": "RF",
+      "position_category": "Outfielder",
+      "status": "Active"
+    },
+    {
+      "player_id": 666023,
+      "full_name": "Freddy Fermin",
+      "jersey_number": "54",
+      "position": "C",
+      "position_category": "Catcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 657757,
+      "full_name": "Gavin Sheets",
+      "jersey_number": "30",
+      "position": "LF",
+      "position_category": "Outfielder",
+      "status": "Active"
+    },
+    {
+      "player_id": 676664,
+      "full_name": "JP Sears",
+      "jersey_number": "38",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 701538,
+      "full_name": "Jackson Merrill",
+      "jersey_number": "3",
+      "position": "CF",
+      "position_category": "Outfielder",
+      "status": "Active"
+    },
+    {
+      "player_id": 630105,
+      "full_name": "Jake Cronenworth",
+      "jersey_number": "9",
+      "position": "2B",
+      "position_category": "Infielder",
+      "status": "Active"
+    },
+    {
+      "player_id": 592094,
+      "full_name": "Jason Adam",
+      "jersey_number": "40",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 669093,
+      "full_name": "Jeremiah Estrada",
+      "jersey_number": "56",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 578428,
+      "full_name": "Jose Iglesias",
+      "jersey_number": "7",
+      "position": "2B",
+      "position_category": "Infielder",
+      "status": "Active"
+    },
+    {
+      "player_id": 650333,
+      "full_name": "Luis Arraez",
+      "jersey_number": "4",
+      "position": "1B",
+      "position_category": "Infielder",
+      "status": "Active"
+    },
+    {
+      "player_id": 592518,
+      "full_name": "Manny Machado",
+      "jersey_number": "13",
+      "position": "3B",
+      "position_category": "Infielder",
+      "status": "Active"
+    },
+    {
+      "player_id": 695243,
+      "full_name": "Mason Miller",
+      "jersey_number": "22",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 641482,
+      "full_name": "Nestor Cortes",
+      "jersey_number": "65",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 601713,
+      "full_name": "Nick Pivetta",
+      "jersey_number": "27",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 657656,
+      "full_name": "Ramón Laureano",
+      "jersey_number": "5",
+      "position": "RF",
+      "position_category": "Outfielder",
+      "status": "Active"
+    },
+    {
+      "player_id": 663158,
+      "full_name": "Robert Suarez",
+      "jersey_number": "75",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 656811,
+      "full_name": "Ryan O'Hearn",
+      "jersey_number": "32",
+      "position": "1B",
+      "position_category": "Infielder",
+      "status": "Active"
+    },
+    {
+      "player_id": 593974,
+      "full_name": "Wandy Peralta",
+      "jersey_number": "58",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 593428,
+      "full_name": "Xander Bogaerts",
+      "jersey_number": "2",
+      "position": "SS",
+      "position_category": "Infielder",
+      "status": "Active"
+    },
+    {
+      "player_id": 506433,
+      "full_name": "Yu Darvish",
+      "jersey_number": "11",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    },
+    {
+      "player_id": 673513,
+      "full_name": "Yuki Matsui",
+      "jersey_number": "1",
+      "position": "P",
+      "position_category": "Pitcher",
+      "status": "Active"
+    }
+  ],
+  "summary": {
+    "total_players": 26,
+    "position_breakdown": {
+      "Pitcher": 13,
+      "Outfielder": 5,
+      "Catcher": 2,
+      "Infielder": 6
+    },
+    "status_breakdown": {
+      "Active": 26
+    },
+    "jersey_numbers_assigned": 26,
+    "players_without_numbers": 0
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-08-20T20:36:35.852137",
+  "tool_tested": "teams",
+  "server_url": "https://mlbmcp-production.up.railway.app/mcp",
+  "tests": [
+    {
+      "scenario": "Default season",
+      "success": true,
+      "teams": 30
+    },
+    {
+      "scenario": "Current season (2025)",
+      "success": true,
+      "teams": 30
+    },
+    {
+      "scenario": "Previous season (2024)",
+      "success": true,
+      "teams": 30
+    },
+    {
+      "scenario": "Historical season (2020)",
+      "success": true,
+      "teams": 30
+    }
+  ],
+  "summary": {
+    "total_tests": 4,
+    "successful_tests": 4,
+    "failed_tests": 0
+  }
+}

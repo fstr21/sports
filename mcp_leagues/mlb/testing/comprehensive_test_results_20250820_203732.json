@@ -1,0 +1,665 @@
+{
+  "test_run": {
+    "timestamp": "2025-08-20T20:37:31.472016",
+    "date": "2025-08-20",
+    "server_url": "https://mlbmcp-production.up.railway.app/mcp",
+    "total_tests": 21,
+    "successful_tests": 21,
+    "failed_tests": 0
+  },
+  "tool_tests": {
+    "getMLBScheduleET": {
+      "total_tests": 5,
+      "successful_tests": 5,
+      "tests": [
+        {
+          "test_name": "default_today",
+          "arguments": {},
+          "success": true,
+          "game_count": 14,
+          "error": null,
+          "sample_games": [
+            {
+              "away_team": "Toronto Blue Jays",
+              "home_team": "Pittsburgh Pirates",
+              "start_time": "2025-08-20T12:35:00-04:00",
+              "status": "Final"
+            },
+            {
+              "away_team": "Seattle Mariners",
+              "home_team": "Philadelphia Phillies",
+              "start_time": "2025-08-20T13:05:00-04:00",
+              "status": "Final"
+            },
+            {
+              "away_team": "Houston Astros",
+              "home_team": "Detroit Tigers",
+              "start_time": "2025-08-20T13:10:00-04:00",
+              "status": "Final"
+            }
+          ]
+        },
+        {
+          "test_name": "explicit_today",
+          "arguments": {
+            "date": "2025-08-20"
+          },
+          "success": true,
+          "game_count": 14,
+          "error": null,
+          "sample_games": [
+            {
+              "away_team": "Toronto Blue Jays",
+              "home_team": "Pittsburgh Pirates",
+              "start_time": "2025-08-20T12:35:00-04:00",
+              "status": "Final"
+            },
+            {
+              "away_team": "Seattle Mariners",
+              "home_team": "Philadelphia Phillies",
+              "start_time": "2025-08-20T13:05:00-04:00",
+              "status": "Final"
+            },
+            {
+              "away_team": "Houston Astros",
+              "home_team": "Detroit Tigers",
+              "start_time": "2025-08-20T13:10:00-04:00",
+              "status": "Final"
+            }
+          ]
+        },
+        {
+          "test_name": "yesterday",
+          "arguments": {
+            "date": "2025-08-19"
+          },
+          "success": true,
+          "game_count": 16,
+          "error": null,
+          "sample_games": [
+            {
+              "away_team": "Milwaukee Brewers",
+              "home_team": "Chicago Cubs",
+              "start_time": "2025-08-19T14:20:00-04:00",
+              "status": "Final"
+            },
+            {
+              "away_team": "Houston Astros",
+              "home_team": "Detroit Tigers",
+              "start_time": "2025-08-19T18:40:00-04:00",
+              "status": "Final"
+            },
+            {
+              "away_team": "Toronto Blue Jays",
+              "home_team": "Pittsburgh Pirates",
+              "start_time": "2025-08-19T18:40:00-04:00",
+              "status": "Final"
+            }
+          ]
+        },
+        {
+          "test_name": "tomorrow",
+          "arguments": {
+            "date": "2025-08-21"
+          },
+          "success": true,
+          "game_count": 9,
+          "error": null,
+          "sample_games": [
+            {
+              "away_team": "Athletics",
+              "home_team": "Minnesota Twins",
+              "start_time": "2025-08-21T13:10:00-04:00",
+              "status": "Scheduled"
+            },
+            {
+              "away_team": "Texas Rangers",
+              "home_team": "Kansas City Royals",
+              "start_time": "2025-08-21T14:10:00-04:00",
+              "status": "Scheduled"
+            },
+            {
+              "away_team": "Milwaukee Brewers",
+              "home_team": "Chicago Cubs",
+              "start_time": "2025-08-21T14:20:00-04:00",
+              "status": "Scheduled"
+            }
+          ]
+        },
+        {
+          "test_name": "offseason",
+          "arguments": {
+            "date": "2025-01-15"
+          },
+          "success": true,
+          "game_count": 0,
+          "error": null,
+          "sample_games": []
+        }
+      ]
+    },
+    "getMLBTeams": {
+      "total_tests": 3,
+      "successful_tests": 3,
+      "tests": [
+        {
+          "test_name": "default_season",
+          "arguments": {},
+          "success": true,
+          "team_count": 30,
+          "error": null,
+          "sample_teams": [
+            {
+              "teamId": 133,
+              "name": "Athletics",
+              "abbrev": "ATH",
+              "league": "American League",
+              "division": "American League West"
+            },
+            {
+              "teamId": 144,
+              "name": "Atlanta Braves",
+              "abbrev": "ATL",
+              "league": "National League",
+              "division": "National League East"
+            },
+            {
+              "teamId": 109,
+              "name": "Arizona Diamondbacks",
+              "abbrev": "AZ",
+              "league": "National League",
+              "division": "National League West"
+            },
+            {
+              "teamId": 110,
+              "name": "Baltimore Orioles",
+              "abbrev": "BAL",
+              "league": "American League",
+              "division": "American League East"
+            },
+            {
+              "teamId": 111,
+              "name": "Boston Red Sox",
+              "abbrev": "BOS",
+              "league": "American League",
+              "division": "American League East"
+            }
+          ]
+        },
+        {
+          "test_name": "current_season",
+          "arguments": {
+            "season": 2025
+          },
+          "success": true,
+          "team_count": 30,
+          "error": null,
+          "sample_teams": [
+            {
+              "teamId": 133,
+              "name": "Athletics",
+              "abbrev": "ATH",
+              "league": "American League",
+              "division": "American League West"
+            },
+            {
+              "teamId": 144,
+              "name": "Atlanta Braves",
+              "abbrev": "ATL",
+              "league": "National League",
+              "division": "National League East"
+            },
+            {
+              "teamId": 109,
+              "name": "Arizona Diamondbacks",
+              "abbrev": "AZ",
+              "league": "National League",
+              "division": "National League West"
+            },
+            {
+              "teamId": 110,
+              "name": "Baltimore Orioles",
+              "abbrev": "BAL",
+              "league": "American League",
+              "division": "American League East"
+            },
+            {
+              "teamId": 111,
+              "name": "Boston Red Sox",
+              "abbrev": "BOS",
+              "league": "American League",
+              "division": "American League East"
+            }
+          ]
+        },
+        {
+          "test_name": "previous_season",
+          "arguments": {
+            "season": 2024
+          },
+          "success": true,
+          "team_count": 30,
+          "error": null,
+          "sample_teams": [
+            {
+              "teamId": 144,
+              "name": "Atlanta Braves",
+              "abbrev": "ATL",
+              "league": "National League",
+              "division": "National League East"
+            },
+            {
+              "teamId": 109,
+              "name": "Arizona Diamondbacks",
+              "abbrev": "AZ",
+              "league": "National League",
+              "division": "National League West"
+            },
+            {
+              "teamId": 110,
+              "name": "Baltimore Orioles",
+              "abbrev": "BAL",
+              "league": "American League",
+              "division": "American League East"
+            },
+            {
+              "teamId": 111,
+              "name": "Boston Red Sox",
+              "abbrev": "BOS",
+              "league": "American League",
+              "division": "American League East"
+            },
+            {
+              "teamId": 112,
+              "name": "Chicago Cubs",
+              "abbrev": "CHC",
+              "league": "National League",
+              "division": "National League Central"
+            }
+          ]
+        }
+      ]
+    },
+    "getMLBTeamRoster": {
+      "total_tests": 5,
+      "successful_tests": 5,
+      "tests": [
+        {
+          "test_name": "yankees_roster",
+          "arguments": {
+            "teamId": 147
+          },
+          "success": true,
+          "player_count": 26,
+          "error": null,
+          "sample_players": [
+            {
+              "playerId": 592450,
+              "fullName": "Aaron Judge",
+              "primaryNumber": "99",
+              "position": "RF"
+            },
+            {
+              "playerId": 642216,
+              "fullName": "Allan Winans",
+              "primaryNumber": "62",
+              "position": "P"
+            },
+            {
+              "playerId": 642708,
+              "fullName": "Amed Rosario",
+              "primaryNumber": "14",
+              "position": "3B"
+            },
+            {
+              "playerId": 683011,
+              "fullName": "Anthony Volpe",
+              "primaryNumber": "11",
+              "position": "SS"
+            },
+            {
+              "playerId": 669224,
+              "fullName": "Austin Wells",
+              "primaryNumber": "28",
+              "position": "C"
+            }
+          ]
+        },
+        {
+          "test_name": "dodgers_roster",
+          "arguments": {
+            "teamId": 119
+          },
+          "success": true,
+          "player_count": 26,
+          "error": null,
+          "sample_players": [
+            {
+              "playerId": 669743,
+              "fullName": "Alex Call",
+              "primaryNumber": "12",
+              "position": "RF"
+            },
+            {
+              "playerId": 690976,
+              "fullName": "Alex Freeland",
+              "primaryNumber": "76",
+              "position": "SS"
+            },
+            {
+              "playerId": 681911,
+              "fullName": "Alex Vesia",
+              "primaryNumber": "51",
+              "position": "P"
+            },
+            {
+              "playerId": 681624,
+              "fullName": "Andy Pages",
+              "primaryNumber": "44",
+              "position": "CF"
+            },
+            {
+              "playerId": 607455,
+              "fullName": "Anthony Banda",
+              "primaryNumber": "43",
+              "position": "P"
+            }
+          ]
+        },
+        {
+          "test_name": "guardians_roster",
+          "arguments": {
+            "teamId": 114
+          },
+          "success": true,
+          "player_count": 26,
+          "error": null,
+          "sample_players": [
+            {
+              "playerId": 682657,
+              "fullName": "Angel Martínez",
+              "primaryNumber": "1",
+              "position": "CF"
+            },
+            {
+              "playerId": 595978,
+              "fullName": "Austin Hedges",
+              "primaryNumber": "27",
+              "position": "C"
+            },
+            {
+              "playerId": 666310,
+              "fullName": "Bo Naylor",
+              "primaryNumber": "23",
+              "position": "C"
+            },
+            {
+              "playerId": 677587,
+              "fullName": "Brayan Rocchio",
+              "primaryNumber": "4",
+              "position": "SS"
+            },
+            {
+              "playerId": 692216,
+              "fullName": "C.J. Kayfus",
+              "primaryNumber": "63",
+              "position": "1B"
+            }
+          ]
+        },
+        {
+          "test_name": "yankees_2024",
+          "arguments": {
+            "teamId": 147,
+            "season": 2024
+          },
+          "success": true,
+          "player_count": 54,
+          "error": null,
+          "sample_players": [
+            {
+              "playerId": 677076,
+              "fullName": "Clayton Andrews",
+              "primaryNumber": "74",
+              "position": "P"
+            },
+            {
+              "playerId": 690925,
+              "fullName": "Clayton Beeter",
+              "primaryNumber": "85",
+              "position": "P"
+            },
+            {
+              "playerId": 542932,
+              "fullName": "Jon Berti",
+              "primaryNumber": "19",
+              "position": "3B"
+            },
+            {
+              "playerId": 641360,
+              "fullName": "Phil Bickford",
+              "primaryNumber": "53",
+              "position": "P"
+            },
+            {
+              "playerId": 595897,
+              "fullName": "Nick Burdi",
+              "primaryNumber": "57",
+              "position": "P"
+            }
+          ]
+        },
+        {
+          "test_name": "invalid_team",
+          "arguments": {
+            "teamId": 999
+          },
+          "success": true,
+          "player_count": 0,
+          "error": null,
+          "sample_players": []
+        }
+      ]
+    },
+    "getMLBPlayerLastN": {
+      "total_tests": 4,
+      "successful_tests": 4,
+      "tests": [
+        {
+          "test_name": "judge_hitting",
+          "arguments": {
+            "player_ids": [
+              592450
+            ],
+            "group": "hitting",
+            "count": 5
+          },
+          "success": true,
+          "players_processed": 1,
+          "total_games": 5,
+          "error": null,
+          "sample_stats": [
+            {
+              "player_id": "592450",
+              "aggregates": {
+                "hits_avg": 1.0,
+                "hits_sum": 5,
+                "homeRuns_avg": 0.4,
+                "homeRuns_sum": 2
+              }
+            }
+          ]
+        },
+        {
+          "test_name": "multi_players",
+          "arguments": {
+            "player_ids": [
+              592450,
+              677594
+            ],
+            "group": "hitting",
+            "count": 3
+          },
+          "success": true,
+          "players_processed": 2,
+          "total_games": 6,
+          "error": null,
+          "sample_stats": [
+            {
+              "player_id": "592450",
+              "aggregates": {
+                "hits_avg": 1.0,
+                "hits_sum": 3,
+                "homeRuns_avg": 0.3333333333333333,
+                "homeRuns_sum": 1
+              }
+            },
+            {
+              "player_id": "677594",
+              "aggregates": {
+                "hits_avg": 1.6666666666666667,
+                "hits_sum": 5,
+                "homeRuns_avg": 0.3333333333333333,
+                "homeRuns_sum": 1
+              }
+            }
+          ]
+        },
+        {
+          "test_name": "cole_pitching",
+          "arguments": {
+            "player_ids": [
+              543037
+            ],
+            "group": "pitching",
+            "count": 5
+          },
+          "success": true,
+          "players_processed": 1,
+          "total_games": 0,
+          "error": null,
+          "sample_stats": [
+            {
+              "player_id": "543037",
+              "aggregates": {
+                "strikeOuts_avg": 0.0,
+                "strikeOuts_sum": 0,
+                "walks_avg": 0.0,
+                "walks_sum": 0
+              }
+            }
+          ]
+        },
+        {
+          "test_name": "invalid_player",
+          "arguments": {
+            "player_ids": [
+              999999
+            ],
+            "group": "hitting",
+            "count": 5
+          },
+          "success": true,
+          "players_processed": 1,
+          "total_games": 0,
+          "error": null,
+          "sample_stats": [
+            {
+              "player_id": "999999",
+              "aggregates": {
+                "hits_avg": 0.0,
+                "hits_sum": 0,
+                "homeRuns_avg": 0.0,
+                "homeRuns_sum": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "getMLBPitcherMatchup": {
+      "tests": [
+        {
+          "test_name": "pitcher_matchup",
+          "arguments": {
+            "pitcher_id": 543037
+          },
+          "success": true,
+          "error": null,
+          "data_summary": {
+            "era": 0.0,
+            "whip": 0.0,
+            "strikeouts": 0
+          }
+        }
+      ]
+    },
+    "getMLBTeamForm": {
+      "tests": [
+        {
+          "test_name": "team_form",
+          "arguments": {
+            "team_id": 147
+          },
+          "success": true,
+          "error": null,
+          "data_summary": {
+            "wins": 68,
+            "losses": 57,
+            "win_percentage": ".544",
+            "streak": "W4"
+          }
+        }
+      ]
+    },
+    "getMLBPlayerStreaks": {
+      "tests": [
+        {
+          "test_name": "player_streaks",
+          "arguments": {
+            "player_ids": [
+              592450
+            ]
+          },
+          "success": true,
+          "error": null,
+          "data_summary": {
+            "current_hit_streak": 1,
+            "multi_hit_games": 2
+          }
+        }
+      ]
+    },
+    "getMLBTeamScoringTrends": {
+      "tests": [
+        {
+          "test_name": "scoring_trends",
+          "arguments": {
+            "team_id": 147
+          },
+          "success": true,
+          "error": null,
+          "data_summary": {
+            "runs_per_game": 5.19,
+            "run_differential": 109
+          }
+        }
+      ]
+    }
+  },
+  "summary": {
+    "overall_status": "🟢 ALL TESTS PASSED",
+    "success_rate": "100.0%",
+    "working_tools": [
+      "getMLBScheduleET",
+      "getMLBTeams",
+      "getMLBTeamRoster",
+      "getMLBPlayerLastN",
+      "getMLBPitcherMatchup",
+      "getMLBTeamForm",
+      "getMLBPlayerStreaks",
+      "getMLBTeamScoringTrends"
+    ],
+    "broken_tools": []
+  }
+}

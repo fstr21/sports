@@ -1,0 +1,415 @@
+{
+  "date_requested": "2025-08-20",
+  "timestamp": "2025-08-20T20:44:57.993232",
+  "games": [
+    {
+      "game_number": 1,
+      "game_pk": 776661,
+      "matchup": "Toronto Blue Jays @ Pittsburgh Pirates",
+      "away_team": {
+        "name": "Toronto Blue Jays",
+        "id": 141,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Pittsburgh Pirates",
+        "id": 134,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T12:35:00-04:00",
+        "formatted": "12:35 PM ET"
+      },
+      "status": {
+        "raw": "Final",
+        "formatted": "✅ Final"
+      },
+      "venue": "PNC Park"
+    },
+    {
+      "game_number": 2,
+      "game_pk": 776662,
+      "matchup": "Seattle Mariners @ Philadelphia Phillies",
+      "away_team": {
+        "name": "Seattle Mariners",
+        "id": 136,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Philadelphia Phillies",
+        "id": 143,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T13:05:00-04:00",
+        "formatted": "01:05 PM ET"
+      },
+      "status": {
+        "raw": "Final",
+        "formatted": "✅ Final"
+      },
+      "venue": "Citizens Bank Park"
+    },
+    {
+      "game_number": 3,
+      "game_pk": 776673,
+      "matchup": "Houston Astros @ Detroit Tigers",
+      "away_team": {
+        "name": "Houston Astros",
+        "id": 117,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Detroit Tigers",
+        "id": 116,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T13:10:00-04:00",
+        "formatted": "01:10 PM ET"
+      },
+      "status": {
+        "raw": "Final",
+        "formatted": "✅ Final"
+      },
+      "venue": "Comerica Park"
+    },
+    {
+      "game_number": 4,
+      "game_pk": 776658,
+      "matchup": "Cleveland Guardians @ Arizona Diamondbacks",
+      "away_team": {
+        "name": "Cleveland Guardians",
+        "id": 114,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Arizona Diamondbacks",
+        "id": 109,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T15:40:00-04:00",
+        "formatted": "03:40 PM ET"
+      },
+      "status": {
+        "raw": "Final",
+        "formatted": "✅ Final"
+      },
+      "venue": "Chase Field"
+    },
+    {
+      "game_number": 5,
+      "game_pk": 776670,
+      "matchup": "St. Louis Cardinals @ Miami Marlins",
+      "away_team": {
+        "name": "St. Louis Cardinals",
+        "id": 138,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Miami Marlins",
+        "id": 146,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T18:40:00-04:00",
+        "formatted": "06:40 PM ET"
+      },
+      "status": {
+        "raw": "In Progress",
+        "formatted": "🔴 LIVE"
+      },
+      "venue": "loanDepot park"
+    },
+    {
+      "game_number": 6,
+      "game_pk": 776659,
+      "matchup": "New York Mets @ Washington Nationals",
+      "away_team": {
+        "name": "New York Mets",
+        "id": 121,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Washington Nationals",
+        "id": 120,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T18:45:00-04:00",
+        "formatted": "06:45 PM ET"
+      },
+      "status": {
+        "raw": "In Progress",
+        "formatted": "🔴 LIVE"
+      },
+      "venue": "Nationals Park"
+    },
+    {
+      "game_number": 7,
+      "game_pk": 776669,
+      "matchup": "Chicago White Sox @ Atlanta Braves",
+      "away_team": {
+        "name": "Chicago White Sox",
+        "id": 145,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Atlanta Braves",
+        "id": 144,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T19:15:00-04:00",
+        "formatted": "07:15 PM ET"
+      },
+      "status": {
+        "raw": "In Progress",
+        "formatted": "🔴 LIVE"
+      },
+      "venue": "Truist Park"
+    },
+    {
+      "game_number": 8,
+      "game_pk": 776664,
+      "matchup": "New York Yankees @ Tampa Bay Rays",
+      "away_team": {
+        "name": "New York Yankees",
+        "id": 147,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Tampa Bay Rays",
+        "id": 139,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T19:35:00-04:00",
+        "formatted": "07:35 PM ET"
+      },
+      "status": {
+        "raw": "In Progress",
+        "formatted": "🔴 LIVE"
+      },
+      "venue": "George M. Steinbrenner Field"
+    },
+    {
+      "game_number": 9,
+      "game_pk": 776666,
+      "matchup": "Texas Rangers @ Kansas City Royals",
+      "away_team": {
+        "name": "Texas Rangers",
+        "id": 140,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Kansas City Royals",
+        "id": 118,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T19:40:00-04:00",
+        "formatted": "07:40 PM ET"
+      },
+      "status": {
+        "raw": "In Progress",
+        "formatted": "🔴 LIVE"
+      },
+      "venue": "Kauffman Stadium"
+    },
+    {
+      "game_number": 10,
+      "game_pk": 776665,
+      "matchup": "Athletics @ Minnesota Twins",
+      "away_team": {
+        "name": "Athletics",
+        "id": 133,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Minnesota Twins",
+        "id": 142,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T19:40:00-04:00",
+        "formatted": "07:40 PM ET"
+      },
+      "status": {
+        "raw": "In Progress",
+        "formatted": "🔴 LIVE"
+      },
+      "venue": "Target Field"
+    },
+    {
+      "game_number": 11,
+      "game_pk": 776663,
+      "matchup": "Milwaukee Brewers @ Chicago Cubs",
+      "away_team": {
+        "name": "Milwaukee Brewers",
+        "id": 158,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Chicago Cubs",
+        "id": 112,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T20:05:00-04:00",
+        "formatted": "08:05 PM ET"
+      },
+      "status": {
+        "raw": "In Progress",
+        "formatted": "🔴 LIVE"
+      },
+      "venue": "Wrigley Field"
+    },
+    {
+      "game_number": 12,
+      "game_pk": 776660,
+      "matchup": "Los Angeles Dodgers @ Colorado Rockies",
+      "away_team": {
+        "name": "Los Angeles Dodgers",
+        "id": 119,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Colorado Rockies",
+        "id": 115,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T20:40:00-04:00",
+        "formatted": "08:40 PM ET"
+      },
+      "status": {
+        "raw": "In Progress",
+        "formatted": "🔴 LIVE"
+      },
+      "venue": "Coors Field"
+    },
+    {
+      "game_number": 13,
+      "game_pk": 776652,
+      "matchup": "Cincinnati Reds @ Los Angeles Angels",
+      "away_team": {
+        "name": "Cincinnati Reds",
+        "id": 113,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "Los Angeles Angels",
+        "id": 108,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T21:38:00-04:00",
+        "formatted": "09:38 PM ET"
+      },
+      "status": {
+        "raw": "Pre-Game",
+        "formatted": "🔄 Pre-Game"
+      },
+      "venue": "Angel Stadium"
+    },
+    {
+      "game_number": 14,
+      "game_pk": 776656,
+      "matchup": "San Francisco Giants @ San Diego Padres",
+      "away_team": {
+        "name": "San Francisco Giants",
+        "id": 137,
+        "abbreviation": null
+      },
+      "home_team": {
+        "name": "San Diego Padres",
+        "id": 135,
+        "abbreviation": null
+      },
+      "start_time": {
+        "raw": "2025-08-20T21:40:00-04:00",
+        "formatted": "09:40 PM ET"
+      },
+      "status": {
+        "raw": "Pre-Game",
+        "formatted": "🔄 Pre-Game"
+      },
+      "venue": "Petco Park"
+    }
+  ],
+  "summary": {
+    "total_games": 14,
+    "status_breakdown": {
+      "Final": 4,
+      "In Progress": 8,
+      "Pre-Game": 2
+    },
+    "time_slots": {
+      "12:35 PM ET": 1,
+      "01:05 PM ET": 1,
+      "01:10 PM ET": 1,
+      "03:40 PM ET": 1,
+      "06:40 PM ET": 1,
+      "06:45 PM ET": 1,
+      "07:15 PM ET": 1,
+      "07:35 PM ET": 1,
+      "07:40 PM ET": 2,
+      "08:05 PM ET": 1,
+      "08:40 PM ET": 1,
+      "09:38 PM ET": 1,
+      "09:40 PM ET": 1
+    },
+    "venues": [
+      "George M. Steinbrenner Field",
+      "Nationals Park",
+      "Wrigley Field",
+      "Comerica Park",
+      "Angel Stadium",
+      "Citizens Bank Park",
+      "Kauffman Stadium",
+      "loanDepot park",
+      "Coors Field",
+      "Petco Park",
+      "Truist Park",
+      "Chase Field",
+      "PNC Park",
+      "Target Field"
+    ],
+    "teams_playing": {
+      "away": [
+        "Toronto Blue Jays",
+        "Seattle Mariners",
+        "Houston Astros",
+        "Cleveland Guardians",
+        "St. Louis Cardinals",
+        "New York Mets",
+        "Chicago White Sox",
+        "New York Yankees",
+        "Texas Rangers",
+        "Athletics",
+        "Milwaukee Brewers",
+        "Los Angeles Dodgers",
+        "Cincinnati Reds",
+        "San Francisco Giants"
+      ],
+      "home": [
+        "Pittsburgh Pirates",
+        "Philadelphia Phillies",
+        "Detroit Tigers",
+        "Arizona Diamondbacks",
+        "Miami Marlins",
+        "Washington Nationals",
+        "Atlanta Braves",
+        "Tampa Bay Rays",
+        "Kansas City Royals",
+        "Minnesota Twins",
+        "Chicago Cubs",
+        "Colorado Rockies",
+        "Los Angeles Angels",
+        "San Diego Padres"
+      ]
+    }
+  }
+}

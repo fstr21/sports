@@ -1,0 +1,336 @@
+{
+  "season": 2025,
+  "timestamp": "2025-08-20T21:09:06.103438",
+  "teams": [
+    {
+      "team_id": 133,
+      "name": "Athletics",
+      "team_name": "Athletics",
+      "location_name": "Sacramento",
+      "abbreviation": "ATH",
+      "league": "American League",
+      "division": "American League West",
+      "venue": "Sutter Health Park"
+    },
+    {
+      "team_id": 144,
+      "name": "Atlanta Braves",
+      "team_name": "Braves",
+      "location_name": "Atlanta",
+      "abbreviation": "ATL",
+      "league": "National League",
+      "division": "National League East",
+      "venue": "Truist Park"
+    },
+    {
+      "team_id": 109,
+      "name": "Arizona Diamondbacks",
+      "team_name": "D-backs",
+      "location_name": "Phoenix",
+      "abbreviation": "AZ",
+      "league": "National League",
+      "division": "National League West",
+      "venue": "Chase Field"
+    },
+    {
+      "team_id": 110,
+      "name": "Baltimore Orioles",
+      "team_name": "Orioles",
+      "location_name": "Baltimore",
+      "abbreviation": "BAL",
+      "league": "American League",
+      "division": "American League East",
+      "venue": "Oriole Park at Camden Yards"
+    },
+    {
+      "team_id": 111,
+      "name": "Boston Red Sox",
+      "team_name": "Red Sox",
+      "location_name": "Boston",
+      "abbreviation": "BOS",
+      "league": "American League",
+      "division": "American League East",
+      "venue": "Fenway Park"
+    },
+    {
+      "team_id": 112,
+      "name": "Chicago Cubs",
+      "team_name": "Cubs",
+      "location_name": "Chicago",
+      "abbreviation": "CHC",
+      "league": "National League",
+      "division": "National League Central",
+      "venue": "Wrigley Field"
+    },
+    {
+      "team_id": 113,
+      "name": "Cincinnati Reds",
+      "team_name": "Reds",
+      "location_name": "Cincinnati",
+      "abbreviation": "CIN",
+      "league": "National League",
+      "division": "National League Central",
+      "venue": "Great American Ball Park"
+    },
+    {
+      "team_id": 114,
+      "name": "Cleveland Guardians",
+      "team_name": "Guardians",
+      "location_name": "Cleveland",
+      "abbreviation": "CLE",
+      "league": "American League",
+      "division": "American League Central",
+      "venue": "Progressive Field"
+    },
+    {
+      "team_id": 115,
+      "name": "Colorado Rockies",
+      "team_name": "Rockies",
+      "location_name": "Denver",
+      "abbreviation": "COL",
+      "league": "National League",
+      "division": "National League West",
+      "venue": "Coors Field"
+    },
+    {
+      "team_id": 145,
+      "name": "Chicago White Sox",
+      "team_name": "White Sox",
+      "location_name": "Chicago",
+      "abbreviation": "CWS",
+      "league": "American League",
+      "division": "American League Central",
+      "venue": "Rate Field"
+    },
+    {
+      "team_id": 116,
+      "name": "Detroit Tigers",
+      "team_name": "Tigers",
+      "location_name": "Detroit",
+      "abbreviation": "DET",
+      "league": "American League",
+      "division": "American League Central",
+      "venue": "Comerica Park"
+    },
+    {
+      "team_id": 117,
+      "name": "Houston Astros",
+      "team_name": "Astros",
+      "location_name": "Houston",
+      "abbreviation": "HOU",
+      "league": "American League",
+      "division": "American League West",
+      "venue": "Daikin Park"
+    },
+    {
+      "team_id": 118,
+      "name": "Kansas City Royals",
+      "team_name": "Royals",
+      "location_name": "Kansas City",
+      "abbreviation": "KC",
+      "league": "American League",
+      "division": "American League Central",
+      "venue": "Kauffman Stadium"
+    },
+    {
+      "team_id": 108,
+      "name": "Los Angeles Angels",
+      "team_name": "Angels",
+      "location_name": "Anaheim",
+      "abbreviation": "LAA",
+      "league": "American League",
+      "division": "American League West",
+      "venue": "Angel Stadium"
+    },
+    {
+      "team_id": 119,
+      "name": "Los Angeles Dodgers",
+      "team_name": "Dodgers",
+      "location_name": "Los Angeles",
+      "abbreviation": "LAD",
+      "league": "National League",
+      "division": "National League West",
+      "venue": "Dodger Stadium"
+    },
+    {
+      "team_id": 146,
+      "name": "Miami Marlins",
+      "team_name": "Marlins",
+      "location_name": "Miami",
+      "abbreviation": "MIA",
+      "league": "National League",
+      "division": "National League East",
+      "venue": "loanDepot park"
+    },
+    {
+      "team_id": 158,
+      "name": "Milwaukee Brewers",
+      "team_name": "Brewers",
+      "location_name": "Milwaukee",
+      "abbreviation": "MIL",
+      "league": "National League",
+      "division": "National League Central",
+      "venue": "American Family Field"
+    },
+    {
+      "team_id": 142,
+      "name": "Minnesota Twins",
+      "team_name": "Twins",
+      "location_name": "Minneapolis",
+      "abbreviation": "MIN",
+      "league": "American League",
+      "division": "American League Central",
+      "venue": "Target Field"
+    },
+    {
+      "team_id": 121,
+      "name": "New York Mets",
+      "team_name": "Mets",
+      "location_name": "Flushing",
+      "abbreviation": "NYM",
+      "league": "National League",
+      "division": "National League East",
+      "venue": "Citi Field"
+    },
+    {
+      "team_id": 147,
+      "name": "New York Yankees",
+      "team_name": "Yankees",
+      "location_name": "Bronx",
+      "abbreviation": "NYY",
+      "league": "American League",
+      "division": "American League East",
+      "venue": "Yankee Stadium"
+    },
+    {
+      "team_id": 143,
+      "name": "Philadelphia Phillies",
+      "team_name": "Phillies",
+      "location_name": "Philadelphia",
+      "abbreviation": "PHI",
+      "league": "National League",
+      "division": "National League East",
+      "venue": "Citizens Bank Park"
+    },
+    {
+      "team_id": 134,
+      "name": "Pittsburgh Pirates",
+      "team_name": "Pirates",
+      "location_name": "Pittsburgh",
+      "abbreviation": "PIT",
+      "league": "National League",
+      "division": "National League Central",
+      "venue": "PNC Park"
+    },
+    {
+      "team_id": 135,
+      "name": "San Diego Padres",
+      "team_name": "Padres",
+      "location_name": "San Diego",
+      "abbreviation": "SD",
+      "league": "National League",
+      "division": "National League West",
+      "venue": "Petco Park"
+    },
+    {
+      "team_id": 136,
+      "name": "Seattle Mariners",
+      "team_name": "Mariners",
+      "location_name": "Seattle",
+      "abbreviation": "SEA",
+      "league": "American League",
+      "division": "American League West",
+      "venue": "T-Mobile Park"
+    },
+    {
+      "team_id": 137,
+      "name": "San Francisco Giants",
+      "team_name": "Giants",
+      "location_name": "San Francisco",
+      "abbreviation": "SF",
+      "league": "National League",
+      "division": "National League West",
+      "venue": "Oracle Park"
+    },
+    {
+      "team_id": 138,
+      "name": "St. Louis Cardinals",
+      "team_name": "Cardinals",
+      "location_name": "St. Louis",
+      "abbreviation": "STL",
+      "league": "National League",
+      "division": "National League Central",
+      "venue": "Busch Stadium"
+    },
+    {
+      "team_id": 139,
+      "name": "Tampa Bay Rays",
+      "team_name": "Rays",
+      "location_name": "Tampa",
+      "abbreviation": "TB",
+      "league": "American League",
+      "division": "American League East",
+      "venue": "George M. Steinbrenner Field"
+    },
+    {
+      "team_id": 140,
+      "name": "Texas Rangers",
+      "team_name": "Rangers",
+      "location_name": "Arlington",
+      "abbreviation": "TEX",
+      "league": "American League",
+      "division": "American League West",
+      "venue": "Globe Life Field"
+    },
+    {
+      "team_id": 141,
+      "name": "Toronto Blue Jays",
+      "team_name": "Blue Jays",
+      "location_name": "Toronto",
+      "abbreviation": "TOR",
+      "league": "American League",
+      "division": "American League East",
+      "venue": "Rogers Centre"
+    },
+    {
+      "team_id": 120,
+      "name": "Washington Nationals",
+      "team_name": "Nationals",
+      "location_name": "Washington",
+      "abbreviation": "WSH",
+      "league": "National League",
+      "division": "National League East",
+      "venue": "Nationals Park"
+    }
+  ],
+  "summary": {
+    "total_teams": 30,
+    "american_league": 15,
+    "national_league": 15,
+    "divisions": {
+      "american_league": [
+        "American League West",
+        "American League East",
+        "American League Central"
+      ],
+      "national_league": [
+        "National League East",
+        "National League West",
+        "National League Central"
+      ]
+    },
+    "total_venues": 30,
+    "sample_venues": [
+      "Oracle Park",
+      "Yankee Stadium",
+      "Target Field",
+      "Rate Field",
+      "PNC Park",
+      "Citi Field",
+      "Wrigley Field",
+      "Progressive Field",
+      "Great American Ball Park",
+      "Oriole Park at Camden Yards"
+    ]
+  }
+}
