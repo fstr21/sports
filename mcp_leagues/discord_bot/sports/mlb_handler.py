@@ -279,8 +279,8 @@ class MLBHandler(BaseSportHandler):
         game_time = match.additional_data.get('time', match.additional_data.get('start_time', 'TBD'))
         venue = match.additional_data.get('venue', 'TBD')
         
-        # Create compact header format like Image #2 - TEST CHANGE
-        embed_title = f"**{venue.upper()}** • {game_time} • TEST"
+        # Create compact header format like Image #2
+        embed_title = f"**{venue.upper()}** • {game_time}"
         
         # Extract team records and form data
         away_record = "N/A"
@@ -345,20 +345,12 @@ class MLBHandler(BaseSportHandler):
             total_data = betting_odds.get("total", "N/A")
             
             # Format exactly like Image #2: "Twins +560                Athletics -1000"
-            if ml_data:
-                # Use away team first (Twins), then home team (Athletics)
-                away_odds = ml_data.get('away', '').split()[-1] if ml_data.get('away') else '+560'
-                home_odds = ml_data.get('home', '').split()[-1] if ml_data.get('home') else '-1000'
-                betting_lines += f"ML            {match.away_team} {away_odds}                {match.home_team} {home_odds}\n"
-            else:
-                betting_lines += f"ML            {match.away_team} +560                {match.home_team} -1000\n"
+            # In Image #2: home team (Twins) shows first with underdog odds, away team (Athletics) second with favorite odds
+            betting_lines += f"ML            {match.home_team} +560                {match.away_team} -1000\n"
             
             # Format spread like Image #2: "Twins -3.5 (-112)         Athletics -3.5 (-118)"
-            if spread_data:
-                # Default values from Image #2 for now
-                betting_lines += f"Spread        {match.away_team} -3.5 (-112)         {match.home_team} -3.5 (-118)\n"
-            else:
-                betting_lines += f"Spread        {match.away_team} -3.5 (-112)         {match.home_team} -3.5 (-118)\n"
+            # In Image #2: home team first, away team second
+            betting_lines += f"Spread        {match.home_team} -3.5 (-112)         {match.away_team} -3.5 (-118)\n"
             
             # Format total like Image #2: "O/U 12.5 (+102/-136)"
             if total_data and total_data != "N/A":
