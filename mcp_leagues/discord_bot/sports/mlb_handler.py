@@ -279,8 +279,8 @@ class MLBHandler(BaseSportHandler):
         game_time = match.additional_data.get('time', match.additional_data.get('start_time', 'TBD'))
         venue = match.additional_data.get('venue', 'TBD')
         
-        # Create compact header format
-        embed_title = f"🏟️ **{venue.upper()}** • {game_time}"
+        # Create compact header format like Image #2
+        embed_title = f"**{venue.upper()}** • {game_time}"
         
         # Extract team records and form data
         away_record = "N/A"
@@ -298,7 +298,7 @@ class MLBHandler(BaseSportHandler):
             away_wins = away_data.get("wins", 0)
             away_losses = away_data.get("losses", 0)
             away_record = f"{away_wins}-{away_losses}"
-            away_winpct = f"{away_data.get('win_percentage', 'N/A')}"
+            away_winpct = f".{int(away_data.get('win_percentage', 0) * 1000):03d}" if away_data.get('win_percentage') else ".000"
             away_streak = away_data.get("streak", "N/A")
             
         if not isinstance(home_form, Exception) and home_form:
@@ -306,36 +306,30 @@ class MLBHandler(BaseSportHandler):
             home_wins = home_data.get("wins", 0)
             home_losses = home_data.get("losses", 0)
             home_record = f"{home_wins}-{home_losses}"
-            home_winpct = f"{home_data.get('win_percentage', 'N/A')}"
+            home_winpct = f".{int(home_data.get('win_percentage', 0) * 1000):03d}" if home_data.get('win_percentage') else ".000"
             home_streak = home_data.get("streak", "N/A")
             games_back = home_data.get("games_back", "N/A")
-            if games_back not in ["N/A", "-"]:
-                home_gb = f" • {games_back} GB"
+            if games_back not in ["N/A", "-"] and games_back != 0:
+                home_gb = f"         {games_back} GB"
         
         if not isinstance(away_trends, Exception) and away_trends:
             away_trends_data = away_trends.get("data", {}).get("trends", {})
             away_diff_val = away_trends_data.get("run_differential", 0)
-            away_diff = f"{away_diff_val:+d}" if away_diff_val != 0 else "0"
+            away_diff = f"{away_diff_val:+d} Run Diff" if away_diff_val != 0 else "0 Run Diff"
             
         if not isinstance(home_trends, Exception) and home_trends:
             home_trends_data = home_trends.get("data", {}).get("trends", {})
             home_diff_val = home_trends_data.get("run_differential", 0)
-            home_diff = f"{home_diff_val:+d}" if home_diff_val != 0 else "0"
+            home_diff = f"{home_diff_val:+d} Run Diff" if home_diff_val != 0 else "0 Run Diff"
         
         # Create team matchup line
         team_matchup = f"**{match.away_team}** ({away_record}) @ **{match.home_team}** ({home_record})"
         
-        # Create team form section with aligned layout
-        team_form = f"📊 **Team Form**\n"
-        # Format away team line
-        away_form_line = f"{match.away_team:<12} {away_winpct} Win%     {away_streak:<6} {away_diff} Run Diff"
-        # Format home team line with games back if applicable
-        home_form_line = f"{match.home_team:<12} {home_winpct} Win%     {home_streak:<6} {home_diff} Run Diff{home_gb}"
+        # Create team form section with simple asterisk headers
+        team_form = f"**Team Form**\n{match.away_team}           {away_winpct} Win%        {away_streak}      {away_diff}\n{match.home_team}           {home_winpct} Win%        {home_streak}      {home_diff}{home_gb}"
         
-        team_form += f"{away_form_line}\n{home_form_line}"
-        
-        # Create betting lines section with aligned layout
-        betting_lines = "💰 **Live Betting Lines**\n"
+        # Create betting lines section with simple format
+        betting_lines = "**Live Betting Lines**\n"
         if not isinstance(betting_odds, Exception) and betting_odds:
             # Extract betting data for formatting
             ml_data = self._parse_moneyline(betting_odds.get("moneyline", ""), match)
@@ -344,18 +338,14 @@ class MLBHandler(BaseSportHandler):
             
             # Format moneyline
             if ml_data:
-                betting_lines += f"ML            {ml_data['home']:<20} {ml_data['away']}\n"
-            else:
-                betting_lines += f"ML            N/A\n"
+                betting_lines += f"ML                {match.home_team} {ml_data['home'].split()[-1]}             {match.away_team} {ml_data['away'].split()[-1]}\n"
             
             # Format spread
             if spread_data:
-                betting_lines += f"Spread        {spread_data['home']:<20} {spread_data['away']}\n"
-            else:
-                betting_lines += f"Spread        N/A\n"
+                betting_lines += f"Spread            {match.home_team} {spread_data['home'].split()[-2:][0]} ({spread_data['home'].split()[-1]})      {match.away_team} {spread_data['away'].split()[-2:][0]} ({spread_data['away'].split()[-1]})\n"
             
             # Format total
-            betting_lines += f"Total         {total_data}"
+            betting_lines += f"Total             {total_data}"
         else:
             betting_lines += "Lines not available"
         
@@ -367,7 +357,7 @@ class MLBHandler(BaseSportHandler):
             timestamp=datetime.now()
         )
         
-        embed.set_footer(text="MLB Analysis powered by MLB MCP • Updated Format")
+        embed.set_footer(text="MLB Analysis powered by MLB MCP • Updated Format • Today at 2:51 PM")
         return embed
     
     def _parse_moneyline(self, ml_string: str, match: Match) -> Dict[str, str]:
