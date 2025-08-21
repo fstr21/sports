@@ -261,13 +261,49 @@ class MLBHandler(BaseSportHandler):
             timestamp=datetime.now()
         )
         
-        # Basic game info
+        # Get team information for enhanced context
+        home_team_id = match.additional_data.get("home_team_id")
+        away_team_id = match.additional_data.get("away_team_id")
+        
+        # Basic game info with enhanced team context
         game_time = match.additional_data.get('time', match.additional_data.get('start_time', 'TBD'))
+        venue = match.additional_data.get('venue', 'TBD')
+        
         embed.add_field(
             name="📅 Game Info",
-            value=f"**Time:** {game_time}\\n**League:** MLB",
+            value=f"**Time:** {game_time}\\n**Venue:** {venue}\\n**League:** MLB",
             inline=True
         )
+        
+        # Add division/league context if team IDs are available
+        if home_team_id and away_team_id:
+            try:
+                home_info, away_info = await asyncio.gather(
+                    self.get_team_info(home_team_id),
+                    self.get_team_info(away_team_id),
+                    return_exceptions=True
+                )
+                
+                if (not isinstance(home_info, Exception) and home_info and 
+                    not isinstance(away_info, Exception) and away_info):
+                    
+                    home_division = home_info.get('division', 'Unknown')
+                    away_division = away_info.get('division', 'Unknown')
+                    
+                    # Check if it's a division rivalry
+                    if home_division == away_division and home_division != 'Unknown':
+                        division_context = f"🔥 **Division Rivalry**\\n{home_division}"
+                    else:
+                        # Show both divisions if different
+                        division_context = f"**Away:** {away_division}\\n**Home:** {home_division}"
+                    
+                    embed.add_field(
+                        name="🏆 Division Context",
+                        value=division_context,
+                        inline=True
+                    )
+            except Exception as e:
+                logger.debug(f"Could not get team division info: {e}")
         
         # Add team records if available
         home_record = match.additional_data.get('home_record')
@@ -351,6 +387,15 @@ class MLBHandler(BaseSportHandler):
                 logger.info(f"Added scoring trends embed for {match.away_team} @ {match.home_team}")
             else:
                 logger.warning(f"Failed to create scoring trends embed for {match.away_team} @ {match.home_team}")
+            
+            # 4. Pitcher Matchup Analysis Embed (temporarily disabled - debugging MCP parsing)
+            # pitcher_embed = await self.create_pitcher_matchup_embed(match, home_team_id, away_team_id)
+            # if pitcher_embed:
+            #     embeds.append(pitcher_embed)
+            #     logger.info(f"Added pitcher matchup embed for {match.away_team} @ {match.home_team}")
+            # else:
+            #     logger.warning(f"Failed to create pitcher matchup embed for {match.away_team} @ {match.home_team}")
+            logger.info(f"Pitcher matchup embed temporarily disabled for debugging")
         else:
             logger.warning(f"Missing team IDs for {match.away_team} @ {match.home_team}: home={home_team_id}, away={away_team_id}")
         
@@ -493,6 +538,113 @@ class MLBHandler(BaseSportHandler):
             
         except Exception as e:
             logger.error(f"Error creating scoring trends embed: {e}")
+            return None
+    
+    async def create_pitcher_matchup_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
+        """Create pitcher matchup analysis using getMLBPitcherMatchup"""
+        try:
+            # Get pitcher matchup data for both teams
+            pitcher_response = await self.call_mlb_mcp_tool(
+                "getMLBPitcherMatchup", 
+                {"teams": [away_team_id, home_team_id], "starts": 3}
+            )
+            
+            if not pitcher_response:
+                logger.warning(f"No pitcher matchup data available for teams {away_team_id}, {home_team_id}")
+                return None
+            
+            # Create pitcher matchup embed
+            embed = discord.Embed(
+                title=f"⚾ Pitching Matchup: {match.away_team} vs {match.home_team}",
+                color=0x8B4513,  # Brown color for pitching
+                timestamp=datetime.now()
+            )
+            
+            team_rosters = pitcher_response.get("data", {}).get("team_rosters", {})
+            
+            # Away team pitchers
+            away_roster = team_rosters.get(str(away_team_id), {})
+            if away_roster:
+                away_pitchers = away_roster.get("pitcher_list", [])[:5]  # Top 5 pitchers
+                if away_pitchers:
+                    pitcher_names = []
+                    for pitcher in away_pitchers:
+                        name = pitcher.get("fullName", "Unknown")
+                        number = pitcher.get("primaryNumber", "")
+                        status = pitcher.get("status", "")
+                        if number:
+                            pitcher_names.append(f"#{number} {name}")
+                        else:
+                            pitcher_names.append(name)
+                    
+                    embed.add_field(
+                        name=f"✈️ {match.away_team} Rotation",
+                        value="\\n".join(pitcher_names[:3]) + (f"\\n+ {len(away_pitchers)-3} more" if len(away_pitchers) > 3 else ""),
+                        inline=True
+                    )
+            
+            # Home team pitchers
+            home_roster = team_rosters.get(str(home_team_id), {})
+            if home_roster:
+                home_pitchers = home_roster.get("pitcher_list", [])[:5]  # Top 5 pitchers
+                if home_pitchers:
+                    pitcher_names = []
+                    for pitcher in home_pitchers:
+                        name = pitcher.get("fullName", "Unknown")
+                        number = pitcher.get("primaryNumber", "")
+                        status = pitcher.get("status", "")
+                        if number:
+                            pitcher_names.append(f"#{number} {name}")
+                        else:
+                            pitcher_names.append(name)
+                    
+                    embed.add_field(
+                        name=f"🏠 {match.home_team} Rotation",
+                        value="\\n".join(pitcher_names[:3]) + (f"\\n+ {len(home_pitchers)-3} more" if len(home_pitchers) > 3 else ""),
+                        inline=True
+                    )
+            
+            # Add rotation depth comparison
+            away_pitcher_count = away_roster.get("pitchers", 0)
+            home_pitcher_count = home_roster.get("pitchers", 0)
+            
+            if away_pitcher_count and home_pitcher_count:
+                embed.add_field(
+                    name="📊 Pitching Depth",
+                    value=f"**{match.away_team}:** {away_pitcher_count} pitchers\\n**{match.home_team}:** {home_pitcher_count} pitchers",
+                    inline=True
+                )
+            
+            # Add analysis note
+            embed.add_field(
+                name="🎯 Rotation Analysis",
+                value="Starting rotation showing top pitchers\\nDepth comparison based on active roster",
+                inline=False
+            )
+            
+            embed.set_footer(text="Pitcher Matchup Analysis • Powered by getMLBPitcherMatchup")
+            return embed
+            
+        except Exception as e:
+            logger.error(f"Error creating pitcher matchup embed: {e}")
+            return None
+    
+    async def get_team_info(self, team_id: int) -> Optional[Dict[str, Any]]:
+        """Get detailed team information including division and league"""
+        try:
+            # Get all teams data
+            teams_response = await self.call_mlb_mcp_tool("getMLBTeams", {})
+            if not teams_response:
+                return None
+            
+            teams = teams_response.get("data", {}).get("teams", [])
+            
+            # Find the specific team (teams use "teamId" field)
+            team_info = next((team for team in teams if team.get("teamId") == team_id), None)
+            return team_info
+            
+        except Exception as e:
+            logger.error(f"Error getting team info for {team_id}: {e}")
             return None
     
     async def call_mlb_mcp_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Optional[Dict[str, Any]]:
