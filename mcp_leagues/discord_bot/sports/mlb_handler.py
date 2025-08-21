@@ -351,7 +351,7 @@ class MLBHandler(BaseSportHandler):
             timestamp=datetime.now()
         )
         
-        embed.set_footer(text="MLB Analysis powered by MLB MCP")
+        embed.set_footer(text="MLB Analysis powered by MLB MCP • Updated Format")
         return embed
     
     async def get_betting_odds_for_game(self, match: Match) -> Dict[str, str]:
