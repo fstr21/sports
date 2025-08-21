@@ -325,34 +325,124 @@ class MLBHandler(BaseSportHandler):
         # Create team matchup line
         team_matchup = f"**{match.away_team}** ({away_record}) @ **{match.home_team}** ({home_record})"
         
-        # Create quick stats
-        quick_stats = f"📊 **Quick Stats**\n"
-        quick_stats += f"{match.away_team}: {away_winpct} Win% • {away_streak} • {away_diff} Run Diff\n"
-        quick_stats += f"{match.home_team}: {home_winpct} Win% • {home_streak} • {home_diff} Run Diff{home_gb}"
+        # Create team form section with aligned layout
+        team_form = f"📊 **Team Form**\n"
+        # Format away team line
+        away_form_line = f"{match.away_team:<12} {away_winpct} Win%     {away_streak:<6} {away_diff} Run Diff"
+        # Format home team line with games back if applicable
+        home_form_line = f"{match.home_team:<12} {home_winpct} Win%     {home_streak:<6} {home_diff} Run Diff{home_gb}"
         
-        # Create betting lines section
-        betting_lines = "🎲 **Betting Lines**\n"
+        team_form += f"{away_form_line}\n{home_form_line}"
+        
+        # Create betting lines section with aligned layout
+        betting_lines = "💰 **Live Betting Lines**\n"
         if not isinstance(betting_odds, Exception) and betting_odds:
-            ml_line = betting_odds.get("moneyline", "N/A")
-            spread_line = betting_odds.get("spread", "N/A") 
-            total_line = betting_odds.get("total", "N/A")
+            # Extract betting data for formatting
+            ml_data = self._parse_moneyline(betting_odds.get("moneyline", ""), match)
+            spread_data = self._parse_spread(betting_odds.get("spread", ""), match)
+            total_data = betting_odds.get("total", "N/A")
             
-            betting_lines += f"ML: {ml_line}\n"
-            betting_lines += f"SPREAD: {spread_line}\n"
-            betting_lines += f"Total: {total_line}"
+            # Format moneyline
+            if ml_data:
+                betting_lines += f"ML            {ml_data['home']:<20} {ml_data['away']}\n"
+            else:
+                betting_lines += f"ML            N/A\n"
+            
+            # Format spread
+            if spread_data:
+                betting_lines += f"Spread        {spread_data['home']:<20} {spread_data['away']}\n"
+            else:
+                betting_lines += f"Spread        N/A\n"
+            
+            # Format total
+            betting_lines += f"Total         {total_data}"
         else:
             betting_lines += "Lines not available"
         
         # Create the embed
         embed = discord.Embed(
             title=embed_title,
-            description=f"{team_matchup}\n\n{quick_stats}\n\n{betting_lines}",
+            description=f"{team_matchup}\n\n{team_form}\n\n{betting_lines}",
             color=self.config.get('embed_color', 0x0066cc),
             timestamp=datetime.now()
         )
         
         embed.set_footer(text="MLB Analysis powered by MLB MCP • Updated Format")
         return embed
+    
+    def _parse_moneyline(self, ml_string: str, match: Match) -> Dict[str, str]:
+        """Parse moneyline string and return formatted home/away odds"""
+        if not ml_string or ml_string == "N/A":
+            return None
+            
+        try:
+            # Expected format: "Cubs -138 | Brewers +118"
+            parts = ml_string.split(" | ")
+            if len(parts) != 2:
+                return None
+            
+            home_part = parts[0].strip()
+            away_part = parts[1].strip()
+            
+            # Extract team names and odds
+            home_odds = away_odds = "N/A"
+            
+            # Parse home team odds
+            if match.home_team in home_part:
+                home_odds = home_part.replace(match.home_team, "").strip()
+                home_team_display = f"{match.home_team} {home_odds}"
+            else:
+                home_team_display = home_part
+            
+            # Parse away team odds  
+            if match.away_team in away_part:
+                away_odds = away_part.replace(match.away_team, "").strip()
+                away_team_display = f"{match.away_team} {away_odds}"
+            else:
+                away_team_display = away_part
+            
+            return {
+                "home": home_team_display,
+                "away": away_team_display
+            }
+        except Exception as e:
+            logger.debug(f"Error parsing moneyline: {e}")
+            return None
+    
+    def _parse_spread(self, spread_string: str, match: Match) -> Dict[str, str]:
+        """Parse spread string and return formatted home/away spreads"""
+        if not spread_string or spread_string == "N/A":
+            return None
+            
+        try:
+            # Expected format: "Cubs -1.5 (+162) | Brewers +1.5 (-196)"
+            parts = spread_string.split(" | ")
+            if len(parts) != 2:
+                return None
+            
+            home_part = parts[0].strip()
+            away_part = parts[1].strip()
+            
+            # Extract team names, points, and odds
+            home_team_display = home_part
+            away_team_display = away_part
+            
+            # Clean up team names if they're in the spread string
+            if match.home_team in home_part:
+                spread_info = home_part.replace(match.home_team, "").strip()
+                home_team_display = f"{match.home_team} {spread_info}"
+            
+            if match.away_team in away_part:
+                spread_info = away_part.replace(match.away_team, "").strip()  
+                away_team_display = f"{match.away_team} {spread_info}"
+            
+            return {
+                "home": home_team_display,
+                "away": away_team_display
+            }
+        except Exception as e:
+            logger.debug(f"Error parsing spread: {e}")
+            return None
     
     async def get_betting_odds_for_game(self, match: Match) -> Dict[str, str]:
         """Get betting odds for a specific game and format them"""
