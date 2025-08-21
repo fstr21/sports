@@ -804,10 +804,12 @@ class MLBHandler(BaseSportHandler):
                     timestamp=datetime.now()
                 )
                 
-                # Add player hits props with stats (O0.5 hits only)
+                # Add player hits props with stats (O0.5 hits only) - Table format
                 if "batter_hits" in player_props_data:
-                    hits_text = ""
+                    hits_text = "```\nPlayer          Line  Odds   Avg H/G  L5 Streak\n"
+                    hits_text += "----------------------------------------------\n"
                     processed_players = set()
+                    
                     for outcome in player_props_data["batter_hits"]:
                         if outcome.get("name") == "Over" and outcome.get("point", 0) == 0.5:  # Only O0.5 hits
                             player_name = outcome.get("description", "")
@@ -817,84 +819,118 @@ class MLBHandler(BaseSportHandler):
                             if player_name and player_name not in processed_players:
                                 processed_players.add(player_name)
                                 
-                                # Format betting line
+                                # Format odds
                                 if isinstance(price, int):
-                                    betting_line = f"O{point}: {price:+d}"
+                                    odds_str = f"{price:+d}"
                                 else:
-                                    betting_line = f"O{point}: {price}"
+                                    odds_str = str(price)
                                 
-                                # Add stats if available
-                                stats_info = ""
+                                # Get stats and add emojis for high performers
+                                avg_hits = 0
+                                streak_info = "--"
+                                emoji = ""
+                                
                                 if player_name in player_stats:
                                     stats = player_stats[player_name]
                                     avg_hits = stats.get("avg_hits", 0)
                                     hit_streak = stats.get("hit_streak", 0)
                                     recent_games = stats.get("recent_games", 0)
                                     
-                                    stats_info = f" • {avg_hits}H/G L{recent_games}"
+                                    # Add emoji for high performers
+                                    if avg_hits >= 1.5:
+                                        emoji = "🔥"
+                                    elif avg_hits >= 1.2:
+                                        emoji = "⚡"
+                                    elif hit_streak >= 3:
+                                        emoji = "🎯"
+                                    
                                     if hit_streak > 0:
-                                        stats_info += f" • {hit_streak}G streak"
+                                        streak_info = f"{hit_streak}G"
+                                    else:
+                                        streak_info = "--"
                                 
-                                hits_text += f"**{player_name}** {betting_line}{stats_info}\n"
+                                # Format name with padding and emoji
+                                name_display = f"{player_name[:14]:<14}{emoji}"
+                                line_display = f"O{point}"
+                                avg_display = f"{avg_hits:.1f}"
+                                
+                                hits_text += f"{name_display} {line_display}  {odds_str:<6} {avg_display:<7} {streak_info}\n"
                                 
                                 if len(processed_players) >= 6:  # Limit to 6 players
                                     break
                     
-                    if hits_text:
+                    hits_text += "```"
+                    
+                    if processed_players:
                         embed.add_field(
                             name="⚾ Player Hits",
-                            value=hits_text.strip(),
-                            inline=True
+                            value=hits_text,
+                            inline=False
                         )
                 
-                # Add home run props with stats
+                # Add home run props with stats - Table format
                 if "batter_home_runs" in player_props_data:
-                    hr_text = ""
+                    hr_text = "```\nPlayer          Line  Odds   L5 HR\n"
+                    hr_text += "--------------------------------\n"
                     processed_players = set()
+                    
                     for outcome in player_props_data["batter_home_runs"]:
-                        if outcome.get("name") == "Over":  # Only show Over lines
+                        if outcome.get("name") == "Over" and outcome.get("point", 0) == 0.5:  # Only 0.5 HR line
                             player_name = outcome.get("description", "")
                             point = outcome.get("point", 0)
                             price = outcome.get("price")
                             
-                            if player_name and player_name not in processed_players and point == 0.5:  # Only 0.5 HR line
+                            if player_name and player_name not in processed_players:
                                 processed_players.add(player_name)
                                 
-                                # Format betting line
+                                # Format odds
                                 if isinstance(price, int):
-                                    betting_line = f"O{point}: {price:+d}"
+                                    odds_str = f"{price:+d}"
                                 else:
-                                    betting_line = f"O{point}: {price}"
+                                    odds_str = str(price)
                                 
-                                # Add stats if available
-                                stats_info = ""
+                                # Get stats and add emojis for HR power
+                                recent_hrs = 0
+                                emoji = ""
+                                
                                 if player_name in player_stats:
                                     stats = player_stats[player_name]
                                     recent_hrs = stats.get("recent_hrs", 0)
                                     hr_streak = stats.get("hr_streak", 0)
-                                    recent_games = stats.get("recent_games", 0)
                                     
-                                    stats_info = f" • {recent_hrs}HR L{recent_games}G"
-                                    if hr_streak > 0:
-                                        stats_info += f" • {hr_streak}G streak"
+                                    # Add emoji for power hitters
+                                    if recent_hrs >= 3:
+                                        emoji = "💥"
+                                    elif recent_hrs >= 2:
+                                        emoji = "🔥"
+                                    elif hr_streak > 0:
+                                        emoji = "⚡"
                                 
-                                hr_text += f"**{player_name}** {betting_line}{stats_info}\n"
+                                # Format display
+                                name_display = f"{player_name[:14]:<14}{emoji}"
+                                line_display = f"O{point}"
+                                hr_display = f"{recent_hrs} HR"
+                                
+                                hr_text += f"{name_display} {line_display}  {odds_str:<6} {hr_display}\n"
                                 
                                 if len(processed_players) >= 6:  # Limit to 6 players
                                     break
                     
-                    if hr_text:
+                    hr_text += "```"
+                    
+                    if processed_players:
                         embed.add_field(
                             name="🏠 Home Runs",
-                            value=hr_text.strip(),
-                            inline=True
+                            value=hr_text,
+                            inline=False
                         )
                 
-                # Add strikeout props
+                # Add strikeout props - Table format
                 if "pitcher_strikeouts" in player_props_data:
-                    k_text = ""
-                    # Group by player name and show Over lines only
+                    k_text = "```\nPlayer          Line  Odds\n"
+                    k_text += "-------------------------\n"
                     processed_players = set()
+                    
                     for outcome in player_props_data["pitcher_strikeouts"]:
                         if outcome.get("name") == "Over":  # Only show Over lines
                             player_name = outcome.get("description", "")
@@ -903,19 +939,29 @@ class MLBHandler(BaseSportHandler):
                             
                             if player_name and player_name not in processed_players:
                                 processed_players.add(player_name)
+                                
+                                # Format odds
                                 if isinstance(price, int):
-                                    k_text += f"**{player_name}** O{point}: {price:+d}\n"
+                                    odds_str = f"{price:+d}"
                                 else:
-                                    k_text += f"**{player_name}** O{point}: {price}\n"
+                                    odds_str = str(price)
+                                
+                                # Format display
+                                name_display = f"{player_name[:15]:<15}"
+                                line_display = f"O{point}"
+                                
+                                k_text += f"{name_display} {line_display}  {odds_str}\n"
                                 
                                 if len(processed_players) >= 6:  # Limit to 6 players
                                     break
                     
-                    if k_text:
+                    k_text += "```"
+                    
+                    if processed_players:
                         embed.add_field(
                             name="🔥 Pitcher Strikeouts",
-                            value=k_text.strip(),
-                            inline=True
+                            value=k_text,
+                            inline=False
                         )
                 
                 # Add footer info
