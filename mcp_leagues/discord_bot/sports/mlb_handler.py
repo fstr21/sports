@@ -386,19 +386,41 @@ class MLBHandler(BaseSportHandler):
         
         embed.add_field(name="📊 Team Comparison", value=team_content, inline=False)
 
-        # Scoring Trends & Analysis section
-        scoring_content = "```\n"
+        # Scoring Trends & Analysis section with color highlighting
+        scoring_content = f"*Key differentials are highlighted below*\n\n"
+        scoring_content += "```diff\n"
         scoring_content += f"| Metric        | {match.away_team:<20} | {match.home_team:<20} |\n"
         scoring_content += f"|---------------|{'-' * 20}|{'-' * 20}|\n"
         scoring_content += f"| Runs / Game   | {away_rpg:<20} | {home_rpg:<20} |\n"
-        scoring_content += f"| Allowed / Game| {away_rapg:<20} | {home_rapg:<20} |\n"
-        scoring_content += f"| Run Diff      | {away_diff:<20} | {home_diff:+d}{' ' * 16} |\n"
+        
+        # Color code the defensive stats (lower is better for runs allowed)
+        if away_rapg > home_rapg:
+            scoring_content += f"- | Allowed / Game| {away_rapg:<20} | {home_rapg:<20} |\n"
+        elif home_rapg > away_rapg:
+            scoring_content += f"+ | Allowed / Game| {away_rapg:<20} | {home_rapg:<20} |\n"
+        else:
+            scoring_content += f"| Allowed / Game| {away_rapg:<20} | {home_rapg:<20} |\n"
+        
+        # Color code the run differential (positive is better)
+        if away_diff > home_diff:
+            scoring_content += f"+ | Run Diff      | {away_diff:<20} | {home_diff:+d}{' ' * 16} |\n"
+        elif home_diff > away_diff:
+            scoring_content += f"+ | Run Diff      | {away_diff:<20} | {home_diff:+d}{' ' * 16} |\n"
+        else:
+            scoring_content += f"| Run Diff      | {away_diff:<20} | {home_diff:+d}{' ' * 16} |\n"
+        
         scoring_content += "```"
         
         embed.add_field(name="🔥 Scoring Trends & Analysis", value=scoring_content, inline=False)
 
-        # Analysis section
-        analysis_text = f"💡 **Analysis:** Both teams average the same number of runs per game, but the {match.home_team} have a significantly better defense, allowing fewer runs. This is reflected in their positive run differential ({home_diff:+d}) compared to the {match.away_team}' negative differential ({away_diff})."
+        # Enhanced Analysis section matching your screenshot
+        better_defense_team = match.home_team if home_rapg < away_rapg else match.away_team
+        worse_defense_team = match.away_team if home_rapg < away_rapg else match.home_team
+        better_diff = max(home_diff, away_diff)
+        worse_diff = min(home_diff, away_diff)
+        diff_swing = abs(better_diff - worse_diff)
+        
+        analysis_text = f"💡 **Analysis:** While their offense is nearly identical, the highlighted stats show the game's key difference: The {better_defense_team}' superior defense/pitching. This results in a massive {diff_swing}-run swing in the season-long **Run Differential**, which is the most significant statistic heading into this matchup."
         
         embed.add_field(name="", value=analysis_text, inline=False)
         
