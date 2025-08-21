@@ -344,16 +344,28 @@ class MLBHandler(BaseSportHandler):
             spread_data = self._parse_spread(betting_odds.get("spread", ""), match)
             total_data = betting_odds.get("total", "N/A")
             
-            # Format moneyline
+            # Format moneyline - show home team first, then away team
             if ml_data:
-                betting_lines += f"ML                {match.home_team} {ml_data['home'].split()[-1]}             {match.away_team} {ml_data['away'].split()[-1]}\n"
+                home_odds = ml_data.get('home', '').split()[-1] if ml_data.get('home') else ''
+                away_odds = ml_data.get('away', '').split()[-1] if ml_data.get('away') else ''
+                betting_lines += f"ML            {match.home_team} {home_odds}                  {match.away_team} {away_odds}\n"
+            else:
+                betting_lines += f"ML            {match.home_team} --                  {match.away_team} --\n"
             
-            # Format spread
+            # Format spread - show home team first, then away team  
             if spread_data:
-                betting_lines += f"Spread            {match.home_team} {spread_data['home'].split()[-2:][0]} ({spread_data['home'].split()[-1]})      {match.away_team} {spread_data['away'].split()[-2:][0]} ({spread_data['away'].split()[-1]})\n"
+                home_spread_parts = spread_data.get('home', '').split() if spread_data.get('home') else []
+                away_spread_parts = spread_data.get('away', '').split() if spread_data.get('away') else []
+                
+                home_spread = f"{home_spread_parts[-2]} {home_spread_parts[-1]}" if len(home_spread_parts) >= 2 else "--"
+                away_spread = f"{away_spread_parts[-2]} {away_spread_parts[-1]}" if len(away_spread_parts) >= 2 else "--"
+                
+                betting_lines += f"Spread        {match.home_team} {home_spread}            {match.away_team} {away_spread}\n"
+            else:
+                betting_lines += f"Spread        {match.home_team} --                  {match.away_team} --\n"
             
             # Format total
-            betting_lines += f"Total             {total_data}"
+            betting_lines += f"Total         {total_data}"
         else:
             betting_lines += "Lines not available"
         
