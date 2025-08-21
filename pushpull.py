@@ -17,10 +17,10 @@ def git_status():
         return stdout.strip() != ""
     return False
 
-def git_pull():
-    """Pull from main branch"""
-    print("Pulling from main branch...")
-    success, stdout, stderr = run_command("git pull origin main")
+def git_pull(branch="main"):
+    """Pull from specified branch"""
+    print(f"Pulling from {branch} branch...")
+    success, stdout, stderr = run_command(f"git pull origin {branch}")
     if success:
         print("✅ Pull successful!")
         print(stdout)
@@ -29,8 +29,8 @@ def git_pull():
         print(stderr)
     return success
 
-def git_push():
-    """Push to main branch"""
+def git_push(branch="main"):
+    """Push to specified branch"""
     # Check if there are changes to commit
     has_changes = git_status()
     
@@ -54,9 +54,9 @@ def git_push():
         
         print(f"✅ Changes committed with message: '{commit_msg}'")
     
-    # Push to main
-    print("🚀 Pushing to main branch...")
-    success, stdout, stderr = run_command("git push origin main")
+    # Push to specified branch
+    print(f"🚀 Pushing to {branch} branch...")
+    success, stdout, stderr = run_command(f"git push origin {branch}")
     if success:
         print("✅ Push successful!")
         print(stdout)
@@ -66,6 +66,63 @@ def git_push():
     
     return success
 
+def promote_to_production():
+    """Promote main branch to production-stable with manual confirmation"""
+    print("🚨 PRODUCTION DEPLOYMENT")
+    print("=" * 40)
+    print("This will update production-stable branch with current main branch.")
+    print("⚠️  This affects your live Discord bot and MCP servers!")
+    print()
+    
+    # Show current branch status
+    success, stdout, stderr = run_command("git branch --show-current")
+    if success:
+        current_branch = stdout.strip()
+        print(f"Current branch: {current_branch}")
+    
+    # Show what will be deployed
+    success, stdout, stderr = run_command("git log --oneline -5")
+    if success:
+        print("\nRecent commits on main:")
+        print(stdout)
+    
+    print("\n" + "="*40)
+    confirmation = input("Type 'DEPLOY TO PRODUCTION' to confirm: ").strip()
+    
+    if confirmation != "DEPLOY TO PRODUCTION":
+        print("❌ Deployment cancelled!")
+        return False
+    
+    print("\n🚀 Starting production deployment...")
+    
+    # Switch to production-stable branch
+    success, stdout, stderr = run_command("git checkout production-stable")
+    if not success:
+        print("❌ Failed to switch to production-stable!")
+        print(stderr)
+        return False
+    
+    # Merge main into production-stable
+    success, stdout, stderr = run_command("git merge main")
+    if not success:
+        print("❌ Failed to merge main into production-stable!")
+        print(stderr)
+        return False
+    
+    # Push to remote
+    success, stdout, stderr = run_command("git push origin production-stable")
+    if not success:
+        print("❌ Failed to push production-stable!")
+        print(stderr)
+        return False
+    
+    # Switch back to main
+    success, stdout, stderr = run_command("git checkout main")
+    
+    print("✅ PRODUCTION DEPLOYMENT SUCCESSFUL!")
+    print("🎯 production-stable branch updated with latest main")
+    return True
+
 def main():
     print("🔧 Git Helper Tool")
     print("==================")
@@ -73,23 +130,35 @@ def main():
     while True:
         print("\nChoose an option:")
         print("1. 📥 Pull from main branch")
-        print("2. 📤 Push to main branch")
-        print("3. 📊 Check git status")
-        print("4. ❌ Exit")
+        print("2. 📤 Push to main branch") 
+        print("3. 📥 Pull from production-stable")
+        print("4. 🚨 DEPLOY to production-stable (with confirmation)")
+        print("5. 📊 Check git status")
+        print("6. ❌ Exit")
         
-        choice = input("\nEnter your choice (1-4): ").strip()
+        choice = input("\nEnter your choice (1-6): ").strip()
         
         if choice == "1":
-            git_pull()
+            git_pull("main")
             print("\n✅ Operation completed. Press Enter to exit...")
             input()
             sys.exit(0)
         elif choice == "2":
-            git_push()
+            git_push("main")
             print("\n✅ Operation completed. Press Enter to exit...")
             input()
             sys.exit(0)
         elif choice == "3":
+            git_pull("production-stable")
+            print("\n✅ Operation completed. Press Enter to exit...")
+            input()
+            sys.exit(0)
+        elif choice == "4":
+            promote_to_production()
+            print("\n✅ Operation completed. Press Enter to exit...")
+            input()
+            sys.exit(0)
+        elif choice == "5":
             success, stdout, stderr = run_command("git status")
             if success:
                 print(stdout)
@@ -99,11 +168,11 @@ def main():
             print("\n✅ Status check completed. Press Enter to exit...")
             input()
             sys.exit(0)
-        elif choice == "4":
+        elif choice == "6":
             print("👋 Goodbye!")
             sys.exit(0)
         else:
-            print("❌ Invalid choice. Please enter 1-4.")
+            print("❌ Invalid choice. Please enter 1-6.")
 
 if __name__ == "__main__":
     main()
