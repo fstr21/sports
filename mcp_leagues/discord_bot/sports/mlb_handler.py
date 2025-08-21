@@ -793,15 +793,23 @@ class MLBHandler(BaseSportHandler):
                 # Add player hits props
                 if "batter_hits" in player_props_data:
                     hits_text = ""
-                    for outcome in player_props_data["batter_hits"][:6]:  # Show top 6 players
-                        name = outcome.get("name", "").replace(" Over", "").replace(" Under", "")
-                        if " Over " in outcome.get("description", ""):
-                            line = outcome.get("description", "").split(" Over ")[1].split(" ")[0]
+                    # Group by player name and show Over lines only
+                    processed_players = set()
+                    for outcome in player_props_data["batter_hits"]:
+                        if outcome.get("name") == "Over":  # Only show Over lines
+                            player_name = outcome.get("description", "")
+                            point = outcome.get("point", 0)
                             price = outcome.get("price")
-                            if isinstance(price, int):
-                                hits_text += f"**{name}** O{line}: {price:+d}\n"
-                            else:
-                                hits_text += f"**{name}** O{line}: {price}\n"
+                            
+                            if player_name and player_name not in processed_players:
+                                processed_players.add(player_name)
+                                if isinstance(price, int):
+                                    hits_text += f"**{player_name}** O{point}: {price:+d}\n"
+                                else:
+                                    hits_text += f"**{player_name}** O{point}: {price}\n"
+                                
+                                if len(processed_players) >= 6:  # Limit to 6 players
+                                    break
                     
                     if hits_text:
                         embed.add_field(
@@ -813,15 +821,23 @@ class MLBHandler(BaseSportHandler):
                 # Add home run props
                 if "batter_home_runs" in player_props_data:
                     hr_text = ""
-                    for outcome in player_props_data["batter_home_runs"][:6]:  # Show top 6 players
-                        name = outcome.get("name", "").replace(" Over", "").replace(" Under", "")
-                        if " Over " in outcome.get("description", ""):
-                            line = outcome.get("description", "").split(" Over ")[1].split(" ")[0]
+                    # Group by player name and show Over lines only
+                    processed_players = set()
+                    for outcome in player_props_data["batter_home_runs"]:
+                        if outcome.get("name") == "Over":  # Only show Over lines
+                            player_name = outcome.get("description", "")
+                            point = outcome.get("point", 0)
                             price = outcome.get("price")
-                            if isinstance(price, int):
-                                hr_text += f"**{name}** O{line}: {price:+d}\n"
-                            else:
-                                hr_text += f"**{name}** O{line}: {price}\n"
+                            
+                            if player_name and player_name not in processed_players and point == 0.5:  # Only 0.5 HR line
+                                processed_players.add(player_name)
+                                if isinstance(price, int):
+                                    hr_text += f"**{player_name}** O{point}: {price:+d}\n"
+                                else:
+                                    hr_text += f"**{player_name}** O{point}: {price}\n"
+                                
+                                if len(processed_players) >= 6:  # Limit to 6 players
+                                    break
                     
                     if hr_text:
                         embed.add_field(
@@ -833,15 +849,23 @@ class MLBHandler(BaseSportHandler):
                 # Add strikeout props
                 if "pitcher_strikeouts" in player_props_data:
                     k_text = ""
+                    # Group by player name and show Over lines only
+                    processed_players = set()
                     for outcome in player_props_data["pitcher_strikeouts"]:
-                        name = outcome.get("name", "").replace(" Over", "").replace(" Under", "")
-                        if " Over " in outcome.get("description", ""):
-                            line = outcome.get("description", "").split(" Over ")[1].split(" ")[0]
+                        if outcome.get("name") == "Over":  # Only show Over lines
+                            player_name = outcome.get("description", "")
+                            point = outcome.get("point", 0)
                             price = outcome.get("price")
-                            if isinstance(price, int):
-                                k_text += f"**{name}** O{line}: {price:+d}\n"
-                            else:
-                                k_text += f"**{name}** O{line}: {price}\n"
+                            
+                            if player_name and player_name not in processed_players:
+                                processed_players.add(player_name)
+                                if isinstance(price, int):
+                                    k_text += f"**{player_name}** O{point}: {price:+d}\n"
+                                else:
+                                    k_text += f"**{player_name}** O{point}: {price}\n"
+                                
+                                if len(processed_players) >= 6:  # Limit to 6 players
+                                    break
                     
                     if k_text:
                         embed.add_field(
