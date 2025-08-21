@@ -2,7 +2,7 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "python src/enhanced_server.py"
+startCommand = "python soccer_mcp_server.py"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 
