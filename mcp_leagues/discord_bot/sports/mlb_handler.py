@@ -248,14 +248,14 @@ class MLBHandler(BaseSportHandler):
 
     async def format_match_analysis(self, match: Match) -> discord.Embed:
         """
-        Create a single, compact, and comprehensive Discord embed for MLB game analysis.
-        This version solves text wrapping and merges all team form data.
+        Create a single, unified Discord embed combining all game analysis.
+        Combines betting lines, team form, and matchup analysis into one clean embed.
         
         Args:
             match: Match object with data to format
             
         Returns:
-            Discord embed with formatted match analysis
+            Discord embed with comprehensive game analysis
         """
         # Get team information for enhanced context and betting odds
         home_team_id = match.additional_data.get("home_team_id")
@@ -275,7 +275,7 @@ class MLBHandler(BaseSportHandler):
         else:
             home_form = away_form = home_trends = away_trends = betting_odds = None
         
-        # --- 1. Data Extraction and Formatting ---
+        # --- 1. Extract and format data ---
         
         # Format game time
         raw_game_time = match.additional_data.get('time', match.additional_data.get('start_time', 'TBD'))
@@ -285,98 +285,105 @@ class MLBHandler(BaseSportHandler):
                 dt = datetime.fromisoformat(raw_game_time.replace('Z', '+00:00'))
                 game_time = dt.strftime("%I:%M %p CT").lstrip('0')
         except Exception:
-            pass # Keep original time if parsing fails
+            pass
         
-        # Extract records, streaks, win %, games back, and run differentials
+        # Extract team data
         away_record, home_record = "0-0", "0-0"
         away_streak, home_streak = "N/A", "N/A"
-        away_winpct, home_winpct = ".000", ".000"
         away_gb, home_gb = "-", "-"
-        away_diff_val, home_diff_val = 0, 0
+        away_winpct, home_winpct = ".000", ".000"
 
         if not isinstance(away_form, Exception) and away_form:
             away_data = away_form.get("data", {}).get("form", {})
             away_record = f"{away_data.get('wins', 0)}-{away_data.get('losses', 0)}"
             away_streak = away_data.get("streak", "N/A")
-            win_pct = away_data.get('win_percentage', 0)
-            if isinstance(win_pct, (int, float)) and win_pct > 0:
-                away_winpct = f".{int(win_pct * 1000):03d}"
             away_gb = str(away_data.get("games_back", "-"))
+            win_pct = away_data.get('win_percentage', 0)
+            if isinstance(win_pct, str) and '.' in win_pct:
+                away_winpct = win_pct
+            elif isinstance(win_pct, (int, float)) and win_pct > 0:
+                away_winpct = f".{int(win_pct * 1000):03d}"
 
         if not isinstance(home_form, Exception) and home_form:
             home_data = home_form.get("data", {}).get("form", {})
             home_record = f"{home_data.get('wins', 0)}-{home_data.get('losses', 0)}"
-            home_streak = home_data.get("streak", "N/A")
-            win_pct = home_data.get('win_percentage', 0)
-            if isinstance(win_pct, (int, float)) and win_pct > 0:
-                home_winpct = f".{int(win_pct * 1000):03d}"
+            home_streak = home_data.get("streak", "N/A") 
             home_gb = str(home_data.get("games_back", "-"))
-            
-        if not isinstance(away_trends, Exception) and away_trends:
-            away_diff_val = away_trends.get("data", {}).get("trends", {}).get("run_differential", 0)
+            win_pct = home_data.get('win_percentage', 0)
+            if isinstance(win_pct, str) and '.' in win_pct:
+                home_winpct = win_pct
+            elif isinstance(win_pct, (int, float)) and win_pct > 0:
+                home_winpct = f".{int(win_pct * 1000):03d}"
 
-        if not isinstance(home_trends, Exception) and home_trends:
-            home_diff_val = home_trends.get("data", {}).get("trends", {}).get("run_differential", 0)
+        # --- 2. Create unified embed ---
 
-        # --- 2. Embed Creation ---
-
-        embed_title = f"{match.away_team} @ {match.home_team}"
+        embed_title = f"⚾ {match.away_team} @ {match.home_team}"
         venue = match.additional_data.get('venue', 'TBD')
         
         embed = discord.Embed(
             title=embed_title,
-            description=f"🏟️ {venue} • ⏰ {game_time}",
+            description=f"📍 {venue} • 🕰️ {game_time}",
             color=self.config.get('embed_color', 0x0066cc),
             timestamp=datetime.now()
         )
 
-        # --- 3. Betting Lines Field (Reformatted to prevent wrapping) ---
+        # --- 3. Live Betting Lines Section ---
         
-        betting_lines_content = "```\n"
+        betting_content = "```\n"
         if not isinstance(betting_odds, Exception) and betting_odds:
-            # Shorten team names for headers
-            away_team_short = (match.away_team.split()[-1])[:10]
-            home_team_short = (match.home_team.split()[-1])[:10]
+            # Shortened team names
+            away_short = match.away_team.split()[-1][:12]
+            home_short = match.home_team.split()[-1][:12]
             
-            # Extract odds values
-            ml_home_odds, ml_away_odds = "N/A", "N/A"
-            sp_home_line, sp_away_line = "N/A", "N/A"
-            total_line = betting_odds.get("total", "N/A")
+            # Extract betting data
+            ml_home, ml_away = "N/A", "N/A"
+            sp_home, sp_away = "N/A", "N/A"
+            total_line = "N/A"
             
+            # Parse moneyline
             if betting_odds.get("moneyline"):
                 ml_parts = betting_odds["moneyline"].split(' | ')
                 if len(ml_parts) == 2:
-                    ml_home_odds = ml_parts[0].replace(match.home_team, "").strip()
-                    ml_away_odds = ml_parts[1].replace(match.away_team, "").strip()
+                    ml_home = ml_parts[0].replace(match.home_team, "").strip()
+                    ml_away = ml_parts[1].replace(match.away_team, "").strip()
 
+            # Parse spread
             if betting_odds.get("spread"):
                 sp_parts = betting_odds["spread"].split(' | ')
                 if len(sp_parts) == 2:
-                    sp_home_line = sp_parts[0].replace(match.home_team, "").strip()
-                    sp_away_line = sp_parts[1].replace(match.away_team, "").strip()
+                    sp_home = sp_parts[0].replace(match.home_team, "").strip()
+                    sp_away = sp_parts[1].replace(match.away_team, "").strip()
 
-            betting_lines_content += f"LINE   | {away_team_short:<16} | {home_team_short}\n"
-            betting_lines_content += "----------------------------------------\n"
-            betting_lines_content += f"ML     | {ml_away_odds:<16} | {ml_home_odds}\n"
-            betting_lines_content += f"Spread | {sp_away_line:<16} | {sp_home_line}\n"
-            betting_lines_content += f"Total  | {total_line}\n"
+            # Parse total
+            total_line = betting_odds.get("total", "N/A")
 
+            betting_content += f"             {away_short:<12}    {home_short}\n"
+            betting_content += f"ML           {ml_away:<12}    {ml_home}\n"
+            betting_content += f"Spread       {sp_away:<12}    {sp_home}\n"
+            betting_content += f"Total        {total_line}\n"
         else:
-            betting_lines_content += "Betting lines are not available for this game.\n"
-        betting_lines_content += "```"
-        embed.add_field(name="💰 Live Betting Lines", value=betting_lines_content, inline=False)
-
-        # --- 4. Team Form Field (Expanded with all data) ---
-
-        team_form_content = "```\n"
-        team_form_content += "Team             REC      Win%   STRK   GB     Run Diff\n"
-        team_form_content += "---------------------------------------------------------\n"
-        team_form_content += f"{match.away_team:<16} {away_record:<8} {away_winpct:<6} {away_streak:<6} {away_gb:<6} {away_diff_val:+d}\n"
-        team_form_content += f"{match.home_team:<16} {home_record:<8} {home_winpct:<6} {home_streak:<6} {home_gb:<6} {home_diff_val:+d}\n"
-        team_form_content += "```"
-        embed.add_field(name="📊 Team Form", value=team_form_content, inline=False)
+            betting_content += "Betting lines not available\n"
+        betting_content += "```"
         
-        embed.set_footer(text="MLB Analysis powered by MLB MCP")
+        embed.add_field(name="📊 Live Betting Lines", value=betting_content, inline=False)
+
+        # --- 4. Team Form & Records Section ---
+        
+        form_content = "```\n"
+        form_content += f"{match.away_team} (Away): {away_record} ({away_winpct}) • {away_streak} • {away_gb} GB\n"
+        form_content += f"{match.home_team} (Home):  {home_record} ({home_winpct}) • {home_streak} • {home_gb} GB\n"
+        form_content += "```"
+        
+        embed.add_field(name="📈 Team Form & Records", value=form_content, inline=False)
+
+        # --- 5. Matchup Notes Section ---
+        
+        notes_content = ("Form data from current season standings • Streaks: W=Win, L=Loss • "
+                        "GB=Games Back from division lead")
+        
+        embed.add_field(name="🎯 Matchup Notes", value=notes_content, inline=False)
+        
+        embed.set_footer(text="MLB Analysis powered by MLB MCP • Today at 7:01 PM")
         return embed
     
 
@@ -580,57 +587,16 @@ class MLBHandler(BaseSportHandler):
     
     async def create_comprehensive_game_analysis(self, match: Match) -> List[discord.Embed]:
         """
-        Create comprehensive analysis using additional MLB MCP tools
-        Uses: getMLBTeamForm, getMLBTeamScoringTrends for both teams
+        Create unified single-embed game analysis instead of multiple embeds.
+        This replaces the 5-embed system with 1 comprehensive embed.
         """
         embeds = []
         
-        # 1. Main Game Embed (existing)
-        main_embed = await self.format_match_analysis(match)
-        embeds.append(main_embed)
+        # Single unified embed with all analysis
+        unified_embed = await self.format_match_analysis(match)
+        embeds.append(unified_embed)
         
-        # Extract team IDs from match data
-        home_team_id = match.additional_data.get("home_team_id")
-        away_team_id = match.additional_data.get("away_team_id")
-        
-        if home_team_id and away_team_id:
-            logger.info(f"Creating enhanced analysis for {match.away_team} @ {match.home_team} (teams: {away_team_id} @ {home_team_id})")
-            
-            # 2. Team Form Analysis Embed
-            form_embed = await self.create_team_form_embed(match, home_team_id, away_team_id)
-            if form_embed:
-                embeds.append(form_embed)
-                logger.info(f"Added team form embed for {match.away_team} @ {match.home_team}")
-            else:
-                logger.warning(f"Failed to create team form embed for {match.away_team} @ {match.home_team}")
-            
-            # 3. Scoring Trends Analysis Embed  
-            scoring_embed = await self.create_scoring_trends_embed(match, home_team_id, away_team_id)
-            if scoring_embed:
-                embeds.append(scoring_embed)
-                logger.info(f"Added scoring trends embed for {match.away_team} @ {match.home_team}")
-            else:
-                logger.warning(f"Failed to create scoring trends embed for {match.away_team} @ {match.home_team}")
-            
-            # 4. Betting Odds Analysis
-            odds_embed = await self.create_betting_odds_embed(match, home_team_id, away_team_id)
-            if odds_embed:
-                embeds.append(odds_embed)
-                logger.info(f"Added betting odds embed for {match.away_team} @ {match.home_team}")
-            else:
-                logger.warning(f"Failed to create betting odds embed for {match.away_team} @ {match.home_team}")
-
-            # 5. Player Props Analysis (NEW)
-            player_props_embed = await self.create_player_props_embed(match, home_team_id, away_team_id)
-            if player_props_embed:
-                embeds.append(player_props_embed)
-                logger.info(f"Added player props embed for {match.away_team} @ {match.home_team}")
-            else:
-                logger.warning(f"Failed to create player props embed for {match.away_team} @ {match.home_team}")
-        else:
-            logger.warning(f"Missing team IDs for {match.away_team} @ {match.home_team}: home={home_team_id}, away={away_team_id}")
-        
-        logger.info(f"Generated {len(embeds)} embeds for {match.away_team} @ {match.home_team}")
+        logger.info(f"Generated unified embed for {match.away_team} @ {match.home_team}")
         return embeds
     
     async def create_team_form_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
