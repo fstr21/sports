@@ -382,8 +382,8 @@ class MLBHandler(BaseSportHandler):
                 logger.warning(f"No form data returned for away team {away_team_id}")
             elif away_form_result:
                 logger.info(f"Away team form result for team {away_team_id}: {away_form_result}")
-                # Data is already parsed, no need for double nesting
-                away_data = away_form_result.get("form", {}) if "form" in away_form_result else away_form_result
+                # Extract form data from the nested structure: data.form
+                away_data = away_form_result.get("data", {}).get("form", {})
                 wins = away_data.get("wins", 0)
                 losses = away_data.get("losses", 0)
                 win_pct = away_data.get("win_percentage", "N/A")
@@ -403,8 +403,8 @@ class MLBHandler(BaseSportHandler):
                 logger.warning(f"No form data returned for home team {home_team_id}")
             elif home_form_result:
                 logger.info(f"Home team form result for team {home_team_id}: {home_form_result}")
-                # Data is already parsed, no need for double nesting
-                home_data = home_form_result.get("form", {}) if "form" in home_form_result else home_form_result
+                # Extract form data from the nested structure: data.form
+                home_data = home_form_result.get("data", {}).get("form", {})
                 wins = home_data.get("wins", 0)
                 losses = home_data.get("losses", 0)
                 win_pct = home_data.get("win_percentage", "N/A")
@@ -452,8 +452,8 @@ class MLBHandler(BaseSportHandler):
             # Away team scoring
             if not isinstance(away_trends_result, Exception) and away_trends_result:
                 logger.debug(f"Away team trends result: {away_trends_result}")
-                # Data is already parsed, no need for double nesting
-                away_trends = away_trends_result.get("trends", {}) if "trends" in away_trends_result else away_trends_result
+                # Extract trends data from the nested structure: data.trends
+                away_trends = away_trends_result.get("data", {}).get("trends", {})
                 rpg = away_trends.get("runs_per_game", 0)
                 rapg = away_trends.get("runs_allowed_per_game", 0)
                 diff = away_trends.get("run_differential", 0)
@@ -468,8 +468,8 @@ class MLBHandler(BaseSportHandler):
             # Home team scoring
             if not isinstance(home_trends_result, Exception) and home_trends_result:
                 logger.debug(f"Home team trends result: {home_trends_result}")
-                # Data is already parsed, no need for double nesting
-                home_trends = home_trends_result.get("trends", {}) if "trends" in home_trends_result else home_trends_result
+                # Extract trends data from the nested structure: data.trends
+                home_trends = home_trends_result.get("data", {}).get("trends", {})
                 rpg = home_trends.get("runs_per_game", 0)
                 rapg = home_trends.get("runs_allowed_per_game", 0)
                 diff = home_trends.get("run_differential", 0)
