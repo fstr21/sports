@@ -69,9 +69,13 @@ class MLBHandler(BaseSportHandler):
                         topic=f"{match.away_team} @ {match.home_team} - MLB"
                     )
                     
-                    # Create and send match analysis embed
-                    embed = await self.format_match_analysis(match)
-                    await channel.send(embed=embed)
+                    # Create and send comprehensive match analysis
+                    embeds = await self.create_comprehensive_game_analysis(match)
+                    
+                    # Send all embeds
+                    for embed in embeds:
+                        await channel.send(embed=embed)
+                        await asyncio.sleep(0.5)  # Rate limit between embeds
                     
                     created += 1
                     
@@ -318,6 +322,180 @@ class MLBHandler(BaseSportHandler):
         
         embed.set_footer(text="MLB Analysis powered by MLB MCP")
         return embed
+    
+    async def create_comprehensive_game_analysis(self, match: Match) -> List[discord.Embed]:
+        """
+        Create comprehensive analysis using additional MLB MCP tools
+        Uses: getMLBTeamForm, getMLBTeamScoringTrends for both teams
+        """
+        embeds = []
+        
+        # 1. Main Game Embed (existing)
+        main_embed = await self.format_match_analysis(match)
+        embeds.append(main_embed)
+        
+        # Extract team IDs from match data
+        home_team_id = match.additional_data.get("home_team_id")
+        away_team_id = match.additional_data.get("away_team_id")
+        
+        if home_team_id and away_team_id:
+            # 2. Team Form Analysis Embed
+            form_embed = await self.create_team_form_embed(match, home_team_id, away_team_id)
+            if form_embed:
+                embeds.append(form_embed)
+            
+            # 3. Scoring Trends Analysis Embed  
+            scoring_embed = await self.create_scoring_trends_embed(match, home_team_id, away_team_id)
+            if scoring_embed:
+                embeds.append(scoring_embed)
+        
+        return embeds
+    
+    async def create_team_form_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
+        """Create team form comparison using getMLBTeamForm"""
+        try:
+            # Get team forms in parallel
+            home_form_task = self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": home_team_id})
+            away_form_task = self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": away_team_id})
+            
+            home_form_result, away_form_result = await asyncio.gather(
+                home_form_task, away_form_task, return_exceptions=True
+            )
+            
+            # Create form embed
+            embed = discord.Embed(
+                title=f"📊 Team Form: {match.away_team} vs {match.home_team}",
+                color=0x00aa00,
+                timestamp=datetime.now()
+            )
+            
+            # Away team form
+            if not isinstance(away_form_result, Exception) and away_form_result:
+                away_data = away_form_result.get("data", {}).get("form", {})
+                wins = away_data.get("wins", 0)
+                losses = away_data.get("losses", 0)
+                win_pct = away_data.get("win_percentage", "N/A")
+                streak = away_data.get("streak", "N/A")
+                games_back = away_data.get("games_back", "N/A")
+                
+                embed.add_field(
+                    name=f"✈️ {match.away_team} (Away)",
+                    value=f"**Record:** {wins}-{losses}\n**Win %:** {win_pct}\n**Streak:** {streak}\n**GB:** {games_back}",
+                    inline=True
+                )
+            
+            # Home team form
+            if not isinstance(home_form_result, Exception) and home_form_result:
+                home_data = home_form_result.get("data", {}).get("form", {})
+                wins = home_data.get("wins", 0)
+                losses = home_data.get("losses", 0)
+                win_pct = home_data.get("win_percentage", "N/A")
+                streak = home_data.get("streak", "N/A")
+                games_back = home_data.get("games_back", "N/A")
+                
+                embed.add_field(
+                    name=f"🏠 {match.home_team} (Home)",
+                    value=f"**Record:** {wins}-{losses}\n**Win %:** {win_pct}\n**Streak:** {streak}\n**GB:** {games_back}",
+                    inline=True
+                )
+            
+            # Add matchup analysis
+            embed.add_field(
+                name="⚖️ Matchup Notes",
+                value="Form data from current season standings\nStreaks: W=Win, L=Loss\nGB=Games Back from division lead",
+                inline=False
+            )
+            
+            embed.set_footer(text="Team Form Analysis • Powered by getMLBTeamForm")
+            return embed
+            
+        except Exception as e:
+            logger.error(f"Error creating team form embed: {e}")
+            return None
+    
+    async def create_scoring_trends_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
+        """Create scoring trends comparison using getMLBTeamScoringTrends"""
+        try:
+            # Get scoring trends in parallel
+            home_trends_task = self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": home_team_id})
+            away_trends_task = self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": away_team_id})
+            
+            home_trends_result, away_trends_result = await asyncio.gather(
+                home_trends_task, away_trends_task, return_exceptions=True
+            )
+            
+            # Create scoring embed
+            embed = discord.Embed(
+                title=f"📈 Scoring Trends: {match.away_team} vs {match.home_team}",
+                color=0xaa6600,
+                timestamp=datetime.now()
+            )
+            
+            # Away team scoring
+            if not isinstance(away_trends_result, Exception) and away_trends_result:
+                away_trends = away_trends_result.get("data", {}).get("trends", {})
+                rpg = away_trends.get("runs_per_game", 0)
+                rapg = away_trends.get("runs_allowed_per_game", 0)
+                diff = away_trends.get("run_differential", 0)
+                games_played = away_trends.get("games_played", 0)
+                
+                embed.add_field(
+                    name=f"⚔️ {match.away_team} Offense",
+                    value=f"**Runs/Game:** {rpg:.1f}\n**Allowed/Game:** {rapg:.1f}\n**Run Diff:** {diff:+d}\n**Games:** {games_played}",
+                    inline=True
+                )
+            
+            # Home team scoring
+            if not isinstance(home_trends_result, Exception) and home_trends_result:
+                home_trends = home_trends_result.get("data", {}).get("trends", {})
+                rpg = home_trends.get("runs_per_game", 0)
+                rapg = home_trends.get("runs_allowed_per_game", 0)
+                diff = home_trends.get("run_differential", 0)
+                games_played = home_trends.get("games_played", 0)
+                
+                embed.add_field(
+                    name=f"🏠 {match.home_team} Offense",
+                    value=f"**Runs/Game:** {rpg:.1f}\n**Allowed/Game:** {rapg:.1f}\n**Run Diff:** {diff:+d}\n**Games:** {games_played}",
+                    inline=True
+                )
+            
+            # Add analysis
+            embed.add_field(
+                name="💡 Scoring Analysis",
+                value="Season-long offensive and defensive averages\nRun Differential = Total Runs Scored - Total Runs Allowed\nPositive diff = Better offense than defense",
+                inline=False
+            )
+            
+            embed.set_footer(text="Scoring Trends Analysis • Powered by getMLBTeamScoringTrends")
+            return embed
+            
+        except Exception as e:
+            logger.error(f"Error creating scoring trends embed: {e}")
+            return None
+    
+    async def call_mlb_mcp_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Helper method to call MLB MCP tools"""
+        try:
+            response = await self.mcp_client.call_mcp(
+                self.config['mcp_url'],
+                tool_name,
+                arguments
+            )
+            
+            if not response.success:
+                logger.error(f"MLB MCP tool {tool_name} error: {response.error}")
+                return None
+            
+            if not response.data.get("ok"):
+                error_msg = response.data.get("error", "Unknown error")
+                logger.error(f"MLB MCP tool {tool_name} returned error: {error_msg}")
+                return None
+            
+            return response.data
+            
+        except Exception as e:
+            logger.error(f"Error calling MLB MCP tool {tool_name}: {e}")
+            return None
     
     def _convert_to_match_object(self, game_data: Dict[str, Any]) -> Optional[Match]:
         """Convert getMLBScheduleET game data to Match object"""
