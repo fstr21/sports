@@ -388,14 +388,13 @@ class MLBHandler(BaseSportHandler):
             else:
                 logger.warning(f"Failed to create scoring trends embed for {match.away_team} @ {match.home_team}")
             
-            # 4. Pitcher Matchup Analysis Embed (temporarily disabled - debugging MCP parsing)
-            # pitcher_embed = await self.create_pitcher_matchup_embed(match, home_team_id, away_team_id)
-            # if pitcher_embed:
-            #     embeds.append(pitcher_embed)
-            #     logger.info(f"Added pitcher matchup embed for {match.away_team} @ {match.home_team}")
-            # else:
-            #     logger.warning(f"Failed to create pitcher matchup embed for {match.away_team} @ {match.home_team}")
-            logger.info(f"Pitcher matchup embed temporarily disabled for debugging")
+            # 4. Pitcher Matchup Analysis Embed
+            pitcher_embed = await self.create_pitcher_matchup_embed(match, home_team_id, away_team_id)
+            if pitcher_embed:
+                embeds.append(pitcher_embed)
+                logger.info(f"Added pitcher matchup embed for {match.away_team} @ {match.home_team}")
+            else:
+                logger.warning(f"Failed to create pitcher matchup embed for {match.away_team} @ {match.home_team}")
         else:
             logger.warning(f"Missing team IDs for {match.away_team} @ {match.home_team}: home={home_team_id}, away={away_team_id}")
         
@@ -543,13 +542,20 @@ class MLBHandler(BaseSportHandler):
     async def create_pitcher_matchup_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
         """Create pitcher matchup analysis using getMLBPitcherMatchup"""
         try:
-            # Get pitcher matchup data for both teams
-            pitcher_response = await self.call_mlb_mcp_tool(
-                "getMLBPitcherMatchup", 
-                {"teams": [away_team_id, home_team_id], "starts": 3}
+            # Call the MCP tool directly (not using helper method due to different response format)
+            response = await self.mcp_client.call_mcp(
+                self.config['mcp_url'],
+                "getMLBPitcherMatchup",
+                {"teams": [away_team_id, home_team_id]}
             )
             
-            if not pitcher_response:
+            if not response.success:
+                logger.warning(f"Pitcher matchup MCP call failed: {response.error}")
+                return None
+            
+            # Handle the response - pitcher matchup might return data directly
+            pitcher_data = response.data
+            if not pitcher_data:
                 logger.warning(f"No pitcher matchup data available for teams {away_team_id}, {home_team_id}")
                 return None
             
@@ -560,7 +566,16 @@ class MLBHandler(BaseSportHandler):
                 timestamp=datetime.now()
             )
             
-            team_rosters = pitcher_response.get("data", {}).get("team_rosters", {})
+            # Try different data access patterns
+            if "team_rosters" in pitcher_data:
+                team_rosters = pitcher_data["team_rosters"]
+            elif "data" in pitcher_data and "team_rosters" in pitcher_data["data"]:
+                team_rosters = pitcher_data["data"]["team_rosters"]
+            else:
+                logger.warning(f"Could not find team_rosters in pitcher data: {list(pitcher_data.keys())}")
+                return None
+            
+            logger.debug(f"Found team rosters for teams: {list(team_rosters.keys())}")
             
             # Away team pitchers
             away_roster = team_rosters.get(str(away_team_id), {})
