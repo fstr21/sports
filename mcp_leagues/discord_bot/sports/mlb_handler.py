@@ -1370,8 +1370,13 @@ class MLBHandler(BaseSportHandler):
                                     streak_info = f"{hit_streak}G" if hit_streak > 0 else "--"
                                 
                                 names.append(f"**{player_name}**{emoji}")
-                                odds.append(f"`{odds_str}`") # Removed "O0.5"
-                                stats_list.append(f"`{avg_hits:.1f}` H/G | `{streak_info}` L5")
+                                odds.append(f"`{odds_str}`")
+                                
+                                # SUGGESTION 1: Conditional stats string
+                                stat_str = f"`{avg_hits:.1f}` H/G"
+                                if streak_info != "--":
+                                    stat_str += f" | `{streak_info}`"
+                                stats_list.append(stat_str)
                                 
                                 if len(processed_players) >= 10: break
                     
@@ -1385,8 +1390,7 @@ class MLBHandler(BaseSportHandler):
                 hr_and_k_stats = []
                 
                 if "batter_home_runs" in player_props_data:
-                    hr_and_k_names.append("**__⚾ Home Runs (O/U 0.5)__**")
-                    hr_and_k_stats.append("**__Odds / L5 Stats__**")
+                    hr_and_k_names.append("**__Home Runs (O/U 0.5)__**")
                     processed_players = set()
                     
                     for outcome in player_props_data["batter_home_runs"]:
@@ -1403,17 +1407,17 @@ class MLBHandler(BaseSportHandler):
                                     if recent_hrs >= 2: emoji = "🔥"
                                 
                                 hr_and_k_names.append(f"**{player_name}**{emoji}")
-                                hr_and_k_stats.append(f"`{odds_str}` | L5: `{recent_hrs} HR`") # Removed "O0.5"
+                                hr_and_k_stats.append(f"`{odds_str}` | L5: `{recent_hrs} HR`")
 
                                 if len(processed_players) >= 10: break
                 
                 if "pitcher_strikeouts" in player_props_data:
-                    # Add separator if HR data exists
                     if hr_and_k_names:
-                        hr_and_k_names.append("\u200B") # Blank line for spacing
+                        hr_and_k_names.append("\u200B")
+                        hr_and_k_stats.insert(0, "**__Odds / L5 Stats__**") # Add header for HR stats
                         hr_and_k_stats.append("\u200B")
 
-                    hr_and_k_names.append("**__🔥 Pitcher Strikeouts__**")
+                    hr_and_k_names.append("**__Pitcher Strikeouts__**")
                     hr_and_k_stats.append("**__Line / Odds__**")
                     processed_players = set()
                     
@@ -1430,25 +1434,26 @@ class MLBHandler(BaseSportHandler):
                                 hr_and_k_stats.append(f"`O{point:.1f} {odds_str}`")
                                 
                                 if len(processed_players) >= 6: break
-
+                
                 if hr_and_k_names:
-                    embed.add_field(name="\u200B", value="\n".join(hr_and_k_names), inline=True)
-                    embed.add_field(name="\u200B", value="\n".join(hr_and_k_stats), inline=True)
+                    # SUGGESTION 2: More contextual headers
+                    embed.add_field(name="⚾ Home Runs / 🔥 Pitchers", value="\n".join(hr_and_k_names), inline=True)
+                    embed.add_field(name="Odds / Stats", value="\n".join(hr_and_k_stats), inline=True)
 
                 # Final Info Field
-                info_text = "• **Betting:** Over lines only, no alternate lines\n"
-                info_text += "• **Stats:** H/G = Hits per game, L5 = Last 5 games\n"
+                # REQUEST 1: Removed "Betting" line
+                info_text = "• **Stats:** H/G = Hits per game, L5 = Last 5 games\n"
                 info_text += "• Lines subject to change"
                 embed.add_field(name="ℹ️ Player Props + Stats Info", value=info_text, inline=False)
-                embed.set_footer(text="Player Props • Powered by The Odds API")
+                
+                # REQUEST 2: Updated footer text
+                embed.set_footer(text="Foster's Sports Bot • Player Props")
                 
                 return embed
                 
         except Exception as e:
             logger.error(f"Error creating player props embed: {e}")
             return None
-
-
 
 
 
