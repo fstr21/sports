@@ -324,7 +324,7 @@ class MLBHandler(BaseSportHandler):
         # Extract betting odds
         away_ml, home_ml = "N/A", "N/A"
         away_rl, home_rl = "N/A", "N/A"
-        total_line, over_odds, under_odds = "8.5", "+102", "-122"
+        total_line, over_odds, under_odds = "N/A", "N/A", "N/A"
 
         if not isinstance(betting_odds, Exception) and betting_odds:
             if betting_odds.get("moneyline"):
@@ -339,7 +339,7 @@ class MLBHandler(BaseSportHandler):
                     home_rl = sp_parts[0].replace(match.home_team, "").strip()
                     away_rl = sp_parts[1].replace(match.away_team, "").strip()
 
-            total_raw = betting_odds.get("total", "Over 8.5 (+102), Under 8.5 (-122)")
+            total_raw = betting_odds.get("total", "")
             # Parse total line and odds
             if "Over" in total_raw and "Under" in total_raw:
                 parts = total_raw.split(",")
@@ -351,11 +351,11 @@ class MLBHandler(BaseSportHandler):
                     if "Over" in over_part and "(" in over_part:
                         over_split = over_part.split("(")
                         total_line = over_split[0].replace("Over", "").strip()
-                        over_odds = "(" + over_split[1] if len(over_split) > 1 else "+102"
+                        over_odds = "(" + over_split[1] if len(over_split) > 1 else "N/A"
                     
                     # Extract under odds
                     if "(" in under_part:
-                        under_odds = under_part.split("(")[1].replace(")", "") if "(" in under_part else "-122"
+                        under_odds = under_part.split("(")[1].replace(")", "") if "(" in under_part else "N/A"
 
         # Generate analysis following the specification
         analysis = self.generate_matchup_analysis(
@@ -375,32 +375,35 @@ class MLBHandler(BaseSportHandler):
             timestamp=datetime.now()
         )
 
-        # Add fields following refined specification
-        # Header for Betting Lines
-        embed.add_field(name="\u200B", value="**__Betting Lines__**", inline=False)
+        # Add fields following refined specification with emojis and symmetrical betting grid
+        # Header for Betting Lines with emoji
+        embed.add_field(name="\u200B", value="**__💰 Betting Lines__**", inline=False)
         
-        # Betting Lines with backticks for numbers
+        # Symmetrical betting grid (2x3 layout)
         embed.add_field(name="Moneyline", value=f"{match.away_team}: `{away_ml}`\n{match.home_team}: `{home_ml}`", inline=True)
         embed.add_field(name="Run Line", value=f"{match.away_team}: `{away_rl}`\n{match.home_team}: `{home_rl}`", inline=True)
-        embed.add_field(name="Total (O/U)", value=f"Over {total_line}: `{over_odds}` Under {total_line}: `{under_odds}`", inline=False)
+        over_field_name = f"Over {total_line}" if total_line != "N/A" else "Over"
+        under_field_name = f"Under {total_line}" if total_line != "N/A" else "Under"
+        embed.add_field(name=over_field_name, value=f"`{over_odds}`", inline=True)
+        embed.add_field(name=under_field_name, value=f"`{under_odds}`", inline=True)
         
-        # Clean separator and header for Tale of the Tape
-        embed.add_field(name="\u200B", value="**__Tale of the Tape__**", inline=False)
+        # Clean separator and header for Tale of the Tape with emoji
+        embed.add_field(name="\u200B", value="**__📊 Tale of the Tape__**", inline=False)
         
-        # Team stats with merged L10 form (perfect 2-column layout)
+        # Team stats with highlighted run differential and merged L10 form
         embed.add_field(
             name=match.away_team, 
-            value=f"Record: `{away_record} ({away_winpct})`\nRun Diff: `{away_run_diff:+d}`\nAllowed/Game: `{away_ra_game:.2f}`\nL10 Form: `{away_last10}`", 
+            value=f"Record: `{away_record} ({away_winpct})`\n⭐ Run Diff: `{away_run_diff:+d}`\nAllowed/Game: `{away_ra_game:.2f}`\nL10 Form: `{away_last10}`", 
             inline=True
         )
         embed.add_field(
             name=match.home_team, 
-            value=f"Record: `{home_record} ({home_winpct})`\nRun Diff: `{home_run_diff:+d}`\nAllowed/Game: `{home_ra_game:.2f}`\nL10 Form: `{home_last10}`", 
+            value=f"Record: `{home_record} ({home_winpct})`\n⭐ Run Diff: `{home_run_diff:+d}`\nAllowed/Game: `{home_ra_game:.2f}`\nL10 Form: `{home_last10}`", 
             inline=True
         )
         
-        # Analysis section with clean separator
-        embed.add_field(name="\u200B", value=f"**__Analysis & Recommendation__**\n{analysis}", inline=False)
+        # Analysis section with clean separator and emoji
+        embed.add_field(name="\u200B", value=f"**__💡 Analysis & Recommendation__**\n{analysis}", inline=False)
         
         embed.set_footer(text="MLB Analysis powered by MLB MCP")
         return embed
@@ -551,9 +554,9 @@ class MLBHandler(BaseSportHandler):
         betting_content = "```\nOdds via BetOnline.ag\n\n"
         if not isinstance(betting_odds, Exception) and betting_odds:
             # Parse actual odds
-            ml_away, ml_home = "-112", "+102"
-            spread_away, spread_home = "-1.5 (+149)", "+1.5 (-170)"
-            total_over, total_under = "Over 8.5 (+102)", "Under 8.5 (-122)"
+            ml_away, ml_home = "N/A", "N/A"
+            spread_away, spread_home = "N/A", "N/A"
+            total_over, total_under = "N/A", "N/A"
             
             if betting_odds.get("moneyline"):
                 ml_parts = betting_odds["moneyline"].split(' | ')
