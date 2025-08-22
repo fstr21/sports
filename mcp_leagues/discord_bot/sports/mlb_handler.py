@@ -265,8 +265,8 @@ class MLBHandler(BaseSportHandler):
         tasks = []
         if home_team_id and away_team_id:
             tasks = [
-                self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": home_team_id}),
-                self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": away_team_id}),
+                self.call_mlb_mcp_tool("getMLBTeamFormEnhanced", {"team_id": home_team_id}),
+                self.call_mlb_mcp_tool("getMLBTeamFormEnhanced", {"team_id": away_team_id}),
                 self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": home_team_id}),
                 self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": away_team_id}),
                 self.get_betting_odds_for_game(match)
@@ -386,8 +386,48 @@ class MLBHandler(BaseSportHandler):
         
         embed.add_field(name="📊 Team Comparison", value=team_content, inline=False)
 
-        # Remove Recent Form section - data not available from MCP server
-        # The Team Comparison section already shows current streak and record
+        # Enhanced Recent Form section using real MLB data
+        form_content = "```\n"
+        
+        # Get enhanced form data from MCP response
+        away_last10 = "N/A"
+        home_last10 = "N/A"
+        away_home_recent = "N/A"
+        away_away_recent = "N/A"
+        home_home_recent = "N/A" 
+        home_away_recent = "N/A"
+        away_streak_emoji = ""
+        home_streak_emoji = ""
+        
+        if not isinstance(away_form, Exception) and away_form:
+            away_data = away_form.get("data", {})
+            enhanced = away_data.get("enhanced_records", {})
+            streak_info = away_data.get("streak_info", {})
+            
+            away_last10 = enhanced.get("last_10", "N/A")
+            away_home_recent = enhanced.get("home_recent", "N/A")
+            away_away_recent = enhanced.get("away_recent", "N/A")
+            away_streak_emoji = streak_info.get("emoji", "")
+
+        if not isinstance(home_form, Exception) and home_form:
+            home_data = home_form.get("data", {})
+            enhanced = home_data.get("enhanced_records", {})
+            streak_info = home_data.get("streak_info", {})
+            
+            home_last10 = enhanced.get("last_10", "N/A")
+            home_home_recent = enhanced.get("home_recent", "N/A")
+            home_away_recent = enhanced.get("away_recent", "N/A")
+            home_streak_emoji = streak_info.get("emoji", "")
+        
+        form_content += f"| Recent Form   | {match.away_team:<20} | {match.home_team:<20} |\n"
+        form_content += f"|---------------|{'-' * 20}|{'-' * 20}|\n"
+        form_content += f"| Last 10 Games | {away_last10:<20} | {home_last10:<20} |\n"
+        form_content += f"| Home Recent   | {away_home_recent:<20} | {home_home_recent:<20} |\n"
+        form_content += f"| Away Recent   | {away_away_recent:<20} | {home_away_recent:<20} |\n"
+        form_content += f"| Streak        | {away_streak_emoji + ' ' + away_streak:<19} | {home_streak_emoji + ' ' + home_streak:<19} |\n"
+        form_content += "```"
+        
+        embed.add_field(name="📈 Recent Form", value=form_content, inline=False)
 
         # Scoring Trends & Analysis section (no colors)
         scoring_content = "```\n"
