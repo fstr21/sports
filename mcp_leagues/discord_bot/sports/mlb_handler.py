@@ -1279,8 +1279,8 @@ class MLBHandler(BaseSportHandler):
 
     async def create_player_props_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
         """
-        Create player props analysis using the field-based embed strategy.
-        This version avoids code blocks for tables in favor of formatted lists in inline fields.
+        Create player props analysis using a multi-field, multi-column embed strategy
+        for perfect alignment without code blocks.
         """
         try:
             import httpx
@@ -1304,7 +1304,6 @@ class MLBHandler(BaseSportHandler):
                 events_result = events_response.json()
                 
                 if "result" not in events_result or "data" not in events_result["result"]:
-                    logger.warning("No events data from Odds MCP")
                     return None
                 
                 events = events_result["result"]["data"]["events"]
@@ -1313,42 +1312,22 @@ class MLBHandler(BaseSportHandler):
                 for event in events:
                     home_team = event.get("home_team", "").lower()
                     away_team = event.get("away_team", "").lower()
-                    match_home = match.home_team.lower()
-                    match_away = match.away_team.lower()
-                    
-                    if (match_home in home_team or home_team in match_home) and \
-                       (match_away in away_team or away_team in match_away):
+                    if (match.home_team.lower() in home_team or home_team in match.home_team.lower()) and \
+                       (match.away_team.lower() in away_team or away_team in match.away_team.lower()):
                         target_event = event
                         break
                 
-                if not target_event:
-                    logger.warning(f"Could not find event for {match.away_team} @ {match.home_team}")
-                    return None
-                
+                if not target_event: return None
                 event_id = target_event["id"]
                 
-                # Step 2: Get player props for specific markets
+                # Step 2: Get player props data
                 target_markets = ["batter_hits", "batter_home_runs", "pitcher_strikeouts"]
                 player_props_data = {}
-                
                 for market in target_markets:
-                    props_payload = {
-                        "jsonrpc": "2.0",
-                        "method": "tools/call",
-                        "id": 1,
-                        "params": {
-                            "name": "getEventOdds",
-                            "arguments": {
-                                "sport": "baseball_mlb",
-                                "event_id": event_id,
-                                "markets": market
-                            }
-                        }
-                    }
+                    props_payload = { "jsonrpc": "2.0", "method": "tools/call", "id": 1, "params": { "name": "getEventOdds", "arguments": { "sport": "baseball_mlb", "event_id": event_id, "markets": market } } }
                     props_response = await client.post(odds_url, json=props_payload)
                     props_response.raise_for_status()
                     props_result = props_response.json()
-                    
                     if "result" in props_result and "data" in props_result["result"]:
                         event_data = props_result["result"]["data"]["event"]
                         if "bookmakers" in event_data and event_data["bookmakers"]:
@@ -1358,17 +1337,8 @@ class MLBHandler(BaseSportHandler):
                                     player_props_data[market] = market_data["outcomes"]
                                     break
                 
-                all_player_names = set()
-                for market_data in player_props_data.values():
-                    for outcome in market_data:
-                        if outcome.get("name") == "Over":
-                            player_name = outcome.get("description", "")
-                            if player_name:
-                                all_player_names.add(player_name)
-                
-                player_stats = await self.get_player_stats_by_names(
-                    list(all_player_names), home_team_id, away_team_id
-                )
+                all_player_names = {outcome.get("description", "") for market_data in player_props_data.values() for outcome in market_data if outcome.get("name") == "Over" and outcome.get("description")}
+                player_stats = await self.get_player_stats_by_names(list(all_player_names), home_team_id, away_team_id)
                 
                 embed = discord.Embed(
                     title=f"Player Props + Stats • {match.away_team} @ {match.home_team}",
@@ -1377,9 +1347,9 @@ class MLBHandler(BaseSportHandler):
                     timestamp=datetime.now()
                 )
                 
-                # Field 1: Player Hits (Full-width list)
+                # Field Group 1: Player Hits (3 inline columns)
                 if "batter_hits" in player_props_data:
-                    hits_lines = []
+                    names, odds, stats_list = [], [], []
                     processed_players = set()
                     
                     for outcome in player_props_data["batter_hits"]:
@@ -1392,24 +1362,30 @@ class MLBHandler(BaseSportHandler):
 
                                 avg_hits, streak_info, emoji = 0.0, "--", ""
                                 if player_name in player_stats:
-                                    stats = player_stats[player_name]
-                                    avg_hits = stats.get("avg_hits", 0.0)
-                                    hit_streak = stats.get("hit_streak", 0)
+                                    p_stats = player_stats[player_name]
+                                    avg_hits = p_stats.get("avg_hits", 0.0)
+                                    hit_streak = p_stats.get("hit_streak", 0)
                                     if avg_hits >= 1.5: emoji = "🔥"
                                     elif avg_hits >= 1.2: emoji = "⚡"
                                     streak_info = f"{hit_streak}G" if hit_streak > 0 else "--"
-
-                                name_display = f"{player_name}{emoji}"
-                                hits_lines.append(f"**{name_display}:** `O0.5 {odds_str}` | Avg H/G: `{avg_hits:.1f}` | L5: `{streak_info}`")
+                                
+                                names.append(f"**{player_name}**{emoji}")
+                                odds.append(f"`O0.5 {odds_str}`")
+                                stats_list.append(f"`{avg_hits:.1f}` H/G | `{streak_info}` L5")
                                 
                                 if len(processed_players) >= 10: break
                     
-                    if hits_lines:
-                        embed.add_field(name="🏃 Player Hits", value="\n".join(hits_lines), inline=False)
+                    if names:
+                        embed.add_field(name="🏃 Player Hits", value="\n".join(names), inline=True)
+                        embed.add_field(name="Line/Odds", value="\n".join(odds), inline=True)
+                        embed.add_field(name="Stats", value="\n".join(stats_list), inline=True)
 
-                # Field 2: Home Runs (Inline List)
+                # Separator to start a new row of inline fields
+                embed.add_field(name="\u200B", value="\u200B", inline=False)
+
+                # Field Group 2: Home Runs (2 inline columns)
                 if "batter_home_runs" in player_props_data:
-                    hr_lines = []
+                    names, stats_list = [], []
                     processed_players = set()
                     
                     for outcome in player_props_data["batter_home_runs"]:
@@ -1422,22 +1398,21 @@ class MLBHandler(BaseSportHandler):
 
                                 recent_hrs, emoji = 0, ""
                                 if player_name in player_stats:
-                                    stats = player_stats[player_name]
-                                    recent_hrs = stats.get("recent_hrs", 0)
+                                    recent_hrs = player_stats[player_name].get("recent_hrs", 0)
                                     if recent_hrs >= 2: emoji = "🔥"
                                 
-                                name_display = f"{player_name}{emoji}"
-                                hr_display = f"{recent_hrs} HR"
-                                hr_lines.append(f"**{name_display}:** `O0.5 {odds_str}` | L5: `{hr_display}`")
+                                names.append(f"**{player_name}**{emoji}")
+                                stats_list.append(f"`O0.5 {odds_str}` | L5: `{recent_hrs} HR`")
 
                                 if len(processed_players) >= 10: break
 
-                    if hr_lines:
-                        embed.add_field(name="⚾ Home Runs", value="\n".join(hr_lines), inline=True)
+                    if names:
+                        embed.add_field(name="⚾ Home Runs", value="\n".join(names), inline=True)
+                        embed.add_field(name="Odds / L5 Stats", value="\n".join(stats_list), inline=True)
 
-                # Field 3: Pitcher Strikeouts (Inline List)
+                # Field Group 3: Pitcher Strikeouts (2 inline columns, will appear below HRs)
                 if "pitcher_strikeouts" in player_props_data:
-                    k_lines = []
+                    names, odds = [], []
                     processed_players = set()
                     
                     for outcome in player_props_data["pitcher_strikeouts"]:
@@ -1447,34 +1422,36 @@ class MLBHandler(BaseSportHandler):
                                 processed_players.add(player_name)
                                 point = outcome.get("point", 0)
                                 price = outcome.get("price")
-                                
                                 odds_str = f"{price:+d}" if isinstance(price, int) else str(price)
-                                line_display = f"O{point:.1f}"
-                                k_lines.append(f"**{player_name}:** `{line_display} {odds_str}`")
+                                
+                                names.append(f"**{player_name}**")
+                                odds.append(f"`O{point:.1f} {odds_str}`")
                                 
                                 if len(processed_players) >= 6: break
 
-                    if k_lines:
-                        embed.add_field(name="🔥 Pitcher Strikeouts", value="\n".join(k_lines), inline=True)
-                
+                    if names:
+                        # Add a blank inline field if needed to align strikeouts under home runs
+                        if len(embed.fields) % 3 != 0:
+                           embed.add_field(name='\u200B', value='\u200B', inline=True)
+
+                        embed.add_field(name="🔥 Pitcher Strikeouts", value="\n".join(names), inline=True)
+                        embed.add_field(name="Line / Odds", value="\n".join(odds), inline=True)
+
                 # Final Info Field
-                info_text = "• **Betting:** Over lines only, no alternate lines\n"
-                info_text += "• **Stats:** H/G = Hits per game, L5 = Last 5 games\n"
-                info_text += "• Lines subject to change"
-                
+                info_text = "• **Betting:** Over lines only, no alternate lines\n• **Stats:** H/G = Hits per game, L5 = Last 5 games\n• Lines subject to change"
                 embed.add_field(name="ℹ️ Player Props + Stats Info", value=info_text, inline=False)
                 embed.set_footer(text="Player Props • Powered by The Odds API")
-                
-                if not any(market in player_props_data for market in target_markets):
-                    embed.add_field(name="❌ No Props Available", value="Player props not available for this game", inline=False)
                 
                 return embed
                 
         except Exception as e:
             logger.error(f"Error creating player props embed: {e}")
             return None
-        
-        
+
+
+
+
+
 
     async def get_player_stats_by_names(self, player_names: List[str], home_team_id: int, away_team_id: int) -> Dict[str, Dict]:
         """Get player stats for players with betting lines"""
