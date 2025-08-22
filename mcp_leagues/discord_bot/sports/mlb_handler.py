@@ -267,13 +267,15 @@ class MLBHandler(BaseSportHandler):
             tasks = [
                 self.call_mlb_mcp_tool("getMLBTeamFormEnhanced", {"team_id": home_team_id}),
                 self.call_mlb_mcp_tool("getMLBTeamFormEnhanced", {"team_id": away_team_id}),
+                self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": home_team_id}),
+                self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": away_team_id}),
                 self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": home_team_id}),
                 self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": away_team_id}),
                 self.get_betting_odds_for_game(match)
             ]
-            home_form, away_form, home_trends, away_trends, betting_odds = await asyncio.gather(*tasks, return_exceptions=True)
+            home_form_enhanced, away_form_enhanced, home_form_basic, away_form_basic, home_trends, away_trends, betting_odds = await asyncio.gather(*tasks, return_exceptions=True)
         else:
-            home_form = away_form = home_trends = away_trends = betting_odds = None
+            home_form_enhanced = away_form_enhanced = home_form_basic = away_form_basic = home_trends = away_trends = betting_odds = None
         
         # Format game time and date
         raw_game_time = match.additional_data.get('time', match.additional_data.get('start_time', 'TBD'))
@@ -287,36 +289,36 @@ class MLBHandler(BaseSportHandler):
         except Exception:
             pass
 
-        # Extract all data
-        away_record, home_record = "63-65", "61-66"
-        away_winpct, home_winpct = ".492", ".480"
-        away_streak, home_streak = "L1", "L3"
-        away_gb, home_gb = "17.0", "12.5"
+        # Extract season record data from basic form
+        away_record, home_record = "0-0", "0-0"
+        away_winpct, home_winpct = ".000", ".000"
+        away_streak, home_streak = "N/A", "N/A"
+        away_gb, home_gb = "-", "-"
         away_rpg, home_rpg = 4.4, 4.4
         away_rapg, home_rapg = 4.6, 4.2
-        away_diff, home_diff = -26, +27
+        away_diff, home_diff = 0, 0
 
-        if not isinstance(away_form, Exception) and away_form:
-            away_data = away_form.get("data", {}).get("form", {})
-            away_record = f"{away_data.get('wins', 63)}-{away_data.get('losses', 65)}"
-            away_streak = away_data.get("streak", "L1")
-            win_pct = away_data.get('win_percentage', 0.492)
-            if isinstance(win_pct, str) and '.' in win_pct:
-                away_winpct = win_pct
-            elif isinstance(win_pct, (int, float)):
-                away_winpct = f".{int(win_pct * 1000):03d}"
-            away_gb = str(away_data.get("games_back", "17.0"))
+        # Get season record from basic team form
+        if not isinstance(away_form_basic, Exception) and away_form_basic:
+            away_data = away_form_basic.get("data", {}).get("form", {})
+            away_record = f"{away_data.get('wins', 0)}-{away_data.get('losses', 0)}"
+            away_winpct = away_data.get('win_percentage', '.000')
+            away_gb = str(away_data.get("games_back", "-"))
 
-        if not isinstance(home_form, Exception) and home_form:
-            home_data = home_form.get("data", {}).get("form", {})
-            home_record = f"{home_data.get('wins', 61)}-{home_data.get('losses', 66)}"
-            home_streak = home_data.get("streak", "L3")
-            win_pct = home_data.get('win_percentage', 0.480)
-            if isinstance(win_pct, str) and '.' in win_pct:
-                home_winpct = win_pct
-            elif isinstance(win_pct, (int, float)):
-                home_winpct = f".{int(win_pct * 1000):03d}"
-            home_gb = str(home_data.get("games_back", "12.5"))
+        if not isinstance(home_form_basic, Exception) and home_form_basic:
+            home_data = home_form_basic.get("data", {}).get("form", {})
+            home_record = f"{home_data.get('wins', 0)}-{home_data.get('losses', 0)}"
+            home_winpct = home_data.get('win_percentage', '.000')
+            home_gb = str(home_data.get("games_back", "-"))
+
+        # Get current streak from enhanced form
+        if not isinstance(away_form_enhanced, Exception) and away_form_enhanced:
+            enhanced_data = away_form_enhanced.get("data", {}).get("form", {})
+            away_streak = enhanced_data.get("streak", "N/A")
+
+        if not isinstance(home_form_enhanced, Exception) and home_form_enhanced:
+            enhanced_data = home_form_enhanced.get("data", {}).get("form", {})
+            home_streak = enhanced_data.get("streak", "N/A")
             
         if not isinstance(away_trends, Exception) and away_trends:
             away_trends_data = away_trends.get("data", {}).get("trends", {})
@@ -399,8 +401,8 @@ class MLBHandler(BaseSportHandler):
         away_streak_emoji = ""
         home_streak_emoji = ""
         
-        if not isinstance(away_form, Exception) and away_form:
-            away_data = away_form.get("data", {})
+        if not isinstance(away_form_enhanced, Exception) and away_form_enhanced:
+            away_data = away_form_enhanced.get("data", {})
             enhanced = away_data.get("enhanced_records", {})
             streak_info = away_data.get("streak_info", {})
             
@@ -409,8 +411,8 @@ class MLBHandler(BaseSportHandler):
             away_away_recent = enhanced.get("away_recent", "N/A")
             away_streak_emoji = streak_info.get("emoji", "")
 
-        if not isinstance(home_form, Exception) and home_form:
-            home_data = home_form.get("data", {})
+        if not isinstance(home_form_enhanced, Exception) and home_form_enhanced:
+            home_data = home_form_enhanced.get("data", {})
             enhanced = home_data.get("enhanced_records", {})
             streak_info = home_data.get("streak_info", {})
             
