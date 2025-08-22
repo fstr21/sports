@@ -265,8 +265,8 @@ class MLBHandler(BaseSportHandler):
         tasks = []
         if home_team_id and away_team_id:
             tasks = [
-                self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": home_team_id}),
-                self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": away_team_id}),
+                self.call_mlb_mcp_tool("getMLBTeamFormEnhanced", {"team_id": home_team_id}),
+                self.call_mlb_mcp_tool("getMLBTeamFormEnhanced", {"team_id": away_team_id}),
                 self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": home_team_id}),
                 self.call_mlb_mcp_tool("getMLBTeamScoringTrends", {"team_id": away_team_id}),
                 self.get_betting_odds_for_game(match)
@@ -386,34 +386,53 @@ class MLBHandler(BaseSportHandler):
         
         embed.add_field(name="📊 Team Comparison", value=team_content, inline=False)
 
-        # Recent Form section (Last 10 games, Home/Away splits)
+        # Enhanced Recent Form section using team_form_enhanced data
         form_content = "```\n"
         
-        # Get last 10 and home/away records if available
-        away_last10 = "5-5"  # Default
-        home_last10 = "4-6"  # Default
-        away_home_record = "32-32"  # Default
-        away_away_record = "31-33"  # Default
-        home_home_record = "31-35"  # Default
-        home_away_record = "30-31"  # Default
+        # Get enhanced form data if available
+        away_recent_games = "N/A"
+        home_recent_games = "N/A" 
+        away_home_games = "N/A"
+        away_away_games = "N/A"
+        home_home_games = "N/A"
+        home_away_games = "N/A"
+        away_streak_emoji = ""
+        home_streak_emoji = ""
         
         if not isinstance(away_form, Exception) and away_form:
-            away_form_data = away_form.get("data", {}).get("form", {})
-            away_last10 = away_form_data.get("last_10", "5-5")
-            away_home_record = away_form_data.get("home_record", "32-32")
-            away_away_record = away_form_data.get("away_record", "31-33")
+            away_data = away_form.get("data", {}).get("form", {})
+            # Check if we have enhanced data structure
+            if "enhanced_records" in away_data:
+                enhanced = away_data["enhanced_records"]
+                away_recent_games = str(enhanced.get("total_recent_games", "N/A"))
+                away_home_games = f"{enhanced.get('home_games_count', 0)} games"
+                away_away_games = f"{enhanced.get('away_games_count', 0)} games"
+            
+            # Get streak with emoji if available
+            streak_info = away_data.get("streak_info", {})
+            if streak_info and "emoji" in streak_info:
+                away_streak_emoji = streak_info["emoji"]
 
         if not isinstance(home_form, Exception) and home_form:
-            home_form_data = home_form.get("data", {}).get("form", {})
-            home_last10 = home_form_data.get("last_10", "4-6")
-            home_home_record = home_form_data.get("home_record", "31-35")
-            home_away_record = home_form_data.get("away_record", "30-31")
+            home_data = home_form.get("data", {}).get("form", {})
+            # Check if we have enhanced data structure
+            if "enhanced_records" in home_data:
+                enhanced = home_data["enhanced_records"]
+                home_recent_games = str(enhanced.get("total_recent_games", "N/A"))
+                home_home_games = f"{enhanced.get('home_games_count', 0)} games"
+                home_away_games = f"{enhanced.get('away_games_count', 0)} games"
+            
+            # Get streak with emoji if available
+            streak_info = home_data.get("streak_info", {})
+            if streak_info and "emoji" in streak_info:
+                home_streak_emoji = streak_info["emoji"]
         
         form_content += f"| Recent Form   | {match.away_team:<20} | {match.home_team:<20} |\n"
         form_content += f"|---------------|{'-' * 20}|{'-' * 20}|\n"
-        form_content += f"| Last 10       | {away_last10:<20} | {home_last10:<20} |\n"
-        form_content += f"| Home Record   | {away_home_record:<20} | {home_home_record:<20} |\n"
-        form_content += f"| Away Record   | {away_away_record:<20} | {home_away_record:<20} |\n"
+        form_content += f"| Recent Games  | {away_recent_games:<20} | {home_recent_games:<20} |\n"
+        form_content += f"| Home Games    | {away_home_games:<20} | {home_home_games:<20} |\n"
+        form_content += f"| Away Games    | {away_away_games:<20} | {home_away_games:<20} |\n"
+        form_content += f"| Streak        | {away_streak_emoji + ' ' + away_streak:<19} | {home_streak_emoji + ' ' + home_streak:<20} |\n"
         form_content += "```"
         
         embed.add_field(name="📈 Recent Form", value=form_content, inline=False)
