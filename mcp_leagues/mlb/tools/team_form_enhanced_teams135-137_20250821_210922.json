@@ -1,0 +1,161 @@
+{
+  "teams": [
+    135,
+    137
+  ],
+  "season": 2025,
+  "timestamp": "2025-08-21T21:09:14.586678",
+  "team_forms": {
+    "135": {
+      "team_id": 135,
+      "team_name": "San Diego Padres",
+      "basic_record": {
+        "wins": 72,
+        "losses": 56,
+        "win_percentage": ".563",
+        "games_back": "1.0",
+        "streak": "W3"
+      },
+      "enhanced_records": {
+        "last_10_info": "Data available for 10 games",
+        "home_games_info": "9 home games played",
+        "away_games_info": "9 away games played",
+        "total_recent_games": 18,
+        "home_games_count": 9,
+        "away_games_count": 9
+      },
+      "recent_game_sample": [
+        {
+          "date": "2025-08-21",
+          "game_pk": 776642,
+          "home_team_id": 135,
+          "away_team_id": 137,
+          "home_team_name": "San Diego Padres",
+          "away_team_name": "San Francisco Giants",
+          "status": "Final",
+          "is_home": true
+        },
+        {
+          "date": "2025-08-20",
+          "game_pk": 776656,
+          "home_team_id": 135,
+          "away_team_id": 137,
+          "home_team_name": "San Diego Padres",
+          "away_team_name": "San Francisco Giants",
+          "status": "Final",
+          "is_home": true
+        },
+        {
+          "date": "2025-08-19",
+          "game_pk": 776667,
+          "home_team_id": 135,
+          "away_team_id": 137,
+          "home_team_name": "San Diego Padres",
+          "away_team_name": "San Francisco Giants",
+          "status": "Final",
+          "is_home": true
+        },
+        {
+          "date": "2025-08-18",
+          "game_pk": 776683,
+          "home_team_id": 135,
+          "away_team_id": 137,
+          "home_team_name": "San Diego Padres",
+          "away_team_name": "San Francisco Giants",
+          "status": "Final",
+          "is_home": true
+        },
+        {
+          "date": "2025-08-17",
+          "game_pk": 776697,
+          "home_team_id": 119,
+          "away_team_id": 135,
+          "home_team_name": "Los Angeles Dodgers",
+          "away_team_name": "San Diego Padres",
+          "status": "Final",
+          "is_home": false
+        }
+      ],
+      "api_limitation_note": "Win/Loss details require game-level analysis beyond current scope"
+    },
+    "137": {
+      "team_id": 137,
+      "team_name": "San Francisco Giants",
+      "basic_record": {
+        "wins": 61,
+        "losses": 67,
+        "win_percentage": ".477",
+        "games_back": "12.0",
+        "streak": "L3"
+      },
+      "enhanced_records": {
+        "last_10_info": "Data available for 10 games",
+        "home_games_info": "9 home games played",
+        "away_games_info": "9 away games played",
+        "total_recent_games": 18,
+        "home_games_count": 9,
+        "away_games_count": 9
+      },
+      "recent_game_sample": [
+        {
+          "date": "2025-08-21",
+          "game_pk": 776642,
+          "home_team_id": 135,
+          "away_team_id": 137,
+          "home_team_name": "San Diego Padres",
+          "away_team_name": "San Francisco Giants",
+          "status": "Final",
+          "is_home": false
+        },
+        {
+          "date": "2025-08-20",
+          "game_pk": 776656,
+          "home_team_id": 135,
+          "away_team_id": 137,
+          "home_team_name": "San Diego Padres",
+          "away_team_name": "San Francisco Giants",
+          "status": "Final",
+          "is_home": false
+        },
+        {
+          "date": "2025-08-19",
+          "game_pk": 776667,
+          "home_team_id": 135,
+          "away_team_id": 137,
+          "home_team_name": "San Diego Padres",
+          "away_team_name": "San Francisco Giants",
+          "status": "Final",
+          "is_home": false
+        },
+        {
+          "date": "2025-08-18",
+          "game_pk": 776683,
+          "home_team_id": 135,
+          "away_team_id": 137,
+          "home_team_name": "San Diego Padres",
+          "away_team_name": "San Francisco Giants",
+          "status": "Final",
+          "is_home": false
+        },
+        {
+          "date": "2025-08-17",
+          "game_pk": 776703,
+          "home_team_id": 137,
+          "away_team_id": 139,
+          "home_team_name": "San Francisco Giants",
+          "away_team_name": "Tampa Bay Rays",
+          "status": "Final",
+          "is_home": true
+        }
+      ],
+      "api_limitation_note": "Win/Loss details require game-level analysis beyond current scope"
+    }
+  },
+  "recent_games": {},
+  "calculated_records": {},
+  "summary": {
+    "teams_analyzed": 2,
+    "total_recent_games": 36,
+    "api_enhancement": "Combined standings data with recent game schedules for better analysis"
+  }
+}

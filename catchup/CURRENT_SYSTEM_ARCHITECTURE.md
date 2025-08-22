@@ -94,7 +94,7 @@ sports_discord_bot.py                 # Main entry point
 **URL**: `https://mlbmcp-production.up.railway.app/mcp`
 **Status**: Fully Operational ✅
 
-#### Available Tools (8 total)
+#### Available Tools (9 total)
 ```python
 1. getMLBScheduleET        # Game schedules with team IDs
 2. getMLBTeams            # Team information, divisions, leagues
@@ -102,8 +102,9 @@ sports_discord_bot.py                 # Main entry point
 4. getMLBPlayerLastN      # Player game logs and statistics
 5. getMLBPitcherMatchup   # Pitcher analysis (requires player IDs)
 6. getMLBTeamForm         # Team standings, records, streaks
-7. getMLBPlayerStreaks    # Player performance streaks
-8. getMLBTeamScoringTrends # Team offensive/defensive stats
+7. getMLBTeamFormEnhanced # Enhanced form with last 10, home/away splits, streak emojis
+8. getMLBPlayerStreaks    # Player performance streaks
+9. getMLBTeamScoringTrends # Team offensive/defensive stats
 ```
 
 #### Data Sources
@@ -112,12 +113,16 @@ sports_discord_bot.py                 # Main entry point
 - **Complete Coverage**: All 30 MLB teams, full season data
 
 #### Discord Integration
-Generates **5 comprehensive embeds** per game:
-1. **Enhanced Game Analysis**: Venue, divisions, rivalry detection
-2. **Team Form Analysis**: Records, streaks, games back
-3. **Scoring Trends**: Runs per game, run differential
-4. **Betting Odds**: Live moneylines, spreads, totals
-5. **Player Props + Stats**: Live betting markets with performance data and emojis
+Generates **2 streamlined professional embeds** per game:
+1. **Enhanced Game Analysis**: Unified format with betting grid + team comparison + analysis
+   - 💰 Betting Lines (symmetrical 2x3 grid)
+   - 📊 Tale of the Tape (team stats with L10 form)
+   - 💡 Analysis & Recommendation (data-driven insights)
+2. **Player Props + Stats**: Professional multi-column table format
+   - 🏃 Player Hits (full-width table with perfect alignment)
+   - ⚾ Home Runs (inline table with recent power stats)
+   - 🔥 Pitcher Strikeouts (inline table with starting pitcher props)
+   - ℹ️ Info Section (bulleted format with definitions)
 
 ---
 
@@ -178,7 +183,7 @@ Generates **5 comprehensive embeds** per game:
 
 ## 🔄 Data Flow Patterns
 
-### MLB Game Analysis Flow
+### MLB Game Analysis Flow (Enhanced)
 ```
 1. User Command: /create-channels mlb
    └── Discord Bot validates permissions
@@ -186,21 +191,27 @@ Generates **5 comprehensive embeds** per game:
 2. Sport Manager Routes to MLBHandler
    └── MLBHandler.create_channels(interaction, date)
    
-3. Parallel MCP Calls (4 simultaneous)
-   ├── MLB MCP: getMLBScheduleET → Game schedules
-   ├── MLB MCP: getMLBTeamForm → Team records  
-   ├── MLB MCP: getMLBTeamScoringTrends → Statistics
-   └── Odds MCP: getOdds → Betting lines
+3. Parallel MCP Calls (7 simultaneous for enhanced data)
+   ├── MLB MCP: getMLBTeamFormEnhanced → Enhanced form with L10, home/away splits
+   ├── MLB MCP: getMLBTeamFormEnhanced → Away team enhanced form
+   ├── MLB MCP: getMLBTeamForm → Basic season records (home)
+   ├── MLB MCP: getMLBTeamForm → Basic season records (away)
+   ├── MLB MCP: getMLBTeamScoringTrends → Statistics (home)
+   ├── MLB MCP: getMLBTeamScoringTrends → Statistics (away)
+   └── Odds MCP: getOdds → Live betting lines with player props
    
-4. Data Processing & Embed Creation
-   ├── Enhanced Game Analysis Embed
-   ├── Team Form Analysis Embed
-   ├── Scoring Trends Analysis Embed
-   ├── Betting Odds Analysis Embed
-   └── Player Props + Stats Embed (with performance emojis)
+4. Data Processing & Streamlined Embed Creation
+   ├── Enhanced Game Analysis Embed (unified format)
+   │   ├── Symmetrical betting grid (2x3 layout)
+   │   ├── Team comparison with enhanced L10 form
+   │   └── Data-driven analysis with insights
+   └── Player Props + Stats Embed (professional table format)
+       ├── Multi-column layout with perfect alignment
+       ├── Performance emojis and recent stats
+       └── Clean string processing for consistency
    
 5. Discord Response
-   └── 5 comprehensive embeds per game sent to channel
+   └── 2 professional embeds per game sent to channel (Eastern Time)
 ```
 
 ### Soccer H2H Analysis Flow
@@ -241,16 +252,38 @@ payload = {
 - **Response Parsing**: Handles different MCP response formats
 - **Error Handling**: Graceful failure with detailed logging
 
-### Discord Embed Architecture
+### Discord Embed Architecture (Enhanced)
 ```python
-# 5-Embed MLB Analysis Pattern
+# 2-Embed Streamlined MLB Analysis Pattern
 embeds = [
-    enhanced_game_analysis,    # Venue, divisions, context
-    team_form_analysis,        # Records, streaks, standings
-    scoring_trends_analysis,   # Offensive/defensive stats
-    betting_odds_analysis,     # Live moneylines, spreads, totals
-    player_props_stats         # Live betting props + performance data with emojis
+    enhanced_game_analysis,    # Unified: betting grid + team comparison + analysis
+    player_props_stats         # Professional tables: hits + home runs + strikeouts
 ]
+
+# Enhanced Game Analysis Structure
+enhanced_game_analysis = {
+    "title": "Away @ Home",
+    "description": "Date | Time ET | Venue",
+    "fields": [
+        {"name": "💰 Betting Lines", "inline": False},    # Section header
+        {"name": "Moneyline", "inline": True},            # 2x3 grid
+        {"name": "Run Line", "inline": True},             # layout
+        {"name": "Over X.X", "inline": True},             # for clean
+        {"name": "Under X.X", "inline": True},            # presentation
+        {"name": "📊 Tale of the Tape", "inline": False}, # Section header
+        {"name": "Away Team", "inline": True},            # Team stats
+        {"name": "Home Team", "inline": True},            # with L10 form
+        {"name": "💡 Analysis", "inline": False}          # Data insights
+    ]
+}
+
+# Professional Player Props Table Structure
+player_props_stats = {
+    "🏃 Player Hits": "Full-width perfect alignment table",
+    "⚾ Home Runs": "Inline table with recent power stats", 
+    "🔥 Pitcher Strikeouts": "Inline table with starter props",
+    "ℹ️ Info": "Bulleted definitions and disclaimers"
+}
 ```
 
 ---
@@ -281,16 +314,19 @@ All services expose `/health` endpoints:
 
 ## 📊 Performance Characteristics
 
-### Response Times
-- **MLB 4-Embed Generation**: <2 seconds
+### Response Times (Enhanced Performance)
+- **MLB 2-Embed Generation**: <2 seconds (improved from 5 embeds)
+- **Enhanced Form Processing**: <1 second (7 parallel calls)
 - **Soccer H2H Analysis**: <1.5 seconds  
 - **Betting Odds Integration**: <1 second
 - **MCP Call Latency**: 200-500ms per call
+- **Deployment Speed**: Improved with .dockerignore optimization
 
-### Concurrent Processing
-- **Parallel MCP Calls**: Up to 4 simultaneous per game
+### Concurrent Processing (Enhanced)
+- **Parallel MCP Calls**: Up to 7 simultaneous per game (enhanced form + basic + trends + odds)
 - **Multiple Games**: Handles 10+ games simultaneously
-- **Discord Rate Limits**: Proper 0.5s delays between embeds
+- **Discord Rate Limits**: Optimized 0.5s delays between 2 embeds (reduced from 5)
+- **String Processing**: Clean sanitization for perfect table alignment
 
 ### Reliability Metrics
 - **MCP Server Uptime**: 99.9%
@@ -341,10 +377,10 @@ PORT=8080
 
 ## 📈 Current Capabilities Matrix
 
-| Sport | Schedule | Teams | Stats | Form | Betting | AI Forecast | Status |
-|-------|----------|-------|-------|------|---------|-------------|--------|
-| MLB | ✅ | ✅ | ✅ | ✅ | ✅ | 🧠 **READY** | **COMPLETE+** |
-| Soccer | ✅ | ✅ | ✅ | ✅ | ⚠️ | 🔬 **TESTING** | **H2H FOCUS** |
+| Sport | Schedule | Teams | Stats | Enhanced Form | Betting | Table Format | AI Forecast | Status |
+|-------|----------|-------|-------|---------------|---------|--------------|-------------|--------|
+| MLB | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🧠 **READY** | **ENHANCED+** |
+| Soccer | ✅ | ✅ | ✅ | ✅ | ⚠️ | ❌ | 🔬 **TESTING** | **H2H FOCUS** |
 | NFL | ✅ | ✅ | ⚠️ | ❌ | ❌ | ❌ | **BASIC** |
 | CFB | ✅ | ✅ | ✅ | ⚠️ | ❌ | ❌ | **BASIC** |
 | NBA | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | **PLANNED** |
