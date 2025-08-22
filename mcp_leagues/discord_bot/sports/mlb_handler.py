@@ -374,41 +374,20 @@ class MLBHandler(BaseSportHandler):
         
         embed.add_field(name="💰 Live Betting Lines", value=betting_content, inline=False)
 
-        # Team Comparison section
+        # Enhanced Team Comparison section with better formatting
         team_content = "```\n"
-        team_content += f"| Stat        | {match.away_team:<20} | {match.home_team:<20} |\n"
-        team_content += f"|-------------|{'-' * 20}|{'-' * 20}|\n"
-        team_content += f"| Record      | {away_record:<20} | {home_record:<20} |\n"
-        team_content += f"| Win %       | {away_winpct:<20} | {home_winpct:<20} |\n"
-        team_content += f"| Streak      | {away_streak:<20} | {home_streak:<20} |\n"
-        team_content += f"| Games Back  | {away_gb:<20} | {home_gb:<20} |\n"
+        team_content += f"| Stat          | {match.away_team:<20} | {match.home_team:<20} |\n"
+        team_content += f"|---------------|{'-' * 20}|{'-' * 20}|\n"
+        team_content += f"| Record        | {away_record:<20} | {home_record:<20} |\n"
+        team_content += f"| Win %         | {away_winpct:<20} | {home_winpct:<20} |\n"
+        team_content += f"| Current Streak| {away_streak:<20} | {home_streak:<20} |\n"
+        team_content += f"| Games Back    | {away_gb:<20} | {home_gb:<20} |\n"
         team_content += "```"
         
         embed.add_field(name="📊 Team Comparison", value=team_content, inline=False)
 
-        # Recent Form section - simplified to show available data only
-        form_content = "```\n"
-        
-        # Calculate home/away records from overall record (approximate)
-        away_wins = int(away_record.split('-')[0]) if '-' in away_record else 0
-        away_losses = int(away_record.split('-')[1]) if '-' in away_record else 0
-        home_wins = int(home_record.split('-')[0]) if '-' in home_record else 0
-        home_losses = int(home_record.split('-')[1]) if '-' in home_record else 0
-        
-        # Estimate home/away splits (typically ~50/50 for MLB)
-        away_home_est = f"{away_wins//2}-{away_losses//2}"
-        away_road_est = f"{away_wins - away_wins//2}-{away_losses - away_losses//2}"
-        home_home_est = f"{home_wins//2}-{home_losses//2}"
-        home_road_est = f"{home_wins - home_wins//2}-{home_losses - home_losses//2}"
-        
-        form_content += f"| Recent Form   | {match.away_team:<20} | {match.home_team:<20} |\n"
-        form_content += f"|---------------|{'-' * 20}|{'-' * 20}|\n"
-        form_content += f"| Current Streak| {away_streak:<20} | {home_streak:<20} |\n"
-        form_content += f"| Home Est.     | {away_home_est:<20} | {home_home_est:<20} |\n"
-        form_content += f"| Road Est.     | {away_road_est:<20} | {home_road_est:<20} |\n"
-        form_content += "```"
-        
-        embed.add_field(name="📈 Recent Form", value=form_content, inline=False)
+        # Remove Recent Form section - data not available from MCP server
+        # The Team Comparison section already shows current streak and record
 
         # Scoring Trends & Analysis section (no colors)
         scoring_content = "```\n"

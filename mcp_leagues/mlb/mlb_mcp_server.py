@@ -10,7 +10,7 @@ import asyncio
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional
 from zoneinfo import ZoneInfo
 
@@ -558,6 +558,206 @@ async def handle_get_mlb_team_form(args: Dict[str, Any]) -> Dict[str, Any]:
         "meta": {"timestamp": now_iso()}
     }
 
+async def handle_get_mlb_team_form_enhanced(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Get enhanced team form with real recent games data"""
+    team_id = args.get("team_id")
+    if not team_id:
+        return {"ok": False, "error": "team_id is required"}
+    
+    try:
+        # Get recent games using the working MLB API endpoint
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=20)).strftime("%Y-%m-%d")
+        
+        client = await get_http_client()
+        url = f"{MLB_STATS_API_BASE}/schedule"
+        params = {
+            "teamId": team_id,
+            "sportId": 1,
+            "hydrate": "team,linescore",
+            "startDate": start_date,
+            "endDate": end_date
+        }
+        
+        response = await client.get(url, params=params)
+        response.raise_for_status()
+        games_data = response.json()
+        
+        # Calculate recent form from games
+        recent_form = calculate_recent_form_from_games(games_data, int(team_id))
+        
+        # Get team name
+        team_name = "Unknown Team"
+        if games_data.get("dates"):
+            for date_entry in games_data["dates"]:
+                for game in date_entry.get("games", []):
+                    teams = game.get("teams", {})
+                    if teams.get("home", {}).get("team", {}).get("id") == int(team_id):
+                        team_name = teams["home"]["team"].get("name", "Unknown Team")
+                        break
+                    elif teams.get("away", {}).get("team", {}).get("id") == int(team_id):
+                        team_name = teams["away"]["team"].get("name", "Unknown Team")
+                        break
+                if team_name != "Unknown Team":
+                    break
+        
+        # Get current streak info
+        streak_info = determine_current_streak(recent_form.get("game_details", []))
+        
+        return {
+            "ok": True,
+            "content_md": f"## Enhanced Team Form Analysis\n\nTeam {team_id} recent performance with real game data",
+            "data": {
+                "source": "mlb_stats_api_enhanced",
+                "team_id": team_id,
+                "team_name": team_name,
+                "form": {
+                    "wins": 0,  # We'll calculate season record separately if needed
+                    "losses": 0,
+                    "win_percentage": ".000",
+                    "games_back": "0.0",
+                    "streak": f"{streak_info['type'][0].upper()}{streak_info['count']}"
+                },
+                "enhanced_records": {
+                    "last_10": recent_form["last_10"],
+                    "home_recent": recent_form["home_recent"], 
+                    "away_recent": recent_form["away_recent"],
+                    "total_recent_games": recent_form["recent_games"]
+                },
+                "streak_info": streak_info,
+                "recent_games": recent_form["game_details"][-5:]
+            },
+            "meta": {"timestamp": now_iso()}
+        }
+        
+    except Exception as e:
+        return {"ok": False, "error": f"Failed to get enhanced team form: {str(e)}"}
+
+def calculate_recent_form_from_games(games_data: Dict[str, Any], team_id: int) -> Dict[str, Any]:
+    """Calculate recent form statistics from games data"""
+    if not games_data.get("dates"):
+        return {
+            "last_10": "0-0",
+            "home_recent": "0-0", 
+            "away_recent": "0-0",
+            "recent_games": 0,
+            "game_details": []
+        }
+    
+    # Collect all completed games
+    all_games = []
+    for date_entry in games_data["dates"]:
+        for game in date_entry.get("games", []):
+            if game.get("status", {}).get("detailedState") == "Final":
+                all_games.append(game)
+    
+    # Sort by date (most recent last)
+    all_games.sort(key=lambda g: g.get("gameDate", ""))
+    
+    # Take last 10 completed games
+    recent_games = all_games[-10:] if len(all_games) >= 10 else all_games
+    
+    # Calculate records
+    wins = losses = 0
+    home_wins = home_losses = 0
+    away_wins = away_losses = 0
+    
+    game_details = []
+    
+    for game in recent_games:
+        teams = game.get("teams", {})
+        home_team_id = teams.get("home", {}).get("team", {}).get("id")
+        away_team_id = teams.get("away", {}).get("team", {}).get("id")
+        
+        home_score = teams.get("home", {}).get("score", 0)
+        away_score = teams.get("away", {}).get("score", 0)
+        
+        game_date = game.get("gameDate", "")[:10]  # YYYY-MM-DD
+        
+        if team_id == home_team_id:
+            # Team played at home
+            opponent = teams.get("away", {}).get("team", {}).get("name", "Unknown")
+            is_home = True
+            
+            if home_score > away_score:
+                wins += 1
+                home_wins += 1
+                result = "W"
+            else:
+                losses += 1
+                home_losses += 1
+                result = "L"
+                
+        elif team_id == away_team_id:
+            # Team played away
+            opponent = teams.get("home", {}).get("team", {}).get("name", "Unknown")
+            is_home = False
+            
+            if away_score > home_score:
+                wins += 1
+                away_wins += 1
+                result = "W"
+            else:
+                losses += 1
+                away_losses += 1
+                result = "L"
+        else:
+            continue  # Skip games this team wasn't in
+        
+        game_details.append({
+            "date": game_date,
+            "opponent": opponent,
+            "home": is_home,
+            "result": result,
+            "score": f"{home_score}-{away_score}" if is_home else f"{away_score}-{home_score}"
+        })
+    
+    return {
+        "last_10": f"{wins}-{losses}",
+        "home_recent": f"{home_wins}-{home_losses}",
+        "away_recent": f"{away_wins}-{away_losses}",
+        "recent_games": len(recent_games),
+        "game_details": game_details
+    }
+
+def determine_current_streak(game_details: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Determine current winning/losing streak from game details"""
+    if not game_details:
+        return {
+            "type": "none",
+            "count": 0,
+            "display": "No recent games",
+            "emoji": "⚪"
+        }
+    
+    # Start from most recent game
+    recent_games = list(reversed(game_details))
+    current_result = recent_games[0]["result"]
+    streak_count = 1
+    
+    # Count consecutive games with same result
+    for game in recent_games[1:]:
+        if game["result"] == current_result:
+            streak_count += 1
+        else:
+            break
+    
+    if current_result == "W":
+        streak_type = "winning"
+        emoji = "🔥" if streak_count >= 3 else "⚡"
+        display = f"{emoji} {streak_count}-game winning streak"
+    else:
+        streak_type = "losing"
+        emoji = "❄️" if streak_count >= 3 else "📉"
+        display = f"{emoji} {streak_count}-game losing streak"
+    
+    return {
+        "type": streak_type,
+        "count": streak_count,
+        "display": display,
+        "emoji": emoji
+    }
+
 async def handle_get_mlb_player_streaks(args: Dict[str, Any]) -> Dict[str, Any]:
     """Get player's current streaks and consistency patterns"""
     player_ids = args.get("player_ids") or []
@@ -749,6 +949,17 @@ TOOLS = {
             "required": ["team_id"]
         },
         "handler": handle_get_mlb_team_form
+    },
+    "getMLBTeamFormEnhanced": {
+        "description": "Get enhanced team form with real recent games data (last 10, home/away splits, streak emojis)",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "team_id": {"type": "integer", "description": "MLB team ID"}
+            },
+            "required": ["team_id"]
+        },
+        "handler": handle_get_mlb_team_form_enhanced
     },
     "getMLBPlayerStreaks": {
         "description": "Get player's current streaks and consistency patterns",

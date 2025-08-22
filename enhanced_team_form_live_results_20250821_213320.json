@@ -1,0 +1,230 @@
+{
+  "115": {
+    "team_id": 115,
+    "team_name": "Colorado Rockies",
+    "timestamp": "2025-08-21T21:33:19.931056",
+    "recent_form": {
+      "last_10_calculated": "7-3",
+      "last_10_official": null,
+      "home_recent": "5-3",
+      "away_recent": "2-0",
+      "recent_games_analyzed": 10
+    },
+    "streak_info": {
+      "type": "losing",
+      "count": 1,
+      "display": "\ud83d\udcc9 1-game losing streak",
+      "emoji": "\ud83d\udcc9"
+    },
+    "game_details": [
+      {
+        "date": "2025-08-17",
+        "opponent": "Arizona Diamondbacks",
+        "home": true,
+        "result": "W",
+        "score": "6-5"
+      },
+      {
+        "date": "2025-08-19",
+        "opponent": "Los Angeles Dodgers",
+        "home": true,
+        "result": "W",
+        "score": "4-3"
+      },
+      {
+        "date": "2025-08-20",
+        "opponent": "Los Angeles Dodgers",
+        "home": true,
+        "result": "L",
+        "score": "4-11"
+      },
+      {
+        "date": "2025-08-21",
+        "opponent": "Los Angeles Dodgers",
+        "home": true,
+        "result": "W",
+        "score": "8-3"
+      },
+      {
+        "date": "2025-08-21",
+        "opponent": "Los Angeles Dodgers",
+        "home": true,
+        "result": "L",
+        "score": "5-9"
+      }
+    ],
+    "data_source": "MLB Stats API - Live",
+    "success": true
+  },
+  "134": {
+    "team_id": 134,
+    "team_name": "Pittsburgh Pirates",
+    "timestamp": "2025-08-21T21:33:20.170878",
+    "recent_form": {
+      "last_10_calculated": "3-7",
+      "last_10_official": null,
+      "home_recent": "2-2",
+      "away_recent": "1-5",
+      "recent_games_analyzed": 10
+    },
+    "streak_info": {
+      "type": "winning",
+      "count": 1,
+      "display": "\u26a1 1-game winning streak",
+      "emoji": "\u26a1"
+    },
+    "game_details": [
+      {
+        "date": "2025-08-16",
+        "opponent": "Chicago Cubs",
+        "home": false,
+        "result": "L",
+        "score": "1-3"
+      },
+      {
+        "date": "2025-08-17",
+        "opponent": "Chicago Cubs",
+        "home": false,
+        "result": "L",
+        "score": "3-4"
+      },
+      {
+        "date": "2025-08-18",
+        "opponent": "Toronto Blue Jays",
+        "home": true,
+        "result": "W",
+        "score": "5-2"
+      },
+      {
+        "date": "2025-08-19",
+        "opponent": "Toronto Blue Jays",
+        "home": true,
+        "result": "L",
+        "score": "3-7"
+      },
+      {
+        "date": "2025-08-20",
+        "opponent": "Toronto Blue Jays",
+        "home": true,
+        "result": "W",
+        "score": "2-1"
+      }
+    ],
+    "data_source": "MLB Stats API - Live",
+    "success": true
+  },
+  "147": {
+    "team_id": 147,
+    "team_name": "New York Yankees",
+    "timestamp": "2025-08-21T21:33:20.408246",
+    "recent_form": {
+      "last_10_calculated": "8-2",
+      "last_10_official": null,
+      "home_recent": "3-2",
+      "away_recent": "5-0",
+      "recent_games_analyzed": 10
+    },
+    "streak_info": {
+      "type": "winning",
+      "count": 5,
+      "display": "\ud83d\udd25 5-game winning streak",
+      "emoji": "\ud83d\udd25"
+    },
+    "game_details": [
+      {
+        "date": "2025-08-16",
+        "opponent": "St. Louis Cardinals",
+        "home": false,
+        "result": "W",
+        "score": "4-3"
+      },
+      {
+        "date": "2025-08-16",
+        "opponent": "St. Louis Cardinals",
+        "home": false,
+        "result": "W",
+        "score": "12-8"
+      },
+      {
+        "date": "2025-08-17",
+        "opponent": "St. Louis Cardinals",
+        "home": false,
+        "result": "W",
+        "score": "8-4"
+      },
+      {
+        "date": "2025-08-19",
+        "opponent": "Tampa Bay Rays",
+        "home": false,
+        "result": "W",
+        "score": "13-3"
+      },
+      {
+        "date": "2025-08-20",
+        "opponent": "Tampa Bay Rays",
+        "home": false,
+        "result": "W",
+        "score": "6-4"
+      }
+    ],
+    "data_source": "MLB Stats API - Live",
+    "success": true
+  },
+  "119": {
+    "team_id": 119,
+    "team_name": "Los Angeles Dodgers",
+    "timestamp": "2025-08-21T21:33:20.737224",
+    "recent_form": {
+      "last_10_calculated": "5-5",
+      "last_10_official": null,
+      "home_recent": "3-0",
+      "away_recent": "2-5",
+      "recent_games_analyzed": 10
+    },
+    "streak_info": {
+      "type": "winning",
+      "count": 1,
+      "display": "\u26a1 1-game winning streak",
+      "emoji": "\u26a1"
+    },
+    "game_details": [
+      {
+        "date": "2025-08-17",
+        "opponent": "San Diego Padres",
+        "home": true,
+        "result": "W",
+        "score": "5-4"
+      },
+      {
+        "date": "2025-08-19",
+        "opponent": "Colorado Rockies",
+        "home": false,
+        "result": "L",
+        "score": "3-4"
+      },
+      {
+        "date": "2025-08-20",
+        "opponent": "Colorado Rockies",
+        "home": false,
+        "result": "W",
+        "score": "11-4"
+      },
+      {
+        "date": "2025-08-21",
+        "opponent": "Colorado Rockies",
+        "home": false,
+        "result": "L",
+        "score": "3-8"
+      },
+      {
+        "date": "2025-08-21",
+        "opponent": "Colorado Rockies",
+        "home": false,
+        "result": "W",
+        "score": "9-5"
+      }
+    ],
+    "data_source": "MLB Stats API - Live",
+    "success": true
+  }
+}
