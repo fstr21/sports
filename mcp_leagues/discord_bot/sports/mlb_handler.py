@@ -1280,7 +1280,7 @@ class MLBHandler(BaseSportHandler):
     async def create_player_props_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
         """
         Create player props analysis using a multi-field, multi-column embed strategy
-        for perfect alignment without code blocks.
+        for perfect alignment, with de-cluttered lines and contextual headers.
         """
         try:
             import httpx
@@ -1370,22 +1370,23 @@ class MLBHandler(BaseSportHandler):
                                     streak_info = f"{hit_streak}G" if hit_streak > 0 else "--"
                                 
                                 names.append(f"**{player_name}**{emoji}")
-                                odds.append(f"`O0.5 {odds_str}`")
+                                odds.append(f"`{odds_str}`") # Removed "O0.5"
                                 stats_list.append(f"`{avg_hits:.1f}` H/G | `{streak_info}` L5")
                                 
                                 if len(processed_players) >= 10: break
                     
                     if names:
-                        embed.add_field(name="🏃 Player Hits", value="\n".join(names), inline=True)
-                        embed.add_field(name="Line/Odds", value="\n".join(odds), inline=True)
+                        embed.add_field(name="🏃 Player Hits (O/U 0.5)", value="\n".join(names), inline=True)
+                        embed.add_field(name="Odds", value="\n".join(odds), inline=True)
                         embed.add_field(name="Stats", value="\n".join(stats_list), inline=True)
 
-                # Separator to start a new row of inline fields
-                embed.add_field(name="\u200B", value="\u200B", inline=False)
-
-                # Field Group 2: Home Runs (2 inline columns)
+                # Field Group 2 & 3 Combined: Home Runs and Pitcher Strikeouts (2 inline columns)
+                hr_and_k_names = []
+                hr_and_k_stats = []
+                
                 if "batter_home_runs" in player_props_data:
-                    names, stats_list = [], []
+                    hr_and_k_names.append("**__⚾ Home Runs (O/U 0.5)__**")
+                    hr_and_k_stats.append("**__Odds / L5 Stats__**")
                     processed_players = set()
                     
                     for outcome in player_props_data["batter_home_runs"]:
@@ -1401,18 +1402,19 @@ class MLBHandler(BaseSportHandler):
                                     recent_hrs = player_stats[player_name].get("recent_hrs", 0)
                                     if recent_hrs >= 2: emoji = "🔥"
                                 
-                                names.append(f"**{player_name}**{emoji}")
-                                stats_list.append(f"`O0.5 {odds_str}` | L5: `{recent_hrs} HR`")
+                                hr_and_k_names.append(f"**{player_name}**{emoji}")
+                                hr_and_k_stats.append(f"`{odds_str}` | L5: `{recent_hrs} HR`") # Removed "O0.5"
 
                                 if len(processed_players) >= 10: break
-
-                    if names:
-                        embed.add_field(name="⚾ Home Runs", value="\n".join(names), inline=True)
-                        embed.add_field(name="Odds / L5 Stats", value="\n".join(stats_list), inline=True)
-
-                # Field Group 3: Pitcher Strikeouts (2 inline columns, will appear below HRs)
+                
                 if "pitcher_strikeouts" in player_props_data:
-                    names, odds = [], []
+                    # Add separator if HR data exists
+                    if hr_and_k_names:
+                        hr_and_k_names.append("\u200B") # Blank line for spacing
+                        hr_and_k_stats.append("\u200B")
+
+                    hr_and_k_names.append("**__🔥 Pitcher Strikeouts__**")
+                    hr_and_k_stats.append("**__Line / Odds__**")
                     processed_players = set()
                     
                     for outcome in player_props_data["pitcher_strikeouts"]:
@@ -1424,21 +1426,19 @@ class MLBHandler(BaseSportHandler):
                                 price = outcome.get("price")
                                 odds_str = f"{price:+d}" if isinstance(price, int) else str(price)
                                 
-                                names.append(f"**{player_name}**")
-                                odds.append(f"`O{point:.1f} {odds_str}`")
+                                hr_and_k_names.append(f"**{player_name}**")
+                                hr_and_k_stats.append(f"`O{point:.1f} {odds_str}`")
                                 
                                 if len(processed_players) >= 6: break
 
-                    if names:
-                        # Add a blank inline field if needed to align strikeouts under home runs
-                        if len(embed.fields) % 3 != 0:
-                           embed.add_field(name='\u200B', value='\u200B', inline=True)
-
-                        embed.add_field(name="🔥 Pitcher Strikeouts", value="\n".join(names), inline=True)
-                        embed.add_field(name="Line / Odds", value="\n".join(odds), inline=True)
+                if hr_and_k_names:
+                    embed.add_field(name="\u200B", value="\n".join(hr_and_k_names), inline=True)
+                    embed.add_field(name="\u200B", value="\n".join(hr_and_k_stats), inline=True)
 
                 # Final Info Field
-                info_text = "• **Betting:** Over lines only, no alternate lines\n• **Stats:** H/G = Hits per game, L5 = Last 5 games\n• Lines subject to change"
+                info_text = "• **Betting:** Over lines only, no alternate lines\n"
+                info_text += "• **Stats:** H/G = Hits per game, L5 = Last 5 games\n"
+                info_text += "• Lines subject to change"
                 embed.add_field(name="ℹ️ Player Props + Stats Info", value=info_text, inline=False)
                 embed.set_footer(text="Player Props • Powered by The Odds API")
                 
