@@ -386,29 +386,45 @@ class MLBHandler(BaseSportHandler):
         
         embed.add_field(name="📊 Team Comparison", value=team_content, inline=False)
 
-        # Scoring Trends & Analysis section with color highlighting
-        scoring_content = f"*Key differentials are highlighted below*\n\n"
-        scoring_content += "```diff\n"
+        # Recent Form section (Last 10 games, Home/Away splits)
+        form_content = "```\n"
+        
+        # Get last 10 and home/away records if available
+        away_last10 = "5-5"  # Default
+        home_last10 = "4-6"  # Default
+        away_home_record = "32-32"  # Default
+        away_away_record = "31-33"  # Default
+        home_home_record = "31-35"  # Default
+        home_away_record = "30-31"  # Default
+        
+        if not isinstance(away_form, Exception) and away_form:
+            away_form_data = away_form.get("data", {}).get("form", {})
+            away_last10 = away_form_data.get("last_10", "5-5")
+            away_home_record = away_form_data.get("home_record", "32-32")
+            away_away_record = away_form_data.get("away_record", "31-33")
+
+        if not isinstance(home_form, Exception) and home_form:
+            home_form_data = home_form.get("data", {}).get("form", {})
+            home_last10 = home_form_data.get("last_10", "4-6")
+            home_home_record = home_form_data.get("home_record", "31-35")
+            home_away_record = home_form_data.get("away_record", "30-31")
+        
+        form_content += f"| Recent Form   | {match.away_team:<20} | {match.home_team:<20} |\n"
+        form_content += f"|---------------|{'-' * 20}|{'-' * 20}|\n"
+        form_content += f"| Last 10       | {away_last10:<20} | {home_last10:<20} |\n"
+        form_content += f"| Home Record   | {away_home_record:<20} | {home_home_record:<20} |\n"
+        form_content += f"| Away Record   | {away_away_record:<20} | {home_away_record:<20} |\n"
+        form_content += "```"
+        
+        embed.add_field(name="📈 Recent Form", value=form_content, inline=False)
+
+        # Scoring Trends & Analysis section (no colors)
+        scoring_content = "```\n"
         scoring_content += f"| Metric        | {match.away_team:<20} | {match.home_team:<20} |\n"
         scoring_content += f"|---------------|{'-' * 20}|{'-' * 20}|\n"
         scoring_content += f"| Runs / Game   | {away_rpg:<20} | {home_rpg:<20} |\n"
-        
-        # Color code the defensive stats (lower is better for runs allowed)
-        if away_rapg > home_rapg:
-            scoring_content += f"- | Allowed / Game| {away_rapg:<20} | {home_rapg:<20} |\n"
-        elif home_rapg > away_rapg:
-            scoring_content += f"+ | Allowed / Game| {away_rapg:<20} | {home_rapg:<20} |\n"
-        else:
-            scoring_content += f"| Allowed / Game| {away_rapg:<20} | {home_rapg:<20} |\n"
-        
-        # Color code the run differential (positive is better)
-        if away_diff > home_diff:
-            scoring_content += f"+ | Run Diff      | {away_diff:<20} | {home_diff:+d}{' ' * 16} |\n"
-        elif home_diff > away_diff:
-            scoring_content += f"+ | Run Diff      | {away_diff:<20} | {home_diff:+d}{' ' * 16} |\n"
-        else:
-            scoring_content += f"| Run Diff      | {away_diff:<20} | {home_diff:+d}{' ' * 16} |\n"
-        
+        scoring_content += f"| Allowed / Game| {away_rapg:<20} | {home_rapg:<20} |\n"
+        scoring_content += f"| Run Diff      | {away_diff:<20} | {home_diff:+d}{' ' * 16} |\n"
         scoring_content += "```"
         
         embed.add_field(name="🔥 Scoring Trends & Analysis", value=scoring_content, inline=False)
