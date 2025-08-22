@@ -1277,98 +1277,60 @@ class MLBHandler(BaseSportHandler):
             return None
     
 
-
     async def create_player_props_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
-        """Create player props analysis with tightly aligned, fixed-width tables."""
+        """
+        Create player props analysis using the field-based embed strategy.
+        This version avoids code blocks for tables in favor of formatted lists in inline fields.
+        """
         try:
             import httpx
-
-            # ---------- Formatting constants (tuned for Discord code blocks) ----------
-            NAME_W = 20       # visible characters reserved for the player's name
-            EMOJI_W = 2       # space for one emoji (or blank)
-            LINE_W = 6        # e.g., "O0.5", "O2.5"
-            ODDS_W = 7        # e.g., "+104", "-116"
-            AVG_W = 7         # "1.2" etc.
-            L5_W = 5          # "3G", "2 HR", "--"
-
-            # helpers
-            def clamp_name(name: str) -> str:
-                # keep visual width stable; add ellipsis if needed
-                return (name[:NAME_W - 1] + "…") if len(name) > NAME_W else name
-
-            def emoji_for_hits(avg_hits: float, hit_streak: int) -> str:
-                if avg_hits >= 1.5:
-                    return "🔥"
-                if avg_hits >= 1.2:
-                    return "⚡"
-                if hit_streak >= 3:
-                    return "🎯"
-                return ""
-
-            def emoji_for_hrs(recent_hrs: int) -> str:
-                return "🔥" if recent_hrs >= 2 else ""
-
-            def fmt_odds(price) -> str:
-                if isinstance(price, int):
-                    return f"{price:+d}"
-                return str(price)
-
-            # unify a single row builder for strict alignment
-            def row_hits(name: str, emoji: str, line_txt: str, odds_txt: str, avg_txt: str, l5_txt: str) -> str:
-                return (
-                    f"{clamp_name(name):<{NAME_W}} "
-                    f"{emoji:<{EMOJI_W}} "
-                    f"{line_txt:<{LINE_W}} "
-                    f"{odds_txt:<{ODDS_W}} "
-                    f"{avg_txt:<{AVG_W}} "
-                    f"{l5_txt:<{L5_W}}"
-                )
-
-            def row_simple(name: str, emoji: str, line_txt: str, odds_txt: str, tail_label: str, tail_value: str) -> str:
-                # used by HR and Ks (tail is "L5 HR" or blank)
-                base = (
-                    f"{clamp_name(name):<{NAME_W}} "
-                    f"{emoji:<{EMOJI_W}} "
-                    f"{line_txt:<{LINE_W}} "
-                    f"{odds_txt:<{ODDS_W}} "
-                )
-                return base + f"{tail_value}"
-
+            
             odds_url = "https://odds-mcp-v2-production.up.railway.app/mcp"
-
-            # --------- Step 1: Resolve the event for this exact matchup ---------
+            
+            # Step 1: Get event ID for this specific game
             events_payload = {
                 "jsonrpc": "2.0",
                 "method": "tools/call",
                 "id": 1,
-                "params": {"name": "getEvents", "arguments": {"sport": "baseball_mlb"}},
+                "params": {
+                    "name": "getEvents",
+                    "arguments": {"sport": "baseball_mlb"}
+                }
             }
-
+            
             async with httpx.AsyncClient(timeout=30.0) as client:
                 events_response = await client.post(odds_url, json=events_payload)
                 events_response.raise_for_status()
                 events_result = events_response.json()
-
-                events = events_result.get("result", {}).get("data", {}).get("events", [])
+                
+                if "result" not in events_result or "data" not in events_result["result"]:
+                    logger.warning("No events data from Odds MCP")
+                    return None
+                
+                events = events_result["result"]["data"]["events"]
+                
                 target_event = None
-                mh, ma = match.home_team.lower(), match.away_team.lower()
-                for ev in events:
-                    home_team = ev.get("home_team", "").lower()
-                    away_team = ev.get("away_team", "").lower()
-                    if (mh in home_team or home_team in mh) and (ma in away_team or away_team in ma):
-                        target_event = ev
+                for event in events:
+                    home_team = event.get("home_team", "").lower()
+                    away_team = event.get("away_team", "").lower()
+                    match_home = match.home_team.lower()
+                    match_away = match.away_team.lower()
+                    
+                    if (match_home in home_team or home_team in match_home) and \
+                       (match_away in away_team or away_team in match_away):
+                        target_event = event
                         break
-
+                
                 if not target_event:
                     logger.warning(f"Could not find event for {match.away_team} @ {match.home_team}")
                     return None
-
+                
                 event_id = target_event["id"]
-
-                # --------- Step 2: Pull player props for selected markets ---------
+                
+                # Step 2: Get player props for specific markets
                 target_markets = ["batter_hits", "batter_home_runs", "pitcher_strikeouts"]
-                player_props_data: Dict[str, list] = {}
-
+                player_props_data = {}
+                
                 for market in target_markets:
                     props_payload = {
                         "jsonrpc": "2.0",
@@ -1376,163 +1338,143 @@ class MLBHandler(BaseSportHandler):
                         "id": 1,
                         "params": {
                             "name": "getEventOdds",
-                            "arguments": {"sport": "baseball_mlb", "event_id": event_id, "markets": market},
-                        },
+                            "arguments": {
+                                "sport": "baseball_mlb",
+                                "event_id": event_id,
+                                "markets": market
+                            }
+                        }
                     }
                     props_response = await client.post(odds_url, json=props_payload)
                     props_response.raise_for_status()
                     props_result = props_response.json()
-
-                    event_data = props_result.get("result", {}).get("data", {}).get("event", {})
-                    if not event_data:
-                        continue
-                    bookmakers = event_data.get("bookmakers") or []
-                    if not bookmakers:
-                        continue
-                    # take first book
-                    for m in bookmakers[0].get("markets", []):
-                        if m.get("key") == market:
-                            player_props_data[market] = m.get("outcomes", [])
-                            break
-
-            # --------- Step 3: Gather unique player names and enrich with stats ---------
-            all_player_names = set()
-            for market_outcomes in player_props_data.values():
-                for oc in market_outcomes:
-                    if oc.get("name") == "Over":
-                        nm = oc.get("description", "")
-                        if nm:
-                            all_player_names.add(nm)
-
-            player_stats: Dict[str, Dict] = {}
-            if all_player_names:
-                player_stats = await self.get_player_stats_by_names(list(all_player_names), home_team_id, away_team_id)
-
-            # --------- Build the embed ----------
-            embed = discord.Embed(
-                title=f"Player Props + Stats • {match.away_team} @ {match.home_team}",
-                description="Live betting markets with recent player performance.",
-                color=0x1E88E5,
-                timestamp=datetime.now(),
-            )
-
-            # ========== HITS ==========
-            if "batter_hits" in player_props_data:
-                header = (
-                    f"{'Player':<{NAME_W}} {'':<{EMOJI_W}} {'Line':<{LINE_W}} {'Odds':<{ODDS_W}} "
-                    f"{'Avg H/G':<{AVG_W}} {'L5':<{L5_W}}"
+                    
+                    if "result" in props_result and "data" in props_result["result"]:
+                        event_data = props_result["result"]["data"]["event"]
+                        if "bookmakers" in event_data and event_data["bookmakers"]:
+                            bookmaker = event_data["bookmakers"][0]
+                            for market_data in bookmaker.get("markets", []):
+                                if market_data.get("key") == market:
+                                    player_props_data[market] = market_data["outcomes"]
+                                    break
+                
+                all_player_names = set()
+                for market_data in player_props_data.values():
+                    for outcome in market_data:
+                        if outcome.get("name") == "Over":
+                            player_name = outcome.get("description", "")
+                            if player_name:
+                                all_player_names.add(player_name)
+                
+                player_stats = await self.get_player_stats_by_names(
+                    list(all_player_names), home_team_id, away_team_id
                 )
-                sep = (
-                    f"{'-'*NAME_W} {'-'*EMOJI_W} {'-'*LINE_W} {'-'*ODDS_W} "
-                    f"{'-'*AVG_W} {'-'*L5_W}"
+                
+                embed = discord.Embed(
+                    title=f"Player Props + Stats • {match.away_team} @ {match.home_team}",
+                    description="Live betting markets with recent player performance.",
+                    color=0x1E88E5,
+                    timestamp=datetime.now()
                 )
-                lines = ["```", header, sep]
-                seen = set()
-                for oc in player_props_data["batter_hits"]:
-                    if oc.get("name") != "Over" or float(oc.get("point", 0)) != 0.5:
-                        continue
-                    pname = oc.get("description", "")
-                    if not pname or pname in seen:
-                        continue
-                    seen.add(pname)
+                
+                # Field 1: Player Hits (Full-width list)
+                if "batter_hits" in player_props_data:
+                    hits_lines = []
+                    processed_players = set()
+                    
+                    for outcome in player_props_data["batter_hits"]:
+                        if outcome.get("name") == "Over" and outcome.get("point", 0) == 0.5:
+                            player_name = outcome.get("description", "")
+                            if player_name and player_name not in processed_players:
+                                processed_players.add(player_name)
+                                price = outcome.get("price")
+                                odds_str = f"{price:+d}" if isinstance(price, int) else str(price)
 
-                    price = fmt_odds(oc.get("price"))
-                    stats = player_stats.get(pname, {})
-                    avg_hits = stats.get("avg_hits", 0.0)
-                    streak = stats.get("hit_streak", 0)
-                    emj = emoji_for_hits(avg_hits, streak)
+                                avg_hits, streak_info, emoji = 0.0, "--", ""
+                                if player_name in player_stats:
+                                    stats = player_stats[player_name]
+                                    avg_hits = stats.get("avg_hits", 0.0)
+                                    hit_streak = stats.get("hit_streak", 0)
+                                    if avg_hits >= 1.5: emoji = "🔥"
+                                    elif avg_hits >= 1.2: emoji = "⚡"
+                                    streak_info = f"{hit_streak}G" if hit_streak > 0 else "--"
 
-                    line_txt = "O0.5"
-                    odds_txt = price
-                    avg_txt = f"{avg_hits:.1f}"
-                    l5_txt = f"{streak}G" if streak > 0 else "--"
+                                name_display = f"{player_name}{emoji}"
+                                hits_lines.append(f"**{name_display}:** `O0.5 {odds_str}` | Avg H/G: `{avg_hits:.1f}` | L5: `{streak_info}`")
+                                
+                                if len(processed_players) >= 10: break
+                    
+                    if hits_lines:
+                        embed.add_field(name="🏃 Player Hits", value="\n".join(hits_lines), inline=False)
 
-                    lines.append(row_hits(pname, emj, line_txt, odds_txt, avg_txt, l5_txt))
+                # Field 2: Home Runs (Inline List)
+                if "batter_home_runs" in player_props_data:
+                    hr_lines = []
+                    processed_players = set()
+                    
+                    for outcome in player_props_data["batter_home_runs"]:
+                        if outcome.get("name") == "Over" and outcome.get("point", 0) == 0.5:
+                            player_name = outcome.get("description", "")
+                            if player_name and player_name not in processed_players:
+                                processed_players.add(player_name)
+                                price = outcome.get("price")
+                                odds_str = f"{price:+d}" if isinstance(price, int) else str(price)
 
-                    if len(seen) >= 10:
-                        break
-                lines.append("```")
-                if len(seen) > 0:
-                    embed.add_field(name="🏃 Player Hits", value="\n".join(lines), inline=False)
+                                recent_hrs, emoji = 0, ""
+                                if player_name in player_stats:
+                                    stats = player_stats[player_name]
+                                    recent_hrs = stats.get("recent_hrs", 0)
+                                    if recent_hrs >= 2: emoji = "🔥"
+                                
+                                name_display = f"{player_name}{emoji}"
+                                hr_display = f"{recent_hrs} HR"
+                                hr_lines.append(f"**{name_display}:** `O0.5 {odds_str}` | L5: `{hr_display}`")
 
-            # ========== HOME RUNS ==========
-            if "batter_home_runs" in player_props_data:
-                header = (
-                    f"{'Player':<{NAME_W}} {'':<{EMOJI_W}} {'Line':<{LINE_W}} {'Odds':<{ODDS_W}} L5 HR"
-                )
-                sep = f"{'-'*NAME_W} {'-'*EMOJI_W} {'-'*LINE_W} {'-'*ODDS_W} {'-'*5}"
-                lines = ["```", header, sep]
-                seen = set()
-                for oc in player_props_data["batter_home_runs"]:
-                    if oc.get("name") != "Over" or float(oc.get("point", 0)) != 0.5:
-                        continue
-                    pname = oc.get("description", "")
-                    if not pname or pname in seen:
-                        continue
-                    seen.add(pname)
+                                if len(processed_players) >= 10: break
 
-                    price = fmt_odds(oc.get("price"))
-                    stats = player_stats.get(pname, {})
-                    recent_hrs = stats.get("recent_hrs", 0)
-                    emj = emoji_for_hrs(recent_hrs)
+                    if hr_lines:
+                        embed.add_field(name="⚾ Home Runs", value="\n".join(hr_lines), inline=True)
 
-                    lines.append(
-                        row_simple(
-                            pname, emj, "O0.5", price, "L5 HR", f"{recent_hrs} HR"
-                        )
-                    )
+                # Field 3: Pitcher Strikeouts (Inline List)
+                if "pitcher_strikeouts" in player_props_data:
+                    k_lines = []
+                    processed_players = set()
+                    
+                    for outcome in player_props_data["pitcher_strikeouts"]:
+                        if outcome.get("name") == "Over":
+                            player_name = outcome.get("description", "")
+                            if player_name and player_name not in processed_players:
+                                processed_players.add(player_name)
+                                point = outcome.get("point", 0)
+                                price = outcome.get("price")
+                                
+                                odds_str = f"{price:+d}" if isinstance(price, int) else str(price)
+                                line_display = f"O{point:.1f}"
+                                k_lines.append(f"**{player_name}:** `{line_display} {odds_str}`")
+                                
+                                if len(processed_players) >= 6: break
 
-                    if len(seen) >= 10:
-                        break
-                lines.append("```")
-                if len(seen) > 0:
-                    embed.add_field(name="⚾ Home Runs", value="\n".join(lines), inline=True)
-
-            # ========== STRIKEOUTS ==========
-            if "pitcher_strikeouts" in player_props_data:
-                header = f"{'Player':<{NAME_W}} {'':<{EMOJI_W}} {'Line':<{LINE_W}} {'Odds':<{ODDS_W}}"
-                sep = f"{'-'*NAME_W} {'-'*EMOJI_W} {'-'*LINE_W} {'-'*ODDS_W}"
-                lines = ["```", header, sep]
-                seen = set()
-                for oc in player_props_data["pitcher_strikeouts"]:
-                    if oc.get("name") != "Over":
-                        continue
-                    pname = oc.get("description", "")
-                    if not pname or pname in seen:
-                        continue
-                    seen.add(pname)
-
-                    point = oc.get("point", 0)
-                    price = fmt_odds(oc.get("price"))
-                    line_txt = f"O{float(point):.1f}"
-
-                    lines.append(row_simple(pname, "", line_txt, price, "", ""))
-
-                    if len(seen) >= 6:
-                        break
-                lines.append("```")
-                if len(seen) > 0:
-                    embed.add_field(name="🔥 Pitcher Strikeouts", value="\n".join(lines), inline=True)
-
-            # info/footer
-            info_text = (
-                "• **Betting:** Over lines only, no alternate lines\n"
-                "• **Stats:** H/G = Hits per game, L5 = Last 5 games\n"
-                "• Lines subject to change"
-            )
-            embed.add_field(name="ℹ️ Player Props + Stats Info", value=info_text, inline=False)
-            embed.set_footer(text="Player Props • Powered by The Odds API")
-
-            if not any(k in player_props_data for k in ["batter_hits", "batter_home_runs", "pitcher_strikeouts"]):
-                embed.add_field(name="❌ No Props Available", value="Player props not available for this game", inline=False)
-
-            return embed
-
+                    if k_lines:
+                        embed.add_field(name="🔥 Pitcher Strikeouts", value="\n".join(k_lines), inline=True)
+                
+                # Final Info Field
+                info_text = "• **Betting:** Over lines only, no alternate lines\n"
+                info_text += "• **Stats:** H/G = Hits per game, L5 = Last 5 games\n"
+                info_text += "• Lines subject to change"
+                
+                embed.add_field(name="ℹ️ Player Props + Stats Info", value=info_text, inline=False)
+                embed.set_footer(text="Player Props • Powered by The Odds API")
+                
+                if not any(market in player_props_data for market in target_markets):
+                    embed.add_field(name="❌ No Props Available", value="Player props not available for this game", inline=False)
+                
+                return embed
+                
         except Exception as e:
             logger.error(f"Error creating player props embed: {e}")
             return None
-
-
+        
+        
 
     async def get_player_stats_by_names(self, player_names: List[str], home_team_id: int, away_team_id: int) -> Dict[str, Dict]:
         """Get player stats for players with betting lines"""
