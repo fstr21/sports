@@ -1384,8 +1384,8 @@ class MLBHandler(BaseSportHandler):
                 
                 # Add player hits props with stats (O0.5 hits only) - Table format
                 if "batter_hits" in player_props_data:
-                    hits_text = "```\nPlayer               Line  Odds   Avg H/G   L5\n"
-                    hits_text += "-------------------- ----- ------ -------   --\n"
+                    hits_text = "```\nPlayer                 Line  Odds   Avg H/G   L5\n"
+                    hits_text += "---------------------- ----- ------ -------   --\n"
                     processed_players = set()
                     
                     for outcome in player_props_data["batter_hits"]:
@@ -1427,9 +1427,9 @@ class MLBHandler(BaseSportHandler):
                                     else:
                                         streak_info = "--"
                                 
-                                # Format with proper padding for alignment matching specification
+                                # Format with proper padding for alignment matching refined specification
                                 name_with_emoji = f"{player_name}{emoji}"
-                                name_display = f"{name_with_emoji:<20}"  # 20 chars for name
+                                name_display = f"{name_with_emoji:<22}"  # 22 chars for name (increased)
                                 line_display = f"O{point}"
                                 odds_display = f"{odds_str:<6}"  # 6 chars for odds
                                 avg_display = f"{avg_hits:.1f}"
@@ -1450,8 +1450,8 @@ class MLBHandler(BaseSportHandler):
                 
                 # Add home run props with stats - Table format
                 if "batter_home_runs" in player_props_data:
-                    hr_text = "```\nPlayer             Line  Odds   L5 HR\n"
-                    hr_text += "------------------ ----- ------ -----\n"
+                    hr_text = "```\nPlayer            Line  Odds  L5 HR\n"
+                    hr_text += "------------------ ----- ----- -----\n"
                     processed_players = set()
                     
                     for outcome in player_props_data["batter_home_runs"]:
@@ -1486,11 +1486,11 @@ class MLBHandler(BaseSportHandler):
                                     elif hr_streak > 0:
                                         emoji = "⚡"
                                 
-                                # Format with proper alignment matching specification
+                                # Format with proper alignment matching refined specification
                                 name_with_emoji = f"{player_name}{emoji}"
                                 name_display = f"{name_with_emoji:<18}"
                                 line_display = f"O{point}"
-                                odds_display = f"{odds_str:<6}"
+                                odds_display = f"{odds_str:<5}"  # Reduced to 5 chars for odds
                                 hr_display = f"{recent_hrs} HR"
                                 
                                 hr_text += f"{name_display} {line_display:<5} {odds_display} {hr_display}\n"
