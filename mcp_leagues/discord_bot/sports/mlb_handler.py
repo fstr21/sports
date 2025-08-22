@@ -1397,11 +1397,11 @@ class MLBHandler(BaseSportHandler):
                             if player_name and player_name not in processed_players:
                                 processed_players.add(player_name)
                                 
-                                # Format odds
+                                # Format odds - ensure clean string
                                 if isinstance(price, int):
                                     odds_str = f"{price:+d}"
                                 else:
-                                    odds_str = str(price)
+                                    odds_str = str(price).strip().replace('\n', '').replace('\r', '')
                                 
                                 # Get stats and add emojis for high performers
                                 avg_hits = 0
@@ -1463,11 +1463,11 @@ class MLBHandler(BaseSportHandler):
                             if player_name and player_name not in processed_players:
                                 processed_players.add(player_name)
                                 
-                                # Format odds
+                                # Format odds - ensure clean string
                                 if isinstance(price, int):
                                     odds_str = f"{price:+d}"
                                 else:
-                                    odds_str = str(price)
+                                    odds_str = str(price).strip().replace('\n', '').replace('\r', '')
                                 
                                 # Get stats and add emojis for HR power
                                 recent_hrs = 0
@@ -1490,10 +1490,12 @@ class MLBHandler(BaseSportHandler):
                                 name_with_emoji = f"{player_name}{emoji}"
                                 name_display = f"{name_with_emoji:<18}"
                                 line_display = f"O{point}"
-                                odds_display = f"{odds_str:<5}"  # Reduced to 5 chars for odds
+                                odds_display = f"{odds_str:<5}"  # 5 chars for odds
                                 hr_display = f"{recent_hrs} HR"
                                 
-                                hr_text += f"{name_display} {line_display:<5} {odds_display} {hr_display}\n"
+                                # Debug: ensure no weird characters in odds_display
+                                clean_odds = odds_display.strip().replace('\n', '').replace('\r', '')
+                                hr_text += f"{name_display} {line_display:<5} {clean_odds} {hr_display}\n"
                                 
                                 if len(processed_players) >= 10:  # Increase to 10 players
                                     break
@@ -1522,18 +1524,18 @@ class MLBHandler(BaseSportHandler):
                             if player_name and player_name not in processed_players:
                                 processed_players.add(player_name)
                                 
-                                # Format odds
+                                # Format odds - ensure clean string
                                 if isinstance(price, int):
                                     odds_str = f"{price:+d}"
                                 else:
-                                    odds_str = str(price)
+                                    odds_str = str(price).strip().replace('\n', '').replace('\r', '')
                                 
                                 # Format with proper alignment matching specification
                                 name_display = f"{player_name:<20}"
                                 line_display = f"O{point}"
-                                odds_display = f"{odds_str}"
+                                clean_odds = odds_str.strip()
                                 
-                                k_text += f"{name_display} {line_display:<5} {odds_display}\n"
+                                k_text += f"{name_display} {line_display:<5} {clean_odds}\n"
                                 
                                 if len(processed_players) >= 6:  # Keep pitchers at 6 (usually only 2 starters)
                                     break
