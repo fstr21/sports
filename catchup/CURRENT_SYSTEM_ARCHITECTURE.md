@@ -341,16 +341,23 @@ PORT=8080
 
 ## 📈 Current Capabilities Matrix
 
-| Sport | Schedule | Teams | Stats | Form | Betting | Status |
-|-------|----------|-------|-------|------|---------|--------|
-| MLB | ✅ | ✅ | ✅ | ✅ | ✅ | **COMPLETE** |
-| Soccer | ✅ | ✅ | ✅ | ✅ | ⚠️ | **H2H FOCUS** |
-| NFL | ✅ | ✅ | ⚠️ | ❌ | ❌ | **BASIC** |
-| CFB | ✅ | ✅ | ✅ | ⚠️ | ❌ | **BASIC** |
-| NBA | ❌ | ❌ | ❌ | ❌ | ❌ | **PLANNED** |
-| NHL | ❌ | ❌ | ❌ | ❌ | ❌ | **PLANNED** |
+| Sport | Schedule | Teams | Stats | Form | Betting | AI Forecast | Status |
+|-------|----------|-------|-------|------|---------|-------------|--------|
+| MLB | ✅ | ✅ | ✅ | ✅ | ✅ | 🧠 **READY** | **COMPLETE+** |
+| Soccer | ✅ | ✅ | ✅ | ✅ | ⚠️ | 🔬 **TESTING** | **H2H FOCUS** |
+| NFL | ✅ | ✅ | ⚠️ | ❌ | ❌ | ❌ | **BASIC** |
+| CFB | ✅ | ✅ | ✅ | ⚠️ | ❌ | ❌ | **BASIC** |
+| NBA | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | **PLANNED** |
+| NHL | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | **PLANNED** |
 
-**Legend**: ✅ Full Implementation | ⚠️ Partial/Basic | ❌ Not Implemented
+**Legend**: ✅ Full Implementation | ⚠️ Partial/Basic | ❌ Not Implemented | 🧠 AI Ready | 🔬 Testing
+
+### AI Forecasting Integration Status
+- **Chronulus Testing**: ✅ Complete with 2-expert analysis framework
+- **MLB Integration**: 🧠 Ready for production (6th embed: "AI Forecast & Value Analysis")
+- **Natural Language**: ✅ Experts talk like experienced bettors, not academics
+- **Market Analysis**: ✅ Edge detection, expected value, betting recommendations
+- **Cost Efficiency**: ✅ ~$0.05-0.10 per game analysis with 2 experts
 
 ---
 

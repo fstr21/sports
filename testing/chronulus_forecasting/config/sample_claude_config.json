@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "chronulus": {
+      "command": "uvx",
+      "args": ["chronulus-mcp"],
+      "env": {
+        "CHRONULUS_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}

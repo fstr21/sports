@@ -1,0 +1,139 @@
+{
+  "mlb_sample": {
+    "game_id": "633282",
+    "date": "2025-08-22",
+    "home_team": {
+      "name": "New York Yankees",
+      "abbreviation": "NYY",
+      "record": "75-55",
+      "streak": "W3",
+      "division": "AL East",
+      "runs_per_game": 5.2,
+      "runs_allowed": 4.1,
+      "home_record": "39-26"
+    },
+    "away_team": {
+      "name": "Boston Red Sox",
+      "abbreviation": "BOS", 
+      "record": "68-62",
+      "streak": "L1",
+      "division": "AL East",
+      "runs_per_game": 4.8,
+      "runs_allowed": 4.6,
+      "away_record": "32-33"
+    },
+    "game_info": {
+      "venue": "Yankee Stadium",
+      "start_time": "19:05",
+      "weather": "Clear, 78°F",
+      "rivalry": "AL East Division Rivals"
+    },
+    "pitching_matchup": {
+      "home_pitcher": {
+        "name": "Gerrit Cole",
+        "era": 3.15,
+        "wins": 12,
+        "losses": 6,
+        "strikeouts": 145,
+        "vs_opponent_era": 2.89
+      },
+      "away_pitcher": {
+        "name": "Tanner Houck",
+        "era": 3.89,
+        "wins": 8,
+        "losses": 9,
+        "strikeouts": 126,
+        "vs_opponent_era": 4.12
+      }
+    },
+    "historical_h2h": {
+      "season_record": "Yankees 8-6",
+      "last_10_meetings": "Yankees 6-4",
+      "at_yankee_stadium": "Yankees 4-2",
+      "total_runs_avg": 9.2
+    },
+    "betting_odds": {
+      "moneyline": {
+        "home": -140,
+        "away": +120,
+        "home_implied": 58.3,
+        "away_implied": 45.5
+      },
+      "run_line": {
+        "home": "-1.5 (+105)",
+        "away": "+1.5 (-125)",
+        "home_implied": 48.8,
+        "away_implied": 55.6
+      },
+      "total": {
+        "over": "9.5 (-110)",
+        "under": "9.5 (-110)",
+        "line": 9.5
+      }
+    },
+    "player_props": [
+      {
+        "player": "Aaron Judge",
+        "team": "NYY",
+        "prop": "Total Hits",
+        "line": 0.5,
+        "over_odds": -270,
+        "under_odds": +200,
+        "recent_avg": 1.2
+      },
+      {
+        "player": "Rafael Devers", 
+        "team": "BOS",
+        "prop": "Total Hits",
+        "line": 0.5,
+        "over_odds": -180,
+        "under_odds": +140,
+        "recent_avg": 0.9
+      }
+    ]
+  },
+  "soccer_sample": {
+    "match_id": "1234567",
+    "date": "2025-08-23",
+    "competition": "Premier League",
+    "home_team": {
+      "name": "Liverpool",
+      "form": "W-W-D-W-W",
+      "position": 2,
+      "points": 15,
+      "goals_for": 18,
+      "goals_against": 6,
+      "home_form": "W-W-W"
+    },
+    "away_team": {
+      "name": "Chelsea", 
+      "form": "W-D-L-W-D",
+      "position": 8,
+      "points": 8,
+      "goals_for": 12,
+      "goals_against": 11,
+      "away_form": "D-L-W"
+    },
+    "head_to_head": {
+      "last_5_meetings": "Liverpool 2-2-1 Chelsea",
+      "at_anfield": "Liverpool 3-1-1 Chelsea",
+      "avg_goals": 2.8,
+      "both_teams_score": 0.8
+    },
+    "betting_odds": {
+      "match_result": {
+        "home_win": 1.85,
+        "draw": 3.40,
+        "away_win": 4.20
+      },
+      "total_goals": {
+        "over_2_5": 1.65,
+        "under_2_5": 2.10
+      },
+      "both_teams_score": {
+        "yes": 1.55,
+        "no": 2.35
+      }
+    }
+  }
+}
