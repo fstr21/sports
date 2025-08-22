@@ -384,12 +384,12 @@ class MLBHandler(BaseSportHandler):
         embed.add_field(name="\u200B", value="**__💰 Betting Lines__**", inline=False)
         
         # Symmetrical betting grid (2x3 layout)
-        embed.add_field(name="Moneyline", value=f"{match.away_team}: `**{away_ml}**`\n{match.home_team}: `**{home_ml}**`", inline=True)
-        embed.add_field(name="Run Line", value=f"{match.away_team}: `**{away_rl}**`\n{match.home_team}: `**{home_rl}**`", inline=True)
-        over_field_name = f"Over **{total_line}**" if total_line != "N/A" else "Over"
-        under_field_name = f"Under **{total_line}**" if total_line != "N/A" else "Under"
-        embed.add_field(name=over_field_name, value=f"`**{over_odds}**`", inline=True)
-        embed.add_field(name=under_field_name, value=f"`**{under_odds}**`", inline=True)
+        embed.add_field(name="Moneyline", value=f"{match.away_team}: `{away_ml}`\n{match.home_team}: `{home_ml}`", inline=True)
+        embed.add_field(name="Run Line", value=f"{match.away_team}: `{away_rl}`\n{match.home_team}: `{home_rl}`", inline=True)
+        over_field_name = f"Over {total_line}" if total_line != "N/A" else "Over"
+        under_field_name = f"Under {total_line}" if total_line != "N/A" else "Under"
+        embed.add_field(name=over_field_name, value=f"`{over_odds}`", inline=True)
+        embed.add_field(name=under_field_name, value=f"`{under_odds}`", inline=True)
         
         # Clean separator and header for Tale of the Tape with emoji
         embed.add_field(name="\u200B", value="**__📊 Tale of the Tape__**", inline=False)
@@ -397,12 +397,12 @@ class MLBHandler(BaseSportHandler):
         # Team stats with merged L10 form
         embed.add_field(
             name=match.away_team, 
-            value=f"Record: `**{away_record}** (**{away_winpct}**)`\nRun Diff: `**{away_run_diff:+d}**`\nAllowed/Game: `**{away_ra_game:.2f}**`\nL10 Form: `**{away_last10}**`", 
+            value=f"Record: `{away_record} ({away_winpct})`\nRun Diff: `{away_run_diff:+d}`\nAllowed/Game: `{away_ra_game:.2f}`\nL10 Form: `{away_last10}`", 
             inline=True
         )
         embed.add_field(
             name=match.home_team, 
-            value=f"Record: `**{home_record}** (**{home_winpct}**)`\nRun Diff: `**{home_run_diff:+d}**`\nAllowed/Game: `**{home_ra_game:.2f}**`\nL10 Form: `**{home_last10}**`", 
+            value=f"Record: `{home_record} ({home_winpct})`\nRun Diff: `{home_run_diff:+d}`\nAllowed/Game: `{home_ra_game:.2f}`\nL10 Form: `{home_last10}`", 
             inline=True
         )
         
