@@ -375,19 +375,32 @@ class MLBHandler(BaseSportHandler):
             timestamp=datetime.now()
         )
 
-        # Add fields following exact specification
-        embed.add_field(name="", value="**__Betting Lines__**", inline=False)
-        embed.add_field(name="Moneyline", value=f"{match.away_team}: {away_ml}\n{match.home_team}: {home_ml}", inline=True)
-        embed.add_field(name="Run Line", value=f"{match.away_team}: {away_rl}\n{match.home_team}: {home_rl}", inline=True)
-        embed.add_field(name="Total (O/U)", value=f"Over {total_line}: {over_odds}\nUnder {total_line}: {under_odds}", inline=False)
+        # Add fields following refined specification
+        # Header for Betting Lines
+        embed.add_field(name="\u200B", value="**__Betting Lines__**", inline=False)
         
-        embed.add_field(name="", value="---\n**__Tale of the Tape__**", inline=False)
-        embed.add_field(name=match.away_team, value=f"Record: {away_record} ({away_winpct})\nRun Diff: {away_run_diff:+d}\nAllowed/Game: {away_ra_game:.2f}", inline=True)
-        embed.add_field(name=match.home_team, value=f"Record: {home_record} ({home_winpct})\nRun Diff: {home_run_diff:+d}\nAllowed/Game: {home_ra_game:.2f}", inline=True)
-        embed.add_field(name="Recent Form (L10)", value=away_last10, inline=True)
-        embed.add_field(name="Recent Form (L10)", value=home_last10, inline=True)
+        # Betting Lines with backticks for numbers
+        embed.add_field(name="Moneyline", value=f"{match.away_team}: `{away_ml}`\n{match.home_team}: `{home_ml}`", inline=True)
+        embed.add_field(name="Run Line", value=f"{match.away_team}: `{away_rl}`\n{match.home_team}: `{home_rl}`", inline=True)
+        embed.add_field(name="Total (O/U)", value=f"Over {total_line}: `{over_odds}` Under {total_line}: `{under_odds}`", inline=False)
         
-        embed.add_field(name="", value=f"---\n**__Analysis & Recommendation__**\n{analysis}", inline=False)
+        # Clean separator and header for Tale of the Tape
+        embed.add_field(name="\u200B", value="**__Tale of the Tape__**", inline=False)
+        
+        # Team stats with merged L10 form (perfect 2-column layout)
+        embed.add_field(
+            name=match.away_team, 
+            value=f"Record: `{away_record} ({away_winpct})`\nRun Diff: `{away_run_diff:+d}`\nAllowed/Game: `{away_ra_game:.2f}`\nL10 Form: `{away_last10}`", 
+            inline=True
+        )
+        embed.add_field(
+            name=match.home_team, 
+            value=f"Record: `{home_record} ({home_winpct})`\nRun Diff: `{home_run_diff:+d}`\nAllowed/Game: `{home_ra_game:.2f}`\nL10 Form: `{home_last10}`", 
+            inline=True
+        )
+        
+        # Analysis section with clean separator
+        embed.add_field(name="\u200B", value=f"**__Analysis & Recommendation__**\n{analysis}", inline=False)
         
         embed.set_footer(text="MLB Analysis powered by MLB MCP")
         return embed
@@ -406,12 +419,16 @@ class MLBHandler(BaseSportHandler):
         except:
             pass
         
-        # Identify statistical conflicts/mismatches
+        # Identify recent form advantage with contrasting elements
         recent_advantage = ""
         if away_wins > home_wins:
             recent_advantage = f"The {away_team} are hot ({away_l10} in their last 10)"
+            if home_wins <= 3:
+                recent_advantage += f", contrasting sharply with the {home_team}' recent struggles ({home_l10})"
         elif home_wins > away_wins:
             recent_advantage = f"The {home_team} are hot ({home_l10} in their last 10)"
+            if away_wins <= 3:
+                recent_advantage += f", contrasting sharply with the {away_team}' recent struggles ({away_l10})"
         else:
             recent_advantage = f"Both teams have similar recent form ({away_l10} vs {home_l10})"
         
@@ -422,13 +439,12 @@ class MLBHandler(BaseSportHandler):
         key_factor = ""
         if defense_diff > 1.0:  # Significant defensive difference
             better_defense = away_team if away_ra_game < home_ra_game else home_team
-            worse_defense = home_team if away_ra_game < home_ra_game else away_team
-            key_factor = f"However, {better_defense}'s superior defense (allowing {defense_diff:.1f} fewer runs per game) contrasts with {worse_defense}'s defensive struggles. This defensive gap is the key factor to consider beyond recent form."
+            key_factor = f"However, {better_defense}'s superior defense (allowing {defense_diff:.1f} fewer runs per game) is the key differentiator. This significant defensive gap is the primary factor to consider beyond the teams' recent forms."
         elif run_diff_gap > 30:  # Significant run differential gap
             better_diff_team = away_team if away_run_diff > home_run_diff else home_team
-            key_factor = f"The season-long run differential heavily favors {better_diff_team} ({max(away_run_diff, home_run_diff):+d} vs {min(away_run_diff, home_run_diff):+d}), indicating overall team quality beyond recent streaks."
+            key_factor = f"The season-long run differential heavily favors {better_diff_team} ({max(away_run_diff, home_run_diff):+d} vs {min(away_run_diff, home_run_diff):+d}), making overall team quality more significant than recent momentum."
         else:
-            key_factor = "Both teams show similar underlying metrics, making recent form and game-specific factors more crucial for this matchup."
+            key_factor = "Both teams show similar underlying metrics, making recent form and situational factors the primary considerations for this matchup."
         
         return f"{recent_advantage}. {key_factor}"
 
