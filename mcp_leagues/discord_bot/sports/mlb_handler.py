@@ -1376,16 +1376,16 @@ class MLBHandler(BaseSportHandler):
                 
                 # Step 5: Create embed with player props + stats
                 embed = discord.Embed(
-                    title=f"🎯 Player Props + Stats • {match.away_team} @ {match.home_team}",
-                    description="Live betting markets with recent performance",
+                    title=f"Player Props + Stats • {match.away_team} @ {match.home_team}",
+                    description="Live betting markets with recent player performance.",
                     color=0x1E88E5,
                     timestamp=datetime.now()
                 )
                 
                 # Add player hits props with stats (O0.5 hits only) - Table format
                 if "batter_hits" in player_props_data:
-                    hits_text = "```\nPlayer               Line  Odds    Avg H/G  L5 Streak\n"
-                    hits_text += "----------------------------------------------------\n"
+                    hits_text = "```\nPlayer               Line  Odds    Avg H/G  L5\n"
+                    hits_text += "-----------------------------------------------\n"
                     processed_players = set()
                     
                     for outcome in player_props_data["batter_hits"]:
@@ -1443,7 +1443,7 @@ class MLBHandler(BaseSportHandler):
                     
                     if processed_players:
                         embed.add_field(
-                            name="⚾ Player Hits",
+                            name="🏃 Player Hits",
                             value=hits_text,
                             inline=False
                         )
@@ -1502,9 +1502,9 @@ class MLBHandler(BaseSportHandler):
                     
                     if processed_players:
                         embed.add_field(
-                            name="🏠 Home Runs",
+                            name="⚾ Home Runs",
                             value=hr_text,
-                            inline=False
+                            inline=True
                         )
                 
                 # Add strikeout props - Table format
@@ -1544,14 +1544,20 @@ class MLBHandler(BaseSportHandler):
                         embed.add_field(
                             name="🔥 Pitcher Strikeouts",
                             value=k_text,
-                            inline=False
+                            inline=True
                         )
                 
-                # Add footer info
-                stats_note = "Stats: H/G = Hits per game, L5 = Last 5 games" if player_stats else "Player statistics not available"
+                # Add footer info with bulleted list format
+                info_text = "• **Betting:** Over lines only, no alternate lines\n"
+                if player_stats:
+                    info_text += "• **Stats:** H/G = Hits per game, L5 = Last 5 games\n"
+                else:
+                    info_text += "• **Stats:** Player statistics not available\n"
+                info_text += "• Lines subject to change"
+                
                 embed.add_field(
                     name="ℹ️ Player Props + Stats Info",
-                    value=f"Betting: Over lines only, no alternate lines\n{stats_note}\nLines subject to change",
+                    value=info_text,
                     inline=False
                 )
                 
