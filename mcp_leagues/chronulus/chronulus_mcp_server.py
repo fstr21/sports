@@ -72,13 +72,21 @@ AVAILABLE_TOOLS = [
                 },
                 "expert_count": {
                     "type": "integer",
-                    "description": "Number of AI experts (2-30, default: 2)",
-                    "minimum": 2,
+                    "description": "Number of AI experts (1-30, default: 2)",
+                    "minimum": 1,
                     "maximum": 30,
                     "default": 2
                 }
             },
             "required": ["game_data"]
+        }
+    },
+    {
+        "name": "testChronulusHardcoded",
+        "description": "Test Chronulus with hard-coded Dodgers @ Padres game data (single expert)",
+        "inputSchema": {
+            "type": "object",
+            "properties": {}
         }
     },
     {
@@ -90,6 +98,144 @@ AVAILABLE_TOOLS = [
         }
     }
 ]
+
+async def test_chronulus_hardcoded() -> Dict[str, Any]:
+    """
+    Test Chronulus with hard-coded Dodgers @ Padres game data (single expert for cost savings)
+    """
+    if not CHRONULUS_AVAILABLE:
+        return {
+            "error": "Chronulus SDK not available",
+            "status": "unavailable"
+        }
+    
+    if not CHRONULUS_API_KEY:
+        return {
+            "error": "Chronulus API key not configured", 
+            "status": "configuration_error"
+        }
+    
+    try:
+        # Hard-coded game data from Discord screenshot
+        hardcoded_game_data = {
+            "home_team": "San Diego Padres",
+            "away_team": "Los Angeles Dodgers", 
+            "game_date": "August 22, 2025",
+            "game_time": "8:40 PM ET",
+            "venue": "Petco Park",
+            
+            # Season performance from screenshot
+            "home_record": "72-56 (.563 win percentage)",
+            "away_record": "73-55 (.570 win percentage)", 
+            "home_run_differential": -58,
+            "away_run_differential": +93,
+            "home_runs_per_game": 3.76,
+            "away_runs_per_game": 4.48,
+            "home_recent_form": "6-4 in last 10 games",
+            "away_recent_form": "5-5 in last 10 games",
+            
+            # Betting odds from screenshot
+            "home_moneyline": +102,  # Padres slightly underdog
+            "away_moneyline": -120,  # Dodgers favored
+            "run_line_home": "+1.5 (-178)",
+            "run_line_away": "-1.5 (+146)",
+            "over_under": "Over/Under 8.5 runs",
+            "total_implied_probability": "Close to even money",
+            
+            # Analysis context
+            "division_rivalry": "NL West division rivals - heated competition",
+            "venue_advantage": "Petco Park favors pitching, suppresses offense slightly",
+            "recent_form_analysis": "Dodgers slightly better season record but similar recent form",
+            "key_factors": "Close matchup between two playoff contenders",
+            "market_efficiency": "Oddsmakers see this as essentially a pick-em game"
+        }
+        
+        # Create Chronulus session with detailed prompt
+        session = Session(
+            name="MLB Single-Expert Analysis: Dodgers @ Padres",
+            situation="""You are an experienced MLB handicapper with deep knowledge of betting markets. 
+            Analyze this NL West rivalry game between two playoff contenders with similar records. 
+            Focus on finding betting value across all markets.""",
+            task="""Provide detailed analysis and specific recommendations for ALL THREE betting markets:
+            1. MONEYLINE: Which team to bet and why
+            2. RUN LINE (spread): Take Dodgers -1.5 or Padres +1.5 
+            3. TOTAL: Bet Over 8.5 or Under 8.5 runs
+            
+            Give specific reasoning for each market and your confidence level.""",
+            env=dict(CHRONULUS_API_KEY=CHRONULUS_API_KEY)
+        )
+        
+        # Create session
+        await asyncio.to_thread(session.create)
+        
+        # Create binary predictor (focused on Dodgers winning)
+        predictor = BinaryPredictor(session)
+        
+        # Create prediction request with detailed analysis
+        request = await asyncio.to_thread(
+            predictor.create_request,
+            data=hardcoded_game_data,
+            question="Will the Los Angeles Dodgers beat the San Diego Padres?",
+            note_length=(12, 18),  # Very detailed analysis
+            expert_count=1,  # Single expert to save costs
+            prompt_additions="""IMPORTANT: In your analysis, provide specific recommendations for:
+            
+            1. MONEYLINE BET: Dodgers -120 or Padres +102? Which offers better value?
+            2. RUN LINE BET: Dodgers -1.5 (+146) or Padres +1.5 (-178)? 
+            3. TOTAL RUNS BET: Over 8.5 or Under 8.5? Consider Petco Park pitching environment.
+            
+            Explain your reasoning for each market and give a confidence rating (High/Medium/Low) for each recommendation.
+            Focus on finding the best betting value among these three options."""
+        )
+        
+        # Get predictions with extended timeout for detailed analysis
+        predictions = await asyncio.to_thread(
+            predictor.get_request_predictions,
+            request_id=request.request_id,
+            try_every=20,
+            max_tries=15  # 5 minutes max for single expert
+        )
+        
+        # Process results
+        if predictions and len(predictions) > 0:
+            pred = predictions[0]
+            
+            # Handle probability extraction
+            if hasattr(pred, 'prob') and isinstance(pred.prob, tuple):
+                probability = pred.prob[0]  # First element for binary prediction
+            else:
+                probability = float(pred.prob) if hasattr(pred, 'prob') else 0.5
+            
+            analysis_text = pred.note if hasattr(pred, 'note') else "Analysis not available"
+            
+            return {
+                "session_id": session.session_id,
+                "request_id": request.request_id,
+                "test_game": "Los Angeles Dodgers @ San Diego Padres",
+                "analysis": {
+                    "expert_analysis": analysis_text,
+                    "dodgers_win_probability": probability,
+                    "confidence": "Single expert detailed analysis",
+                    "betting_markets_covered": ["Moneyline", "Run Line", "Total Runs"],
+                    "expert_count": 1,
+                    "cost_estimate": "$0.02-0.05"
+                },
+                "status": "success",
+                "timestamp": now_iso()
+            }
+        else:
+            return {
+                "error": "No predictions received from expert",
+                "status": "analysis_timeout",
+                "timestamp": now_iso()
+            }
+            
+    except Exception as e:
+        return {
+            "error": f"Hard-coded test failed: {str(e)}",
+            "status": "test_error",
+            "timestamp": now_iso()
+        }
 
 async def get_chronulus_analysis(game_data: Dict[str, Any], expert_count: int = 2) -> Dict[str, Any]:
     """
@@ -284,6 +430,8 @@ async def handle_mcp_request(request: Request) -> Response:
                     game_data=arguments.get("game_data", {}),
                     expert_count=arguments.get("expert_count", 2)
                 )
+            elif tool_name == "testChronulusHardcoded":
+                result = await test_chronulus_hardcoded()
             elif tool_name == "getChronulusHealth":
                 result = await get_chronulus_health()
             else:
