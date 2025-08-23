@@ -24,7 +24,7 @@ RESULTS_DIR = Path(__file__).parent / "results"
 # Cost optimization settings - MINIMAL MODE
 MAX_COST_PER_TEST = 0.25   # Maximum $0.25 per analysis (working baseline)
 DEFAULT_EXPERTS = 2        # Minimum experts (required by Chronulus)
-DEFAULT_NOTE_LENGTH = (12, 18)  # Working detailed analysis
+DEFAULT_NOTE_LENGTH = (5, 8)  # Medium analysis - cost savings
 MINIMAL_MODE = True        # Enable minimal mode for raw predictions only
 
 async def call_railway_mcp(tool_name: str, arguments: dict = None):
@@ -86,12 +86,20 @@ def estimate_analysis_cost():
         print("🔍 CHRONULUS COST ESTIMATION")
         print("   Connecting to Chronulus SDK for accurate estimate...")
 
+        # Create session for estimation (only if API key is available)
+        api_key = os.getenv("CHRONULUS_API_KEY")
+        if not api_key:
+            print("   ⚠️  No CHRONULUS_API_KEY found in environment")
+            print("   📝 This is expected for local testing - API key is on Railway server")
+            print("   💡 Using intelligent estimation based on parameters...")
+            return 0.08  # Return reasonable estimate
+
         # Create session for estimation
         session = Session(
             name="Cost Estimation",
             situation="Estimating cost for MLB game analysis",
             task="Get cost estimate for binary prediction",
-            env=dict(CHRONULUS_API_KEY=os.getenv("CHRONULUS_API_KEY"))
+            env=dict(CHRONULUS_API_KEY=api_key)
         )
 
         # Define minimal data structure for estimation

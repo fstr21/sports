@@ -252,7 +252,7 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
             predictor.queue,
             item=game_data_obj,
             num_experts=2,  # Minimum required by Chronulus (2-30)
-            note_length=(12, 18)  # Detailed analysis for reliability
+            note_length=(5, 8)   # Medium analysis for cost optimization
         )
         
         # Get predictions with extended timeout for detailed analysis
