@@ -1961,16 +1961,44 @@ class MLBHandler(BaseSportHandler):
                     
                     # Extract consensus from expert analysis text
                     if expert_analysis_text:
-                        # Get more comprehensive consensus text - increased from 300 to 800 chars
-                        # Split into sections and get the main analysis
-                        if "Expert Consensus:" in expert_analysis_text:
-                            consensus_section = expert_analysis_text.split("Expert Consensus:")[1].split("[")[0].strip()
+                        # Get the actual expert analysis content, not just the header
+                        if "[STATISTICAL EXPERT]" in expert_analysis_text:
+                            # Get the first expert's analysis as the main consensus
+                            expert_start = expert_analysis_text.find("[STATISTICAL EXPERT]")
+                            expert_section = expert_analysis_text[expert_start:]
+                            
+                            # Get just the statistical expert's analysis (up to next expert or end)
+                            if "[SITUATIONAL EXPERT]" in expert_section:
+                                consensus_section = expert_section.split("[SITUATIONAL EXPERT]")[0]
+                            elif "[CONTRARIAN EXPERT]" in expert_section:
+                                consensus_section = expert_section.split("[CONTRARIAN EXPERT]")[0]
+                            else:
+                                consensus_section = expert_section[:1000]  # First 1000 chars if no other expert
+                            
+                            # Clean up the text
+                            consensus = consensus_section.replace("[STATISTICAL EXPERT]", "**Statistical Expert:**")
+                            consensus = consensus.strip()[:800] + "..." if len(consensus.strip()) > 800 else consensus.strip()
                         else:
-                            # Get first section if no explicit consensus
-                            consensus_section = expert_analysis_text.split("\n\n")[0]
-                        
-                        # Clean and truncate appropriately for Discord embed
-                        consensus = consensus_section[:800] + "..." if len(consensus_section) > 800 else consensus_section
+                            # Fallback: get everything after "Expert Consensus:" line
+                            lines = expert_analysis_text.split('\n')
+                            consensus_lines = []
+                            found_consensus = False
+                            
+                            for line in lines:
+                                if "Expert Consensus:" in line:
+                                    found_consensus = True
+                                    continue
+                                if found_consensus and line.strip():
+                                    if line.startswith("[") and "]" in line:  # Expert section
+                                        consensus_lines.append(line)
+                                        # Get next few lines after expert header
+                                        continue
+                                    if consensus_lines:  # We're in expert content
+                                        consensus_lines.append(line)
+                                        if len(' '.join(consensus_lines)) > 600:  # Stop at reasonable length
+                                            break
+                            
+                            consensus = '\n'.join(consensus_lines[:10])[:800] + "..." if consensus_lines else "Expert analysis available"
                     else:
                         consensus = "Analysis completed"
                     
@@ -2037,8 +2065,44 @@ class MLBHandler(BaseSportHandler):
                     inline=True
                 )
                 
-                # Key Insights from experts
-                if expert_analyses:
+                # Key Insights from experts - extract real insights from analysis text
+                if expert_analysis_text:
+                    key_insights = []
+                    
+                    # Extract insights from different expert sections
+                    expert_sections = [
+                        ("[STATISTICAL EXPERT]", "**Statistical:**"),
+                        ("[SITUATIONAL EXPERT]", "**Situational:**"),
+                        ("[CONTRARIAN EXPERT]", "**Contrarian:**")
+                    ]
+                    
+                    for expert_marker, expert_label in expert_sections:
+                        if expert_marker in expert_analysis_text:
+                            # Find the expert's section
+                            start = expert_analysis_text.find(expert_marker)
+                            if start != -1:
+                                # Get text after the expert marker
+                                section = expert_analysis_text[start + len(expert_marker):].strip()
+                                
+                                # Get first sentence as key insight
+                                first_sentence = section.split('.')[0] + '.' if '.' in section else section[:100] + "..."
+                                
+                                # Clean up the insight
+                                if first_sentence and len(first_sentence) > 10:
+                                    insight = first_sentence[:150] + "..." if len(first_sentence) > 150 else first_sentence
+                                    key_insights.append(f"• {expert_label} {insight}")
+                        
+                        if len(key_insights) >= 2:  # Limit to 2 insights for space
+                            break
+                    
+                    if key_insights:
+                        embed.add_field(
+                            name="💡 Key Expert Insights",
+                            value='\n'.join(key_insights),
+                            inline=False
+                        )
+                elif expert_analyses:
+                    # Fallback to old method if no text analysis available
                     key_insights = []
                     for expert in expert_analyses[:2]:  # First 2 experts
                         expert_type = expert.get("expert_type", "Expert")
