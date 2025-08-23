@@ -26,7 +26,8 @@ CHRONULUS_ERROR = None
 
 try:
     import chronulus
-    from chronulus import Session, BinaryPredictor
+    from chronulus import Session
+    from chronulus.estimator import BinaryPredictor
     CHRONULUS_AVAILABLE = True
     print(f"✅ Chronulus SDK imported successfully (version: {getattr(chronulus, '__version__', 'unknown')})")
 except ImportError as e:
