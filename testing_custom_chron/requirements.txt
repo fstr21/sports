@@ -1,0 +1,18 @@
+# Custom Chronulus OpenRouter Implementation
+# Requirements for local testing and Railway deployment
+
+# Core dependencies
+pydantic>=2.9.0,<3.0.0
+httpx>=0.25.0
+python-dotenv>=1.0.0
+numpy>=1.24.0
+
+# For async processing
+asyncio-extra>=0.1.0
+
+# Optional: For enhanced analysis
+pandas>=2.0.0
+
+# For Railway deployment (MCP server)
+starlette>=0.27.0
+uvicorn[standard]>=0.24.0

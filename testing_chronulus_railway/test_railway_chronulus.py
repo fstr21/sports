@@ -21,11 +21,11 @@ import os
 RAILWAY_MCP_URL = "https://chronulusmcp-production.up.railway.app/mcp"
 RESULTS_DIR = Path(__file__).parent / "results"
 
-# Cost optimization settings - MINIMAL MODE
-MAX_COST_PER_TEST = 0.25   # Maximum $0.25 per analysis (working baseline)
-DEFAULT_EXPERTS = 2        # Minimum experts (required by Chronulus)
-DEFAULT_NOTE_LENGTH = (5, 8)  # Medium analysis - cost savings
-MINIMAL_MODE = True        # Enable minimal mode for raw predictions only
+# MAXIMUM QUALITY SETTINGS - COMPREHENSIVE MODE
+MAX_COST_PER_TEST = 3.00   # Maximum $3.00 per analysis (high-quality mode)
+DEFAULT_EXPERTS = 5        # Multiple experts for comprehensive analysis
+DEFAULT_NOTE_LENGTH = (15, 20)  # Very detailed analysis - maximum depth
+MINIMAL_MODE = False       # Enable comprehensive mode for full analysis
 
 async def call_railway_mcp(tool_name: str, arguments: dict = None):
     """
@@ -224,15 +224,15 @@ async def test_health():
     return results
 
 async def test_hardcoded_analysis():
-    """Test MINIMAL raw prediction - Dodgers @ Padres (outsource explanation)"""
-    print("\n🧠 TESTING OPTIMIZED HARDCODED ANALYSIS (Dodgers @ Padres)")
+    """Test COMPREHENSIVE analysis - Dodgers @ Padres (maximum quality)"""
+    print("\n🧠 TESTING COMPREHENSIVE HARDCODED ANALYSIS (Dodgers @ Padres)")
     print("=" * 65)
     print("⚾ Game: Los Angeles Dodgers @ San Diego Padres")
     print("💰 Markets: Moneyline, Run Line, Total (Over/Under 8.5)")
-    print(f"👨‍⚖️ Experts: {DEFAULT_EXPERTS} (minimum for cost control)")
-    print(f"📝 Analysis: MINIMAL - Raw prediction only ({DEFAULT_NOTE_LENGTH[0]}-{DEFAULT_NOTE_LENGTH[1]} sentences)")
+    print(f"👨‍⚖️ Experts: {DEFAULT_EXPERTS} (multiple experts for comprehensive analysis)")
+    print(f"📝 Analysis: COMPREHENSIVE - Detailed prediction ({DEFAULT_NOTE_LENGTH[0]}-{DEFAULT_NOTE_LENGTH[1]} sentences)")
     print("⚡ Context Caching: Enabled")
-    print("🎯 Mode: Raw probability data only (outsource explanation to cheaper LLM)")
+    print("🎯 Mode: Full institutional-quality analysis with detailed reasoning")
 
     # Estimate cost before running
     cost_estimate = estimate_analysis_cost()
@@ -244,19 +244,19 @@ async def test_hardcoded_analysis():
         return {"error": "Cost estimate exceeds limit"}
 
     results = await call_railway_mcp("testChronulusHardcoded")
-    save_results(results, "hardcoded_dodgers_padres_optimized", cost_estimate)
+    save_results(results, "hardcoded_dodgers_padres_comprehensive", cost_estimate)
 
     return results
 
 async def main():
-    """Main testing sequence - Cost optimized"""
-    print("🚀 OPTIMIZED RAILWAY CHRONULUS MCP TESTING")
+    """Main testing sequence - Maximum Quality"""
+    print("🚀 COMPREHENSIVE RAILWAY CHRONULUS MCP TESTING")
     print("=" * 75)
     print(f"🌐 Server: {RAILWAY_MCP_URL}")
     print(f"📁 Results: {RESULTS_DIR}")
     print(f"💰 Cost Control: Max ${MAX_COST_PER_TEST} per analysis")
-    print(f"👨‍⚖️ Expert Count: {DEFAULT_EXPERTS} (minimum)")
-    print(f"📝 Note Length: {DEFAULT_NOTE_LENGTH} sentences (short)")
+    print(f"👨‍⚖️ Expert Count: {DEFAULT_EXPERTS} (comprehensive)")
+    print(f"📝 Note Length: {DEFAULT_NOTE_LENGTH} sentences (detailed)")
     print()
 
     try:
@@ -278,8 +278,8 @@ async def main():
                     print("✅ Server is healthy - proceeding with optimized analysis")
                     print()
 
-                    # Test 2: Cost-optimized Analysis
-                    print("🧠 PHASE 2: Cost-Optimized Analysis")
+                    # Test 2: Comprehensive Analysis
+                    print("🧠 PHASE 2: Comprehensive Analysis")
                     print("-" * 40)
                     analysis_results = await test_hardcoded_analysis()
 
@@ -290,9 +290,9 @@ async def main():
                             analysis_data = json.loads(content)
 
                             if analysis_data.get("status") == "success":
-                                print("\n🎉 OPTIMIZED ANALYSIS COMPLETED SUCCESSFULLY!")
+                                print("\n🎉 COMPREHENSIVE ANALYSIS COMPLETED SUCCESSFULLY!")
                                 print("💡 Check the results folder for analysis")
-                                print("⚡ Cost savings: Short explanations + minimum experts")
+                                print("⚡ High Quality: Detailed explanations + multiple experts")
 
                                 # Quick preview
                                 if "analysis" in analysis_data:
@@ -335,13 +335,13 @@ async def main():
     print("💡 This optimized version should use less credits!")
 
 if __name__ == "__main__":
-    print("🧪 Starting OPTIMIZED Railway MCP testing...")
-    print("⏱️  This may take 2-3 minutes for AI analysis...")
-    print("💰 Cost: ~$0.05-0.10 (minimum configuration)")
+    print("🧪 Starting COMPREHENSIVE Railway MCP testing...")
+    print("⏱️  This may take 3-5 minutes for AI analysis...")
+    print("💰 Cost: ~$0.75-1.50 (maximum quality configuration)")
     print()
 
-    # Run the optimized test
+    # Run the comprehensive test
     asyncio.run(main())
 
-    print("\n✅ OPTIMIZED Testing complete!")
-    print("💡 Check your Chronulus usage - should be minimal cost!")
+    print("\n✅ COMPREHENSIVE Testing complete!")
+    print("💡 Check your Chronulus usage - high quality analysis!")
