@@ -1,8 +1,0 @@
-# Chronulus MCP Testing Requirements
-chronulus-mcp
-httpx
-pandas
-matplotlib
-seaborn
-numpy
-python-dateutil
