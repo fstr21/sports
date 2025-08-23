@@ -166,21 +166,20 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
             This could be a spot where the books have it right, or there might be subtle 
             value if you dig deeper into the matchup dynamics.""",
             
-            task="""Break down ALL THREE betting markets and tell me where the money is:
-            
-            1. MONEYLINE: Dodgers -120 vs Padres +102 - which side has value?
-            2. RUN LINE: Dodgers -1.5 (+146) vs Padres +1.5 (-178) - is the spread right? 
-            3. TOTAL: Over/Under 8.5 runs - does Petco Park make this an Under spot?
-            
-            For each market, give me:
-            - Your pick and confidence level (High/Medium/Low)
-            - The key factors that drive your decision
+            task="""Give me your expert betting analysis on this game like you're talking to another
+            experienced bettor at the sportsbook. Break down the key angles, market inefficiencies,
+            and where you see real betting value.
+
+            Focus on:
+            - The most compelling betting opportunity and why
+            - Key statistical edges or mismatches the market is missing
+            - Where the public money might be wrong
+            - Your confidence level and recommended bet size
             - What would make you change your mind
-            - Your honest assessment of the betting value
-            
-            Don't write like a textbook. Write like you're breaking down the game with another 
-            sharp bettor who knows baseball. Use your analysis along with your gut feel.
-            Give me 12-15 sentences of real insight, not fluff.""",
+
+            Keep it conversational and authentic - like a real sports bettor giving their hot take,
+            not an academic paper. Mix data-driven insights with betting intuition.
+            Aim for 10-15 sentences of actionable analysis that flows naturally.""",
             
             env=dict(CHRONULUS_API_KEY=CHRONULUS_API_KEY)
         )
@@ -339,7 +338,20 @@ async def get_chronulus_analysis(game_data: Dict[str, Any], expert_count: int = 
         session = Session(
             name=f"MLB Analysis: {away_team} @ {home_team}",
             situation=f"Analyzing MLB game on {game_date} between {away_team} and {home_team}",
-            task="Provide comprehensive sports betting analysis with win probability assessment",
+            task="""Give me your expert betting analysis on this game like you're talking to another
+            experienced bettor at the sportsbook. Break down the key angles, market inefficiencies,
+            and where you see real betting value.
+
+            Focus on:
+            - The most compelling betting opportunity and why
+            - Key statistical edges or mismatches the market is missing
+            - Where the public money might be wrong
+            - Your confidence level and recommended bet size
+            - What would make you change your mind
+
+            Keep it conversational and authentic - like a real sports bettor giving their hot take,
+            not an academic paper. Mix data-driven insights with betting intuition.
+            Aim for 10-15 sentences of actionable analysis that flows naturally.""",
             env=dict(CHRONULUS_API_KEY=CHRONULUS_API_KEY)
         )
         
