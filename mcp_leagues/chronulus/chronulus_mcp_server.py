@@ -264,25 +264,50 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
         )
         
         # Process results
+        print(f"🔍 Debug: predictions type: {type(predictions)}")
+        print(f"🔍 Debug: predictions length: {len(predictions) if predictions else 'None'}")
+
         if predictions and len(predictions) > 0:
             pred = predictions[0]
-            
+
             # Debug: Check what attributes are available
             pred_attrs = [attr for attr in dir(pred) if not attr.startswith('_')]
             print(f"🔍 Prediction object attributes: {pred_attrs}")
-            
-            # Handle probability extraction
-            if hasattr(pred, 'prob') and isinstance(pred.prob, tuple):
-                probability = pred.prob[0]  # First element for binary prediction
-            else:
-                probability = float(pred.prob) if hasattr(pred, 'prob') else 0.5
-            
-            # Extract analysis text (found in working version - it's pred.text)
-            if hasattr(pred, 'text'):
-                analysis_text = pred.text
-            else:
-                analysis_text = f"Analysis text not found - available attributes: {pred_attrs}"
-            
+            print(f"🔍 Prediction object type: {type(pred)}")
+
+            # Handle probability extraction with better error handling
+            try:
+                if hasattr(pred, 'prob'):
+                    print(f"🔍 Debug: pred.prob type: {type(pred.prob)}")
+                    print(f"🔍 Debug: pred.prob value: {pred.prob}")
+
+                    if isinstance(pred.prob, tuple) and len(pred.prob) > 0:
+                        probability = pred.prob[0]  # First element for binary prediction
+                    else:
+                        probability = float(pred.prob)
+                else:
+                    print("⚠️ Debug: pred.prob attribute not found")
+                    probability = 0.5
+
+                print(f"🔍 Debug: extracted probability: {probability}")
+
+            except Exception as prob_error:
+                print(f"⚠️ Debug: Error extracting probability: {prob_error}")
+                probability = 0.5
+
+            # Extract analysis text with better error handling
+            try:
+                if hasattr(pred, 'text'):
+                    print(f"🔍 Debug: pred.text type: {type(pred.text)}")
+                    print(f"🔍 Debug: pred.text length: {len(pred.text) if pred.text else 'None'}")
+                    analysis_text = pred.text
+                else:
+                    print("⚠️ Debug: pred.text attribute not found")
+                    analysis_text = f"Analysis text not found - available attributes: {pred_attrs}"
+            except Exception as text_error:
+                print(f"⚠️ Debug: Error extracting text: {text_error}")
+                analysis_text = f"Error extracting analysis text: {text_error}"
+
             return {
                 "session_id": session.session_id,
                 "request_id": request.request_id,
@@ -299,6 +324,7 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
                 "timestamp": now_iso()
             }
         else:
+            print("⚠️ Debug: No predictions received from expert")
             return {
                 "error": "No predictions received from expert",
                 "status": "analysis_timeout",
