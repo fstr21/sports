@@ -170,22 +170,34 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
         
         # Create binary predictor (focused on Dodgers winning)
         # Note: BinaryPredictor requires input_type parameter
-        from pydantic import BaseModel
+        from pydantic import BaseModel, Field
         
         class GameData(BaseModel):
-            pass  # Simple placeholder for input type
+            """Game data structure for Chronulus analysis"""
+            home_team: str = Field(description="Home team name")
+            away_team: str = Field(description="Away team name")
+            game_date: str = Field(description="Game date")
             
-        predictor = BinaryPredictor(session, input_type=GameData)
+        predictor = BinaryPredictor(session=session, input_type=GameData)
         
-        # Create prediction request with detailed analysis
+        # Create the predictor instance
+        await asyncio.to_thread(predictor.create)
+        
+        # Queue the prediction request with detailed analysis
+        game_data_obj = GameData(
+            home_team=hardcoded_game_data["home_team"],
+            away_team=hardcoded_game_data["away_team"], 
+            game_date=hardcoded_game_data["game_date"]
+        )
+        
         request = await asyncio.to_thread(
-            predictor.create_request,
-            data=hardcoded_game_data,
-            question="Will the Los Angeles Dodgers beat the San Diego Padres?",
+            predictor.queue,
+            item=game_data_obj,
+            num_experts=1,  # Single expert to save costs
             note_length=(12, 18),  # Very detailed analysis
-            expert_count=1,  # Single expert to save costs
-            prompt_additions="""IMPORTANT: In your analysis, provide specific recommendations for:
+            prompt_additions=f"""IMPORTANT: You have access to this game data: {json.dumps(hardcoded_game_data, indent=2)}
             
+            Provide specific recommendations for ALL THREE betting markets:
             1. MONEYLINE BET: Dodgers -120 or Padres +102? Which offers better value?
             2. RUN LINE BET: Dodgers -1.5 (+146) or Padres +1.5 (-178)? 
             3. TOTAL RUNS BET: Over 8.5 or Under 8.5? Consider Petco Park pitching environment.
