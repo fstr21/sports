@@ -278,19 +278,11 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
             else:
                 probability = float(pred.prob) if hasattr(pred, 'prob') else 0.5
             
-            # Try different possible attribute names for analysis text
-            analysis_text = "Analysis not available"
-            if hasattr(pred, 'note'):
-                analysis_text = pred.note
-            elif hasattr(pred, 'analysis'):
-                analysis_text = pred.analysis  
-            elif hasattr(pred, 'reasoning'):
-                analysis_text = pred.reasoning
-            elif hasattr(pred, 'explanation'):
-                analysis_text = pred.explanation
+            # Extract analysis text (found in working version - it's pred.text)
+            if hasattr(pred, 'text'):
+                analysis_text = pred.text
             else:
-                # Debug: Show what the prediction object actually contains
-                analysis_text = f"Debug - Prediction object: {str(pred)}"
+                analysis_text = f"Analysis text not found - available attributes: {pred_attrs}"
             
             return {
                 "session_id": session.session_id,
@@ -412,7 +404,7 @@ async def get_chronulus_analysis(game_data: Dict[str, Any], expert_count: int = 
         probabilities = []
         
         for i, pred in enumerate(predictions):
-            if hasattr(pred, 'note') and hasattr(pred, 'prob'):
+            if hasattr(pred, 'text') and hasattr(pred, 'prob'):
                 # Handle probability extraction
                 if isinstance(pred.prob, tuple):
                     probability = pred.prob[0]  # First element for binary prediction
@@ -423,8 +415,8 @@ async def get_chronulus_analysis(game_data: Dict[str, Any], expert_count: int = 
                 expert_analyses.append({
                     "expert_id": i + 1,
                     "probability": probability,
-                    "analysis": pred.note,
-                    "confidence": "high" if len(pred.note) > 500 else "medium"
+                    "analysis": pred.text,
+                    "confidence": "high" if len(pred.text) > 500 else "medium"
                 })
         
         # Calculate consensus
