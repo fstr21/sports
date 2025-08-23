@@ -21,12 +21,22 @@ from starlette.responses import Response
 from starlette.routing import Route
 
 # Import Chronulus components
+CHRONULUS_AVAILABLE = False
+CHRONULUS_ERROR = None
+
 try:
+    import chronulus
     from chronulus import Session, BinaryPredictor
     CHRONULUS_AVAILABLE = True
+    print(f"✅ Chronulus SDK imported successfully (version: {getattr(chronulus, '__version__', 'unknown')})")
 except ImportError as e:
-    print(f"Warning: Chronulus not available: {e}")
-    CHRONULUS_AVAILABLE = False
+    CHRONULUS_ERROR = str(e)
+    print(f"❌ Chronulus SDK import failed: {e}")
+    print(f"   This will result in 'sdk_unavailable' status")
+except Exception as e:
+    CHRONULUS_ERROR = str(e)
+    print(f"❌ Unexpected error importing Chronulus: {e}")
+    print(f"   This will result in 'sdk_unavailable' status")
 
 # Configuration
 CHRONULUS_API_KEY = os.getenv("CHRONULUS_API_KEY")
@@ -217,6 +227,11 @@ async def get_chronulus_health() -> Dict[str, Any]:
     
     if not CHRONULUS_AVAILABLE:
         health_data["status"] = "sdk_unavailable"
+        health_data["error"] = CHRONULUS_ERROR or "Unknown import error"
+        health_data["debug_info"] = {
+            "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+            "chronulus_error": CHRONULUS_ERROR
+        }
         return health_data
     
     if not CHRONULUS_API_KEY:
