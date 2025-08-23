@@ -22,9 +22,9 @@ RAILWAY_MCP_URL = "https://chronulusmcp-production.up.railway.app/mcp"
 RESULTS_DIR = Path(__file__).parent / "results"
 
 # Cost optimization settings - MINIMAL MODE
-MAX_COST_PER_TEST = 0.08   # Maximum $0.08 per analysis (realistic for minimal mode)
+MAX_COST_PER_TEST = 0.25   # Maximum $0.25 per analysis (working baseline)
 DEFAULT_EXPERTS = 2        # Minimum experts (required by Chronulus)
-DEFAULT_NOTE_LENGTH = (1, 2)  # Minimal explanation (1-2 sentences)
+DEFAULT_NOTE_LENGTH = (12, 18)  # Working detailed analysis
 MINIMAL_MODE = True        # Enable minimal mode for raw predictions only
 
 async def call_railway_mcp(tool_name: str, arguments: dict = None):
