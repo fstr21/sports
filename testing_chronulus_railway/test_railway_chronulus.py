@@ -74,21 +74,76 @@ async def call_railway_mcp(tool_name: str, arguments: dict = None):
 
 def estimate_analysis_cost():
     """
-    Estimate cost of analysis before running
-    Based on Chronulus pricing: ~$0.05-0.10 for 2 experts
+    Estimate cost of analysis before running using Chronulus estimate_usage
+    This uses the actual Chronulus SDK estimation rather than guessing
     """
-    base_cost = 0.075  # Average cost for 2 experts
-    cost_range = "$0.05-0.10"
+    try:
+        # Import Chronulus components
+        from chronulus import Session
+        from chronulus.estimator import BinaryPredictor
+        from pydantic import BaseModel, Field
 
-    print("💰 COST ESTIMATION")
-    print(f"   Expected Cost: {cost_range}")
-    print(f"   Expert Count: {DEFAULT_EXPERTS}")
-    print(f"   Note Length: {DEFAULT_NOTE_LENGTH} sentences")
-    print(f"   Context Caching: Enabled")
-    print(f"   Max Cost Limit: ${MAX_COST_PER_TEST}")
-    print()
+        print("🔍 CHRONULUS COST ESTIMATION")
+        print("   Connecting to Chronulus SDK for accurate estimate...")
 
-    return base_cost
+        # Create session for estimation
+        session = Session(
+            name="Cost Estimation",
+            situation="Estimating cost for MLB game analysis",
+            task="Get cost estimate for binary prediction",
+            env=dict(CHRONULUS_API_KEY=os.getenv("CHRONULUS_API_KEY"))
+        )
+
+        # Define minimal data structure for estimation
+        class EstimationData(BaseModel):
+            test_field: str = Field(description="Test field for estimation")
+
+        # Create predictor for estimation
+        predictor = BinaryPredictor(
+            session=session,
+            input_type=EstimationData
+        )
+
+        # Create test item
+        test_item = EstimationData(test_field="MLB game analysis")
+
+        # Get actual cost estimate from Chronulus
+        usage_estimate = predictor.estimate_usage(
+            item=test_item,
+            num_experts=DEFAULT_EXPERTS,
+            note_length=DEFAULT_NOTE_LENGTH
+        )
+
+        if usage_estimate and hasattr(usage_estimate, 'cost'):
+            estimated_chrons = usage_estimate.cost
+            # Convert chrons to dollars (rough estimate: 1 chron ≈ $0.005)
+            estimated_cost = estimated_chrons * 0.005
+
+            print(f"   ✅ Chronulus Estimate: {estimated_chrons} chrons")
+            print(f"   💰 Estimated Cost: ${estimated_cost:.3f}")
+            print(f"   Expert Count: {DEFAULT_EXPERTS}")
+            print(f"   Note Length: {DEFAULT_NOTE_LENGTH} sentences")
+            print(f"   Max Cost Limit: ${MAX_COST_PER_TEST}")
+
+            return estimated_cost
+        else:
+            print("   ⚠️  Could not get Chronulus estimate, using fallback")
+            return 0.10  # Fallback estimate
+
+    except Exception as e:
+        print(f"   ⚠️  Error getting Chronulus estimate: {e}")
+        print("   Using fallback estimation...")
+        # Fallback to our previous estimation method
+        base_cost = 0.075  # Average cost for 2 experts
+        cost_range = "$0.05-0.10"
+
+        print(f"   Expected Cost: {cost_range}")
+        print(f"   Expert Count: {DEFAULT_EXPERTS}")
+        print(f"   Note Length: {DEFAULT_NOTE_LENGTH} sentences")
+        print(f"   Context Caching: Enabled")
+        print(f"   Max Cost Limit: ${MAX_COST_PER_TEST}")
+
+        return base_cost
 
 def save_results(results: dict, test_name: str, cost_estimate: float = None):
     """

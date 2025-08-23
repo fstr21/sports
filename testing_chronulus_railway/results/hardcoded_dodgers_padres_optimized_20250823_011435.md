@@ -1,0 +1,50 @@
+# Chronulus Railway MCP Test Results
+
+**Test**: hardcoded_dodgers_padres_optimized
+**Timestamp**: 20250823_011435
+**Railway URL**: https://chronulusmcp-production.up.railway.app/mcp
+**Estimated Cost**: $0.075
+
+## Expert Analysis
+
+[Positive]
+
+Q: What is the probability distribution for the San Diego Padres winning this home game against the Los Angeles Dodgers?
+
+Pred: (48.66%*, 51.34%)
+
+A: Listen up, because I'm seeing some real value here that the books are missing. While these teams look close on paper with similar records, the run differential tells a different story - the Dodgers at +93 versus the Padres at -58 is massive. That said, Petco Park is a legitimate equalizer, especially in these intense division matchups. I'm picking up on some key signals here - the Padres have shown better recent form going 6-4 while the Dodgers have been mediocre at 5-5. The public typically overvalues the Dodgers in these spots, creating some natural line value on the home dog.
+
+My expectation leans slightly toward the Dodgers, but not nearly as much as their run differential would suggest. The pitcher-friendly park should keep this close and low-scoring, benefiting the home underdog. I predict with moderate certainty given the consistent patterns we see in these NL West rivalry games at Petco. Results are likely skewed slightly right, meaning while the Padres are more likely to pull off a close win, the Dodgers have a better chance at a comfortable margin if things break their way.
+
+I'm seeing real value on the Padres at +102 here. The outcomes are fairly concentrated around my expectation given the park factors and rivalry dynamics at play. While there's always some fat tail risk in baseball, the venue should help control for extreme outcomes. Based on my deep dive into the matchup specifics and market inefficiencies, I'd recommend a 1.5 unit play on the Padres. The only thing that would change my mind would be significant late money movement toward San Diego or unexpected lineup changes.
+
+[Negative]
+
+Q: What is the probability that betting on the San Diego Padres as home underdogs will NOT provide value and be a losing proposition in this NL West rivalry matchup?
+
+Pred: (43.64%, 56.36%*)
+
+A: Looking at this through a contrarian lens, I'm seeing several red flags that make me wary of fading the Dodgers, even at Petco. My expectation centers around a decent probability the Padres fail to capitalize on their home dog status. The run differential gap of 151 runs between these teams is staggering and suggests the win percentages are masking true talent levels. I predict with moderate certainty that the Dodgers' superior offense (4.48 runs/game vs 3.76) will overcome Petco's pitcher-friendly confines. The outcomes are notably skewed toward a Dodgers win given their consistent performance on the road this season. However, there's a measurable risk of fat tails given the rivalry dynamics and playoff implications - these games often produce unexpected results. The Padres' recent 6-4 form provides some pause, but the Dodgers' fundamentals are simply stronger across the board. The market seems to have this priced about right at Dodgers -120, if anything slightly undervaluing LA. The probability distribution shows concentrated likelihood around the Dodgers prevailing, though with some meaningful uncertainty given the venue and rivalry factors. The overall shape suggests the smart money shouldn't get too aggressive fading the road favorite in this spot.
+
+## Key Metrics
+
+- **Win Probability**: 45.8%
+- **Actual Cost**: $0.05-0.10
+
+## Full Response
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"session_id\": \"f2b6f3df-f8fa-51f1-80ee-24d678f12601\",\n  \"request_id\": \"10dacf0e-b5d0-4903-8f28-1b5c20ed8aff\",\n  \"test_game\": \"Los Angeles Dodgers @ San Diego Padres\",\n  \"analysis\": {\n    \"expert_analysis\": \"[Positive]\\n\\nQ: What is the probability distribution for the San Diego Padres winning this home game against the Los Angeles Dodgers?\\n\\nPred: (48.66%*, 51.34%)\\n\\nA: Listen up, because I'm seeing some real value here that the books are missing. While these teams look close on paper with similar records, the run differential tells a different story - the Dodgers at +93 versus the Padres at -58 is massive. That said, Petco Park is a legitimate equalizer, especially in these intense division matchups. I'm picking up on some key signals here - the Padres have shown better recent form going 6-4 while the Dodgers have been mediocre at 5-5. The public typically overvalues the Dodgers in these spots, creating some natural line value on the home dog.\\n\\nMy expectation leans slightly toward the Dodgers, but not nearly as much as their run differential would suggest. The pitcher-friendly park should keep this close and low-scoring, benefiting the home underdog. I predict with moderate certainty given the consistent patterns we see in these NL West rivalry games at Petco. Results are likely skewed slightly right, meaning while the Padres are more likely to pull off a close win, the Dodgers have a better chance at a comfortable margin if things break their way.\\n\\nI'm seeing real value on the Padres at +102 here. The outcomes are fairly concentrated around my expectation given the park factors and rivalry dynamics at play. While there's always some fat tail risk in baseball, the venue should help control for extreme outcomes. Based on my deep dive into the matchup specifics and market inefficiencies, I'd recommend a 1.5 unit play on the Padres. The only thing that would change my mind would be significant late money movement toward San Diego or unexpected lineup changes.\\n\\n[Negative]\\n\\nQ: What is the probability that betting on the San Diego Padres as home underdogs will NOT provide value and be a losing proposition in this NL West rivalry matchup?\\n\\nPred: (43.64%, 56.36%*)\\n\\nA: Looking at this through a contrarian lens, I'm seeing several red flags that make me wary of fading the Dodgers, even at Petco. My expectation centers around a decent probability the Padres fail to capitalize on their home dog status. The run differential gap of 151 runs between these teams is staggering and suggests the win percentages are masking true talent levels. I predict with moderate certainty that the Dodgers' superior offense (4.48 runs/game vs 3.76) will overcome Petco's pitcher-friendly confines. The outcomes are notably skewed toward a Dodgers win given their consistent performance on the road this season. However, there's a measurable risk of fat tails given the rivalry dynamics and playoff implications - these games often produce unexpected results. The Padres' recent 6-4 form provides some pause, but the Dodgers' fundamentals are simply stronger across the board. The market seems to have this priced about right at Dodgers -120, if anything slightly undervaluing LA. The probability distribution shows concentrated likelihood around the Dodgers prevailing, though with some meaningful uncertainty given the venue and rivalry factors. The overall shape suggests the smart money shouldn't get too aggressive fading the road favorite in this spot.\",\n    \"dodgers_win_probability\": 0.4581102157009521,\n    \"confidence\": \"2-expert consensus analysis\",\n    \"betting_markets_covered\": [\n      \"Moneyline\",\n      \"Run Line\",\n      \"Total Runs\"\n    ],\n    \"expert_count\": 2,\n    \"cost_estimate\": \"$0.05-0.10\"\n  },\n  \"status\": \"success\",\n  \"timestamp\": \"2025-08-23T05:14:34.408021+00:00\"\n}"
+      }
+    ]
+  }
+}
+```
