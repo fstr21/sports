@@ -288,8 +288,20 @@ async def get_chronulus_analysis(game_data: Dict[str, Any], expert_count: int = 
         # Create session
         await asyncio.to_thread(session.create)
         
-        # Create binary predictor
-        predictor = BinaryPredictor(session)
+        # Create binary predictor with proper input type
+        from pydantic import BaseModel, Field
+        
+        class GeneralGameData(BaseModel):
+            """General game data structure for Chronulus analysis"""
+            away_team: str = Field(description="Away team name")
+            home_team: str = Field(description="Home team name")
+            date: str = Field(description="Game date")
+            venue: str = Field(description="Venue name")
+        
+        predictor = BinaryPredictor(session=session, input_type=GeneralGameData)
+        
+        # Create the predictor instance
+        await asyncio.to_thread(predictor.create)
         
         # Format comprehensive data for analysis
         analysis_data = {
@@ -305,14 +317,21 @@ async def get_chronulus_analysis(game_data: Dict[str, Any], expert_count: int = 
             "additional_context": game_data.get("context", {})
         }
         
-        # Create prediction request
+        # Create game data object for predictor
+        game_data_obj = GeneralGameData(
+            away_team=away_team,
+            home_team=home_team,
+            date=game_date,
+            venue=game_data.get("venue", "MLB Stadium")
+        )
+        
+        # Queue prediction request
         request = await asyncio.to_thread(
-            predictor.create_request,
-            data=analysis_data,
-            question=f"Will {away_team} win against {home_team}?",
+            predictor.queue,
+            item=game_data_obj,
+            num_experts=expert_count,
             note_length=(10, 15),  # Detailed analysis
-            expert_count=expert_count,
-            prompt_additions="Analyze this like experienced sports bettors would - focus on recent form vs season stats, venue factors, and betting value."
+            prompt_additions=f"Analyze this like experienced sports bettors would - focus on recent form vs season stats, venue factors, and betting value. Game data: {json.dumps(analysis_data, indent=2)}"
         )
         
         # Get predictions with timeout
