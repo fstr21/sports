@@ -83,7 +83,7 @@ AVAILABLE_TOOLS = [
     },
     {
         "name": "testChronulusHardcoded",
-        "description": "Test Chronulus with hard-coded Dodgers @ Padres game data (single expert)",
+        "description": "Test Chronulus with hard-coded Dodgers @ Padres game data (2 experts minimum)",
         "inputSchema": {
             "type": "object",
             "properties": {}
@@ -152,7 +152,7 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
         
         # Create Chronulus session with detailed task like working version
         session = Session(
-            name="MLB Expert Analysis: Dodgers @ Padres - Single Expert",
+            name="MLB Expert Analysis: Dodgers @ Padres - 2 Expert Consensus",
             
             situation="""You're a seasoned sports bettor with 15+ years of experience 
             analyzing MLB games for profit. You've made your living finding edges in the 
@@ -252,7 +252,7 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
         request = await asyncio.to_thread(
             predictor.queue,
             item=game_data_obj,
-            num_experts=1,  # Single expert to save costs
+            num_experts=2,  # Minimum required by Chronulus (2-30)
             note_length=(12, 18)  # Very detailed analysis (12-18 sentences)
         )
         
@@ -283,10 +283,10 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
                 "analysis": {
                     "expert_analysis": analysis_text,
                     "dodgers_win_probability": probability,
-                    "confidence": "Single expert detailed analysis",
+                    "confidence": "2-expert consensus analysis",
                     "betting_markets_covered": ["Moneyline", "Run Line", "Total Runs"],
-                    "expert_count": 1,
-                    "cost_estimate": "$0.02-0.05"
+                    "expert_count": 2,
+                    "cost_estimate": "$0.05-0.10"
                 },
                 "status": "success",
                 "timestamp": now_iso()
