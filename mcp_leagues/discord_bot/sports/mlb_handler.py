@@ -945,9 +945,12 @@ class MLBHandler(BaseSportHandler):
         else:
             logger.warning(f"Missing team IDs for {match.away_team} @ {match.home_team}: home={home_team_id}, away={away_team_id}")
         
-        # 3. AI Expert Analysis (Custom Chronulus)
+        # 3. AI Expert Analysis (Custom Chronulus) with real betting odds
         logger.info(f"Requesting AI analysis for {match.away_team} @ {match.home_team}")
-        chronulus_data = await self.call_chronulus_analysis(match.home_team, match.away_team)
+        
+        # Get real betting odds to pass to Chronulus
+        betting_odds = await self.get_betting_odds_for_game(match)
+        chronulus_data = await self.call_chronulus_analysis(match.home_team, match.away_team, betting_odds)
         
         if chronulus_data:
             ai_embed = await self.create_ai_analysis_embed(match, chronulus_data)
@@ -1794,12 +1797,48 @@ class MLBHandler(BaseSportHandler):
             logger.error(f"Error calling MLB MCP tool {tool_name}: {e}")
             return None
     
-    async def call_chronulus_analysis(self, home_team: str, away_team: str) -> Optional[Dict[str, Any]]:
-        """Call Custom Chronulus MCP for AI expert analysis"""
+    async def call_chronulus_analysis(self, home_team: str, away_team: str, betting_odds: Optional[Dict[str, str]] = None) -> Optional[Dict[str, Any]]:
+        """Call Custom Chronulus MCP for AI expert analysis with real betting odds"""
         try:
             import httpx
             
             chronulus_url = "https://customchronpredictormcp-production.up.railway.app/mcp"
+            
+            # Prepare arguments with real betting odds embedded in team context
+            home_team_context = home_team
+            away_team_context = away_team
+            
+            # Add odds context to team names if available
+            if betting_odds and isinstance(betting_odds, dict):
+                moneyline = betting_odds.get("moneyline", "")
+                if moneyline and "|" in moneyline:
+                    parts = moneyline.split(" | ")
+                    if len(parts) == 2:
+                        home_ml = parts[0].strip()
+                        away_ml = parts[1].strip()
+                        
+                        # Extract odds from full strings like "Seattle Mariners -172"
+                        import re
+                        home_odds_match = re.search(r'([+-]\d+)', home_ml)
+                        away_odds_match = re.search(r'([+-]\d+)', away_ml)
+                        
+                        if home_odds_match and away_odds_match:
+                            home_odds = home_odds_match.group(1)
+                            away_odds = away_odds_match.group(1)
+                            
+                            # Embed real odds in team context for analysis
+                            home_team_context = f"{home_team} ({home_odds} moneyline)"
+                            away_team_context = f"{away_team} ({away_odds} moneyline)"
+                            
+                            logger.info(f"Enhanced team context: {away_team_context} @ {home_team_context}")
+            
+            arguments = {
+                "home_team": home_team_context,
+                "away_team": away_team_context,
+                "expert_count": 3,  # Balance of speed and quality
+                "analysis_depth": "standard"  # 8-12 sentences per expert
+            }
+            
             
             payload = {
                 "jsonrpc": "2.0",
@@ -1807,12 +1846,7 @@ class MLBHandler(BaseSportHandler):
                 "id": 1,
                 "params": {
                     "name": "getCustomChronulusAnalysis",
-                    "arguments": {
-                        "home_team": home_team,
-                        "away_team": away_team,
-                        "expert_count": 3,  # Balance of speed and quality
-                        "analysis_depth": "standard"  # 8-12 sentences per expert
-                    }
+                    "arguments": arguments
                 }
             }
             
@@ -1927,10 +1961,16 @@ class MLBHandler(BaseSportHandler):
                     
                     # Extract consensus from expert analysis text
                     if expert_analysis_text:
-                        # Get first few sentences as consensus
-                        sentences = expert_analysis_text.split('. ')[:3]
-                        consensus = '. '.join(sentences) + '.' if sentences else "Expert analysis completed"
-                        consensus = consensus[:300] + "..." if len(consensus) > 300 else consensus
+                        # Get more comprehensive consensus text - increased from 300 to 800 chars
+                        # Split into sections and get the main analysis
+                        if "Expert Consensus:" in expert_analysis_text:
+                            consensus_section = expert_analysis_text.split("Expert Consensus:")[1].split("[")[0].strip()
+                        else:
+                            # Get first section if no explicit consensus
+                            consensus_section = expert_analysis_text.split("\n\n")[0]
+                        
+                        # Clean and truncate appropriately for Discord embed
+                        consensus = consensus_section[:800] + "..." if len(consensus_section) > 800 else consensus_section
                     else:
                         consensus = "Analysis completed"
                     
