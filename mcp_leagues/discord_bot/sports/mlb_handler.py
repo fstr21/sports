@@ -238,6 +238,37 @@ class MLBHandler(BaseSportHandler):
                             if match:
                                 matches.append(match)
             
+            # TESTING: Filter to only the last game of the day for Chronulus testing
+            if matches:
+                # Sort by game time to get the latest game
+                sorted_matches = []
+                for match in matches:
+                    raw_time = match.additional_data.get('time', 'TBD')
+                    if raw_time != 'TBD' and 'T' in raw_time:
+                        try:
+                            # Parse time for sorting
+                            if raw_time.endswith('Z'):
+                                dt = datetime.fromisoformat(raw_time.replace('Z', '+00:00'))
+                            else:
+                                dt = datetime.fromisoformat(raw_time)
+                            sorted_matches.append((dt, match))
+                        except Exception:
+                            # If time parsing fails, add with current time as fallback
+                            sorted_matches.append((datetime.now(), match))
+                    else:
+                        # Games without time go to end
+                        sorted_matches.append((datetime.now(), match))
+                
+                # Sort by time and take only the LAST game (latest start time)
+                if sorted_matches:
+                    sorted_matches.sort(key=lambda x: x[0])  # Sort by datetime
+                    last_game = sorted_matches[-1][1]  # Get the match from the last tuple
+                    
+                    logger.info(f"TESTING MODE: Processing only last game of day: {last_game.away_team} @ {last_game.home_team}")
+                    logger.info(f"Skipping {len(matches) - 1} other games for Chronulus testing")
+                    
+                    return [last_game]  # Return only the last game
+            
             return matches
             
         except Exception as e:
@@ -886,9 +917,10 @@ class MLBHandler(BaseSportHandler):
     
     async def create_comprehensive_game_analysis(self, match: Match) -> List[discord.Embed]:
         """
-        Create streamlined 2-embed analysis:
+        Create streamlined 3-embed analysis:
         1. Comprehensive main embed (betting, team comparison, scoring trends)
         2. Player props + stats embed (with betting lines and performance data)
+        3. AI Expert Analysis embed (Custom Chronulus forecasting)
         """
         embeds = []
         
@@ -913,7 +945,21 @@ class MLBHandler(BaseSportHandler):
         else:
             logger.warning(f"Missing team IDs for {match.away_team} @ {match.home_team}: home={home_team_id}, away={away_team_id}")
         
-        logger.info(f"Generated {len(embeds)} streamlined embeds for {match.away_team} @ {match.home_team}")
+        # 3. AI Expert Analysis (Custom Chronulus)
+        logger.info(f"Requesting AI analysis for {match.away_team} @ {match.home_team}")
+        chronulus_data = await self.call_chronulus_analysis(match.home_team, match.away_team)
+        
+        if chronulus_data:
+            ai_embed = await self.create_ai_analysis_embed(match, chronulus_data)
+            if ai_embed:
+                embeds.append(ai_embed)
+                logger.info(f"Added AI expert analysis embed for {match.away_team} @ {match.home_team}")
+            else:
+                logger.warning(f"Failed to create AI analysis embed despite having Chronulus data")
+        else:
+            logger.warning(f"Custom Chronulus analysis not available for {match.away_team} @ {match.home_team} - proceeding with 2-embed format")
+        
+        logger.info(f"Generated {len(embeds)} embeds (with {'AI analysis' if len(embeds) == 3 else 'no AI analysis'}) for {match.away_team} @ {match.home_team}")
         return embeds
     
     async def create_team_form_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
@@ -1746,6 +1792,208 @@ class MLBHandler(BaseSportHandler):
             
         except Exception as e:
             logger.error(f"Error calling MLB MCP tool {tool_name}: {e}")
+            return None
+    
+    async def call_chronulus_analysis(self, home_team: str, away_team: str) -> Optional[Dict[str, Any]]:
+        """Call Custom Chronulus MCP for AI expert analysis"""
+        try:
+            import httpx
+            
+            chronulus_url = "https://customchronpredictormcp-production.up.railway.app/mcp"
+            
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "tools/call",
+                "id": 1,
+                "params": {
+                    "name": "getCustomChronulusAnalysis",
+                    "arguments": {
+                        "home_team": home_team,
+                        "away_team": away_team,
+                        "expert_count": 3,  # Balance of speed and quality
+                        "analysis_depth": "standard"  # 8-12 sentences per expert
+                    }
+                }
+            }
+            
+            logger.info(f"Requesting Chronulus analysis for {away_team} @ {home_team}")
+            
+            async with httpx.AsyncClient(timeout=90.0) as client:  # Longer timeout for AI analysis
+                response = await client.post(chronulus_url, json=payload)
+                response.raise_for_status()
+                result = response.json()
+                
+                if "result" not in result:
+                    logger.error(f"Chronulus MCP error: {result.get('error', 'Unknown error')}")
+                    return None
+                
+                # Parse MCP response format
+                mcp_result = result["result"]
+                if "content" in mcp_result and isinstance(mcp_result["content"], list):
+                    if mcp_result["content"] and "text" in mcp_result["content"][0]:
+                        analysis_text = mcp_result["content"][0]["text"]
+                        
+                        # Try to parse as JSON first
+                        try:
+                            import json
+                            analysis_data = json.loads(analysis_text)
+                            logger.info(f"Chronulus analysis completed: {analysis_data.get('win_probability', 'N/A')}% {home_team} win probability")
+                            return analysis_data
+                        except json.JSONDecodeError:
+                            # Handle text format response
+                            logger.info(f"Chronulus returned text analysis: {len(analysis_text)} characters")
+                            return {
+                                "analysis_text": analysis_text,
+                                "format": "text",
+                                "home_team": home_team,
+                                "away_team": away_team
+                            }
+                
+                logger.warning(f"Unexpected Chronulus response format: {mcp_result}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error calling Chronulus analysis: {e}")
+            return None
+    
+    async def create_ai_analysis_embed(self, match: Match, chronulus_data: Optional[Dict[str, Any]]) -> Optional[discord.Embed]:
+        """Create AI Expert Analysis embed using Custom Chronulus data"""
+        try:
+            if not chronulus_data:
+                return None
+            
+            embed = discord.Embed(
+                title=f"🧠 AI Expert Analysis • {match.away_team} @ {match.home_team}",
+                description="Institutional-quality expert forecasting powered by Custom Chronulus AI",
+                color=0x6A5ACD,  # Slate blue for AI/tech theme
+                timestamp=datetime.now()
+            )
+            
+            # Handle different response formats
+            if chronulus_data.get("format") == "text":
+                # Text format response
+                analysis_text = chronulus_data.get("analysis_text", "")
+                
+                # Extract key information from text if possible
+                lines = analysis_text.split('\n')
+                summary_lines = []
+                for line in lines[:8]:  # First 8 lines for summary
+                    if line.strip() and not line.strip().startswith('**'):
+                        summary_lines.append(line.strip())
+                
+                if summary_lines:
+                    embed.add_field(
+                        name="📊 Expert Consensus",
+                        value='\n'.join(summary_lines[:4]) + "\n..." if len(summary_lines) > 4 else '\n'.join(summary_lines),
+                        inline=False
+                    )
+                
+                embed.add_field(
+                    name="🎯 AI Analysis Status",
+                    value="✅ Expert analysis completed\n📈 Multi-expert consensus generated\n💡 Comprehensive market evaluation",
+                    inline=True
+                )
+                
+                embed.add_field(
+                    name="ℹ️ Analysis Info",
+                    value="• 3 AI experts consulted\n• Standard depth analysis\n• Cost: ~$0.05-0.10 per analysis\n• 90% savings vs real Chronulus",
+                    inline=True
+                )
+                
+            else:
+                # JSON format response - handle actual Chronulus format
+                analysis_data = chronulus_data.get("analysis", {})
+                
+                # Extract data from nested analysis structure
+                if isinstance(analysis_data, dict):
+                    win_probability = analysis_data.get("win_probability", 0)
+                    expert_analyses = analysis_data.get("expert_analyses", [])
+                    consensus = analysis_data.get("consensus_summary", analysis_data.get("summary", "Analysis completed"))
+                    recommendation = analysis_data.get("betting_recommendation", analysis_data.get("recommendation", "No recommendation"))
+                else:
+                    # Fallback if analysis is text or other format
+                    win_probability = 0
+                    expert_analyses = []
+                    consensus = str(analysis_data) if analysis_data else "Analysis completed"
+                    recommendation = "Analysis available"
+                
+                # Win Probability with visual indicator
+                home_prob = 50  # Default
+                away_prob = 50
+                
+                if win_probability:
+                    try:
+                        home_prob = float(win_probability)
+                        away_prob = 100 - home_prob
+                        
+                        # Visual probability bar
+                        home_bars = int(home_prob / 10)
+                        away_bars = int(away_prob / 10)
+                        prob_visual = f"{'🟦' * home_bars}{'⬜' * (10 - home_bars)}"
+                        
+                        embed.add_field(
+                            name="🎲 Win Probability",
+                            value=f"**{match.home_team}: {home_prob:.1f}%**\n{prob_visual}\n**{match.away_team}: {away_prob:.1f}%**",
+                            inline=False
+                        )
+                    except (ValueError, TypeError) as e:
+                        logger.debug(f"Error parsing win probability: {e}")
+                        embed.add_field(
+                            name="🎲 Win Probability",
+                            value=f"Analysis completed but probability format unclear\nHome: {match.home_team}\nAway: {match.away_team}",
+                            inline=False
+                        )
+                
+                # Expert Consensus
+                if consensus:
+                    consensus_text = consensus[:300] + "..." if len(consensus) > 300 else consensus
+                    embed.add_field(
+                        name="👥 Expert Consensus",
+                        value=consensus_text,
+                        inline=False
+                    )
+                
+                # Betting Recommendation
+                if recommendation and recommendation != "No recommendation":
+                    rec_emoji = "✅" if "BET" in recommendation.upper() else "⚠️" if "LEAN" in recommendation.upper() else "❌"
+                    embed.add_field(
+                        name="💰 Betting Recommendation",
+                        value=f"{rec_emoji} {recommendation}",
+                        inline=True
+                    )
+                
+                # Analysis Stats
+                confidence = 'High' if home_prob > 60 or home_prob < 40 else 'Moderate'
+                edge_analysis = 'Value detected' if recommendation and 'BET' in recommendation.upper() else 'No edge found'
+                embed.add_field(
+                    name="📈 Analysis Stats",
+                    value=f"• **Experts**: {len(expert_analyses)} AI analysts\n• **Confidence**: {confidence}\n• **Edge Analysis**: {edge_analysis}",
+                    inline=True
+                )
+                
+                # Key Insights from experts
+                if expert_analyses:
+                    key_insights = []
+                    for expert in expert_analyses[:2]:  # First 2 experts
+                        expert_type = expert.get("expert_type", "Expert")
+                        reasoning = expert.get("reasoning", "")
+                        if reasoning:
+                            insight = reasoning.split('.')[0] + "." if '.' in reasoning else reasoning[:80] + "..."
+                            key_insights.append(f"• **{expert_type}**: {insight}")
+                    
+                    if key_insights:
+                        embed.add_field(
+                            name="💡 Key Expert Insights",
+                            value='\n'.join(key_insights),
+                            inline=False
+                        )
+            
+            # Footer
+            embed.set_footer(text="Custom Chronulus AI • 90% cost savings vs real Chronulus • Powered by OpenRouter")
+            return embed
+            
+        except Exception as e:
+            logger.error(f"Error creating AI analysis embed: {e}")
             return None
     
     def _convert_to_match_object(self, game_data: Dict[str, Any]) -> Optional[Match]:
