@@ -150,18 +150,38 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
             "market_efficiency": "Oddsmakers see this as essentially a pick-em game"
         }
         
-        # Create Chronulus session with detailed prompt
+        # Create Chronulus session with detailed task like working version
         session = Session(
-            name="MLB Single-Expert Analysis: Dodgers @ Padres",
-            situation="""You are an experienced MLB handicapper with deep knowledge of betting markets. 
-            Analyze this NL West rivalry game between two playoff contenders with similar records. 
-            Focus on finding betting value across all markets.""",
-            task="""Provide detailed analysis and specific recommendations for ALL THREE betting markets:
-            1. MONEYLINE: Which team to bet and why
-            2. RUN LINE (spread): Take Dodgers -1.5 or Padres +1.5 
-            3. TOTAL: Bet Over 8.5 or Under 8.5 runs
+            name="MLB Expert Analysis: Dodgers @ Padres - Single Expert",
             
-            Give specific reasoning for each market and your confidence level.""",
+            situation="""You're a seasoned sports bettor with 15+ years of experience 
+            analyzing MLB games for profit. You've made your living finding edges in the 
+            market and you talk like it - direct, confident, and cutting through the BS.
+            
+            You're looking at a classic NL West rivalry matchup between two playoff contenders.
+            The Dodgers (.570) are slight favorites at -120, while the Padres (.563) are getting 
+            +102 as home underdogs. Both teams are close in talent but the market sees value 
+            differences. Petco Park is pitcher-friendly which affects the total.
+            
+            This could be a spot where the books have it right, or there might be subtle 
+            value if you dig deeper into the matchup dynamics.""",
+            
+            task="""Break down ALL THREE betting markets and tell me where the money is:
+            
+            1. MONEYLINE: Dodgers -120 vs Padres +102 - which side has value?
+            2. RUN LINE: Dodgers -1.5 (+146) vs Padres +1.5 (-178) - is the spread right? 
+            3. TOTAL: Over/Under 8.5 runs - does Petco Park make this an Under spot?
+            
+            For each market, give me:
+            - Your pick and confidence level (High/Medium/Low)
+            - The key factors that drive your decision
+            - What would make you change your mind
+            - Your honest assessment of the betting value
+            
+            Don't write like a textbook. Write like you're breaking down the game with another 
+            sharp bettor who knows baseball. Use your analysis along with your gut feel.
+            Give me 12-15 sentences of real insight, not fluff.""",
+            
             env=dict(CHRONULUS_API_KEY=CHRONULUS_API_KEY)
         )
         
@@ -228,20 +248,12 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
         # Create the predictor instance (synchronously like working version)
         await asyncio.to_thread(predictor.create)
         
-        # Queue prediction request (synchronously like working version)
+        # Queue prediction request exactly like working version  
         request = await asyncio.to_thread(
             predictor.queue,
             item=game_data_obj,
             num_experts=1,  # Single expert to save costs
-            note_length=(12, 18),  # Very detailed analysis
-            prompt_additions="""IMPORTANT: Provide specific recommendations for ALL THREE betting markets:
-            
-            1. MONEYLINE BET: Dodgers -120 or Padres +102? Which offers better value?
-            2. RUN LINE BET: Dodgers -1.5 (+146) or Padres +1.5 (-178)? 
-            3. TOTAL RUNS BET: Over 8.5 or Under 8.5? Consider Petco Park pitching environment.
-            
-            Explain your reasoning for each market and give a confidence rating (High/Medium/Low) for each recommendation.
-            Focus on finding the best betting value among these three options."""
+            note_length=(12, 18)  # Very detailed analysis (12-18 sentences)
         )
         
         # Get predictions with extended timeout for detailed analysis
