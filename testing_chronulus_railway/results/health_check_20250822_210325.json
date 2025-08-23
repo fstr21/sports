@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"timestamp\": \"2025-08-23T01:03:23.785068+00:00\",\n  \"chronulus_sdk\": true,\n  \"api_key_configured\": true,\n  \"status\": \"healthy\",\n  \"session_id\": \"fe78ee53-f847-5429-8d54-87ffebe7e719\"\n}"
+      }
+    ]
+  }
+}

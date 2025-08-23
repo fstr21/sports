@@ -169,7 +169,13 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
         await asyncio.to_thread(session.create)
         
         # Create binary predictor (focused on Dodgers winning)
-        predictor = BinaryPredictor(session)
+        # Note: BinaryPredictor requires input_type parameter
+        from pydantic import BaseModel
+        
+        class GameData(BaseModel):
+            pass  # Simple placeholder for input type
+            
+        predictor = BinaryPredictor(session, input_type=GameData)
         
         # Create prediction request with detailed analysis
         request = await asyncio.to_thread(

@@ -1,0 +1,23 @@
+# Chronulus Railway MCP Test Results
+
+**Test**: hardcoded_dodgers_padres
+**Timestamp**: 20250822_210335
+**Railway URL**: https://chronulusmcp-production.up.railway.app/mcp
+
+
+## Full Response
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"error\": \"Hard-coded test failed: BinaryPredictor.__init__() missing 1 required positional argument: 'input_type'\",\n  \"status\": \"test_error\",\n  \"timestamp\": \"2025-08-23T01:03:34.433281+00:00\"\n}"
+      }
+    ]
+  }
+}
+```

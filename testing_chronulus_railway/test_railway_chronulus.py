@@ -14,7 +14,7 @@ from pathlib import Path
 
 # Railway MCP Server URL
 RAILWAY_MCP_URL = "https://chronulusmcp-production.up.railway.app/mcp"
-RESULTS_DIR = Path(__file__).parent / "chronulus_test_results"
+RESULTS_DIR = Path(__file__).parent / "results"
 
 async def call_railway_mcp(tool_name: str, arguments: dict = None):
     """
