@@ -279,8 +279,8 @@ class MLBHandler(BaseSportHandler):
             if raw_game_time != 'TBD' and 'T' in raw_game_time:
                 dt = datetime.fromisoformat(raw_game_time.replace('Z', '+00:00'))
                 from datetime import timezone, timedelta
-                # Convert to Eastern Time (UTC-5 or UTC-4 for DST)
-                eastern_tz = timezone(timedelta(hours=-5))  # EST/EDT approximation
+                # Convert to Eastern Time (UTC-4 for EDT in August)
+                eastern_tz = timezone(timedelta(hours=-4))  # EDT (Daylight Saving Time)
                 dt_eastern = dt.astimezone(eastern_tz)
                 game_time = dt_eastern.strftime("%I:%M %p ET").lstrip('0')
                 game_date = dt_eastern.strftime("%B %d, %Y")
@@ -510,8 +510,8 @@ class MLBHandler(BaseSportHandler):
             if raw_game_time != 'TBD' and 'T' in raw_game_time:
                 dt = datetime.fromisoformat(raw_game_time.replace('Z', '+00:00'))
                 from datetime import timezone, timedelta
-                # Convert to Eastern Time (UTC-5 or UTC-4 for DST)
-                eastern_tz = timezone(timedelta(hours=-5))  # EST/EDT approximation
+                # Convert to Eastern Time (UTC-4 for EDT in August)
+                eastern_tz = timezone(timedelta(hours=-4))  # EDT (Daylight Saving Time)
                 dt_eastern = dt.astimezone(eastern_tz)
                 game_time = dt_eastern.strftime("%I:%M %p ET").lstrip('0')
                 game_date = dt_eastern.strftime("%B %d, %Y")
