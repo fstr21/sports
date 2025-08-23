@@ -344,22 +344,38 @@ class MLBHandler(BaseSportHandler):
                     away_rl = sp_parts[1].replace(match.away_team, "").strip()
 
             total_raw = betting_odds.get("total", "")
-            # Parse total line and odds
-            if "Over" in total_raw and "Under" in total_raw:
-                parts = total_raw.split(",")
-                if len(parts) >= 2:
-                    over_part = parts[0].strip()
-                    under_part = parts[1].strip()
-                    
-                    # Extract over line and odds
-                    if "Over" in over_part and "(" in over_part:
-                        over_split = over_part.split("(")
-                        total_line = over_split[0].replace("Over", "").strip()
-                        over_odds = "(" + over_split[1] if len(over_split) > 1 else "N/A"
-                    
-                    # Extract under odds
-                    if "(" in under_part:
-                        under_odds = under_part.split("(")[1].replace(")", "") if "(" in under_part else "N/A"
+            # Parse total line and odds - handle format "O/U 8.5 (+110)/(-120)"
+            if total_raw and total_raw != "N/A" and "O/U" in total_raw:
+                try:
+                    # Split on "O/U" to get the number and odds part
+                    if " " in total_raw:
+                        parts = total_raw.split(" ", 2)  # Split into max 3 parts: ["O/U", "8.5", "(+110)/(-120)"]
+                        if len(parts) >= 2:
+                            total_line = parts[1]  # "8.5"
+                            
+                            # Parse odds if available
+                            if len(parts) >= 3 and "/" in parts[2]:
+                                odds_part = parts[2]  # "(+110)/(-120)"
+                                odds_split = odds_part.split("/")
+                                if len(odds_split) >= 2:
+                                    over_odds = odds_split[0].strip()  # "(+110)"
+                                    under_odds = odds_split[1].strip()  # "(-120)"
+                except Exception as e:
+                    logger.debug(f"Error parsing total odds format '{total_raw}': {e}")
+                    # Fallback - try old format for backward compatibility
+                    if "Over" in total_raw and "Under" in total_raw:
+                        parts = total_raw.split(",")
+                        if len(parts) >= 2:
+                            over_part = parts[0].strip()
+                            under_part = parts[1].strip()
+                            
+                            if "Over" in over_part and "(" in over_part:
+                                over_split = over_part.split("(")
+                                total_line = over_split[0].replace("Over", "").strip()
+                                over_odds = "(" + over_split[1] if len(over_split) > 1 else "N/A"
+                            
+                            if "(" in under_part:
+                                under_odds = under_part.split("(")[1].replace(")", "") if "(" in under_part else "N/A"
 
         # Generate analysis following the specification
         analysis = self.generate_matchup_analysis(
