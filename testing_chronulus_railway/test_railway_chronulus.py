@@ -21,10 +21,11 @@ import os
 RAILWAY_MCP_URL = "https://chronulusmcp-production.up.railway.app/mcp"
 RESULTS_DIR = Path(__file__).parent / "results"
 
-# Cost optimization settings
-MAX_COST_PER_TEST = 0.10  # Maximum $0.10 per analysis
-DEFAULT_EXPERTS = 2       # Minimum experts for cost control
-DEFAULT_NOTE_LENGTH = (3, 5)  # Short explanations to minimize cost
+# Cost optimization settings - MINIMAL MODE
+MAX_COST_PER_TEST = 0.05   # Maximum $0.05 per analysis (very low)
+DEFAULT_EXPERTS = 2        # Minimum experts (required by Chronulus)
+DEFAULT_NOTE_LENGTH = (1, 1)  # Minimal explanation (1 sentence max)
+MINIMAL_MODE = True        # Enable minimal mode for raw predictions only
 
 async def call_railway_mcp(tool_name: str, arguments: dict = None):
     """
@@ -160,14 +161,15 @@ async def test_health():
     return results
 
 async def test_hardcoded_analysis():
-    """Test optimized hard-coded Dodgers @ Padres analysis"""
+    """Test MINIMAL raw prediction - Dodgers @ Padres (outsource explanation)"""
     print("\n🧠 TESTING OPTIMIZED HARDCODED ANALYSIS (Dodgers @ Padres)")
     print("=" * 65)
     print("⚾ Game: Los Angeles Dodgers @ San Diego Padres")
     print("💰 Markets: Moneyline, Run Line, Total (Over/Under 8.5)")
     print(f"👨‍⚖️ Experts: {DEFAULT_EXPERTS} (minimum for cost control)")
-    print(f"📝 Analysis: Short explanations ({DEFAULT_NOTE_LENGTH[0]}-{DEFAULT_NOTE_LENGTH[1]} sentences)")
+    print(f"📝 Analysis: MINIMAL - Raw prediction only ({DEFAULT_NOTE_LENGTH[0]}-{DEFAULT_NOTE_LENGTH[1]} sentences)")
     print("⚡ Context Caching: Enabled")
+    print("🎯 Mode: Raw probability data only (outsource explanation to cheaper LLM)")
 
     # Estimate cost before running
     cost_estimate = estimate_analysis_cost()
