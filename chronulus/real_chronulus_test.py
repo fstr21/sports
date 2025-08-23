@@ -25,28 +25,26 @@ except ImportError as e:
     chronulus_available = False
 
 def create_game_data():
-    """Create GameData object for Athletics @ Seattle Mariners"""
+    """Create GameData object for Athletics @ Seattle Mariners from screenshot data"""
     
-    # Data from Discord screenshot
+    # Hard-coded data from chrome_64sxt2O9sA.png screenshot
+    # Shows: Athletics (+1.5 +122, O 8 -110, +143) vs SEA Mariners (-1.5 +122, U 8 -111, -175)
     game_data = GameData(
-        home_team="Seattle Mariners (69-60, .535 win%, home field advantage)",
-        away_team="Athletics (59-71, .454 win%, road underdog)",
+        home_team="SEA Mariners",
+        away_team="Athletics", 
         sport="Baseball",
-        venue="T-Mobile Park (Seattle home advantage, August 23rd evening game)",
+        venue="T-Mobile Park",
         game_date="August 23, 2025",
-        home_record="69-60 (.535 win percentage, +16 run differential)",
-        away_record="59-71 (.454 win percentage, -86 run differential)", 
-        home_moneyline=-172,  # Seattle favored
-        away_moneyline=+144,  # Athletics underdog
+        home_record="Home team record",
+        away_record="Away team record",
+        home_moneyline=-175,  # SEA Mariners favored (from screenshot)
+        away_moneyline=+143,  # Athletics underdog (from screenshot)
         additional_context=(
-            "Key Stats - "
-            "Athletics: Record 59-71, Run Diff -86, Allowed/Game 5.17, L10 Form 6-4. "
-            "Seattle Mariners: Record 69-60, Run Diff +16, Allowed/Game 4.41, L10 Form 3-7. "
-            "Game Time: 9:40 PM ET at T-Mobile Park. "
-            "Betting Lines: Athletics +144 (underdog), Seattle -172 (heavy favorite), "
-            "Run Line: Athletics +1.5 (-142), Seattle -1.5 (+118), "
-            "Total: Over 8.0 (-110), Under 8.0 (-110). "
-            "Context: Late season game with playoff implications, Seattle struggling lately (3-7 L10) vs Athletics playing better (6-4 L10)."
+            "Hard-coded game data from screenshot: "
+            "Athletics: Moneyline +143, Run Line +1.5 (+122), Over 8 (-110). "
+            "SEA Mariners: Moneyline -175, Run Line -1.5 (+122), Under 8 (-111). "
+            "Game at 9:40 PM. Screenshot shows Jeffrey Springs and George Kirby as key players. "
+            "This is real betting market data for testing Chronulus integration accuracy."
         )
     )
     
