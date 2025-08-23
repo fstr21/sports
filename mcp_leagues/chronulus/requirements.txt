@@ -1,0 +1,10 @@
+# Core MCP server dependencies
+uvicorn[standard]>=0.24.0
+starlette>=0.27.0
+httpx>=0.25.0
+
+# Chronulus-specific dependencies
+chronulus
+pandas
+numpy
+python-dateutil
