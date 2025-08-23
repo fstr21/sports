@@ -375,13 +375,12 @@ async def get_chronulus_analysis(game_data: Dict[str, Any], expert_count: int = 
             venue=game_data.get("venue", "MLB Stadium")
         )
         
-        # Queue prediction request
+        # Queue prediction request (fixed - removed invalid prompt_additions parameter)
         request = await asyncio.to_thread(
             predictor.queue,
             item=game_data_obj,
             num_experts=expert_count,
-            note_length=(10, 15),  # Detailed analysis
-            prompt_additions=f"Analyze this like experienced sports bettors would - focus on recent form vs season stats, venue factors, and betting value. Game data: {json.dumps(analysis_data, indent=2)}"
+            note_length=(10, 15)  # Detailed analysis
         )
         
         # Get predictions with timeout
