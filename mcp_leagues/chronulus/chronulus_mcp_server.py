@@ -168,36 +168,74 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
         # Create session
         await asyncio.to_thread(session.create)
         
-        # Create binary predictor (focused on Dodgers winning)
-        # Note: BinaryPredictor requires input_type parameter
+        # Create comprehensive game data model like your working version
         from pydantic import BaseModel, Field
         
-        class GameData(BaseModel):
-            """Game data structure for Chronulus analysis"""
-            home_team: str = Field(description="Home team name")
-            away_team: str = Field(description="Away team name")
+        class ComprehensiveSportsData(BaseModel):
+            """Comprehensive sports game data for detailed expert analysis"""
+            home_team: str = Field(description="Home team with context")
+            away_team: str = Field(description="Away team with context") 
+            sport: str = Field(description="Major League Baseball")
             game_date: str = Field(description="Game date")
+            game_time: str = Field(description="Game time")
+            venue: str = Field(description="Venue with advantage context")
+            home_record: str = Field(description="Home team season record")
+            away_record: str = Field(description="Away team season record")
+            home_win_pct: float = Field(description="Home team win percentage")
+            away_win_pct: float = Field(description="Away team win percentage")
+            home_run_differential: int = Field(description="Home team run differential")
+            away_run_differential: int = Field(description="Away team run differential")
+            home_runs_per_game: float = Field(description="Home team runs per game")
+            away_runs_per_game: float = Field(description="Away team runs per game")
+            home_recent_form: str = Field(description="Home team recent form")
+            away_recent_form: str = Field(description="Away team recent form")
+            home_moneyline: int = Field(description="Home team moneyline odds")
+            away_moneyline: int = Field(description="Away team moneyline odds")
+            over_under: str = Field(description="Total runs over/under")
+            division_rivalry: str = Field(description="Division rivalry context")
+            venue_advantage: str = Field(description="Venue advantage factors")
+            market_analysis: str = Field(description="Market efficiency analysis")
             
-        predictor = BinaryPredictor(session=session, input_type=GameData)
-        
-        # Create the predictor instance
-        await asyncio.to_thread(predictor.create)
-        
-        # Queue the prediction request with detailed analysis
-        game_data_obj = GameData(
-            home_team=hardcoded_game_data["home_team"],
-            away_team=hardcoded_game_data["away_team"], 
-            game_date=hardcoded_game_data["game_date"]
+        # Create comprehensive game data object
+        game_data_obj = ComprehensiveSportsData(
+            home_team="San Diego Padres (.563 win pct, solid at home)",
+            away_team="Los Angeles Dodgers (.570 win pct, NL West leaders)", 
+            sport="Major League Baseball",
+            game_date="August 22, 2025",
+            game_time="8:40 PM ET",
+            venue="Petco Park (pitcher-friendly, suppresses offense)",
+            home_record="72-56 (.563 win percentage)",
+            away_record="73-55 (.570 win percentage)",
+            home_win_pct=0.563,
+            away_win_pct=0.570,
+            home_run_differential=-58,
+            away_run_differential=93,
+            home_runs_per_game=3.76,
+            away_runs_per_game=4.48,
+            home_recent_form="6-4 in last 10 games (decent form)",
+            away_recent_form="5-5 in last 10 games (mediocre form)",
+            home_moneyline=102,  # Padres slight underdog
+            away_moneyline=-120, # Dodgers favored
+            over_under="Over/Under 8.5 runs (close to even money)",
+            division_rivalry="NL West division rivals - intense competition, playoff implications",
+            venue_advantage="Petco Park favors pitching, may suppress offensive numbers",
+            market_analysis="Oddsmakers see this as essentially a pick-em game between playoff contenders"
         )
         
+        # Create binary predictor
+        predictor = BinaryPredictor(session=session, input_type=ComprehensiveSportsData)
+        
+        # Create the predictor instance (synchronously like working version)
+        await asyncio.to_thread(predictor.create)
+        
+        # Queue prediction request (synchronously like working version)
         request = await asyncio.to_thread(
             predictor.queue,
             item=game_data_obj,
             num_experts=1,  # Single expert to save costs
             note_length=(12, 18),  # Very detailed analysis
-            prompt_additions=f"""IMPORTANT: You have access to this game data: {json.dumps(hardcoded_game_data, indent=2)}
+            prompt_additions="""IMPORTANT: Provide specific recommendations for ALL THREE betting markets:
             
-            Provide specific recommendations for ALL THREE betting markets:
             1. MONEYLINE BET: Dodgers -120 or Padres +102? Which offers better value?
             2. RUN LINE BET: Dodgers -1.5 (+146) or Padres +1.5 (-178)? 
             3. TOTAL RUNS BET: Over 8.5 or Under 8.5? Consider Petco Park pitching environment.
