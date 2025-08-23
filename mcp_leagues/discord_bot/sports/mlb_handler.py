@@ -1832,9 +1832,41 @@ class MLBHandler(BaseSportHandler):
                             
                             logger.info(f"Enhanced team context: {away_team_context} @ {home_team_context}")
             
+            # Create proper game_data structure for Custom Chronulus MCP
+            game_data = {
+                "home_team": home_team,
+                "away_team": away_team,
+                "venue": "Stadium TBD",
+                "game_date": datetime.now().strftime("%B %d, %Y"),
+                "home_record": "Season record TBD",
+                "away_record": "Season record TBD",
+                "home_moneyline": 100,  # Default
+                "away_moneyline": -100,  # Default
+                "additional_context": f"Live MLB game analysis with real betting odds"
+            }
+            
+            # Add real betting odds if available
+            if betting_odds and isinstance(betting_odds, dict):
+                moneyline = betting_odds.get("moneyline", "")
+                if moneyline and "|" in moneyline:
+                    parts = moneyline.split(" | ")
+                    if len(parts) == 2:
+                        home_ml = parts[0].strip()
+                        away_ml = parts[1].strip()
+                        
+                        # Extract odds from full strings like "Seattle Mariners -172"
+                        import re
+                        home_odds_match = re.search(r'([+-]\d+)', home_ml)
+                        away_odds_match = re.search(r'([+-]\d+)', away_ml)
+                        
+                        if home_odds_match and away_odds_match:
+                            game_data["home_moneyline"] = int(home_odds_match.group(1))
+                            game_data["away_moneyline"] = int(away_odds_match.group(1))
+                            
+                            logger.info(f"Real odds for Chronulus: {away_team} {game_data['away_moneyline']}, {home_team} {game_data['home_moneyline']}")
+            
             arguments = {
-                "home_team": home_team_context,
-                "away_team": away_team_context,
+                "game_data": game_data,
                 "expert_count": 3,  # Balance of speed and quality
                 "analysis_depth": "standard"  # 8-12 sentences per expert
             }
@@ -1975,9 +2007,12 @@ class MLBHandler(BaseSportHandler):
                             else:
                                 consensus_section = expert_section[:1000]  # First 1000 chars if no other expert
                             
-                            # Clean up the text
+                            # Clean up the text and respect Discord's 1024 char limit
                             consensus = consensus_section.replace("[STATISTICAL EXPERT]", "**Statistical Expert:**")
-                            consensus = consensus.strip()[:800] + "..." if len(consensus.strip()) > 800 else consensus.strip()
+                            consensus = consensus.strip()
+                            # Discord field limit is 1024 chars, leave room for formatting
+                            if len(consensus) > 900:
+                                consensus = consensus[:900] + "..."
                         else:
                             # Fallback: get everything after "Expert Consensus:" line
                             lines = expert_analysis_text.split('\n')
@@ -1998,7 +2033,9 @@ class MLBHandler(BaseSportHandler):
                                         if len(' '.join(consensus_lines)) > 600:  # Stop at reasonable length
                                             break
                             
-                            consensus = '\n'.join(consensus_lines[:10])[:800] + "..." if consensus_lines else "Expert analysis available"
+                            consensus_text = '\n'.join(consensus_lines[:10])
+                            # Respect Discord 1024 character limit
+                            consensus = consensus_text[:900] + "..." if len(consensus_text) > 900 else consensus_text or "Expert analysis available"
                     else:
                         consensus = "Analysis completed"
                     
