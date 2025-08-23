@@ -268,13 +268,29 @@ async def test_chronulus_hardcoded() -> Dict[str, Any]:
         if predictions and len(predictions) > 0:
             pred = predictions[0]
             
+            # Debug: Check what attributes are available
+            pred_attrs = [attr for attr in dir(pred) if not attr.startswith('_')]
+            print(f"🔍 Prediction object attributes: {pred_attrs}")
+            
             # Handle probability extraction
             if hasattr(pred, 'prob') and isinstance(pred.prob, tuple):
                 probability = pred.prob[0]  # First element for binary prediction
             else:
                 probability = float(pred.prob) if hasattr(pred, 'prob') else 0.5
             
-            analysis_text = pred.note if hasattr(pred, 'note') else "Analysis not available"
+            # Try different possible attribute names for analysis text
+            analysis_text = "Analysis not available"
+            if hasattr(pred, 'note'):
+                analysis_text = pred.note
+            elif hasattr(pred, 'analysis'):
+                analysis_text = pred.analysis  
+            elif hasattr(pred, 'reasoning'):
+                analysis_text = pred.reasoning
+            elif hasattr(pred, 'explanation'):
+                analysis_text = pred.explanation
+            else:
+                # Debug: Show what the prediction object actually contains
+                analysis_text = f"Debug - Prediction object: {str(pred)}"
             
             return {
                 "session_id": session.session_id,
