@@ -1797,360 +1797,32 @@ class MLBHandler(BaseSportHandler):
             logger.error(f"Error calling MLB MCP tool {tool_name}: {e}")
             return None
     
-    async def _get_pitcher_context(self, home_team: str, away_team: str) -> str:
-        """Get comprehensive pitcher intelligence panel for enhanced expert analysis"""
+    async def _get_team_context(self, home_team: str, away_team: str) -> str:
+        """Get team-focused context for enhanced expert analysis"""
         try:
-            # Get team IDs by matching team names
-            team_mapping = await self._get_team_id_mapping()
+            # Focus on team-level context instead of individual pitcher data
+            context_parts = [
+                f"MLB matchup: {away_team} @ {home_team}",
+                "Key factors for analysis:",
+                "- Team offensive capabilities and recent scoring trends",
+                "- Bullpen depth and recent bullpen performance", 
+                "- Head-to-head historical performance",
+                "- Home field advantage and venue factors",
+                "- Recent team form and momentum",
+                "- Lineup health and key player availability"
+            ]
             
-            home_team_id = team_mapping.get(home_team)
-            away_team_id = team_mapping.get(away_team)
+            context = " ".join(context_parts)
             
-            # Get comprehensive pitcher data for both teams
-            pitcher_panel = await self._create_comprehensive_pitcher_panel(
-                home_team_id, away_team_id, home_team, away_team
-            )
-            
-            if pitcher_panel:
-                logger.info(f"Enhanced pitcher panel created: {len(pitcher_panel)} characters")
-                return pitcher_panel
-            else:
-                logger.warning("No comprehensive pitcher panel available, using basic context")
-                # Fallback to basic pitcher context
-                pitcher_context_parts = []
-                
-                if home_team_id:
-                    home_pitcher_info = await self._get_team_pitcher_info(home_team_id, home_team)
-                    if home_pitcher_info:
-                        pitcher_context_parts.append(home_pitcher_info)
-                
-                if away_team_id:
-                    away_pitcher_info = await self._get_team_pitcher_info(away_team_id, away_team)
-                    if away_pitcher_info:
-                        pitcher_context_parts.append(away_pitcher_info)
-                
-                if pitcher_context_parts:
-                    context = "Starting Pitchers: " + ", ".join(pitcher_context_parts) + "."
-                    logger.info(f"Basic pitcher context: {context}")
-                    return context
-                else:
-                    return "Pitcher information pending."
+            logger.info(f"Team-focused context created: {len(context)} characters")
+            return context
                 
         except Exception as e:
-            logger.error(f"Error getting pitcher context: {e}")
-            return "Pitcher analysis unavailable."
-    
-    async def _create_comprehensive_pitcher_panel(self, home_team_id: int, away_team_id: int, home_team: str, away_team: str) -> Optional[str]:
-        """Create comprehensive pitcher stats panel for Custom Chronulus analysis"""
-        try:
-            if not home_team_id or not away_team_id:
-                return None
-                
-            # Get rosters for both teams
-            home_roster = await self._get_team_roster(home_team_id)
-            away_roster = await self._get_team_roster(away_team_id)
-            
-            if not home_roster or not away_roster:
-                logger.warning("Could not get team rosters for pitcher panel")
-                return None
-                
-            # Find starting pitchers (first pitcher in roster for now)
-            home_pitchers = [p for p in home_roster if p.get("position") == "P"]
-            away_pitchers = [p for p in away_roster if p.get("position") == "P"]
-            
-            if not home_pitchers or not away_pitchers:
-                logger.warning("No pitchers found in rosters")
-                return None
-                
-            # Get starting pitchers (simplified - take first pitcher)
-            home_pitcher = home_pitchers[0]  
-            away_pitcher = away_pitchers[0]  
-            
-            # Get detailed stats for both pitchers
-            home_stats = await self._get_pitcher_comprehensive_stats(home_pitcher.get("playerId"))
-            away_stats = await self._get_pitcher_comprehensive_stats(away_pitcher.get("playerId"))
-            
-            # Create formatted panel
-            panel = self._format_pitcher_intelligence_panel(
-                home_pitcher, home_stats, home_team,
-                away_pitcher, away_stats, away_team
-            )
-            
-            return panel
-            
-        except Exception as e:
-            logger.error(f"Error creating comprehensive pitcher panel: {e}")
-            return None
-    
-    async def _get_team_roster(self, team_id: int) -> Optional[List[Dict[str, Any]]]:
-        """Get team roster with correct API parameters"""
-        try:
-            roster_data = await self.call_mlb_mcp_tool("getMLBTeamRoster", {"teamId": team_id})
-            
-            if roster_data and "data" in roster_data and "players" in roster_data["data"]:
-                return roster_data["data"]["players"]
-            
-            return None
-            
-        except Exception as e:
-            logger.error(f"Error getting roster for team {team_id}: {e}")
-            return None
-    
-    async def _get_pitcher_comprehensive_stats(self, pitcher_id: int) -> Optional[Dict[str, Any]]:
-        """Get comprehensive pitcher statistics with correct API parameters"""
-        try:
-            if not pitcher_id:
-                return None
-                
-            stats_data = await self.call_mlb_mcp_tool("getMLBPitcherMatchup", {"pitcher_id": pitcher_id})
-            
-            if stats_data and "data" in stats_data:
-                return stats_data["data"]
-            
-            return None
-            
-        except Exception as e:
-            logger.error(f"Error getting pitcher stats for {pitcher_id}: {e}")
-            return None
-    
-    def _format_pitcher_intelligence_panel(self, home_pitcher: Dict, home_stats: Optional[Dict], home_team: str,
-                                          away_pitcher: Dict, away_stats: Optional[Dict], away_team: str) -> str:
-        """Format comprehensive pitcher intelligence panel for expert analysis"""
-        
-        panel = f"""
-🥎 STARTING PITCHER MATCHUP INTELLIGENCE 🥎
+            logger.error(f"Error getting team context: {e}")
+            return f"MLB game analysis: {away_team} @ {home_team}. Focus on team-level factors including recent form, offensive production, and bullpen strength."
 
-🏠 HOME: {home_pitcher.get('fullName', 'Unknown')} ({home_team})
-{self._format_individual_pitcher_stats(home_stats)}
+    
 
-✈️ AWAY: {away_pitcher.get('fullName', 'Unknown')} ({away_team})  
-{self._format_individual_pitcher_stats(away_stats)}
-
-📊 MATCHUP ANALYSIS:
-{self._create_pitcher_matchup_analysis(home_pitcher, home_stats, away_pitcher, away_stats)}
-
-💡 BETTING IMPLICATIONS:
-{self._create_pitcher_betting_implications(home_stats, away_stats)}
-"""
-        
-        return panel.strip()
-    
-    def _format_individual_pitcher_stats(self, stats: Optional[Dict]) -> str:
-        """Format individual pitcher statistics for display"""
-        
-        if not stats:
-            return "   ❌ No recent performance data available"
-            
-        try:
-            aggregates = stats.get("aggregates", {})
-            recent_starts = stats.get("recent_starts", [])
-            
-            if not aggregates:
-                return "   ❌ No aggregate statistics available"
-                
-            # Core stats
-            era = aggregates.get("era", 0)
-            whip = aggregates.get("whip", 0)
-            k_per_9 = aggregates.get("k_per_9", 0)
-            innings_pitched = aggregates.get("innings_pitched", 0)
-            
-            # Recent form analysis
-            recent_form = self._analyze_pitcher_recent_form(recent_starts)
-            
-            # Last start info
-            last_start_info = ""
-            if recent_starts:
-                last_start = recent_starts[0]
-                last_era = last_start.get("game_era", 0)
-                last_opponent = last_start.get("opponent_name", "Unknown")
-                last_start_info = f"\n   📅 Last Start: {last_era:.2f} ERA vs {last_opponent}"
-            
-            return f"""   📈 Season Stats: {era:.2f} ERA, {whip:.3f} WHIP, {k_per_9:.1f} K/9
-   🎯 Innings Pitched: {innings_pitched} IP{last_start_info}
-   💪 Recent Form: {recent_form}"""
-       
-        except Exception as e:
-            return f"   ❌ Error formatting stats: {e}"
-    
-    def _analyze_pitcher_recent_form(self, recent_starts: List[Dict]) -> str:
-        """Analyze pitcher's recent form with visual indicators"""
-        
-        if not recent_starts or len(recent_starts) < 2:
-            return "Limited recent data"
-            
-        # Analyze last 3 starts
-        last_3 = recent_starts[:3]
-        eras = [start.get("game_era", 999) for start in last_3 if start.get("game_era", 999) < 50]
-        
-        if not eras:
-            return "Inconsistent recent starts"
-            
-        avg_era = sum(eras) / len(eras)
-        
-        if avg_era <= 2.50:
-            return "🔥 EXCELLENT (Sub-2.50 ERA)"
-        elif avg_era <= 4.00:
-            return "✅ SOLID (Good control)"
-        elif avg_era <= 6.00:
-            return "⚠️ SHAKY (Some struggles)"
-        else:
-            return "❌ CONCERNING (High ERA)"
-    
-    def _create_pitcher_matchup_analysis(self, home_pitcher: Dict, home_stats: Optional[Dict], 
-                                       away_pitcher: Dict, away_stats: Optional[Dict]) -> str:
-        """Create detailed pitcher matchup analysis"""
-        
-        home_name = home_pitcher.get('fullName', 'Home Pitcher')
-        away_name = away_pitcher.get('fullName', 'Away Pitcher')
-        
-        # Compare ERAs
-        home_era = home_stats.get("aggregates", {}).get("era", 999) if home_stats else 999
-        away_era = away_stats.get("aggregates", {}).get("era", 999) if away_stats else 999
-        
-        if home_era < away_era and home_era < 15:  # Valid ERA comparison
-            era_edge = f"🏠 {home_name} has ERA advantage ({home_era:.2f} vs {away_era:.2f})"
-        elif away_era < home_era and away_era < 15:
-            era_edge = f"✈️ {away_name} has ERA advantage ({away_era:.2f} vs {home_era:.2f})"
-        else:
-            era_edge = "ERA comparison inconclusive"
-            
-        # Compare strikeout rates
-        home_k9 = home_stats.get("aggregates", {}).get("k_per_9", 0) if home_stats else 0
-        away_k9 = away_stats.get("aggregates", {}).get("k_per_9", 0) if away_stats else 0
-        
-        if home_k9 > away_k9 and home_k9 > 0:
-            strikeout_edge = f"🏠 {home_name} higher strikeout rate ({home_k9:.1f} vs {away_k9:.1f} K/9)"
-        elif away_k9 > home_k9 and away_k9 > 0:
-            strikeout_edge = f"✈️ {away_name} higher strikeout rate ({away_k9:.1f} vs {home_k9:.1f} K/9)"
-        else:
-            strikeout_edge = "Similar strikeout rates"
-        
-        # Determine matchup type
-        avg_era = (min(home_era, 15) + min(away_era, 15)) / 2
-        matchup_type = "pitcher's duel" if avg_era < 4.0 else "hitter-friendly"
-        
-        return f"""   🎯 ERA Edge: {era_edge}
-   ⚡ Strikeout Edge: {strikeout_edge}
-   🏟️ Matchup Type: This appears to be a {matchup_type} matchup"""
-    
-    def _create_pitcher_betting_implications(self, home_stats: Optional[Dict], away_stats: Optional[Dict]) -> str:
-        """Create betting implications from pitcher matchup"""
-        
-        implications = []
-        
-        # Total implications
-        home_era = home_stats.get("aggregates", {}).get("era", 999) if home_stats else 999
-        away_era = away_stats.get("aggregates", {}).get("era", 999) if away_stats else 999
-        
-        # Only analyze if we have valid ERAs
-        if home_era < 15 and away_era < 15:
-            avg_era = (home_era + away_era) / 2
-            
-            if avg_era < 3.00:
-                implications.append("🔻 UNDER looks attractive (Strong pitching matchup)")
-            elif avg_era > 5.00:
-                implications.append("🔺 OVER has potential (Weaker pitching)")
-            else:
-                implications.append("⚖️ Total depends on offensive matchups")
-                
-            # Moneyline implications  
-            era_diff = abs(home_era - away_era)
-            if era_diff > 1.50:
-                better_pitcher = "Home" if home_era < away_era else "Away"
-                implications.append(f"💰 {better_pitcher} pitcher creates value (Significant ERA edge)")
-            else:
-                implications.append("🎲 Even pitching matchup - focus on other factors")
-        else:
-            implications.append("📊 Limited pitching data - focus on team form and trends")
-            
-        return "\n   ".join(implications)
-    
-    async def _get_team_id_mapping(self) -> Dict[str, int]:
-        """Get mapping of team names to team IDs"""
-        try:
-            # Call MLB MCP to get all teams
-            teams_data = await self.call_mlb_mcp_tool("getMLBTeams", {"season": 2025})
-            
-            if not teams_data:
-                return {}
-            
-            team_mapping = {}
-            
-            # Handle the correct nested structure
-            if "data" in teams_data and "teams" in teams_data["data"]:
-                teams = teams_data["data"]["teams"]
-            else:
-                teams = teams_data.get("teams", [])
-            
-            for team in teams:
-                team_name = team.get("name", "")
-                team_id = team.get("teamId")
-                if team_name and team_id:
-                    team_mapping[team_name] = team_id
-                    # Also map abbreviation
-                    abbrev = team.get("abbrev", "")
-                    if abbrev:
-                        team_mapping[abbrev] = team_id
-            
-            logger.debug(f"Team mapping created: {len(team_mapping)} entries")
-            return team_mapping
-            
-        except Exception as e:
-            logger.error(f"Error creating team mapping: {e}")
-            return {}
-    
-    async def _get_team_pitcher_info(self, team_id: int, team_name: str) -> Optional[str]:
-        """Get pitcher information for a specific team"""
-        try:
-            # Get team roster
-            roster_data = await self.call_mlb_mcp_tool("getMLBTeamRoster", {
-                "teamId": team_id,
-                "season": 2025
-            })
-            
-            if not roster_data:
-                return None
-            
-            # Handle the correct nested structure
-            if "data" in roster_data and "players" in roster_data["data"]:
-                players = roster_data["data"]["players"]
-            else:
-                players = roster_data.get("players", [])
-            
-            # Find pitchers
-            pitchers = [p for p in players if p.get("position", "").find("P") != -1]
-            
-            if not pitchers:
-                return f"{team_name} pitchers TBD"
-            
-            # Get the first pitcher (likely starter) and get detailed stats
-            primary_pitcher = pitchers[0]
-            pitcher_id = primary_pitcher.get("playerId")
-            pitcher_name = primary_pitcher.get("fullName", "Unknown")
-            
-            if pitcher_id:
-                # Get pitcher performance data
-                pitcher_stats = await self.call_mlb_mcp_tool("getMLBPitcherMatchup", {
-                    "pitcher_id": pitcher_id,
-                    "season": 2025,
-                    "count": 5  # Last 5 starts
-                })
-                
-                if pitcher_stats and pitcher_stats.get("aggregates"):
-                    agg = pitcher_stats["aggregates"]
-                    era = agg.get("era", 0)
-                    whip = agg.get("whip", 0)
-                    k9 = agg.get("k_per_9", 0)
-                    
-                    return f"{pitcher_name} ({team_name}) - {era:.2f} ERA, {whip:.2f} WHIP, {k9:.1f} K/9 in last 5 starts"
-                else:
-                    return f"{pitcher_name} ({team_name}) - stats pending"
-            else:
-                return f"{pitcher_name} ({team_name})"
-                
-        except Exception as e:
-            logger.error(f"Error getting pitcher info for {team_name}: {e}")
-            return f"{team_name} pitcher information unavailable"
 
     async def call_chronulus_analysis(self, home_team: str, away_team: str, betting_odds: Optional[Dict[str, str]] = None) -> Optional[Dict[str, Any]]:
         """Call Custom Chronulus MCP for AI expert analysis with real betting odds and pitcher data"""
@@ -2187,8 +1859,8 @@ class MLBHandler(BaseSportHandler):
                             
                             logger.info(f"Enhanced team context: {away_team_context} @ {home_team_context}")
             
-            # Get pitcher data for enhanced analysis
-            pitcher_context = await self._get_pitcher_context(home_team, away_team)
+            # Get team context for enhanced analysis
+            team_context = await self._get_team_context(home_team, away_team)
             
             # Create proper game_data structure for Custom Chronulus MCP
             game_data = {
@@ -2200,7 +1872,7 @@ class MLBHandler(BaseSportHandler):
                 "away_record": "Season record TBD",
                 "home_moneyline": 100,  # Default
                 "away_moneyline": -100,  # Default
-                "additional_context": f"Live MLB game analysis with real betting odds. {pitcher_context}"
+                "additional_context": f"Live MLB game analysis with real betting odds. {team_context}"
             }
             
             # Add real betting odds if available
