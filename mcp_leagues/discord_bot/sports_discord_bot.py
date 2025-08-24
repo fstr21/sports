@@ -21,6 +21,10 @@ from core.sync_manager import SyncManager
 from core.sport_manager import SportManager
 from config import config
 
+# Import HTML-to-image functionality
+from utils.html_to_image import create_baseball_analysis_image
+import io
+
 # Logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -414,6 +418,86 @@ async def help_command(interaction: discord.Interaction):
     
     embed.set_footer(text="Enhanced Sports Bot v2.0 - Full Modular Architecture")
     await interaction.response.send_message(embed=embed)
+
+
+@bot.tree.command(name="testmlb", description="Generate MLB analysis as image (Test Command)")
+async def test_mlb_image_command(interaction: discord.Interaction):
+    """Test command to generate MLB analysis as image"""
+    await interaction.response.defer()
+    
+    try:
+        # Get MLB handler 
+        mlb_handler = bot.sport_manager.get_handler("mlb")
+        if not mlb_handler:
+            embed = discord.Embed(
+                title="❌ Error",
+                description="MLB handler not available",
+                color=discord.Color.red()
+            )
+            await interaction.followup.send(embed=embed)
+            return
+            
+        # Get today's games
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        matches = await mlb_handler.get_matches_for_date(today_str)
+        
+        if not matches:
+            embed = discord.Embed(
+                title="❌ No Games",
+                description="No MLB games found for today",
+                color=discord.Color.orange()
+            )
+            await interaction.followup.send(embed=embed)
+            return
+        
+        # Get first game for testing
+        match = matches[0]
+        logger.info(f"Testing image generation for: {match.away_team} @ {match.home_team}")
+        
+        # Get comprehensive analysis data (simplified for test)
+        # For now, just use basic data - can enhance later with real MCP calls
+        team_forms = None  # Could call real team form methods later
+        betting_odds = None  # Could call real betting odds methods later
+        pitcher_matchup = None  # Could call real pitcher methods later
+        
+        # Create template data dictionary
+        template_data = await mlb_handler.create_template_data_for_image(
+            match, team_forms, betting_odds, pitcher_matchup
+        )
+        
+        # Generate image
+        image_bytes = await create_baseball_analysis_image(template_data)
+        
+        # Create Discord file
+        image_file = discord.File(
+            io.BytesIO(image_bytes), 
+            filename=f"mlb_analysis_{match.away_team.replace(' ', '_')}_vs_{match.home_team.replace(' ', '_')}.png"
+        )
+        
+        # Create simple embed to go with image
+        embed = discord.Embed(
+            title="⚾ MLB Analysis (Image Test)",
+            description=f"**{match.away_team} @ {match.home_team}**\n📊 Generated comprehensive analysis image",
+            color=discord.Color.green(),
+            timestamp=datetime.now()
+        )
+        embed.set_footer(text="Enhanced Chronulus MCP • Image Generation Test")
+        
+        # Send image with embed
+        await interaction.followup.send(embed=embed, file=image_file)
+        logger.info(f"Successfully sent MLB analysis image for {match.away_team} @ {match.home_team}")
+        
+    except Exception as e:
+        logger.error(f"Error in testmlb command: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        embed = discord.Embed(
+            title="❌ Error",
+            description=f"Failed to generate MLB analysis image: {str(e)}",
+            color=discord.Color.red()
+        )
+        await interaction.followup.send(embed=embed)
 
 
 # Health check endpoint for Railway
