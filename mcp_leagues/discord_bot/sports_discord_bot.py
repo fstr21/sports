@@ -500,6 +500,263 @@ async def test_mlb_image_command(interaction: discord.Interaction):
         await interaction.followup.send(embed=embed)
 
 
+@bot.tree.command(name="textonly", description="Test Custom Chronulus AI analysis with Red Sox @ Yankees data")
+async def test_textonly_command(interaction: discord.Interaction):
+    """Test command to run Custom Chronulus analysis and break into Discord embeds"""
+    await interaction.response.defer()
+    
+    try:
+        # Hard-coded game data from the image
+        game_data = {
+            "home_team": "New York Yankees (69-60, .535 win%, AL East)",
+            "away_team": "Boston Red Sox (71-59, .546 win%, AL East)", 
+            "sport": "Baseball",
+            "venue": "Yankee Stadium (49,642 capacity, Bronx, NY)",
+            "game_date": "August 24, 2025 - 7:10 PM ET",
+            "home_record": "69-60 (.535), +96 run diff, Allowed/Game: 4.36, L10 Form: 6-4",
+            "away_record": "71-59 (.546), +105 run diff, Allowed/Game: 4.20, L10 Form: 6-4",
+            "home_moneyline": -162,
+            "away_moneyline": +136,
+            "additional_context": (
+                "BETTING LINES: Yankees -162 (61.8% implied), Red Sox +136 (42.4% implied). "
+                "Run Line: Red Sox +1.5 (-152), Yankees -1.5 (+126). "
+                "Over/Under: Over 8.5 (-115), Under 8.5 (-105). "
+                "TEAM PERFORMANCE: Yankees 69-60, +96 run differential, 4.36 ERA allowed. "
+                "Red Sox 71-59, +105 run differential, 4.20 ERA allowed. "
+                "Both teams 6-4 in last 10 games showing good recent form. "
+                "VENUE: Yankee Stadium, iconic venue with short right field (314 ft). "
+                "RIVALRY: Historic AL East matchup with playoff implications. "
+                "Weather conditions and other factors favorable for baseball."
+            )
+        }
+        
+        # Get Custom Chronulus MCP URL from config
+        custom_chronulus_url = bot.config.custom_chronulus_mcp_url if hasattr(bot.config, 'custom_chronulus_mcp_url') else "https://customchronpredictormcp-production.up.railway.app/mcp"
+        
+        # MCP request
+        mcp_request = {
+            "jsonrpc": "2.0",
+            "method": "tools/call",
+            "id": 1,
+            "params": {
+                "name": "getCustomChronulusAnalysis",
+                "arguments": {
+                    "game_data": game_data,
+                    "expert_count": 3,
+                    "analysis_depth": "comprehensive"
+                }
+            }
+        }
+        
+        # Call Custom Chronulus MCP
+        import httpx
+        import json
+        from datetime import datetime
+        import os
+        
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            logger.info(f"Calling Custom Chronulus MCP: {custom_chronulus_url}")
+            response = await client.post(custom_chronulus_url, json=mcp_request)
+            response.raise_for_status()
+            result = response.json()
+            
+            if "result" not in result:
+                error_msg = result.get('error', 'Unknown error')
+                embed = discord.Embed(
+                    title="❌ MCP Error",
+                    description=f"Custom Chronulus MCP error: {error_msg}",
+                    color=discord.Color.red()
+                )
+                await interaction.followup.send(embed=embed)
+                return
+            
+            # Extract analysis text
+            mcp_result = result["result"]
+            analysis_text = mcp_result["content"][0]["text"] if "content" in mcp_result and mcp_result["content"] else "No analysis returned"
+            
+            # Export raw MCP results to markdown
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            md_file = f"C:\\Users\\fstr2\\Desktop\\sports\\chronulus\\results\\textonly_raw_{timestamp}.md"
+            
+            # Create directory if it doesn't exist
+            os.makedirs(os.path.dirname(md_file), exist_ok=True)
+            
+            with open(md_file, 'w', encoding='utf-8') as f:
+                f.write(f"# /textonly Command - Raw MCP Results\\n\\n")
+                f.write(f"**Generated**: {datetime.now().strftime('%B %d, %Y at %I:%M %p ET')}\\n")
+                f.write(f"**Command**: /textonly\\n")
+                f.write(f"**Game**: {game_data['away_team']} @ {game_data['home_team']}\\n\\n")
+                f.write("## Raw MCP Response\\n\\n")
+                f.write("```json\\n")
+                f.write(json.dumps(result, indent=2))
+                f.write("\\n```\\n\\n")
+                f.write("## Analysis Text\\n\\n")
+                f.write("```\\n")
+                f.write(analysis_text)
+                f.write("\\n```\\n")
+            
+            logger.info(f"Raw MCP results exported to: {md_file}")
+            
+            # Parse analysis if it's JSON
+            try:
+                analysis_data = json.loads(analysis_text)
+                
+                # Create multiple Discord embeds
+                embeds = []
+                
+                # Embed 1: Game Overview
+                embed1 = discord.Embed(
+                    title="⚾ Custom Chronulus Analysis",
+                    description=f"**{game_data['away_team']} @ {game_data['home_team']}**\\n{game_data['game_date']} | {game_data['venue']}",
+                    color=discord.Color.blue(),
+                    timestamp=datetime.now()
+                )
+                
+                # Add betting lines
+                embed1.add_field(
+                    name="💰 Betting Lines",
+                    value=f"**Moneyline**\\nRed Sox: +136 (42.4% implied)\\nYankees: -162 (61.8% implied)\\n\\n**Run Line**\\nRed Sox: +1.5 (-152)\\nYankees: -1.5 (+126)\\n\\n**Total**\\nOver 8.5 (-115) | Under 8.5 (-105)",
+                    inline=False
+                )
+                embeds.append(embed1)
+                
+                # Embed 2: AI Probabilities 
+                if "analysis" in analysis_data:
+                    analysis = analysis_data["analysis"]
+                    embed2 = discord.Embed(
+                        title="🤖 AI Probability Assessment",
+                        color=discord.Color.green()
+                    )
+                    
+                    if "away_team_win_probability" in analysis and "home_team_win_probability" in analysis:
+                        away_prob = analysis["away_team_win_probability"] * 100
+                        home_prob = analysis["home_team_win_probability"] * 100
+                        
+                        embed2.add_field(
+                            name="🎯 Win Probabilities",
+                            value=f"**Red Sox**: {away_prob:.1f}%\\n**Yankees**: {home_prob:.1f}%",
+                            inline=True
+                        )
+                        
+                        # Calculate edges
+                        red_sox_edge = away_prob - 42.4
+                        yankees_edge = home_prob - 61.8
+                        
+                        embed2.add_field(
+                            name="📊 Market Edge",
+                            value=f"**Red Sox**: {red_sox_edge:+.1f}pp\\n**Yankees**: {yankees_edge:+.1f}pp",
+                            inline=True
+                        )
+                    
+                    if "betting_recommendation" in analysis:
+                        embed2.add_field(
+                            name="💡 Recommendation", 
+                            value=analysis["betting_recommendation"],
+                            inline=False
+                        )
+                    
+                    embeds.append(embed2)
+                
+                # Embed 3: Expert Analysis (truncated for Discord)
+                if "analysis" in analysis_data and "expert_analysis" in analysis_data["analysis"]:
+                    embed3 = discord.Embed(
+                        title="👥 Expert Analysis Summary",
+                        color=discord.Color.orange()
+                    )
+                    
+                    expert_text = analysis_data["analysis"]["expert_analysis"]
+                    # Truncate for Discord limits
+                    if len(expert_text) > 1000:
+                        expert_text = expert_text[:1000] + "..."
+                    
+                    embed3.add_field(
+                        name="📝 Key Insights",
+                        value=expert_text,
+                        inline=False
+                    )
+                    embeds.append(embed3)
+                
+                # Embed 4: Technical Details
+                embed4 = discord.Embed(
+                    title="🔧 Technical Details",
+                    color=discord.Color.purple()
+                )
+                
+                if "analysis" in analysis_data:
+                    analysis = analysis_data["analysis"] 
+                    embed4.add_field(
+                        name="📊 Analysis Info",
+                        value=f"**Expert Count**: {analysis.get('expert_count', 'N/A')}\\n**Depth**: {analysis.get('analysis_depth', 'N/A')}\\n**Model**: {analysis.get('model_used', 'N/A')}\\n**Cost**: {analysis.get('cost_estimate', 'N/A')}",
+                        inline=True
+                    )
+                    
+                    if "beta_params" in analysis:
+                        beta = analysis["beta_params"]
+                        embed4.add_field(
+                            name="📈 Statistical Params",
+                            value=f"**Alpha**: {beta.get('alpha', 0):.2f}\\n**Beta**: {beta.get('beta', 0):.2f}\\n**Mean**: {beta.get('mean', 0):.3f}",
+                            inline=True
+                        )
+                
+                embed4.add_field(
+                    name="📄 Export Info",
+                    value=f"Raw MCP results exported to:\\n`{os.path.basename(md_file)}`",
+                    inline=False
+                )
+                
+                embed4.set_footer(text=f"Custom Chronulus MCP • {datetime.now().strftime('%I:%M %p ET')}")
+                embeds.append(embed4)
+                
+                # Send all embeds
+                for i, embed in enumerate(embeds):
+                    if i == 0:
+                        await interaction.followup.send(embed=embed)
+                    else:
+                        await asyncio.sleep(0.5)  # Slight delay between embeds
+                        await interaction.followup.send(embed=embed)
+                
+                logger.info(f"Successfully sent {len(embeds)} embeds for Custom Chronulus analysis")
+                
+            except json.JSONDecodeError:
+                # Handle non-JSON response
+                embed = discord.Embed(
+                    title="📝 Custom Chronulus Analysis (Text)",
+                    description=f"**{game_data['away_team']} @ {game_data['home_team']}**",
+                    color=discord.Color.blue()
+                )
+                
+                # Truncate text response for Discord
+                if len(analysis_text) > 1000:
+                    analysis_text = analysis_text[:1000] + "..."
+                
+                embed.add_field(
+                    name="🤖 AI Analysis",
+                    value=analysis_text,
+                    inline=False
+                )
+                
+                embed.add_field(
+                    name="📄 Full Results",
+                    value=f"Complete analysis exported to:\\n`{os.path.basename(md_file)}`",
+                    inline=False
+                )
+                
+                embed.set_footer(text=f"Custom Chronulus MCP • Text Response")
+                await interaction.followup.send(embed=embed)
+                
+    except Exception as e:
+        logger.error(f"Error in textonly command: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        embed = discord.Embed(
+            title="❌ Error",
+            description=f"Failed to run Custom Chronulus analysis: {str(e)}",
+            color=discord.Color.red()
+        )
+        await interaction.followup.send(embed=embed)
+
+
 # Health check endpoint for Railway
 async def health_check(request):
     """Health check endpoint"""
