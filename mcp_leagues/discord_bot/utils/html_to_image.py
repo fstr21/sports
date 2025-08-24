@@ -134,10 +134,10 @@ class HTMLToImageConverter:
             template = Template(template_content)
             rendered_html = template.render(**template_data)
             
-            # Convert to image - larger width for better Discord preview
+            # Convert to image - much larger for Discord preview
             image_bytes = await self.render_html_to_image(
                 rendered_html,
-                width=1200,  # Increased from 850 to 1200 for larger Discord preview
+                width=3600,  # Tripled from 1200 to 3600 for maximum Discord preview
                 format="png"
             )
             
