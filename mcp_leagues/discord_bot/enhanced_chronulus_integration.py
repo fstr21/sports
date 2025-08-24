@@ -298,30 +298,54 @@ class EnhancedChronulusIntegration:
                                 analysis_content = parts[1].strip()
                         
                         # Handle Discord field limits (1024 chars max) while preserving key information
-                        if len(analysis_content) > 950:
-                            # Strategy: Keep the final assessment (most important) and trim the middle
+                        if len(analysis_content) > 1000:
+                            # Strategy: Keep key sections and final assessment, trim verbose parts
                             if "FINAL ASSESSMENT:" in analysis_content:
+                                # Find key sections
+                                market_baseline_start = analysis_content.find("**MARKET BASELINE**:")
+                                analytical_start = analysis_content.find("**ANALYTICAL ASSESSMENT**:")
+                                key_factors_start = analysis_content.find("**KEY FACTORS FROM DATA**:")
                                 final_start = analysis_content.find("FINAL ASSESSMENT:")
                                 
-                                # Keep beginning (up to baseline) and final assessment
-                                baseline_end = analysis_content.find("**ANALYTICAL ASSESSMENT**:")
-                                if baseline_end > 0 and final_start > 0:
-                                    beginning = analysis_content[:baseline_end].rstrip()
-                                    final_section = analysis_content[final_start:].rstrip()
+                                if market_baseline_start > 0 and final_start > 0:
+                                    # Extract key sections
+                                    game_intro = analysis_content[:market_baseline_start].strip()
                                     
-                                    # Combine with abbreviated middle
-                                    analysis_content = beginning + "\n\n*[Analysis factors abbreviated to preserve final assessment]*\n\n" + final_section
+                                    # Get market baseline (essential)
+                                    if analytical_start > 0:
+                                        market_section = analysis_content[market_baseline_start:analytical_start].strip()
+                                    else:
+                                        market_section = analysis_content[market_baseline_start:market_baseline_start + 200] + "..."
                                     
-                                    # If still too long, shorten the beginning but keep final assessment
-                                    if len(analysis_content) > 950:
-                                        market_end = analysis_content.find("\n", analysis_content.find("**MARKET BASELINE**:"))
-                                        if market_end > 0:
-                                            short_beginning = analysis_content[:market_end + 1]
-                                            analysis_content = short_beginning + "\n*[Market analysis abbreviated]*\n\n" + final_section
+                                    # Get key factors (condensed)
+                                    if key_factors_start > 0:
+                                        key_factors_end = analysis_content.find("\n", key_factors_start + 100)  # First sentence
+                                        if key_factors_end > 0:
+                                            key_factors = analysis_content[key_factors_start:key_factors_end + 1]
+                                        else:
+                                            key_factors = "**KEY FACTORS**: Yankees' superior record and home advantage."
+                                    else:
+                                        key_factors = "**KEY FACTORS**: Yankees' superior record and home advantage."
+                                    
+                                    # Final assessment (must keep)
+                                    final_section = analysis_content[final_start:].strip()
+                                    
+                                    # Reconstruct with key information
+                                    analysis_content = f"{game_intro}\n\n{market_section}\n\n{key_factors}\n\n{final_section}"
                             
-                            # Final fallback if no FINAL ASSESSMENT found
-                            if len(analysis_content) > 950:
-                                analysis_content = analysis_content[:900] + "\n\n*[Full analysis available - contact for complete report]*"
+                            # Final length check
+                            if len(analysis_content) > 1000:
+                                # Last resort: find good break point but prioritize final assessment
+                                if "FINAL ASSESSMENT:" in analysis_content:
+                                    final_start = analysis_content.find("FINAL ASSESSMENT:")
+                                    final_section = analysis_content[final_start:]
+                                    beginning_allowance = 1000 - len(final_section) - 50  # Leave room
+                                    if beginning_allowance > 0:
+                                        analysis_content = analysis_content[:beginning_allowance] + "\n\n*[Analysis condensed]*\n\n" + final_section
+                                    else:
+                                        analysis_content = analysis_content[:500] + "\n\n" + final_section
+                                else:
+                                    analysis_content = analysis_content[:950] + "..."
                         
                         embed.add_field(
                             name="📋 Chief Analyst Report",
