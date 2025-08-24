@@ -28,6 +28,12 @@ class BotConfig:
         self.discord_token = os.getenv("DISCORD_TOKEN", "").strip()
         self.sports = self._load_sports_config()
         
+        # Custom Chronulus MCP URL
+        self.custom_chronulus_mcp_url = os.getenv("CUSTOM_CHRONULUS_MCP_URL", "https://customchronpredictormcp-production.up.railway.app/mcp")
+        
+        # Odds MCP URL
+        self.odds_mcp_url = os.getenv("ODDS_MCP_URL", "https://odds-mcp-v2-production.up.railway.app/mcp")
+        
         if not self.discord_token:
             raise ValueError("DISCORD_TOKEN environment variable is required")
     

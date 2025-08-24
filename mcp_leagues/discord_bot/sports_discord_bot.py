@@ -531,7 +531,7 @@ async def test_textonly_command(interaction: discord.Interaction):
         }
         
         # Get Custom Chronulus MCP URL from config
-        custom_chronulus_url = bot.config.custom_chronulus_mcp_url if hasattr(bot.config, 'custom_chronulus_mcp_url') else "https://customchronpredictormcp-production.up.railway.app/mcp"
+        custom_chronulus_url = bot.config.custom_chronulus_mcp_url
         
         # MCP request
         mcp_request = {
@@ -554,11 +554,16 @@ async def test_textonly_command(interaction: discord.Interaction):
         from datetime import datetime
         import os
         
+        logger.info(f"Starting Custom Chronulus analysis...")
+        logger.info(f"MCP URL: {custom_chronulus_url}")
+        logger.info(f"Game: {game_data['away_team']} @ {game_data['home_team']}")
+        
         async with httpx.AsyncClient(timeout=120.0) as client:
-            logger.info(f"Calling Custom Chronulus MCP: {custom_chronulus_url}")
+            logger.info(f"Sending request to Custom Chronulus MCP...")
             response = await client.post(custom_chronulus_url, json=mcp_request)
             response.raise_for_status()
             result = response.json()
+            logger.info(f"Received response from Custom Chronulus MCP")
             
             if "result" not in result:
                 error_msg = result.get('error', 'Unknown error')
@@ -576,10 +581,18 @@ async def test_textonly_command(interaction: discord.Interaction):
             
             # Export raw MCP results to markdown
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            md_file = f"C:\\Users\\fstr2\\Desktop\\sports\\chronulus\\results\\textonly_raw_{timestamp}.md"
+            results_dir = "C:\\Users\\fstr2\\Desktop\\sports\\chronulus\\results"
+            md_file = f"{results_dir}\\textonly_raw_{timestamp}.md"
             
             # Create directory if it doesn't exist
-            os.makedirs(os.path.dirname(md_file), exist_ok=True)
+            try:
+                os.makedirs(results_dir, exist_ok=True)
+                logger.info(f"Created/verified results directory: {results_dir}")
+            except Exception as dir_error:
+                logger.error(f"Failed to create results directory: {dir_error}")
+                # Fallback to a simpler path
+                results_dir = "C:\\Users\\fstr2\\Desktop\\sports"
+                md_file = f"{results_dir}\\textonly_raw_{timestamp}.md"
             
             with open(md_file, 'w', encoding='utf-8') as f:
                 f.write(f"# /textonly Command - Raw MCP Results\\n\\n")
