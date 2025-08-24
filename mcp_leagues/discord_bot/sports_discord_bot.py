@@ -561,7 +561,7 @@ async def test_textonly_command(interaction: discord.Interaction):
                 "name": "getCustomChronulusAnalysis",
                 "arguments": {
                     "game_data": game_data,
-                    "expert_count": 1,
+                    "expert_count": 5,
                     "analysis_depth": "comprehensive"
                 }
             }
@@ -669,8 +669,8 @@ async def test_textonly_command(interaction: discord.Interaction):
                 
                 # Add betting lines
                 embed1.add_field(
-                    name="💰 Betting Lines",
-                    value=f"**Moneyline**\\nRed Sox: +136 (42.4% implied)\\nYankees: -162 (61.8% implied)\\n\\n**Run Line**\\nRed Sox: +1.5 (-152)\\nYankees: -1.5 (+126)\\n\\n**Total**\\nOver 8.5 (-115) | Under 8.5 (-105)",
+                    name="💰 Betting Market",
+                    value=f"**Moneyline**\\nRed Sox: +{game_data['away_moneyline']} (40.8% implied)\\nYankees: {game_data['home_moneyline']} (62.3% implied)\\n\\n**Run Line**\\nRed Sox: +1.5 (-135)\\nYankees: -1.5 (+115)\\n\\n**Total**\\nOver 9.0 (-108) | Under 9.0 (-112)",
                     inline=False
                 )
                 embeds.append(embed1)
