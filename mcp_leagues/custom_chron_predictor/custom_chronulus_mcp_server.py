@@ -121,58 +121,44 @@ class CustomBinaryPredictor:
         pass
     
     async def queue(self, item: GameData, num_experts: int = 2, note_length: Tuple[int, int] = (3, 5)) -> 'PredictionRequest':
-        """Queue prediction request with multiple experts"""
+        """Generate single comprehensive game analysis with detailed insights"""
         if not self.api_key:
             raise Exception("OpenRouter API key not configured")
         
-        # Generate expert opinions
-        expert_opinions = []
+        # Generate one comprehensive analysis instead of multiple experts
+        comprehensive_opinion = await self._simulate_expert_with_openrouter(
+            item, 1, "COMPREHENSIVE GAME ANALYST", note_length
+        )
         
-        for i in range(num_experts):
-            expert_persona = self.expert_personas[i % len(self.expert_personas)]
-            opinion = await self._simulate_expert_with_openrouter(
-                item, i + 1, expert_persona, note_length
-            )
-            expert_opinions.append(opinion)
-            
-            # Rate limiting for free tier
-            if i < num_experts - 1:
-                await asyncio.sleep(2)
+        # Use the single analysis for probability calculation
+        mean_prob = comprehensive_opinion.probability
         
-        # Calculate Beta distribution consensus
-        probabilities = [op.probability for op in expert_opinions]
-        confidences = [op.confidence for op in expert_opinions]
-        
-        # Convert to Beta parameters using method of moments
-        mean_prob = statistics.mean(probabilities)
-        var_prob = statistics.variance(probabilities) if len(probabilities) > 1 else 0.01
-        
-        # Method of moments for Beta distribution
-        if var_prob > 0 and mean_prob * (1 - mean_prob) > var_prob:
-            common_factor = (mean_prob * (1 - mean_prob) / var_prob) - 1
-            alpha = mean_prob * common_factor
-            beta = (1 - mean_prob) * common_factor
+        # Create Beta parameters based on confidence level
+        confidence = comprehensive_opinion.confidence
+        if confidence > 0.8:
+            # High confidence - tighter distribution
+            alpha = mean_prob * 50 + 5
+            beta = (1 - mean_prob) * 50 + 5
+        elif confidence > 0.6:
+            # Medium confidence - moderate distribution
+            alpha = mean_prob * 30 + 3
+            beta = (1 - mean_prob) * 30 + 3
         else:
-            # Fallback for edge cases
-            alpha = mean_prob * 30 + 2
-            beta = (1 - mean_prob) * 30 + 2
+            # Low confidence - wider distribution
+            alpha = mean_prob * 15 + 2
+            beta = (1 - mean_prob) * 15 + 2
         
         beta_params = BetaDistributionParams(alpha=alpha, beta=beta)
         
-        # Combine expert analysis
-        combined_text = f"CUSTOM CHRONULUS AI EXPERT PANEL ANALYSIS\n{item.away_team} @ {item.home_team}\n\n"
-        combined_text += f"Expert Consensus: {num_experts} AI analysts using {self.model}\n\n"
-        
-        for opinion in expert_opinions:
-            combined_text += f"[{opinion.expert_type}] {opinion.reasoning} (Probability: {opinion.probability:.1%}, Confidence: {opinion.confidence:.1%})\n"
-        
-        combined_text += f"\nFINAL CONSENSUS:\nThe expert panel reached a {mean_prob:.1%} probability for a {item.away_team} victory.\n"
-        combined_text += f"This reflects the collective analysis of {num_experts} specialized sports betting experts considering all statistical, situational, and market factors."
+        # Create focused analysis text
+        combined_text = f"COMPREHENSIVE MLB GAME ANALYSIS\n{item.away_team} @ {item.home_team}\n\n"
+        combined_text += f"In-Depth Analysis using {self.model}\n\n"
+        combined_text += comprehensive_opinion.reasoning
         
         result = PredictionResult(
             prob_a=mean_prob,
             text=combined_text,
-            expert_count=num_experts,
+            expert_count=1,  # Single comprehensive analysis
             beta_params=beta_params
         )
         
@@ -186,30 +172,36 @@ class CustomBinaryPredictor:
         
         min_sentences, max_sentences = note_length
         
-        # Create expert-specific prompt with ultra-concise formatting for Discord
-        expert_prompt = f"""You are a {expert_persona} analyzing this MLB game. Be DECISIVE and CONCISE.
+        # Create comprehensive game-level analysis prompt with pointed insights
+        expert_prompt = f"""Analyze this MLB game with specific, data-driven insights.
 
 GAME: {game_data.away_team} @ {game_data.home_team}
-VENUE: {game_data.venue} | DATE: {game_data.game_date}
-RECORDS: {game_data.away_record} vs {game_data.home_record}
+VENUE: {game_data.venue} | RECORDS: {game_data.away_record} vs {game_data.home_record}
 ODDS: Away {game_data.away_moneyline} | Home {game_data.home_moneyline}
 
-FORMAT (MAX 60 WORDS TOTAL):
+Provide COMPREHENSIVE ANALYSIS (150-200 words):
 
-**STANCE**: BET [Team], FADE [Team], or PASS
+**GAME OVERVIEW** (2-3 sentences):
+Record comparison, venue impact, and odds assessment.
 
-**KEY POINTS** (3 max, 8 words each):
-• Point 1
-• Point 2
-• Point 3
+**KEY FACTORS** (3-4 specific insights):
+• STATISTICAL EDGE: [Specific data point - record differential, home/away performance]
+• SITUATIONAL ANGLE: [Rest, travel, motivation, recent form, weather if relevant]
+• VALUE ASSESSMENT: [Line analysis - is there betting value based on records/venue?]
+• RISK FACTOR: [Main concern that could affect outcome]
 
-**RISK**: Main concern (6 words max)
+**BETTING RECOMMENDATION**:
+Clear stance (BET/FADE/PASS) with specific reasoning, confidence level (65-95%), and unit sizing (1-3).
 
-**PICK**: [Team] or PASS | Confidence: XX% | Units: 1-3
+**BOTTOM LINE** (1-2 sentences):
+Final assessment with specific win probability estimate.
 
-FOCUS: {"Stats and trends" if "STATISTICAL" in expert_persona else "Situational spots" if "SITUATIONAL" in expert_persona else "Value opportunities" if "CONTRARIAN" in expert_persona else "Sharp action" if "SHARP" in expert_persona else "Public bias"}
-
-RULES: NO speculation. NO "TBD". Work with provided data only. Maximum 60 words total."""
+RULES:
+- Use actual team names, venue, and records from data
+- Be specific about WHY this game has value or risk
+- No generic statements - find unique angles based on the matchup
+- Focus on actionable insights for betting decisions
+- Provide numerical assessments where possible"""
 
         try:
             client = await get_http_client()
@@ -407,10 +399,10 @@ async def get_custom_chronulus_analysis(game_data: Dict[str, Any], expert_count:
         predictor = CustomBinaryPredictor(session=session, input_type=GameData)
         predictor.create()
         
-        # Generate prediction
+        # Generate prediction with comprehensive analysis
         request = await predictor.queue(
             item=game_obj,
-            num_experts=expert_count,
+            num_experts=1,  # Single comprehensive analyst
             note_length=note_length
         )
         
@@ -426,7 +418,7 @@ async def get_custom_chronulus_analysis(game_data: Dict[str, Any], expert_count:
             "analysis": {
                 "away_team_win_probability": result.prob_a,
                 "home_team_win_probability": 1 - result.prob_a,
-                "expert_count": result.expert_count,
+                "analysis_type": "comprehensive_game_analysis",
                 "analysis_depth": analysis_depth,
                 "expert_analysis": result.text,
                 "market_edge": expert_edge,

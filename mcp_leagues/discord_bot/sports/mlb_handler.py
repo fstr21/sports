@@ -950,7 +950,7 @@ class MLBHandler(BaseSportHandler):
         
         # Get real betting odds to pass to Chronulus
         betting_odds = await self.get_betting_odds_for_game(match)
-        chronulus_data = await self.call_chronulus_analysis(match.home_team, match.away_team, betting_odds)
+        chronulus_data = await self.call_chronulus_analysis(match.home_team, match.away_team, betting_odds, match)
         
         if chronulus_data:
             ai_embeds = await self.create_ai_analysis_embeds(match, chronulus_data)

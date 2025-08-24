@@ -1,0 +1,54 @@
+{
+  "timestamp": "2025-08-24T00:10:03.488120",
+  "test_type": "improved_analysis_with_real_data",
+  "game": {
+    "home_team": "New York Yankees",
+    "away_team": "Boston Red Sox",
+    "venue": "Yankee Stadium",
+    "home_record": "69-60 (.535)",
+    "away_record": "71-59 (.546)",
+    "odds": {
+      "moneyline": "New York Yankees -168 | Boston Red Sox +142"
+    }
+  },
+  "improvements": {
+    "Uses real venue": true,
+    "Uses real records": true,
+    "No TBD placeholders": true,
+    "Specific insights": true,
+    "Shorter length": false,
+    "Clear picks": true
+  },
+  "improvement_score": "5/6 (83.3%)",
+  "quality_check": {
+    "Team names used": true,
+    "Venue mentioned": true,
+    "Records referenced": true,
+    "Confidence levels": true,
+    "Unit sizing": true
+  },
+  "analysis_length": 1849,
+  "analysis_result": {
+    "session_id": "custom_20250824_040950",
+    "request_id": "req_20250824_041003",
+    "analysis": {
+      "away_team_win_probability": 0.5,
+      "home_team_win_probability": 0.5,
+      "expert_count": 5,
+      "analysis_depth": "comprehensive",
+      "expert_analysis": "CUSTOM CHRONULUS AI EXPERT PANEL ANALYSIS\nBoston Red Sox (71-59 (.546)) @ New York Yankees (69-60 (.535))\n\nExpert Consensus: 5 AI analysts using google/gemini-2.0-flash-001\n\n[STATISTICAL EXPERT] **STANCE**: BET Yankees\n\n**KEY POINTS**:\n\u2022 Yankees slightly better record at home.\n\u2022 Moneyline suggests Yankees favored.\n\u2022 Records very similar overall.\n\n**RISK**: Red Sox slight edge in record.\n\n**PICK**: Yankees | Confidence: 60% | Units: 2 (Probability: 50.0%, Confidence: 60.0%)\n[SITUATIONAL EXPERT] **STANCE**: BET Yankees\n\n**KEY POINTS**:\n\u2022 Yankees are home team.\n\u2022 Slight pitching advantage to NYY.\n\u2022 Yankees need the win more.\n\n**RISK**: Red Sox hot streak.\n\n**PICK**: Yankees | Confidence: 65% | Units: 2 (Probability: 50.0%, Confidence: 65.0%)\n[CONTRARIAN EXPERT] **STANCE**: FADE Yankees\n\n**KEY POINTS**\n\u2022 Red Sox slightly better record.\n\u2022 Odds favor overrated Yankees.\n\u2022 Value on Boston as underdog.\n\n**RISK**: Yankee Stadium advantage\n\n**PICK**: Red Sox | Confidence: 65% | Units: 2 (Probability: 50.0%, Confidence: 65.0%)\n[SHARP EXPERT] **STANCE**: BET Yankees\n\n**KEY POINTS**\n\u2022 Yankees are home favorites.\n\u2022 Yankees need to win more.\n\u2022 Red Sox slightly better record.\n\n**RISK**: Home favorite pressure.\n\n**PICK**: Yankees | Confidence: 65% | Units: 2 (Probability: 50.0%, Confidence: 65.0%)\n[MARKET EXPERT] **STANCE**: BET Yankees\n\n**KEY POINTS**:\n\u2022 Yankees are slightly undervalued at home.\n\u2022 Public likely biased toward Red Sox.\n\u2022 Yankees need wins more urgently.\n\n**RISK**: Red Sox can score quickly.\n\n**PICK**: Yankees | Confidence: 65% | Units: 2 (Probability: 50.0%, Confidence: 65.0%)\n\nFINAL CONSENSUS:\nThe expert panel reached a 50.0% probability for a Boston Red Sox (71-59 (.546)) victory.\nThis reflects the collective analysis of 5 specialized sports betting experts considering all statistical, situational, and market factors.",
+      "market_edge": 0.08677685950413222,
+      "betting_recommendation": "BET AWAY",
+      "beta_params": {
+        "alpha": 17.0,
+        "beta": 17.0,
+        "mean": 0.5,
+        "variance": 0.007142857142857143
+      },
+      "model_used": "google/gemini-2.0-flash-001",
+      "cost_estimate": "$0.10-$0.25"
+    },
+    "status": "success",
+    "timestamp": "2025-08-24T04:10:03.316575+00:00"
+  }
+}
