@@ -200,26 +200,22 @@ GAME PROFILE:
 • Home Record: {game_data.home_record}
 • Moneylines: Away {game_data.away_moneyline:+d} | Home {game_data.home_moneyline:+d}{context_note}
 
-REQUIRED FORMAT:
+REQUIRED OUTPUT FORMAT (must include Discord markers):
 
-📊 EXECUTIVE SUMMARY
-[2-3 sentences with directional assessment and key probability range]
+[CHIEF ANALYST]
+📊 COMPREHENSIVE INSTITUTIONAL ANALYSIS
 
-📈 STATISTICAL PROFILE  
-• Team Records: [specific win percentages and comparison]
-• Advanced Metrics: [run differential, runs allowed, recent form with exact numbers]
-• Market Positioning: [moneyline analysis with implied probabilities]
+**EXECUTIVE SUMMARY**: [2 sentences with directional assessment and probability range]
 
-🎯 KEY FACTORS
-• Factor 1: [specific metric with numbers]
-• Factor 2: [specific metric with numbers] 
-• Factor 3: [deciding factor with data]
+**STATISTICAL PROFILE**: Team Records - {game_data.away_record} vs {game_data.home_record}. Advanced Metrics - [use run differential, runs allowed, recent form with exact numbers from additional context]. Market Position - Away {game_data.away_moneyline:+d} vs Home {game_data.home_moneyline:+d} implies [calculate implied probabilities].
 
-⚠️ RISK ASSESSMENT
-[Primary concern that could invalidate analysis using provided data]
+**KEY FACTORS**: [3 bullet points with specific metrics and numbers from context]
 
-💰 INVESTMENT THESIS
-[Clear directional call with confidence level 60-85%]
+**RISK ASSESSMENT**: [1 sentence about primary concern using provided data]
+
+**INVESTMENT THESIS**: [Clear directional recommendation with 60-85% confidence]
+
+**FINAL PROBABILITY**: {game_data.away_team} win probability: [XX%] (confidence: YY%)
 
 CRITICAL REQUIREMENTS:
 • Use ONLY provided data - no assumptions
@@ -270,7 +266,9 @@ CRITICAL REQUIREMENTS:
             for pattern in prob_patterns:
                 prob_match = re.search(pattern, content, re.IGNORECASE)
                 if prob_match:
-                    probability = float(prob_match.group(1)) / 100.0
+                    extracted_prob = float(prob_match.group(1)) / 100.0
+                    # Sanity check: force realistic MLB probabilities (35-65% range)
+                    probability = max(0.35, min(0.65, extracted_prob))
                     break
                 
             # Look for confidence level
@@ -283,7 +281,9 @@ CRITICAL REQUIREMENTS:
             for pattern in conf_patterns:
                 conf_match = re.search(pattern, content, re.IGNORECASE)
                 if conf_match:
-                    confidence = float(conf_match.group(1)) / 100.0
+                    extracted_conf = float(conf_match.group(1)) / 100.0
+                    # Sanity check: force realistic confidence (60-85% range)
+                    confidence = max(0.60, min(0.85, extracted_conf))
                     break
             
             return ExpertOpinion(
