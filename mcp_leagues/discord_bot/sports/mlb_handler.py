@@ -945,7 +945,7 @@ class MLBHandler(BaseSportHandler):
         else:
             logger.warning(f"Missing team IDs for {match.away_team} @ {match.home_team}: home={home_team_id}, away={away_team_id}")
         
-        # 3. AI Expert Analysis (Custom Chronulus) with real betting odds
+        # 3. AI Expert Analysis (Custom Chronulus) with real betting odds - ENHANCED MULTI-EMBED
         logger.info(f"Requesting AI analysis for {match.away_team} @ {match.home_team}")
         
         # Get real betting odds to pass to Chronulus
@@ -953,16 +953,16 @@ class MLBHandler(BaseSportHandler):
         chronulus_data = await self.call_chronulus_analysis(match.home_team, match.away_team, betting_odds)
         
         if chronulus_data:
-            ai_embed = await self.create_ai_analysis_embed(match, chronulus_data)
-            if ai_embed:
-                embeds.append(ai_embed)
-                logger.info(f"Added AI expert analysis embed for {match.away_team} @ {match.home_team}")
+            ai_embeds = await self.create_ai_analysis_embeds(match, chronulus_data)
+            if ai_embeds:
+                embeds.extend(ai_embeds)  # Add all AI analysis embeds
+                logger.info(f"Added {len(ai_embeds)} AI expert analysis embeds for {match.away_team} @ {match.home_team}")
             else:
-                logger.warning(f"Failed to create AI analysis embed despite having Chronulus data")
+                logger.warning(f"Failed to create AI analysis embeds despite having Chronulus data")
         else:
-            logger.warning(f"Custom Chronulus analysis not available for {match.away_team} @ {match.home_team} - proceeding with 2-embed format")
+            logger.warning(f"Custom Chronulus analysis not available for {match.away_team} @ {match.home_team} - proceeding without AI analysis")
         
-        logger.info(f"Generated {len(embeds)} embeds (with {'AI analysis' if len(embeds) == 3 else 'no AI analysis'}) for {match.away_team} @ {match.home_team}")
+        logger.info(f"Generated {len(embeds)} embeds (with {'multi-embed AI analysis' if len(embeds) > 3 else 'no AI analysis'}) for {match.away_team} @ {match.home_team}")
         return embeds
     
     async def create_team_form_embed(self, match: Match, home_team_id: int, away_team_id: int) -> Optional[discord.Embed]:
