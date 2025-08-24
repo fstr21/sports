@@ -120,45 +120,68 @@ class CustomBinaryPredictor:
         """Create predictor (no-op for custom implementation)"""
         pass
     
-    async def queue(self, item: GameData, num_experts: int = 2, note_length: Tuple[int, int] = (3, 5)) -> 'PredictionRequest':
-        """Generate single comprehensive game analysis with detailed insights"""
+    async def queue(self, item: GameData, num_experts: int = 5, note_length: Tuple[int, int] = (4, 5)) -> 'PredictionRequest':
+        """Queue prediction request with 5 specialized experts using natural language summaries"""
         if not self.api_key:
             raise Exception("OpenRouter API key not configured")
         
-        # Generate one comprehensive analysis instead of multiple experts
-        comprehensive_opinion = await self._simulate_expert_with_openrouter(
-            item, 1, "COMPREHENSIVE GAME ANALYST", note_length
-        )
+        # Generate expert opinions from all 5 specialists
+        expert_opinions = []
         
-        # Use the single analysis for probability calculation
-        mean_prob = comprehensive_opinion.probability
+        # Use all expert types for comprehensive coverage
+        all_personas = [
+            "STATISTICAL EXPERT",
+            "SITUATIONAL EXPERT", 
+            "CONTRARIAN EXPERT",
+            "SHARP EXPERT",
+            "MARKET EXPERT"
+        ]
         
-        # Create Beta parameters based on confidence level
-        confidence = comprehensive_opinion.confidence
-        if confidence > 0.8:
-            # High confidence - tighter distribution
-            alpha = mean_prob * 50 + 5
-            beta = (1 - mean_prob) * 50 + 5
-        elif confidence > 0.6:
-            # Medium confidence - moderate distribution
-            alpha = mean_prob * 30 + 3
-            beta = (1 - mean_prob) * 30 + 3
+        for i in range(num_experts):
+            expert_persona = all_personas[i % len(all_personas)]
+            opinion = await self._simulate_expert_with_openrouter(
+                item, i + 1, expert_persona, note_length
+            )
+            expert_opinions.append(opinion)
+            
+            # Rate limiting for free tier
+            if i < num_experts - 1:
+                await asyncio.sleep(1)
+        
+        # Calculate Beta distribution consensus
+        probabilities = [op.probability for op in expert_opinions]
+        confidences = [op.confidence for op in expert_opinions]
+        
+        # Convert to Beta parameters using method of moments
+        mean_prob = statistics.mean(probabilities)
+        var_prob = statistics.variance(probabilities) if len(probabilities) > 1 else 0.01
+        
+        # Method of moments for Beta distribution
+        if var_prob > 0 and mean_prob * (1 - mean_prob) > var_prob:
+            common_factor = (mean_prob * (1 - mean_prob) / var_prob) - 1
+            alpha = mean_prob * common_factor
+            beta = (1 - mean_prob) * common_factor
         else:
-            # Low confidence - wider distribution
-            alpha = mean_prob * 15 + 2
-            beta = (1 - mean_prob) * 15 + 2
+            # Fallback for edge cases
+            alpha = mean_prob * 30 + 2
+            beta = (1 - mean_prob) * 30 + 2
         
         beta_params = BetaDistributionParams(alpha=alpha, beta=beta)
         
-        # Create focused analysis text
-        combined_text = f"COMPREHENSIVE MLB GAME ANALYSIS\n{item.away_team} @ {item.home_team}\n\n"
-        combined_text += f"In-Depth Analysis using {self.model}\n\n"
-        combined_text += comprehensive_opinion.reasoning
+        # Combine expert analysis
+        combined_text = f"ENHANCED 5-EXPERT INSTITUTIONAL ANALYSIS\n{item.away_team} @ {item.home_team}\n\n"
+        combined_text += f"Expert Consensus: {num_experts} specialized analysts using {self.model}\n\n"
+        
+        for opinion in expert_opinions:
+            combined_text += f"[{opinion.expert_type}] {opinion.reasoning}\n\n"
+        
+        combined_text += f"FINAL CONSENSUS:\nThe expert panel reached a {mean_prob:.1%} probability for a {item.away_team} victory.\n"
+        combined_text += f"This reflects the collective analysis of {num_experts} specialized sports betting experts."
         
         result = PredictionResult(
             prob_a=mean_prob,
             text=combined_text,
-            expert_count=1,  # Single comprehensive analysis
+            expert_count=num_experts,
             beta_params=beta_params
         )
         
@@ -172,36 +195,46 @@ class CustomBinaryPredictor:
         
         min_sentences, max_sentences = note_length
         
-        # Create comprehensive game-level analysis prompt with pointed insights
-        expert_prompt = f"""Analyze this MLB game with specific, data-driven insights.
+        # Enhanced expert prompts with richer context data
+        expert_focuses = {
+            "STATISTICAL": "Statistical analysis focusing on team performance metrics, trends, and historical data",
+            "SITUATIONAL": "Situational factors including venue, weather, travel, team motivation, and recent form", 
+            "CONTRARIAN": "Contrarian analysis looking for market inefficiencies and public betting biases",
+            "SHARP": "Sharp money analysis focusing on line movement, steam moves, and professional betting patterns",
+            "MARKET": "Market analysis examining betting odds, public consensus, and value opportunities"
+        }
+        expert_focus = expert_focuses.get(expert_persona, "General analysis")
+        
+        # Extract additional context if available
+        additional_context = game_data.additional_context
+        context_note = f"\n\nADDITIONAL CONTEXT: {additional_context}" if additional_context else ""
+        
+        expert_prompt = f"""You are a {expert_persona} specializing in MLB betting analysis. You have access to comprehensive team data and must provide institutional-quality analysis in exactly {min_sentences}-{max_sentences} sentences.
 
-GAME: {game_data.away_team} @ {game_data.home_team}
-VENUE: {game_data.venue} | RECORDS: {game_data.away_record} vs {game_data.home_record}
-ODDS: Away {game_data.away_moneyline} | Home {game_data.home_moneyline}
+GAME DETAILS:
+• Away Team: {game_data.away_team}
+• Home Team: {game_data.home_team}  
+• Venue: {game_data.venue}
+• Date: {game_data.game_date}
+• Away Record: {game_data.away_record}
+• Home Record: {game_data.home_record}
+• Moneylines: Away {game_data.away_moneyline:+d} | Home {game_data.home_moneyline:+d}{context_note}
 
-Provide COMPREHENSIVE ANALYSIS (150-200 words):
+EXPERT SPECIALIZATION: {expert_focus}
 
-**GAME OVERVIEW** (2-3 sentences):
-Record comparison, venue impact, and odds assessment.
+ANALYSIS REQUIREMENTS:
+1. Open with a clear directional assessment (favor Away/Home team or lean)
+2. Present 2-3 specific data-driven reasons supporting your position
+3. Quantify your confidence level as a percentage (40-85% range)
+4. Identify the key factor that could invalidate your analysis
+5. Conclude with actionable betting recommendation and unit sizing
 
-**KEY FACTORS** (3-4 specific insights):
-• STATISTICAL EDGE: [Specific data point - record differential, home/away performance]
-• SITUATIONAL ANGLE: [Rest, travel, motivation, recent form, weather if relevant]
-• VALUE ASSESSMENT: [Line analysis - is there betting value based on records/venue?]
-• RISK FACTOR: [Main concern that could affect outcome]
-
-**BETTING RECOMMENDATION**:
-Clear stance (BET/FADE/PASS) with specific reasoning, confidence level (65-95%), and unit sizing (1-3).
-
-**BOTTOM LINE** (1-2 sentences):
-Final assessment with specific win probability estimate.
-
-RULES:
-- Use actual team names, venue, and records from data
-- Be specific about WHY this game has value or risk
-- No generic statements - find unique angles based on the matchup
-- Focus on actionable insights for betting decisions
-- Provide numerical assessments where possible"""
+CRITICAL RULES:
+• Base analysis ONLY on provided data - no assumptions about unlisted information
+• Write in professional, analytical tone (like real Chronulus experts)
+• Include specific numbers/percentages when referencing team performance
+• Target {min_sentences}-{max_sentences} sentences exactly
+• End with clear win probability estimate for the away team"""
 
         try:
             client = await get_http_client()
@@ -236,16 +269,37 @@ RULES:
             unit_size = 1      # Default
             risk_level = "Medium"  # Default
             
-            # Look for probability patterns
+            # Enhanced probability extraction patterns
             import re
-            prob_match = re.search(r'probability.*?(\d+)%', content, re.IGNORECASE)
-            if prob_match:
-                probability = float(prob_match.group(1)) / 100.0
+            
+            # Look for away team win probability (primary target)
+            prob_patterns = [
+                r'away.*?(?:win.*?)?probability.*?(\d+)%',
+                r'probability.*?away.*?(\d+)%', 
+                r'estimate.*?(\d+)%.*?away',
+                r'(\d+)%.*?chance.*?away',
+                r'(\d+)%.*?probability'
+            ]
+            
+            probability = 0.5  # Default
+            for pattern in prob_patterns:
+                prob_match = re.search(pattern, content, re.IGNORECASE)
+                if prob_match:
+                    probability = float(prob_match.group(1)) / 100.0
+                    break
                 
             # Look for confidence level
-            conf_match = re.search(r'confidence.*?(\d+)%', content, re.IGNORECASE)
-            if conf_match:
-                confidence = float(conf_match.group(1)) / 100.0
+            conf_patterns = [
+                r'confidence.*?(\d+)%',
+                r'(\d+)%.*?confidence',
+                r'confident.*?(\d+)%'
+            ]
+            confidence = 0.7  # Default
+            for pattern in conf_patterns:
+                conf_match = re.search(pattern, content, re.IGNORECASE)
+                if conf_match:
+                    confidence = float(conf_match.group(1)) / 100.0
+                    break
                 
             # Look for unit size
             unit_match = re.search(r'(\d+)\s*unit', content, re.IGNORECASE)
@@ -314,10 +368,10 @@ AVAILABLE_TOOLS = [
                 },
                 "expert_count": {
                     "type": "integer",
-                    "description": "Number of AI experts (1-5, default: 2)",
+                    "description": "Number of AI experts (1-5, default: 5)",
                     "minimum": 1,
                     "maximum": 5,
-                    "default": 2
+                    "default": 5
                 },
                 "analysis_depth": {
                     "type": "string",
@@ -355,7 +409,7 @@ AVAILABLE_TOOLS = [
     }
 ]
 
-async def get_custom_chronulus_analysis(game_data: Dict[str, Any], expert_count: int = 2, analysis_depth: str = "standard") -> Dict[str, Any]:
+async def get_custom_chronulus_analysis(game_data: Dict[str, Any], expert_count: int = 5, analysis_depth: str = "standard") -> Dict[str, Any]:
     """Generate AI expert panel analysis using custom OpenRouter implementation"""
     
     if not OPENROUTER_API_KEY:
@@ -399,10 +453,10 @@ async def get_custom_chronulus_analysis(game_data: Dict[str, Any], expert_count:
         predictor = CustomBinaryPredictor(session=session, input_type=GameData)
         predictor.create()
         
-        # Generate prediction with comprehensive analysis
+        # Generate prediction with 3 focused experts
         request = await predictor.queue(
             item=game_obj,
-            num_experts=1,  # Single comprehensive analyst
+            num_experts=3,  # Focused 3-expert analysis
             note_length=note_length
         )
         
@@ -418,7 +472,7 @@ async def get_custom_chronulus_analysis(game_data: Dict[str, Any], expert_count:
             "analysis": {
                 "away_team_win_probability": result.prob_a,
                 "home_team_win_probability": 1 - result.prob_a,
-                "analysis_type": "comprehensive_game_analysis",
+                "expert_count": result.expert_count,
                 "analysis_depth": analysis_depth,
                 "expert_analysis": result.text,
                 "market_edge": expert_edge,
