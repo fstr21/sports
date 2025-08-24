@@ -1,14 +1,22 @@
 # 🎯 Next Goals & TODO List
 
-## 🚨 HIGH PRIORITY - Discord Integration
+## 🚨 HIGH PRIORITY - Discord Analysis Quality Enhancement
 
-### Custom Chronulus AI Integration
-- [ ] **Integrate Custom Chronulus with Discord Bot**
-  - Location: `mcp_leagues/discord_bot/sports/mlb_handler.py`
-  - Add Custom Chronulus MCP calls to MLB analysis
-  - Create 3rd embed: "🧠 AI Expert Analysis" 
-  - Include win probability, betting recommendation, expert consensus
-  - Test with Blue Jays @ Marlins verification data (56.6% win probability)
+### Discord Analysis Truncation Issue - RESOLVED ✅
+- [x] **Fixed Discord Analysis Truncation Problem**
+  - **Issue**: Discord was losing 61.9% of expert analysis text due to Discord field limits (1024 chars)
+  - **Solution**: Enhanced truncation logic in `enhanced_chronulus_integration.py` to preserve critical sections
+  - **Key Fix**: Prioritizes Final Assessment (probabilities, confidence, recommendation) over verbose middle sections
+  - **Result**: Now preserves 48.8% of analysis including all actionable intelligence
+  - **Quality Target**: Match comprehensive analysis from `chronulus/results/comprehensive_analysis_20250824_014206.md`
+
+### Custom Chronulus AI Integration - IN PROGRESS 🔧
+- [x] **Enhanced Chronulus Integration Created**
+  - Location: `mcp_leagues/discord_bot/enhanced_chronulus_integration.py` 
+  - Uses comprehensive game data exactly like successful test script
+  - Integrated with Discord bot via mlb_handler.py updates
+  - **Current Status**: Analysis content preserved but could explore alternative Discord formats
+  - **Target Output**: Match quality of comprehensive test analysis (1,265 characters → preserve key insights)
 
 - [ ] **MLB Totals Integration - CRITICAL MISSING PIECE**
   - **Current Issue**: MLB analysis missing Over/Under totals and lines
@@ -18,8 +26,19 @@
   - **Data Source**: Odds MCP already supports totals market - just needs integration
   - **Format**: Match existing betting line format in Discord embeds
 
+### Discord Format Optimization - POTENTIAL IMPROVEMENTS 💡
+- [ ] **Explore Alternative Discord Embed Formats**
+  - **Current Limitation**: Single Discord field limited to 1024 characters
+  - **Options to Consider**:
+    1. **Multi-Field Analysis**: Split analysis across multiple Discord fields
+    2. **Separate Analysis Embed**: Create dedicated embed for expert analysis 
+    3. **Collapsible Sections**: Use Discord spoiler tags for detailed sections
+    4. **Linked Full Report**: Generate markdown file and provide link
+  - **Goal**: Display complete analysis matching `chronulus/results/comprehensive_analysis_20250824_014206.md` quality
+  - **Reference Success**: Comprehensive analysis with market baseline, key factors, and final assessment
+
 ### Discord Bot Enhancements
-- [ ] **Add /chronulus Command**
+- [ ] **Add /chronulus Command** 
   - Standalone command for Custom Chronulus analysis
   - Accept game parameters or use today's schedule
   - Expert count selection (1-5)
@@ -96,24 +115,33 @@
 
 ## 🔥 IMMEDIATE ACTION ITEMS
 
-1. **Fix MLB Totals Integration** (CRITICAL)
-   - This is blocking complete MLB analysis
-   - Should be quick fix in odds parsing logic
+### COMPLETED ✅
+1. [x] **Discord Analysis Truncation Fixed** 
+   - Enhanced truncation logic preserves critical final assessment
+   - Key information (probabilities, confidence, recommendation) now preserved
+   - Test results: 48.8% preservation rate with all actionable data intact
 
-2. **Add Custom Chronulus to MLB Handler** 
-   - Integration point identified
-   - Server already operational
-   - Just needs Discord bot connection
+2. [x] **Enhanced Chronulus Integration Created**
+   - Created `enhanced_chronulus_integration.py` with comprehensive data approach
+   - Integrated with Discord bot via mlb_handler.py modifications
+   - Uses same data structure as successful test script
 
-3. **Test End-to-End Integration**
-   - Verify Custom Chronulus + MLB + Discord workflow
-   - Test error handling and fallbacks
-   - Validate betting grid displays correctly
+### TESTING REQUIRED 🧪
+3. **User Acceptance Testing**
+   - Deploy current integration and test `/create-channel mlb` in Discord
+   - Verify analysis quality matches expectations
+   - Compare Discord output with `chronulus/results/comprehensive_analysis_20250824_014206.md`
 
-**Target Completion**: Next development session
-**Priority Order**: MLB Totals → Custom Chronulus Integration → Testing
+### POTENTIAL ENHANCEMENTS 💡
+4. **Alternative Discord Format Exploration**
+   - If current single-field format insufficient, explore multi-embed approach
+   - Consider separate dedicated analysis embed to bypass 1024 character limit
+   - Option to generate full markdown reports with links
+
+**Target Completion**: Ready for testing
+**Priority Order**: Test Current Integration → Evaluate Need for Format Changes
 
 ---
 
-*Updated: 2025-08-23*
-*Status: Ready for implementation*
+*Updated: 2025-08-24*
+*Status: Discord analysis integration enhanced and ready for testing*
