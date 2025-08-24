@@ -185,30 +185,31 @@ class CustomBinaryPredictor:
         min_sentences, max_sentences = note_length
         
         # Create expert-specific prompt
-        expert_prompt = f"""You are a {expert_persona} for sports betting with 15+ years of experience. 
+        expert_prompt = f"""You are a {expert_persona} for professional sports betting with 15+ years of institutional experience.
 
-Game Analysis Request:
+GAME ANALYSIS REQUEST:
 {game_data.away_team} @ {game_data.home_team}
 Venue: {game_data.venue}
 Date: {game_data.game_date}
-Records: {game_data.away_record} vs {game_data.home_record}
-Moneylines: {game_data.away_team} {game_data.away_moneyline} vs {game_data.home_team} +{game_data.home_moneyline}
+Team Records: {game_data.away_record} vs {game_data.home_record}
+Moneylines: {game_data.away_team} {game_data.away_moneyline} vs {game_data.home_team} {game_data.home_moneyline}
+Additional Context: {game_data.additional_context}
 
-Context: {self.session.situation}
+SITUATION: {self.session.situation}
+TASK: {self.session.task}
 
-Task: {self.session.task}
+As a {expert_persona}, provide your institutional-quality analysis in exactly {min_sentences}-{max_sentences} detailed sentences.
 
-Provide your expert analysis in exactly {min_sentences}-{max_sentences} sentences. Focus on your specialty:
+YOUR SPECIALTY FOCUS:
+{"- Analyze historical win percentages, run differentials, team statistics, and quantitative trends\n- Consider park factors, weather conditions, and statistical regression\n- Examine recent performance metrics, offensive/defensive rankings, and predictive models\n- Focus on data-driven insights and mathematical modeling approaches" if "STATISTICAL" in expert_persona
+                else "- Evaluate recent team momentum, injury reports, and current form\n- Analyze contextual factors like playoff races, motivation levels, and psychological elements\n- Consider travel schedules, rest advantages, and situational spot analysis\n- Focus on intangible factors that pure statistics might miss" if "SITUATIONAL" in expert_persona  
+                else "- Challenge market consensus and identify potential mispricings\n- Look for overreactions to recent results and public bias patterns\n- Find value in overlooked factors and contrarian betting opportunities\n- Question conventional wisdom and popular narratives" if "CONTRARIAN" in expert_persona
+                else "- Analyze sharp money movement, line movement patterns, and betting market dynamics\n- Consider steam moves, reverse line movement, and professional betting indicators\n- Evaluate closing line value and market efficiency\n- Focus on where smart money and value intersect" if "SHARP" in expert_persona
+                else "- Examine public betting percentages, media narratives, and market sentiment\n- Analyze how public perception affects line movement and market pricing\n- Consider recreational bettor tendencies and popular team bias\n- Identify spots where public money creates market inefficiencies"}
 
-{expert_persona}: {"Focus on historical data, win percentages, run differentials, and statistical trends." if "STATISTICAL" in expert_persona
-                else "Analyze recent form, momentum, situational factors, and contextual advantages." if "SITUATIONAL" in expert_persona  
-                else "Take contrarian positions, identify market inefficiencies, and challenge conventional wisdom." if "CONTRARIAN" in expert_persona
-                else "Focus on sharp money movements, line value, and professional betting angles." if "SHARP" in expert_persona
-                else "Analyze market dynamics, public perception, and betting line movements."}
+Provide your comprehensive analysis covering multiple angles within your expertise, then conclude with your win probability for {game_data.away_team}.
 
-At the end, provide your win probability for {game_data.away_team} as a percentage (e.g., "52%" or "48%").
-
-Format: [Analysis sentences]. My probability: XX%"""
+Format: [Your detailed {min_sentences}-{max_sentences} sentence analysis]. My win probability for {game_data.away_team}: XX%"""
 
         try:
             client = await get_http_client()
@@ -227,7 +228,7 @@ Format: [Analysis sentences]. My probability: XX%"""
                             "content": expert_prompt
                         }
                     ],
-                    "max_tokens": 800,
+                    "max_tokens": 2000,
                     "temperature": 0.7
                 }
             )

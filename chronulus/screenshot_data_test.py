@@ -137,15 +137,15 @@ async def test_chronulus_with_screenshot_data():
         # Create session
         print(f"\n🚀 CREATING CHRONULUS SESSION")
         print("-" * 50)
-        session_name = f"{SCREENSHOT_GAME_DATA['away_team']} @ {SCREENSHOT_GAME_DATA['home_team']} Analysis"
+        session_name = f"{SCREENSHOT_GAME_DATA['away_team']} @ {SCREENSHOT_GAME_DATA['home_team']} - 5 Expert Analysis"
         print(f"Session Name: {session_name}")
-        print(f"Situation: Analyzing MLB game with real betting market data")
-        print(f"Task: Provide expert win probability and betting value analysis")
+        print(f"Situation: Analyzing MLB game with real betting market data for comparison")
+        print(f"Task: Provide 5-expert analysis comparable to Enhanced Custom Chronulus")
         
         session = Session(
             name=session_name,
-            situation="Analyzing MLB game with real betting market data from screenshot",
-            task="Provide expert analysis of win probabilities and betting value"
+            situation="Analyzing MLB game with real betting market data from screenshot for comparison with Enhanced Custom Chronulus MCP",
+            task="Provide comprehensive 5-expert analysis of win probabilities and betting value comparable to institutional-grade quality"
         )
         
         # Create predictor
@@ -153,12 +153,12 @@ async def test_chronulus_with_screenshot_data():
         predictor = BinaryPredictor(session=session, input_type=GameData)
         predictor.create()
         
-        # Queue prediction with 2 experts
-        print(f"🧠 Queuing prediction with 2 experts...")
+        # Queue prediction with 5 experts
+        print(f"🧠 Queuing prediction with 5 experts...")
         queue_response = predictor.queue(
             item=game_data,
-            num_experts=2,
-            note_length=(6, 10)
+            num_experts=5,
+            note_length=(10, 15)
         )
         
         # Get results
@@ -173,69 +173,123 @@ async def test_chronulus_with_screenshot_data():
             print("❌ No results received")
             return None
             
-        # Check if result has the expected structure
+        # Debug: Print result structure
+        print(f"Result type: {type(result)}")
+        print(f"Result attributes: {[attr for attr in dir(result) if not attr.startswith('_')]}")
+        
+        # Initialize variables
+        prob_a = 0.5
+        analysis_text = "No analysis available"
+        expert_count = 1  # Default expert count
+        
+        # Handle BinaryPredictionSet response correctly
         if hasattr(result, 'predictions') and result.predictions:
-            # Get the aggregate prediction
+            # Get the first prediction from the set
             prediction = result.predictions[0] if result.predictions else None
             if prediction:
                 print(f"Away Win Probability ({SCREENSHOT_GAME_DATA['away_team']}): {prediction.prob_a:.1%}")
                 print(f"Home Win Probability ({SCREENSHOT_GAME_DATA['home_team']}): {(1-prediction.prob_a):.1%}")
-                print(f"Expert Count: {len(result.predictions)}")
+                expert_count = len(result.predictions)
+                print(f"Predictions in set: {expert_count}")
                 
                 if hasattr(prediction, 'beta_params'):
                     print(f"Beta Parameters: α={prediction.beta_params.alpha:.2f}, β={prediction.beta_params.beta:.2f}")
                 
                 print(f"\n📝 EXPERT ANALYSIS:")
                 print("-" * 60)
-                if hasattr(prediction, 'note'):
-                    print(prediction.note)
-                elif hasattr(prediction, 'text'):
-                    print(prediction.text)
-                else:
-                    print("Analysis text not available")
+                analysis_text = getattr(prediction, 'note', getattr(prediction, 'text', 'No analysis available'))
+                print(analysis_text)
                 print("-" * 60)
                 
                 prob_a = prediction.prob_a
-                analysis_text = getattr(prediction, 'note', getattr(prediction, 'text', 'No analysis available'))
             else:
                 print("❌ No prediction data available")
                 return None
+        elif hasattr(result, 'prob_a'):
+            # Handle single prediction result
+            print(f"Away Win Probability ({SCREENSHOT_GAME_DATA['away_team']}): {result.prob_a:.1%}")
+            print(f"Home Win Probability ({SCREENSHOT_GAME_DATA['home_team']}): {(1-result.prob_a):.1%}")
+            expert_count = 1  # Single prediction
+            
+            if hasattr(result, 'beta_params'):
+                print(f"Beta Parameters: α={result.beta_params.alpha:.2f}, β={result.beta_params.beta:.2f}")
+            
+            print(f"\n📝 EXPERT ANALYSIS:")
+            print("-" * 60)
+            analysis_text = getattr(result, 'note', getattr(result, 'text', 'No analysis available'))
+            print(analysis_text)
+            print("-" * 60)
+            
+            prob_a = result.prob_a
         else:
             print(f"❌ Unexpected result structure: {type(result)}")
             print(f"Available attributes: {[attr for attr in dir(result) if not attr.startswith('_')]}")
             return None
         
-        # Save results
+        # Save results as markdown for comparison
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        results_file = f"C:/Users/fstr2/Desktop/sports/chronulus/results/screenshot_test_{timestamp}.txt"
+        results_file = f"C:/Users/fstr2/Desktop/sports/chronulus/results/real_chronulus_5expert_{timestamp}.md"
+        
+        # Ensure results directory exists
+        os.makedirs("C:/Users/fstr2/Desktop/sports/chronulus/results", exist_ok=True)
         
         with open(results_file, 'w', encoding='utf-8') as f:
-            f.write(f"Chronulus Analysis - Screenshot Data Test\n")
-            f.write(f"Generated: {datetime.now().isoformat()}\n")
-            f.write(f"=" * 60 + "\n\n")
-            f.write(f"Game: {SCREENSHOT_GAME_DATA['away_team']} @ {SCREENSHOT_GAME_DATA['home_team']}\n")
-            f.write(f"Time: {SCREENSHOT_GAME_DATA['game_time']}\n\n")
-            f.write(f"Win Probabilities:\n")
-            f.write(f"- {SCREENSHOT_GAME_DATA['away_team']}: {prediction.prob_a:.1%}\n")
-            f.write(f"- {SCREENSHOT_GAME_DATA['home_team']}: {(1-prediction.prob_a):.1%}\n\n")
-            f.write(f"Expert Analysis:\n{analysis_text}\n\n")
-            f.write(f"Technical Details:\n")
-            if hasattr(prediction, 'beta_params'):
-                f.write(f"- Alpha: {prediction.beta_params.alpha:.2f}\n")
-                f.write(f"- Beta: {prediction.beta_params.beta:.2f}\n")
-            else:
-                f.write("- Beta parameters not available\n")
+            f.write("# Real Chronulus Analysis - 5 Expert Panel\n\n")
+            f.write(f"**Game**: {SCREENSHOT_GAME_DATA['away_team']} @ {SCREENSHOT_GAME_DATA['home_team']}\n")
+            f.write(f"**Date**: August 23, 2025 at {SCREENSHOT_GAME_DATA['game_time']}\n")
+            f.write(f"**Analysis Type**: Real Chronulus SDK - 5 Experts\n")
+            f.write(f"**Generated**: {datetime.now().isoformat()}\n\n")
+            
+            f.write("## Market Data\n\n")
+            f.write(f"- **Moneyline**: {SCREENSHOT_GAME_DATA['away_team']} {SCREENSHOT_GAME_DATA['away_moneyline']:+d} | {SCREENSHOT_GAME_DATA['home_team']} {SCREENSHOT_GAME_DATA['home_moneyline']:+d}\n")
+            f.write(f"- **Run Line**: {SCREENSHOT_GAME_DATA['away_team']} +1.5 ({SCREENSHOT_GAME_DATA['run_line_away_odds']:+d}) | {SCREENSHOT_GAME_DATA['home_team']} -1.5 ({SCREENSHOT_GAME_DATA['run_line_home_odds']:+d})\n")
+            f.write(f"- **Total**: Over {SCREENSHOT_GAME_DATA['total_over']} ({SCREENSHOT_GAME_DATA['total_over_odds']:+d}) | Under {SCREENSHOT_GAME_DATA['total_under']} ({SCREENSHOT_GAME_DATA['total_under_odds']:+d})\n")
+            f.write(f"- **Key Pitchers**: {SCREENSHOT_GAME_DATA['key_players']['athletics']} vs {SCREENSHOT_GAME_DATA['key_players']['sea_mariners']}\n\n")
+            
+            f.write("## Real Chronulus Analysis Results\n\n")
+            f.write(f"**Win Probabilities:**\n")
+            f.write(f"- {SCREENSHOT_GAME_DATA['away_team']}: {prob_a:.1%}\n")
+            f.write(f"- {SCREENSHOT_GAME_DATA['home_team']}: {(1-prob_a):.1%}\n\n")
+            
+            f.write(f"**Expert Count**: {expert_count}\n\n")
+            f.write(f"**Cost**: ~$0.75-1.50 (Real Chronulus pricing)\n\n")
+            
+            if hasattr(result, 'beta_params') or (hasattr(result, 'predictions') and result.predictions and hasattr(result.predictions[0], 'beta_params')):
+                beta_params = getattr(result, 'beta_params', None) or getattr(result.predictions[0], 'beta_params', None)
+                if beta_params:
+                    f.write(f"**Beta Distribution Parameters:**\n")
+                    f.write(f"- Alpha: {beta_params.alpha:.2f}\n")
+                    f.write(f"- Beta: {beta_params.beta:.2f}\n")
+                    # Calculate mean and variance manually since real Chronulus SDK doesn't have these methods
+                    mean_val = beta_params.alpha / (beta_params.alpha + beta_params.beta)
+                    variance_val = (beta_params.alpha * beta_params.beta) / ((beta_params.alpha + beta_params.beta)**2 * (beta_params.alpha + beta_params.beta + 1))
+                    f.write(f"- Mean: {mean_val:.3f}\n")
+                    f.write(f"- Variance: {variance_val:.6f}\n\n")
+            
+            f.write(f"## Expert Analysis\n\n")
+            f.write("```\n")
+            f.write(analysis_text)
+            f.write("\n```\n\n")
+            
+            f.write("## Comparison Notes\n\n")
+            f.write("- This analysis uses the official Chronulus SDK with 5 experts\n")
+            f.write("- Compare with Enhanced Custom Chronulus MCP for quality assessment\n")
+            f.write("- Real Chronulus costs ~$0.75-1.50 vs Custom ~$0.10-0.25 (85% savings)\n")
+            f.write("- Evaluate analysis depth, market alignment, and betting insights\n\n")
         
         print(f"\n💾 RESULTS SAVED TO:")
         print(results_file)
-        print("\n✅ TEST COMPLETE")
+        print("\n✅ REAL CHRONULUS 5-EXPERT TEST COMPLETE")
         print("=" * 60)
+        print("🎯 Compare this with your Enhanced Custom Chronulus MCP analysis!")
+        print("📈 Look for differences in depth, market alignment, and insights.")
         
+        # Determine expert count based on result structure (already set above)
         return {
-            "away_win_prob": result.prob_a,
-            "home_win_prob": 1 - result.prob_a,
-            "analysis": result.text,
-            "expert_count": result.expert_count,
+            "away_win_prob": prob_a,
+            "home_win_prob": 1 - prob_a,
+            "analysis": analysis_text,
+            "expert_count": expert_count,
             "results_file": results_file
         }
         
