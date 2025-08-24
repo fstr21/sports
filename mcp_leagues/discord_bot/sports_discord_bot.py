@@ -427,7 +427,7 @@ async def test_mlb_image_command(interaction: discord.Interaction):
     
     try:
         # Get MLB handler 
-        mlb_handler = bot.sport_manager.get_handler("mlb")
+        mlb_handler = bot.sport_manager.get_sport_handler("mlb")
         if not mlb_handler:
             embed = discord.Embed(
                 title="❌ Error",
