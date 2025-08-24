@@ -189,33 +189,44 @@ class CustomBinaryPredictor:
         additional_context = game_data.additional_context
         context_note = f"\n\nADDITIONAL DATA: {additional_context}" if additional_context else ""
         
-        chief_prompt = f"""You are the Chief Sports Analyst for an institutional sports betting firm. Generate a professional analysis report in Bloomberg terminal style.
+        # Calculate market implied probabilities first
+        home_implied = abs(game_data.home_moneyline) / (abs(game_data.home_moneyline) + 100) if game_data.home_moneyline < 0 else 100 / (game_data.home_moneyline + 100)
+        away_implied = abs(game_data.away_moneyline) / (abs(game_data.away_moneyline) + 100) if game_data.away_moneyline < 0 else 100 / (game_data.away_moneyline + 100)
+        
+        chief_prompt = f"""You are a Chronulus-style institutional sports analyst. Your analysis must mirror the professional, market-aware approach of real Chronulus experts.
 
-GAME PROFILE:
-• Away: {game_data.away_team}
-• Home: {game_data.home_team}  
+GAME ANALYSIS FRAMEWORK:
+• Away Team: {game_data.away_team}
+• Home Team: {game_data.home_team}  
 • Venue: {game_data.venue}
-• Date: {game_data.game_date}
 • Away Record: {game_data.away_record}
 • Home Record: {game_data.home_record}
-• Moneylines: Away {game_data.away_moneyline:+d} | Home {game_data.home_moneyline:+d}{context_note}
+• Market Lines: Away {game_data.away_moneyline:+d} | Home {game_data.home_moneyline:+d}
+• IMPLIED PROBABILITIES: Away {away_implied:.1%} | Home {home_implied:.1%}{context_note}
 
-REQUIRED OUTPUT FORMAT (must include Discord markers):
+CHRONULUS-STYLE ANALYSIS REQUIREMENTS:
 
 [CHIEF ANALYST]
-📊 COMPREHENSIVE INSTITUTIONAL ANALYSIS
+You are analyzing this game with moderate confidence, acknowledging baseball's inherent variance.
 
-**EXECUTIVE SUMMARY**: [2 sentences with directional assessment and probability range]
+**MARKET BASELINE**: The current moneyline implies approximately {away_implied:.1%} probability for {game_data.away_team} and {home_implied:.1%} for {game_data.home_team}.
 
-**STATISTICAL PROFILE**: Team Records - {game_data.away_record} vs {game_data.home_record}. Advanced Metrics - [use run differential, runs allowed, recent form with exact numbers from additional context]. Market Position - Away {game_data.away_moneyline:+d} vs Home {game_data.home_moneyline:+d} implies [calculate implied probabilities].
+**ANALYTICAL ASSESSMENT**: [Based on the team records and additional data provided, state whether you align with market expectations or see a modest edge. Use phrases like "aligns with my assessment", "suggests slightly higher/lower odds", "market appears reasonably efficient".]
 
-**KEY FACTORS**: [3 bullet points with specific metrics and numbers from context]
+**KEY FACTORS FROM DATA**: [Reference 2-3 specific metrics from the provided context - team records, run differential, recent form. Explain how these factors create small adjustments to market baseline.]
 
-**RISK ASSESSMENT**: [1 sentence about primary concern using provided data]
+**BASEBALL VARIANCE ACKNOWLEDGMENT**: [Acknowledge baseball's game-to-game unpredictability and why extreme confidence isn't warranted.]
 
-**INVESTMENT THESIS**: [Clear directional recommendation with 60-85% confidence]
+**DIRECTIONAL ASSESSMENT**: [State your final probability within ±5-8% of market baseline. Express moderate confidence and explain the small edge you've identified.]
 
-**FINAL PROBABILITY**: {game_data.away_team} win probability: [XX%] (confidence: YY%)
+CRITICAL CHRONULUS RULES:
+• START with market implied probabilities as baseline
+• Make SMALL adjustments (±5-8%) based on data analysis  
+• Use "moderate confidence" language for close games
+• Acknowledge baseball's inherent variance
+• Reference market efficiency vs your edge
+• End with probability close to market baseline unless strong evidence suggests otherwise
+• Never exceed 65% probability for away team or go below 35%
 
 CRITICAL REQUIREMENTS:
 • Use ONLY provided data - no assumptions
@@ -262,13 +273,21 @@ CRITICAL REQUIREMENTS:
                 r'(\d+)%.*?(?:chance|probability)'
             ]
             
-            probability = 0.52  # Slight away bias default
+            # Calculate market baseline for away team
+            away_market_prob = abs(game_data.away_moneyline) / (abs(game_data.away_moneyline) + 100) if game_data.away_moneyline < 0 else 100 / (game_data.away_moneyline + 100)
+            
+            probability = away_market_prob  # Start with market baseline
             for pattern in prob_patterns:
                 prob_match = re.search(pattern, content, re.IGNORECASE)
                 if prob_match:
                     extracted_prob = float(prob_match.group(1)) / 100.0
-                    # Sanity check: force realistic MLB probabilities (35-65% range)
-                    probability = max(0.35, min(0.65, extracted_prob))
+                    
+                    # Chronulus-style: small adjustments from market baseline (±8% max)
+                    max_adjustment = 0.08
+                    min_prob = max(0.35, away_market_prob - max_adjustment)
+                    max_prob = min(0.65, away_market_prob + max_adjustment)
+                    
+                    probability = max(min_prob, min(max_prob, extracted_prob))
                     break
                 
             # Look for confidence level
@@ -277,13 +296,23 @@ CRITICAL REQUIREMENTS:
                 r'(\d+)%.*?confidence',
                 r'confident.*?(\d+)%'
             ]
-            confidence = 0.72  # Default institutional confidence
+            # Chronulus-style moderate confidence (lower for close games)
+            market_edge = abs(probability - away_market_prob)
+            if market_edge < 0.03:  # Very close to market
+                confidence = 0.65  # Lower confidence for market-aligned bets
+            elif market_edge < 0.05:  # Small edge
+                confidence = 0.70  # Moderate confidence  
+            else:  # Larger edge (rare)
+                confidence = 0.75  # Higher confidence but still moderate
+                
+            # Allow confidence extraction but keep it reasonable
             for pattern in conf_patterns:
                 conf_match = re.search(pattern, content, re.IGNORECASE)
                 if conf_match:
                     extracted_conf = float(conf_match.group(1)) / 100.0
-                    # Sanity check: force realistic confidence (60-85% range)
-                    confidence = max(0.60, min(0.85, extracted_conf))
+                    # Cap confidence based on market edge
+                    max_conf = 0.65 + (market_edge * 2)  # Scale with edge size
+                    confidence = max(0.60, min(max_conf, extracted_conf))
                     break
             
             return ExpertOpinion(
@@ -298,13 +327,15 @@ CRITICAL REQUIREMENTS:
             
         except Exception as e:
             print(f"OpenRouter API error for chief analyst: {e}")
-            # Fallback analysis
+            # Market-aware fallback analysis
+            away_market_prob = abs(game_data.away_moneyline) / (abs(game_data.away_moneyline) + 100) if game_data.away_moneyline < 0 else 100 / (game_data.away_moneyline + 100)
+            
             return ExpertOpinion(
                 expert_id=1,
                 expert_type="CHIEF SPORTS ANALYST - FALLBACK",
-                probability=0.52,
-                confidence=0.65,
-                reasoning=f"Market analysis suggests competitive matchup between {game_data.away_team} and {game_data.home_team}. Based on available data, slight edge identified for road team. Professional recommendation: proceed with caution due to API limitations."
+                probability=away_market_prob,  # Use market baseline
+                confidence=0.62,  # Lower confidence for fallback
+                reasoning=f"[CHIEF ANALYST] **MARKET BASELINE**: The current moneyline implies approximately {away_market_prob:.1%} probability for {game_data.away_team}. **ASSESSMENT**: Due to API limitations, we align with market expectations given the competitive nature of this matchup. The betting lines suggest efficient pricing with no clear technical edge identified. **BASEBALL VARIANCE**: As always in baseball, game-to-game variance remains significant. Professional recommendation: monitor line movement for potential value opportunities."
             )
     
     async def _simulate_expert_with_openrouter(self, game_data: GameData, expert_id: int, expert_persona: str, note_length: Tuple[int, int]) -> ExpertOpinion:
