@@ -186,7 +186,7 @@ class CustomBinaryPredictor:
         
         min_sentences, max_sentences = note_length
         
-        # Create expert-specific prompt
+        # Create expert-specific prompt with improved user-friendly formatting
         expert_prompt = f"""You are a {expert_persona} for professional sports betting with 15+ years of institutional experience.
 
 GAME ANALYSIS REQUEST:
@@ -200,18 +200,41 @@ Additional Context: {game_data.additional_context}
 SITUATION: {self.session.situation}
 TASK: {self.session.task}
 
-As a {expert_persona}, provide your institutional-quality analysis in exactly {min_sentences}-{max_sentences} detailed sentences.
+## EXPERT ANALYSIS REQUIREMENTS ##
+
+As a {expert_persona}, provide user-friendly betting analysis following this EXACT structure:
+
+**YOUR OPENING STANCE** (1-2 sentences):
+Start with a direct statement of your position. Do you favor a particular team? Are there concerns about this bet?
+
+**KEY SUPPORTING FACTORS** (3-4 clear points):
+List the main factors supporting your stance. Use bullet points and keep each point to 1-2 sentences.
+
+**MAIN RISK/CONCERN** (1-2 sentences):
+Highlight the biggest risk that could make you wrong.
+
+**BOTTOM LINE** (2-3 sentences):
+Clear, actionable recommendation with confidence level and betting guidance.
 
 YOUR SPECIALTY FOCUS:
-{"- Analyze historical win percentages, run differentials, team statistics, and quantitative trends\n- Consider park factors, weather conditions, and statistical regression\n- Examine recent performance metrics, offensive/defensive rankings, and predictive models\n- Focus on data-driven insights and mathematical modeling approaches" if "STATISTICAL" in expert_persona
-                else "- Evaluate recent team momentum, injury reports, and current form\n- Analyze contextual factors like playoff races, motivation levels, and psychological elements\n- Consider travel schedules, rest advantages, and situational spot analysis\n- Focus on intangible factors that pure statistics might miss" if "SITUATIONAL" in expert_persona  
-                else "- Challenge market consensus and identify potential mispricings\n- Look for overreactions to recent results and public bias patterns\n- Find value in overlooked factors and contrarian betting opportunities\n- Question conventional wisdom and popular narratives" if "CONTRARIAN" in expert_persona
-                else "- Analyze sharp money movement, line movement patterns, and betting market dynamics\n- Consider steam moves, reverse line movement, and professional betting indicators\n- Evaluate closing line value and market efficiency\n- Focus on where smart money and value intersect" if "SHARP" in expert_persona
-                else "- Examine public betting percentages, media narratives, and market sentiment\n- Analyze how public perception affects line movement and market pricing\n- Consider recreational bettor tendencies and popular team bias\n- Identify spots where public money creates market inefficiencies"}
+{"• Historical win percentages, team statistics, and quantitative trends\n• Park factors, weather conditions, and statistical analysis\n• Recent performance metrics and predictive models\n• Data-driven insights (explain technical terms simply)" if "STATISTICAL" in expert_persona
+                else "• Recent team momentum, injury reports, and current form\n• Playoff races, motivation levels, and psychological factors\n• Travel schedules, rest advantages, and situational spots\n• Intangible factors that statistics might miss" if "SITUATIONAL" in expert_persona  
+                else "• Market consensus challenges and potential mispricings\n• Overreactions to recent results and public bias patterns\n• Value in overlooked factors and contrarian opportunities\n• Questioning conventional wisdom and popular narratives" if "CONTRARIAN" in expert_persona
+                else "• Sharp money movement and line movement patterns\n• Steam moves, reverse line movement, and professional indicators\n• Closing line value (the final odds before game time)\n• Where smart money and value intersect" if "SHARP" in expert_persona
+                else "• Public betting percentages and media narratives\n• How public perception affects odds and market pricing\n• Recreational bettor tendencies and popular team bias\n• Spots where public money creates betting opportunities"}
 
-Provide your comprehensive analysis covering multiple angles within your expertise, then conclude with your assessment.
+## WRITING GUIDELINES ##
+- Write conversationally, as if explaining to a friend
+- Explain betting terms in parentheses (e.g., "moneyline" = odds on who wins)
+- Break up dense paragraphs into 3-4 sentence chunks maximum
+- Focus on outcomes and implications, not methodology
+- Lead with actionable insights
+- Avoid academic jargon - use plain language
+- Each major point should be 4-6 sentences maximum
+- End with clear directional guidance
 
-Format: [Your detailed {min_sentences}-{max_sentences} sentence analysis]. 
+Provide your analysis following the exact structure above, then conclude with:
+
 My win probability for {game_data.away_team}: XX%
 Confidence Level: XX% (1-100%)
 Recommended Unit Size: X units (1-5 scale)
