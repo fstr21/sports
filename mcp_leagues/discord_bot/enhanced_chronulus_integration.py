@@ -297,14 +297,31 @@ class EnhancedChronulusIntegration:
                             if len(parts) > 1:
                                 analysis_content = parts[1].strip()
                         
-                        # Split into manageable chunks for Discord (Discord field limit is 1024 chars)
-                        if len(analysis_content) > 900:
-                            # Find a good break point around 800 chars
-                            break_point = analysis_content.find('. ', 800)
-                            if break_point > 0:
-                                analysis_content = analysis_content[:break_point + 1] + "\n\n*[Analysis continues with full market assessment and recommendations]*"
-                            else:
-                                analysis_content = analysis_content[:900] + "..."
+                        # Handle Discord field limits (1024 chars max) while preserving key information
+                        if len(analysis_content) > 950:
+                            # Strategy: Keep the final assessment (most important) and trim the middle
+                            if "FINAL ASSESSMENT:" in analysis_content:
+                                final_start = analysis_content.find("FINAL ASSESSMENT:")
+                                
+                                # Keep beginning (up to baseline) and final assessment
+                                baseline_end = analysis_content.find("**ANALYTICAL ASSESSMENT**:")
+                                if baseline_end > 0 and final_start > 0:
+                                    beginning = analysis_content[:baseline_end].rstrip()
+                                    final_section = analysis_content[final_start:].rstrip()
+                                    
+                                    # Combine with abbreviated middle
+                                    analysis_content = beginning + "\n\n*[Analysis factors abbreviated to preserve final assessment]*\n\n" + final_section
+                                    
+                                    # If still too long, shorten the beginning but keep final assessment
+                                    if len(analysis_content) > 950:
+                                        market_end = analysis_content.find("\n", analysis_content.find("**MARKET BASELINE**:"))
+                                        if market_end > 0:
+                                            short_beginning = analysis_content[:market_end + 1]
+                                            analysis_content = short_beginning + "\n*[Market analysis abbreviated]*\n\n" + final_section
+                            
+                            # Final fallback if no FINAL ASSESSMENT found
+                            if len(analysis_content) > 950:
+                                analysis_content = analysis_content[:900] + "\n\n*[Full analysis available - contact for complete report]*"
                         
                         embed.add_field(
                             name="📋 Chief Analyst Report",
