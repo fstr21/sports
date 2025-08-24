@@ -195,15 +195,39 @@ class CustomBinaryPredictor:
         
         min_sentences, max_sentences = note_length
         
-        # Enhanced expert prompts with richer context data
-        expert_focuses = {
-            "STATISTICAL": "Statistical analysis focusing on team performance metrics, trends, and historical data",
-            "SITUATIONAL": "Situational factors including venue, weather, travel, team motivation, and recent form", 
-            "CONTRARIAN": "Contrarian analysis looking for market inefficiencies and public betting biases",
-            "SHARP": "Sharp money analysis focusing on line movement, steam moves, and professional betting patterns",
-            "MARKET": "Market analysis examining betting odds, public consensus, and value opportunities"
+        # Enhanced expert prompts with differentiated confidence ranges
+        expert_configs = {
+            "STATISTICAL": {
+                "focus": "Statistical analysis using team performance metrics, run differentials, and win percentages",
+                "confidence_range": "55-75%",
+                "specialization": "numerical data and trend analysis"
+            },
+            "SITUATIONAL": {
+                "focus": "Situational factors including home/away records, recent form, and venue advantages",
+                "confidence_range": "45-65%", 
+                "specialization": "contextual game factors"
+            },
+            "CONTRARIAN": {
+                "focus": "Contrarian analysis identifying market inefficiencies in moneyline pricing",
+                "confidence_range": "60-80%",
+                "specialization": "value betting opportunities"
+            },
+            "SHARP": {
+                "focus": "Sharp analysis using advanced metrics and line value assessment",
+                "confidence_range": "65-85%",
+                "specialization": "professional betting indicators"
+            },
+            "MARKET": {
+                "focus": "Market analysis examining implied probabilities vs actual team strength",
+                "confidence_range": "50-70%",
+                "specialization": "odds evaluation and market psychology"
+            }
         }
-        expert_focus = expert_focuses.get(expert_persona, "General analysis")
+        expert_config = expert_configs.get(expert_persona, {
+            "focus": "General analysis", 
+            "confidence_range": "50-70%",
+            "specialization": "overall assessment"
+        })
         
         # Extract additional context if available
         additional_context = game_data.additional_context
@@ -220,21 +244,23 @@ GAME DETAILS:
 • Home Record: {game_data.home_record}
 • Moneylines: Away {game_data.away_moneyline:+d} | Home {game_data.home_moneyline:+d}{context_note}
 
-EXPERT SPECIALIZATION: {expert_focus}
+EXPERT SPECIALIZATION: {expert_config['focus']}
+CONFIDENCE TARGET RANGE: {expert_config['confidence_range']} (stay within this range)
 
 ANALYSIS REQUIREMENTS:
-1. Open with a clear directional assessment (favor Away/Home team or lean)
-2. Present 2-3 specific data-driven reasons supporting your position
-3. Quantify your confidence level as a percentage (40-85% range)
-4. Identify the key factor that could invalidate your analysis
-5. Conclude with actionable betting recommendation and unit sizing
+1. Open with directional assessment citing specific win percentages or records
+2. Reference at least 2 numerical stats from context (run diff, runs allowed, etc.)
+3. State confidence as exact percentage between 40-85%
+4. Mention one key risk factor using provided data
+5. End with "[AWAY_TEAM] win probability: XX%" format
 
 CRITICAL RULES:
-• Base analysis ONLY on provided data - no assumptions about unlisted information
-• Write in professional, analytical tone (like real Chronulus experts)
-• Include specific numbers/percentages when referencing team performance
-• Target {min_sentences}-{max_sentences} sentences exactly
-• End with clear win probability estimate for the away team"""
+• MANDATORY: Reference specific numbers from provided data (records, run diff, etc.)
+• FORBIDDEN: Never say "unknown", "unavailable", "limited data", or similar phrases
+• REQUIRED: Use actual team statistics provided in context
+• Write exactly {min_sentences}-{max_sentences} complete sentences - no more, no less
+• End with numerical away team win probability (40-85% range)
+• Professional tone matching institutional analysis standards"""
 
         try:
             client = await get_http_client()
@@ -253,7 +279,7 @@ CRITICAL RULES:
                             "content": expert_prompt
                         }
                     ],
-                    "max_tokens": 2000,
+                    "max_tokens": 400,  # Reduced for Discord compatibility
                     "temperature": 0.7
                 }
             )
@@ -420,13 +446,13 @@ async def get_custom_chronulus_analysis(game_data: Dict[str, Any], expert_count:
         }
     
     try:
-        # Map analysis depth to sentence counts
+        # Map analysis depth to sentence counts (reduced for Discord limits)
         depth_mapping = {
-            "brief": (3, 5),
-            "standard": (8, 12), 
-            "comprehensive": (15, 20)
+            "brief": (3, 4),
+            "standard": (4, 5), 
+            "comprehensive": (5, 6)
         }
-        note_length = depth_mapping.get(analysis_depth, (8, 12))
+        note_length = depth_mapping.get(analysis_depth, (4, 5))
         
         # Create game data object
         game_obj = GameData(
