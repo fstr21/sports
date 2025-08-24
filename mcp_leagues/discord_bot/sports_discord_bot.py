@@ -439,7 +439,7 @@ async def test_mlb_image_command(interaction: discord.Interaction):
             
         # Get today's games
         today_str = datetime.now().strftime("%Y-%m-%d")
-        matches = await mlb_handler.get_matches_for_date(today_str)
+        matches = await mlb_handler.get_matches(today_str)
         
         if not matches:
             embed = discord.Embed(
