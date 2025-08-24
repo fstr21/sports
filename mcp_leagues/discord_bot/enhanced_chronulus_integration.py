@@ -269,40 +269,45 @@ class EnhancedChronulusIntegration:
                         inline=True
                     )
                     
-                    # Expert analysis - extract key summary only
+                    # Expert analysis - show comprehensive analysis
                     expert_analysis = analysis_data.get("expert_analysis", "")
                     if expert_analysis:
-                        # Extract just the key sections for Discord
-                        summary_parts = []
+                        # Debug logging to see what we're getting
+                        logger.info(f"Raw expert analysis length: {len(expert_analysis)}")
+                        logger.info(f"Raw expert analysis preview: {expert_analysis[:200]}...")
                         
-                        # Look for key sections
-                        if "MARKET BASELINE" in expert_analysis:
-                            baseline_start = expert_analysis.find("MARKET BASELINE")
-                            baseline_end = expert_analysis.find("**", baseline_start + 20)
-                            if baseline_end > baseline_start:
-                                baseline_text = expert_analysis[baseline_start:baseline_end].strip()
-                                summary_parts.append(baseline_text)
+                        # Clean up the analysis text
+                        analysis_content = expert_analysis
                         
-                        if "DIRECTIONAL ASSESSMENT" in expert_analysis:
-                            assessment_start = expert_analysis.find("DIRECTIONAL ASSESSMENT")
-                            assessment_end = expert_analysis.find("**", assessment_start + 25)
-                            if assessment_end > assessment_start:
-                                assessment_text = expert_analysis[assessment_start:assessment_end].strip()
-                                summary_parts.append(assessment_text)
+                        # Remove system headers if present
+                        if "INSTITUTIONAL SPORTS ANALYSIS" in analysis_content:
+                            parts = analysis_content.split("INSTITUTIONAL SPORTS ANALYSIS", 1)
+                            if len(parts) > 1:
+                                analysis_content = parts[1].strip()
                         
-                        # If we found key sections, use them
-                        if summary_parts:
-                            analysis_content = " ".join(summary_parts)
-                        else:
-                            # Fallback to first 400 chars
-                            analysis_content = expert_analysis[:400]
+                        # Remove model info line if present  
+                        if "Chief Sports Analyst • google/gemini" in analysis_content:
+                            lines = analysis_content.split('\n')
+                            filtered_lines = [line for line in lines if "Chief Sports Analyst • google/gemini" not in line]
+                            analysis_content = '\n'.join(filtered_lines).strip()
                         
-                        # Final truncation for Discord limits
-                        if len(analysis_content) > 600:
-                            analysis_content = analysis_content[:600] + "..."
+                        # Extract the actual analysis content
+                        if "[CHIEF ANALYST]" in analysis_content:
+                            parts = analysis_content.split("[CHIEF ANALYST]", 1)
+                            if len(parts) > 1:
+                                analysis_content = parts[1].strip()
+                        
+                        # Split into manageable chunks for Discord (Discord field limit is 1024 chars)
+                        if len(analysis_content) > 900:
+                            # Find a good break point around 800 chars
+                            break_point = analysis_content.find('. ', 800)
+                            if break_point > 0:
+                                analysis_content = analysis_content[:break_point + 1] + "\n\n*[Analysis continues with full market assessment and recommendations]*"
+                            else:
+                                analysis_content = analysis_content[:900] + "..."
                         
                         embed.add_field(
-                            name="📋 Chief Analyst Summary",
+                            name="📋 Chief Analyst Report",
                             value=analysis_content,
                             inline=False
                         )
