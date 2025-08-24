@@ -594,21 +594,44 @@ async def test_textonly_command(interaction: discord.Interaction):
                 results_dir = "C:\\Users\\fstr2\\Desktop\\sports"
                 md_file = f"{results_dir}\\textonly_raw_{timestamp}.md"
             
-            with open(md_file, 'w', encoding='utf-8') as f:
-                f.write(f"# /textonly Command - Raw MCP Results\\n\\n")
-                f.write(f"**Generated**: {datetime.now().strftime('%B %d, %Y at %I:%M %p ET')}\\n")
-                f.write(f"**Command**: /textonly\\n")
-                f.write(f"**Game**: {game_data['away_team']} @ {game_data['home_team']}\\n\\n")
-                f.write("## Raw MCP Response\\n\\n")
-                f.write("```json\\n")
-                f.write(json.dumps(result, indent=2))
-                f.write("\\n```\\n\\n")
-                f.write("## Analysis Text\\n\\n")
-                f.write("```\\n")
-                f.write(analysis_text)
-                f.write("\\n```\\n")
-            
-            logger.info(f"Raw MCP results exported to: {md_file}")
+            try:
+                with open(md_file, 'w', encoding='utf-8') as f:
+                    f.write(f"# /textonly Command - Raw MCP Results\\n\\n")
+                    f.write(f"**Generated**: {datetime.now().strftime('%B %d, %Y at %I:%M %p ET')}\\n")
+                    f.write(f"**Command**: /textonly\\n")
+                    f.write(f"**Game**: {game_data['away_team']} @ {game_data['home_team']}\\n\\n")
+                    f.write("## Raw MCP Response\\n\\n")
+                    f.write("```json\\n")
+                    f.write(json.dumps(result, indent=2))
+                    f.write("\\n```\\n\\n")
+                    f.write("## Analysis Text\\n\\n")
+                    f.write("```\\n")
+                    f.write(analysis_text)
+                    f.write("\\n```\\n")
+                
+                logger.info(f"✅ SUCCESS: Raw MCP results exported to: {md_file}")
+                
+                # Verify file was created
+                if os.path.exists(md_file):
+                    file_size = os.path.getsize(md_file)
+                    logger.info(f"File verified: {md_file} ({file_size} bytes)")
+                else:
+                    logger.error(f"❌ File was not created: {md_file}")
+                    
+            except Exception as file_error:
+                logger.error(f"❌ Failed to create markdown file: {file_error}")
+                # Try alternative location
+                fallback_file = f"C:\\Users\\fstr2\\Desktop\\sports\\textonly_raw_{timestamp}.md"
+                try:
+                    with open(fallback_file, 'w', encoding='utf-8') as f:
+                        f.write(f"# /textonly Command - Raw MCP Results (Fallback)\\n\\n")
+                        f.write(f"**Generated**: {datetime.now().strftime('%B %d, %Y at %I:%M %p ET')}\\n")
+                        f.write(f"Analysis Text: {analysis_text[:500]}...\\n")
+                    logger.info(f"✅ Fallback file created: {fallback_file}")
+                    md_file = fallback_file
+                except Exception as fallback_error:
+                    logger.error(f"❌ Fallback file also failed: {fallback_error}")
+                    md_file = "file_creation_failed"
             
             # Parse analysis if it's JSON
             try:
@@ -711,11 +734,18 @@ async def test_textonly_command(interaction: discord.Interaction):
                             inline=True
                         )
                 
-                embed4.add_field(
-                    name="📄 Export Info",
-                    value=f"Raw MCP results exported to:\\n`{os.path.basename(md_file)}`",
-                    inline=False
-                )
+                if md_file != "file_creation_failed":
+                    embed4.add_field(
+                        name="📄 Export Info",
+                        value=f"Raw MCP results exported to:\\n`{os.path.basename(md_file)}`\\n\\nFull path: `{md_file}`",
+                        inline=False
+                    )
+                else:
+                    embed4.add_field(
+                        name="⚠️ Export Warning",
+                        value="Failed to export raw MCP results to file",
+                        inline=False
+                    )
                 
                 embed4.set_footer(text=f"Custom Chronulus MCP • {datetime.now().strftime('%I:%M %p ET')}")
                 embeds.append(embed4)
