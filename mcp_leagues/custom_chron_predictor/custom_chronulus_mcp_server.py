@@ -120,68 +120,47 @@ class CustomBinaryPredictor:
         """Create predictor (no-op for custom implementation)"""
         pass
     
-    async def queue(self, item: GameData, num_experts: int = 5, note_length: Tuple[int, int] = (4, 5)) -> 'PredictionRequest':
-        """Queue prediction request with 5 specialized experts using natural language summaries"""
+    async def queue(self, item: GameData, num_experts: int = 1, note_length: Tuple[int, int] = (4, 5)) -> 'PredictionRequest':
+        """Generate single chief analyst institutional analysis"""
         if not self.api_key:
             raise Exception("OpenRouter API key not configured")
         
-        # Generate expert opinions from all 5 specialists
-        expert_opinions = []
+        # Generate single comprehensive analysis from Chief Sports Analyst
+        chief_analysis = await self._simulate_chief_analyst_with_openrouter(item, note_length)
         
-        # Use all expert types for comprehensive coverage
-        all_personas = [
-            "STATISTICAL EXPERT",
-            "SITUATIONAL EXPERT", 
-            "CONTRARIAN EXPERT",
-            "SHARP EXPERT",
-            "MARKET EXPERT"
-        ]
+        # Use chief analyst's probability and confidence for beta distribution
+        mean_prob = chief_analysis.probability
+        confidence = chief_analysis.confidence
         
-        for i in range(num_experts):
-            expert_persona = all_personas[i % len(all_personas)]
-            opinion = await self._simulate_expert_with_openrouter(
-                item, i + 1, expert_persona, note_length
-            )
-            expert_opinions.append(opinion)
-            
-            # Rate limiting for free tier
-            if i < num_experts - 1:
-                await asyncio.sleep(1)
+        # Create beta distribution from single expert with realistic variance
+        # Higher confidence = lower variance
+        variance_factor = (1 - confidence) * 0.02  # Scale variance based on confidence
         
-        # Calculate Beta distribution consensus
-        probabilities = [op.probability for op in expert_opinions]
-        confidences = [op.confidence for op in expert_opinions]
-        
-        # Convert to Beta parameters using method of moments
-        mean_prob = statistics.mean(probabilities)
-        var_prob = statistics.variance(probabilities) if len(probabilities) > 1 else 0.01
-        
-        # Method of moments for Beta distribution
-        if var_prob > 0 and mean_prob * (1 - mean_prob) > var_prob:
-            common_factor = (mean_prob * (1 - mean_prob) / var_prob) - 1
+        if variance_factor > 0 and mean_prob * (1 - mean_prob) > variance_factor:
+            common_factor = (mean_prob * (1 - mean_prob) / variance_factor) - 1
             alpha = mean_prob * common_factor
             beta = (1 - mean_prob) * common_factor
         else:
-            # Fallback for edge cases
-            alpha = mean_prob * 30 + 2
-            beta = (1 - mean_prob) * 30 + 2
+            # Fallback based on confidence level
+            base_strength = confidence * 40 + 10  # 10-50 based on confidence
+            alpha = mean_prob * base_strength
+            beta = (1 - mean_prob) * base_strength
         
         beta_params = BetaDistributionParams(alpha=alpha, beta=beta)
         
-        # Combine expert analysis
-        combined_text = f"ENHANCED 5-EXPERT INSTITUTIONAL ANALYSIS\n{item.away_team} @ {item.home_team}\n\n"
-        combined_text += f"Expert Consensus: {num_experts} specialized analysts using {self.model}\n\n"
-        
-        for opinion in expert_opinions:
-            combined_text += f"[{opinion.expert_type}] {opinion.reasoning}\n\n"
-        
-        combined_text += f"FINAL CONSENSUS:\nThe expert panel reached a {mean_prob:.1%} probability for a {item.away_team} victory.\n"
-        combined_text += f"This reflects the collective analysis of {num_experts} specialized sports betting experts."
+        # Format professional analysis output
+        combined_text = f"INSTITUTIONAL SPORTS ANALYSIS\n{item.away_team} @ {item.home_team}\n\n"
+        combined_text += f"Chief Sports Analyst • {self.model}\n\n"
+        combined_text += chief_analysis.reasoning
+        combined_text += f"\n\nFINAL ASSESSMENT:\n"
+        combined_text += f"Win Probability: {mean_prob:.1%} ({item.away_team})\n"
+        combined_text += f"Analyst Confidence: {confidence:.0%}\n"
+        combined_text += f"Recommendation: {self._get_betting_recommendation(mean_prob, confidence)}"
         
         result = PredictionResult(
             prob_a=mean_prob,
             text=combined_text,
-            expert_count=num_experts,
+            expert_count=1,  # Single chief analyst
             beta_params=beta_params
         )
         
@@ -189,6 +168,144 @@ class CustomBinaryPredictor:
             request_id=f"req_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
             result=result
         )
+    
+    def _get_betting_recommendation(self, probability: float, confidence: float) -> str:
+        """Generate betting recommendation based on probability and confidence"""
+        if confidence < 0.6:
+            return "PASS - Insufficient edge"
+        elif probability > 0.58:
+            return "BET AWAY - Strong edge identified"
+        elif probability < 0.42:
+            return "BET HOME - Strong edge identified" 
+        else:
+            return "LEAN AWAY" if probability > 0.52 else "LEAN HOME" if probability < 0.48 else "PASS - No clear edge"
+    
+    async def _simulate_chief_analyst_with_openrouter(self, game_data: GameData, note_length: Tuple[int, int]) -> ExpertOpinion:
+        """Generate comprehensive chief analyst analysis with Bloomberg-style formatting"""
+        
+        min_sentences, max_sentences = note_length
+        
+        # Extract additional context if available
+        additional_context = game_data.additional_context
+        context_note = f"\n\nADDITIONAL DATA: {additional_context}" if additional_context else ""
+        
+        chief_prompt = f"""You are the Chief Sports Analyst for an institutional sports betting firm. Generate a professional analysis report in Bloomberg terminal style.
+
+GAME PROFILE:
+• Away: {game_data.away_team}
+• Home: {game_data.home_team}  
+• Venue: {game_data.venue}
+• Date: {game_data.game_date}
+• Away Record: {game_data.away_record}
+• Home Record: {game_data.home_record}
+• Moneylines: Away {game_data.away_moneyline:+d} | Home {game_data.home_moneyline:+d}{context_note}
+
+REQUIRED FORMAT:
+
+📊 EXECUTIVE SUMMARY
+[2-3 sentences with directional assessment and key probability range]
+
+📈 STATISTICAL PROFILE  
+• Team Records: [specific win percentages and comparison]
+• Advanced Metrics: [run differential, runs allowed, recent form with exact numbers]
+• Market Positioning: [moneyline analysis with implied probabilities]
+
+🎯 KEY FACTORS
+• Factor 1: [specific metric with numbers]
+• Factor 2: [specific metric with numbers] 
+• Factor 3: [deciding factor with data]
+
+⚠️ RISK ASSESSMENT
+[Primary concern that could invalidate analysis using provided data]
+
+💰 INVESTMENT THESIS
+[Clear directional call with confidence level 60-85%]
+
+CRITICAL REQUIREMENTS:
+• Use ONLY provided data - no assumptions
+• Include specific numbers from context
+• Professional institutional tone
+• End with exact away team win probability percentage
+• Stay within {min_sentences}-{max_sentences} total sentences across all sections"""
+
+        try:
+            client = await get_http_client()
+            
+            response = await client.post(
+                f"{self.base_url}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": self.model,
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": chief_prompt
+                        }
+                    ],
+                    "max_tokens": 800,  # Increased for comprehensive analysis
+                    "temperature": 0.6  # Slightly lower for more consistent professional tone
+                }
+            )
+            
+            response.raise_for_status()
+            result = response.json()
+            
+            content = result["choices"][0]["message"]["content"].strip()
+            
+            # Enhanced probability extraction for chief analyst
+            import re
+            
+            # Look for away team win probability 
+            prob_patterns = [
+                r'away.*?(?:win.*?)?probability.*?(\d+)%',
+                r'probability.*?away.*?(\d+)%', 
+                r'(\d+)%.*?probability.*?away',
+                r'(\d+)%.*?(?:chance|probability)'
+            ]
+            
+            probability = 0.52  # Slight away bias default
+            for pattern in prob_patterns:
+                prob_match = re.search(pattern, content, re.IGNORECASE)
+                if prob_match:
+                    probability = float(prob_match.group(1)) / 100.0
+                    break
+                
+            # Look for confidence level
+            conf_patterns = [
+                r'confidence.*?(\d+)%',
+                r'(\d+)%.*?confidence',
+                r'confident.*?(\d+)%'
+            ]
+            confidence = 0.72  # Default institutional confidence
+            for pattern in conf_patterns:
+                conf_match = re.search(pattern, content, re.IGNORECASE)
+                if conf_match:
+                    confidence = float(conf_match.group(1)) / 100.0
+                    break
+            
+            return ExpertOpinion(
+                expert_id=1,
+                expert_type="CHIEF SPORTS ANALYST",
+                probability=probability,
+                confidence=confidence,
+                reasoning=content,
+                unit_size=2,  # Institutional sizing
+                risk_level="Medium-High"
+            )
+            
+        except Exception as e:
+            print(f"OpenRouter API error for chief analyst: {e}")
+            # Fallback analysis
+            return ExpertOpinion(
+                expert_id=1,
+                expert_type="CHIEF SPORTS ANALYST - FALLBACK",
+                probability=0.52,
+                confidence=0.65,
+                reasoning=f"Market analysis suggests competitive matchup between {game_data.away_team} and {game_data.home_team}. Based on available data, slight edge identified for road team. Professional recommendation: proceed with caution due to API limitations."
+            )
     
     async def _simulate_expert_with_openrouter(self, game_data: GameData, expert_id: int, expert_persona: str, note_length: Tuple[int, int]) -> ExpertOpinion:
         """Simulate expert analysis using OpenRouter"""
@@ -479,10 +596,10 @@ async def get_custom_chronulus_analysis(game_data: Dict[str, Any], expert_count:
         predictor = CustomBinaryPredictor(session=session, input_type=GameData)
         predictor.create()
         
-        # Generate prediction with 3 focused experts
+        # Generate prediction with single chief analyst
         request = await predictor.queue(
             item=game_obj,
-            num_experts=3,  # Focused 3-expert analysis
+            num_experts=1,  # Single chief analyst
             note_length=note_length
         )
         
