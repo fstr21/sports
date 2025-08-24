@@ -186,59 +186,30 @@ class CustomBinaryPredictor:
         
         min_sentences, max_sentences = note_length
         
-        # Create expert-specific prompt with improved user-friendly formatting
-        expert_prompt = f"""You are a {expert_persona} for professional sports betting with 15+ years of institutional experience.
+        # Create expert-specific prompt with ultra-concise formatting for Discord
+        expert_prompt = f"""You are a {expert_persona} analyzing this MLB game. Be DECISIVE and CONCISE.
 
-GAME ANALYSIS REQUEST:
-{game_data.away_team} @ {game_data.home_team}
-Venue: {game_data.venue}
-Date: {game_data.game_date}
-Team Records: {game_data.away_record} vs {game_data.home_record}
-Moneylines: {game_data.away_team} {game_data.away_moneyline} vs {game_data.home_team} {game_data.home_moneyline}
-Additional Context: {game_data.additional_context}
+GAME: {game_data.away_team} @ {game_data.home_team}
+VENUE: {game_data.venue} | DATE: {game_data.game_date}
+RECORDS: {game_data.away_record} vs {game_data.home_record}
+ODDS: Away {game_data.away_moneyline} | Home {game_data.home_moneyline}
 
-SITUATION: {self.session.situation}
-TASK: {self.session.task}
+FORMAT (MAX 60 WORDS TOTAL):
 
-## EXPERT ANALYSIS REQUIREMENTS ##
+**STANCE**: BET [Team], FADE [Team], or PASS
 
-As a {expert_persona}, provide user-friendly betting analysis following this EXACT structure:
+**KEY POINTS** (3 max, 8 words each):
+• Point 1
+• Point 2
+• Point 3
 
-**YOUR OPENING STANCE** (1-2 sentences):
-Start with a direct statement of your position. Do you favor a particular team? Are there concerns about this bet?
+**RISK**: Main concern (6 words max)
 
-**KEY SUPPORTING FACTORS** (3-4 clear points):
-List the main factors supporting your stance. Use bullet points and keep each point to 1-2 sentences.
+**PICK**: [Team] or PASS | Confidence: XX% | Units: 1-3
 
-**MAIN RISK/CONCERN** (1-2 sentences):
-Highlight the biggest risk that could make you wrong.
+FOCUS: {"Stats and trends" if "STATISTICAL" in expert_persona else "Situational spots" if "SITUATIONAL" in expert_persona else "Value opportunities" if "CONTRARIAN" in expert_persona else "Sharp action" if "SHARP" in expert_persona else "Public bias"}
 
-**BOTTOM LINE** (2-3 sentences):
-Clear, actionable recommendation with confidence level and betting guidance.
-
-YOUR SPECIALTY FOCUS:
-{"• Historical win percentages, team statistics, and quantitative trends\n• Park factors, weather conditions, and statistical analysis\n• Recent performance metrics and predictive models\n• Data-driven insights (explain technical terms simply)" if "STATISTICAL" in expert_persona
-                else "• Recent team momentum, injury reports, and current form\n• Playoff races, motivation levels, and psychological factors\n• Travel schedules, rest advantages, and situational spots\n• Intangible factors that statistics might miss" if "SITUATIONAL" in expert_persona  
-                else "• Market consensus challenges and potential mispricings\n• Overreactions to recent results and public bias patterns\n• Value in overlooked factors and contrarian opportunities\n• Questioning conventional wisdom and popular narratives" if "CONTRARIAN" in expert_persona
-                else "• Sharp money movement and line movement patterns\n• Steam moves, reverse line movement, and professional indicators\n• Closing line value (the final odds before game time)\n• Where smart money and value intersect" if "SHARP" in expert_persona
-                else "• Public betting percentages and media narratives\n• How public perception affects odds and market pricing\n• Recreational bettor tendencies and popular team bias\n• Spots where public money creates betting opportunities"}
-
-## WRITING GUIDELINES ##
-- Write conversationally, as if explaining to a friend
-- Explain betting terms in parentheses (e.g., "moneyline" = odds on who wins)
-- Break up dense paragraphs into 3-4 sentence chunks maximum
-- Focus on outcomes and implications, not methodology
-- Lead with actionable insights
-- Avoid academic jargon - use plain language
-- Each major point should be 4-6 sentences maximum
-- End with clear directional guidance
-
-Provide your analysis following the exact structure above, then conclude with:
-
-My win probability for {game_data.away_team}: XX%
-Confidence Level: XX% (1-100%)
-Recommended Unit Size: X units (1-5 scale)
-Risk Level: [Low/Medium/High]"""
+RULES: NO speculation. NO "TBD". Work with provided data only. Maximum 60 words total."""
 
         try:
             client = await get_http_client()

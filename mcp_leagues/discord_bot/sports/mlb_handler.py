@@ -1824,8 +1824,8 @@ class MLBHandler(BaseSportHandler):
     
 
 
-    async def call_chronulus_analysis(self, home_team: str, away_team: str, betting_odds: Optional[Dict[str, str]] = None) -> Optional[Dict[str, Any]]:
-        """Call Custom Chronulus MCP for AI expert analysis with real betting odds and pitcher data"""
+    async def call_chronulus_analysis(self, home_team: str, away_team: str, betting_odds: Optional[Dict[str, str]] = None, match: Optional[Match] = None) -> Optional[Dict[str, Any]]:
+        """Call Custom Chronulus MCP for AI expert analysis with real betting odds and game data"""
         try:
             import httpx
             
@@ -1835,19 +1835,77 @@ class MLBHandler(BaseSportHandler):
             home_team_context = home_team
             away_team_context = away_team
             
+            # Extract real game data from match object if available
+            venue = "Stadium TBD"  # Default fallback
+            game_date = datetime.now().strftime("%B %d, %Y")
+            home_record = "Record TBD"
+            away_record = "Record TBD"
+            home_ml = 100
+            away_ml = -100
+            
+            if match:
+                # Extract venue from match
+                venue = match.additional_data.get('venue', 'Stadium')
+                if not venue or venue == 'TBD':
+                    venue = f"{home_team} Home Stadium"
+                
+                # Extract game time and format date
+                raw_game_time = match.additional_data.get('time', match.additional_data.get('start_time', 'TBD'))
+                if raw_game_time != 'TBD' and 'T' in raw_game_time:
+                    try:
+                        dt = datetime.fromisoformat(raw_game_time.replace('Z', '+00:00'))
+                        from datetime import timezone, timedelta
+                        eastern_tz = timezone(timedelta(hours=-4))
+                        dt_eastern = dt.astimezone(eastern_tz)
+                        game_date = dt_eastern.strftime("%B %d, %Y")
+                    except Exception:
+                        pass
+                
+                # Extract season records from match metadata 
+                home_record = match.additional_data.get('home_record', 'Record TBD')
+                away_record = match.additional_data.get('away_record', 'Record TBD')
+                
+                # If records not in match, try to extract from team data
+                if home_record == 'Record TBD' or away_record == 'Record TBD':
+                    try:
+                        # Try to get basic team records
+                        home_team_id = match.additional_data.get("home_team_id")
+                        away_team_id = match.additional_data.get("away_team_id")
+                        
+                        if home_team_id and away_team_id:
+                            # Get basic team form for records
+                            home_form_task = self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": home_team_id})
+                            away_form_task = self.call_mlb_mcp_tool("getMLBTeamForm", {"team_id": away_team_id})
+                            
+                            home_form, away_form = await asyncio.gather(home_form_task, away_form_task, return_exceptions=True)
+                            
+                            if not isinstance(home_form, Exception) and home_form:
+                                home_data = home_form.get("data", {}).get("form", {})
+                                home_wins = home_data.get('wins', 0)
+                                home_losses = home_data.get('losses', 0)
+                                home_record = f"{home_wins}-{home_losses}"
+                            
+                            if not isinstance(away_form, Exception) and away_form:
+                                away_data = away_form.get("data", {}).get("form", {})
+                                away_wins = away_data.get('wins', 0)
+                                away_losses = away_data.get('losses', 0)
+                                away_record = f"{away_wins}-{away_losses}"
+                    except Exception as e:
+                        logger.debug(f"Could not fetch team records: {e}")
+            
             # Add odds context to team names if available
             if betting_odds and isinstance(betting_odds, dict):
                 moneyline = betting_odds.get("moneyline", "")
                 if moneyline and "|" in moneyline:
                     parts = moneyline.split(" | ")
                     if len(parts) == 2:
-                        home_ml = parts[0].strip()
-                        away_ml = parts[1].strip()
+                        home_ml_str = parts[0].strip()
+                        away_ml_str = parts[1].strip()
                         
                         # Extract odds from full strings like "Seattle Mariners -172"
                         import re
-                        home_odds_match = re.search(r'([+-]\d+)', home_ml)
-                        away_odds_match = re.search(r'([+-]\d+)', away_ml)
+                        home_odds_match = re.search(r'([+-]\d+)', home_ml_str)
+                        away_odds_match = re.search(r'([+-]\d+)', away_ml_str)
                         
                         if home_odds_match and away_odds_match:
                             home_odds = home_odds_match.group(1)
@@ -1857,22 +1915,26 @@ class MLBHandler(BaseSportHandler):
                             home_team_context = f"{home_team} ({home_odds} moneyline)"
                             away_team_context = f"{away_team} ({away_odds} moneyline)"
                             
+                            # Store for game_data
+                            home_ml = int(home_odds)
+                            away_ml = int(away_odds)
+                            
                             logger.info(f"Enhanced team context: {away_team_context} @ {home_team_context}")
             
             # Get team context for enhanced analysis
             team_context = await self._get_team_context(home_team, away_team)
             
-            # Create proper game_data structure for Custom Chronulus MCP
+            # Create proper game_data structure for Custom Chronulus MCP with actual extracted data
             game_data = {
-                "home_team": home_team,
-                "away_team": away_team,
-                "venue": "Stadium TBD",
-                "game_date": datetime.now().strftime("%B %d, %Y"),
-                "home_record": "Season record TBD",
-                "away_record": "Season record TBD",
-                "home_moneyline": 100,  # Default
-                "away_moneyline": -100,  # Default
-                "additional_context": f"Live MLB game analysis with real betting odds. {team_context}"
+                "home_team": f"{home_team} ({home_record})",
+                "away_team": f"{away_team} ({away_record})",
+                "venue": venue,
+                "game_date": game_date,
+                "home_record": home_record,
+                "away_record": away_record,
+                "home_moneyline": home_ml,
+                "away_moneyline": away_ml,
+                "additional_context": f"Live MLB game at {venue} on {game_date}. {team_context}"
             }
             
             # Add real betting odds if available
@@ -1881,13 +1943,13 @@ class MLBHandler(BaseSportHandler):
                 if moneyline and "|" in moneyline:
                     parts = moneyline.split(" | ")
                     if len(parts) == 2:
-                        home_ml = parts[0].strip()
-                        away_ml = parts[1].strip()
+                        home_ml_str = parts[0].strip()
+                        away_ml_str = parts[1].strip()
                         
                         # Extract odds from full strings like "Seattle Mariners -172"
                         import re
-                        home_odds_match = re.search(r'([+-]\d+)', home_ml)
-                        away_odds_match = re.search(r'([+-]\d+)', away_ml)
+                        home_odds_match = re.search(r'([+-]\d+)', home_ml_str)
+                        away_odds_match = re.search(r'([+-]\d+)', away_ml_str)
                         
                         if home_odds_match and away_odds_match:
                             game_data["home_moneyline"] = int(home_odds_match.group(1))
