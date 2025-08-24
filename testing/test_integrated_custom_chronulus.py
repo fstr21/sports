@@ -23,7 +23,7 @@ class IntegratedChronulusTest:
     
     def __init__(self):
         self.mlb_mcp_url = "https://mlbmcp-production.up.railway.app/mcp"
-        self.custom_chronulus_url = "https://custom-chronulus-mcp-production.up.railway.app/mcp"
+        self.custom_chronulus_url = "https://customchronpredictormcp-production.up.railway.app/mcp"
         self.client = httpx.AsyncClient(timeout=60.0)
         
         # MLB Handler config (mimicking Discord bot setup)

@@ -39,10 +39,14 @@ async def main():
                 print(f"Home Team Win: {home_prob:.1%}")
                 print(f"Expert Count: {analysis.get('expert_count', 'N/A')}")
                 print(f"Cost Estimate: {analysis.get('cost_estimate', 'N/A')}")
+                print(f"Recommendation: {analysis.get('betting_recommendation', 'N/A')}")
                 
                 expert_analysis = analysis.get("expert_analysis", "")
-                if expert_analysis and len(expert_analysis) > 200:
-                    print(f"\nExpert Preview: {expert_analysis[:200]}...")
+                if expert_analysis:
+                    print(f"\n🎯 CHIEF ANALYST ANALYSIS:")
+                    print("=" * 50)
+                    print(expert_analysis)
+                    print("=" * 50)
                 
             print("\n✅ Test completed successfully!")
             print("📄 Check the generated JSON file for full results")

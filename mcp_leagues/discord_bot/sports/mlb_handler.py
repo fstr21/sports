@@ -945,22 +945,32 @@ class MLBHandler(BaseSportHandler):
         else:
             logger.warning(f"Missing team IDs for {match.away_team} @ {match.home_team}: home={home_team_id}, away={away_team_id}")
         
-        # 3. AI Expert Analysis (Custom Chronulus) with real betting odds - ENHANCED MULTI-EMBED
-        logger.info(f"Requesting AI analysis for {match.away_team} @ {match.home_team}")
+        # 3. AI Expert Analysis (Custom Chronulus) with comprehensive data - ENHANCED
+        logger.info(f"Requesting comprehensive AI analysis for {match.away_team} @ {match.home_team}")
+        
+        # Import enhanced integration
+        import sys
+        import os
+        sys.path.append(os.path.dirname(__file__) + "/..")
+        from enhanced_chronulus_integration import EnhancedChronulusIntegration
         
         # Get real betting odds to pass to Chronulus
         betting_odds = await self.get_betting_odds_for_game(match)
-        chronulus_data = await self.call_chronulus_analysis(match.home_team, match.away_team, betting_odds, match)
+        
+        # Enhanced: Comprehensive AI analysis with rich game data
+        enhanced_integration = EnhancedChronulusIntegration()
+        chronulus_data = await enhanced_integration.call_comprehensive_chronulus_analysis(match, betting_odds)
         
         if chronulus_data:
-            ai_embeds = await self.create_ai_analysis_embeds(match, chronulus_data)
-            if ai_embeds:
-                embeds.extend(ai_embeds)  # Add all AI analysis embeds
-                logger.info(f"Added {len(ai_embeds)} AI expert analysis embeds for {match.away_team} @ {match.home_team}")
+            # Use enhanced embed creation
+            enhanced_embed = await enhanced_integration.create_enhanced_analysis_embed(match, chronulus_data)
+            if enhanced_embed:
+                embeds.append(enhanced_embed)
+                logger.info(f"Added enhanced comprehensive AI analysis embed for {match.away_team} @ {match.home_team}")
             else:
-                logger.warning(f"Failed to create AI analysis embeds despite having Chronulus data")
+                logger.warning(f"Failed to create enhanced AI analysis embed despite having Chronulus data")
         else:
-            logger.warning(f"Custom Chronulus analysis not available for {match.away_team} @ {match.home_team} - proceeding without AI analysis")
+            logger.warning(f"Custom Chronulus comprehensive analysis not available for {match.away_team} @ {match.home_team} - proceeding without AI analysis")
         
         logger.info(f"Generated {len(embeds)} embeds (with {'multi-embed AI analysis' if len(embeds) > 3 else 'no AI analysis'}) for {match.away_team} @ {match.home_team}")
         return embeds

@@ -1,5 +1,0 @@
-{
-  "status": "error",
-  "message": "Custom Chronulus analysis failed: Custom Chronulus call failed: Client error '404 Not Found' for url 'https://custom-chronulus-mcp-production.up.railway.app/mcp'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
-  "timestamp": "2025-08-24T01:38:38.655443"
-}

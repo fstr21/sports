@@ -1,0 +1,38 @@
+{
+  "status": "success",
+  "timestamp": "2025-08-24T01:46:53.447020",
+  "test_game": {
+    "away_team": "Colorado Rockies",
+    "home_team": "Pittsburgh Pirates",
+    "enhanced_data_available": true
+  },
+  "chronulus_analysis": {
+    "session_id": "custom_20250824_054651",
+    "request_id": "req_20250824_054653",
+    "analysis": {
+      "away_team_win_probability": 0.42,
+      "home_team_win_probability": 0.5800000000000001,
+      "expert_count": 1,
+      "analysis_depth": "comprehensive",
+      "expert_analysis": "INSTITUTIONAL SPORTS ANALYSIS\nColorado Rockies (37-93, ..285 win%) @ Pittsburgh Pirates (56-74, ..431 win%)\n\nChief Sports Analyst \u2022 google/gemini-2.0-flash-001\n\n**MARKET BASELINE**: The current moneyline suggests approximately 50.0% probability for both the Colorado Rockies and Pittsburgh Pirates.\n\n**ANALYTICAL ASSESSMENT**: The market appears reasonably efficient, though the data suggests slightly higher odds for the Pirates.\n\n**KEY FACTORS FROM DATA**: Pittsburgh's superior record (56-74 vs 37-93) and run differential (3.56 R/G, 4.13 RA/G vs 3.78 R/G, 6.43 RA/G) indicate a marginal advantage. The Rockies' significantly higher runs allowed per game is a notable concern.\n\n**BASEBALL VARIANCE ACKNOWLEDGMENT**: Baseball's inherent randomness prevents high-confidence predictions, as any single game can deviate significantly from season-long trends.\n\n**DIRECTIONAL ASSESSMENT**: While acknowledging the inherent variance, the Pirates' statistical advantages warrant a slight adjustment. We assess the Colorado Rockies' win probability at 44.0%.\n\nFINAL ASSESSMENT:\nWin Probability: 42.0% (Colorado Rockies (37-93, ..285 win%))\nAnalyst Confidence: 75%\nRecommendation: LEAN HOME",
+      "market_edge": -0.08000000000000002,
+      "betting_recommendation": "BET HOME",
+      "beta_params": {
+        "alpha": 20.042399999999997,
+        "beta": 27.6776,
+        "mean": 0.41999999999999993,
+        "variance": 0.005000000000000001
+      },
+      "model_used": "google/gemini-2.0-flash-001",
+      "cost_estimate": "$0.06-$0.15"
+    },
+    "status": "success",
+    "timestamp": "2025-08-24T05:46:53.240626+00:00"
+  },
+  "comparison_notes": [
+    "Uses real MLB MCP data instead of hardcoded stats",
+    "Enhanced with team forms, scoring trends, and venue info",
+    "Cost: ~$0.06-0.15 vs Paid Chronulus ~$0.75-1.50",
+    "Ready for Discord bot integration testing"
+  ]
+}
