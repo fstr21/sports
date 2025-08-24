@@ -62,6 +62,8 @@ class ExpertOpinion(BaseModel):
     probability: float
     confidence: float
     reasoning: str
+    unit_size: int = 1
+    risk_level: str = "Medium"
 
 class PredictionResult(BaseModel):
     """Complete prediction result with consensus"""
@@ -207,9 +209,13 @@ YOUR SPECIALTY FOCUS:
                 else "- Analyze sharp money movement, line movement patterns, and betting market dynamics\n- Consider steam moves, reverse line movement, and professional betting indicators\n- Evaluate closing line value and market efficiency\n- Focus on where smart money and value intersect" if "SHARP" in expert_persona
                 else "- Examine public betting percentages, media narratives, and market sentiment\n- Analyze how public perception affects line movement and market pricing\n- Consider recreational bettor tendencies and popular team bias\n- Identify spots where public money creates market inefficiencies"}
 
-Provide your comprehensive analysis covering multiple angles within your expertise, then conclude with your win probability for {game_data.away_team}.
+Provide your comprehensive analysis covering multiple angles within your expertise, then conclude with your assessment.
 
-Format: [Your detailed {min_sentences}-{max_sentences} sentence analysis]. My win probability for {game_data.away_team}: XX%"""
+Format: [Your detailed {min_sentences}-{max_sentences} sentence analysis]. 
+My win probability for {game_data.away_team}: XX%
+Confidence Level: XX% (1-100%)
+Recommended Unit Size: X units (1-5 scale)
+Risk Level: [Low/Medium/High]"""
 
         try:
             client = await get_http_client()
@@ -238,15 +244,32 @@ Format: [Your detailed {min_sentences}-{max_sentences} sentence analysis]. My wi
             
             content = result["choices"][0]["message"]["content"].strip()
             
-            # Extract probability
+            # Extract probability, confidence, units, and risk
             probability = 0.5  # Default
             confidence = 0.7   # Default
+            unit_size = 1      # Default
+            risk_level = "Medium"  # Default
             
             # Look for probability patterns
             import re
-            prob_match = re.search(r'(\d+)%', content.split("My probability:")[-1] if "My probability:" in content else content[-50:])
+            prob_match = re.search(r'probability.*?(\d+)%', content, re.IGNORECASE)
             if prob_match:
                 probability = float(prob_match.group(1)) / 100.0
+                
+            # Look for confidence level
+            conf_match = re.search(r'confidence.*?(\d+)%', content, re.IGNORECASE)
+            if conf_match:
+                confidence = float(conf_match.group(1)) / 100.0
+                
+            # Look for unit size
+            unit_match = re.search(r'(\d+)\s*unit', content, re.IGNORECASE)
+            if unit_match:
+                unit_size = int(unit_match.group(1))
+                
+            # Look for risk level
+            risk_match = re.search(r'risk.*?(low|medium|high)', content, re.IGNORECASE)
+            if risk_match:
+                risk_level = risk_match.group(1).title()
             
             # Clean up reasoning
             reasoning = content.replace(f"My probability: {prob_match.group(1)}%" if prob_match else "", "").strip()
@@ -256,7 +279,9 @@ Format: [Your detailed {min_sentences}-{max_sentences} sentence analysis]. My wi
                 expert_type=expert_persona,
                 probability=probability,
                 confidence=confidence,
-                reasoning=reasoning
+                reasoning=reasoning,
+                unit_size=unit_size,
+                risk_level=risk_level
             )
             
         except Exception as e:

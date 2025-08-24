@@ -1867,8 +1867,8 @@ class MLBHandler(BaseSportHandler):
             
             arguments = {
                 "game_data": game_data,
-                "expert_count": 3,  # Balance of speed and quality
-                "analysis_depth": "standard"  # 8-12 sentences per expert
+                "expert_count": 5,  # Full 5-expert institutional analysis
+                "analysis_depth": "comprehensive"  # 15-20 sentences per expert for maximum quality
             }
             
             
