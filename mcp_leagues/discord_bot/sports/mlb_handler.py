@@ -1797,8 +1797,121 @@ class MLBHandler(BaseSportHandler):
             logger.error(f"Error calling MLB MCP tool {tool_name}: {e}")
             return None
     
+    async def _get_pitcher_context(self, home_team: str, away_team: str) -> str:
+        """Get pitcher information for both teams to enhance analysis context"""
+        try:
+            # Get team IDs by matching team names (simplified approach)
+            team_mapping = await self._get_team_id_mapping()
+            
+            home_team_id = team_mapping.get(home_team)
+            away_team_id = team_mapping.get(away_team)
+            
+            pitcher_context_parts = []
+            
+            # Get home team pitchers
+            if home_team_id:
+                home_pitcher_info = await self._get_team_pitcher_info(home_team_id, home_team)
+                if home_pitcher_info:
+                    pitcher_context_parts.append(home_pitcher_info)
+            
+            # Get away team pitchers
+            if away_team_id:
+                away_pitcher_info = await self._get_team_pitcher_info(away_team_id, away_team)
+                if away_pitcher_info:
+                    pitcher_context_parts.append(away_pitcher_info)
+            
+            if pitcher_context_parts:
+                context = "Starting Pitchers: " + ", ".join(pitcher_context_parts) + "."
+                logger.info(f"Enhanced pitcher context: {context}")
+                return context
+            else:
+                logger.warning("No pitcher context available")
+                return "Pitcher information pending."
+                
+        except Exception as e:
+            logger.error(f"Error getting pitcher context: {e}")
+            return "Pitcher analysis unavailable."
+    
+    async def _get_team_id_mapping(self) -> Dict[str, int]:
+        """Get mapping of team names to team IDs"""
+        try:
+            # Call MLB MCP to get all teams
+            teams_data = await self.call_mlb_mcp_tool("getMLBTeams", {"season": 2025})
+            
+            if not teams_data:
+                return {}
+            
+            team_mapping = {}
+            teams = teams_data.get("teams", [])
+            
+            for team in teams:
+                team_name = team.get("name", "")
+                team_id = team.get("teamId")
+                if team_name and team_id:
+                    team_mapping[team_name] = team_id
+                    # Also map abbreviation
+                    abbrev = team.get("abbrev", "")
+                    if abbrev:
+                        team_mapping[abbrev] = team_id
+            
+            logger.debug(f"Team mapping created: {len(team_mapping)} entries")
+            return team_mapping
+            
+        except Exception as e:
+            logger.error(f"Error creating team mapping: {e}")
+            return {}
+    
+    async def _get_team_pitcher_info(self, team_id: int, team_name: str) -> Optional[str]:
+        """Get pitcher information for a specific team"""
+        try:
+            # Get team roster
+            roster_data = await self.call_mlb_mcp_tool("getMLBTeamRoster", {
+                "teamId": team_id,
+                "season": 2025
+            })
+            
+            if not roster_data:
+                return None
+            
+            players = roster_data.get("players", [])
+            
+            # Find pitchers
+            pitchers = [p for p in players if p.get("position", "").find("P") != -1]
+            
+            if not pitchers:
+                return f"{team_name} pitchers TBD"
+            
+            # Get the first pitcher (likely starter) and get detailed stats
+            primary_pitcher = pitchers[0]
+            pitcher_id = primary_pitcher.get("playerId")
+            pitcher_name = primary_pitcher.get("fullName", "Unknown")
+            
+            if pitcher_id:
+                # Get pitcher performance data
+                pitcher_stats = await self.call_mlb_mcp_tool("getMLBPitcherMatchup", {
+                    "pitcher_id": pitcher_id,
+                    "season": 2025,
+                    "count": 5  # Last 5 starts
+                })
+                
+                if pitcher_stats and pitcher_stats.get("aggregates"):
+                    agg = pitcher_stats["aggregates"]
+                    era = agg.get("era", 0)
+                    whip = agg.get("whip", 0)
+                    k9 = agg.get("k_per_9", 0)
+                    
+                    return f"{pitcher_name} ({team_name}) - {era:.2f} ERA, {whip:.2f} WHIP, {k9:.1f} K/9 in last 5 starts"
+                else:
+                    return f"{pitcher_name} ({team_name}) - stats pending"
+            else:
+                return f"{pitcher_name} ({team_name})"
+                
+        except Exception as e:
+            logger.error(f"Error getting pitcher info for {team_name}: {e}")
+            return f"{team_name} pitcher information unavailable"
+
     async def call_chronulus_analysis(self, home_team: str, away_team: str, betting_odds: Optional[Dict[str, str]] = None) -> Optional[Dict[str, Any]]:
-        """Call Custom Chronulus MCP for AI expert analysis with real betting odds"""
+        """Call Custom Chronulus MCP for AI expert analysis with real betting odds and pitcher data"""
         try:
             import httpx
             
@@ -1832,6 +1945,9 @@ class MLBHandler(BaseSportHandler):
                             
                             logger.info(f"Enhanced team context: {away_team_context} @ {home_team_context}")
             
+            # Get pitcher data for enhanced analysis
+            pitcher_context = await self._get_pitcher_context(home_team, away_team)
+            
             # Create proper game_data structure for Custom Chronulus MCP
             game_data = {
                 "home_team": home_team,
@@ -1842,7 +1958,7 @@ class MLBHandler(BaseSportHandler):
                 "away_record": "Season record TBD",
                 "home_moneyline": 100,  # Default
                 "away_moneyline": -100,  # Default
-                "additional_context": f"Live MLB game analysis with real betting odds"
+                "additional_context": f"Live MLB game analysis with real betting odds. {pitcher_context}"
             }
             
             # Add real betting odds if available

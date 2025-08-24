@@ -1,0 +1,2020 @@
+{
+  "timestamp": "2025-08-23T21:44:01.307081",
+  "season": 2025,
+  "mlb_teams": {
+    "count": 30,
+    "teams": [
+      {
+        "teamId": 133,
+        "name": "Athletics",
+        "teamName": "Athletics",
+        "abbrev": "ATH",
+        "locationName": "Sacramento",
+        "league": "American League",
+        "division": "American League West",
+        "venue": "Sutter Health Park"
+      },
+      {
+        "teamId": 144,
+        "name": "Atlanta Braves",
+        "teamName": "Braves",
+        "abbrev": "ATL",
+        "locationName": "Atlanta",
+        "league": "National League",
+        "division": "National League East",
+        "venue": "Truist Park"
+      },
+      {
+        "teamId": 109,
+        "name": "Arizona Diamondbacks",
+        "teamName": "D-backs",
+        "abbrev": "AZ",
+        "locationName": "Phoenix",
+        "league": "National League",
+        "division": "National League West",
+        "venue": "Chase Field"
+      },
+      {
+        "teamId": 110,
+        "name": "Baltimore Orioles",
+        "teamName": "Orioles",
+        "abbrev": "BAL",
+        "locationName": "Baltimore",
+        "league": "American League",
+        "division": "American League East",
+        "venue": "Oriole Park at Camden Yards"
+      },
+      {
+        "teamId": 111,
+        "name": "Boston Red Sox",
+        "teamName": "Red Sox",
+        "abbrev": "BOS",
+        "locationName": "Boston",
+        "league": "American League",
+        "division": "American League East",
+        "venue": "Fenway Park"
+      },
+      {
+        "teamId": 112,
+        "name": "Chicago Cubs",
+        "teamName": "Cubs",
+        "abbrev": "CHC",
+        "locationName": "Chicago",
+        "league": "National League",
+        "division": "National League Central",
+        "venue": "Wrigley Field"
+      },
+      {
+        "teamId": 113,
+        "name": "Cincinnati Reds",
+        "teamName": "Reds",
+        "abbrev": "CIN",
+        "locationName": "Cincinnati",
+        "league": "National League",
+        "division": "National League Central",
+        "venue": "Great American Ball Park"
+      },
+      {
+        "teamId": 114,
+        "name": "Cleveland Guardians",
+        "teamName": "Guardians",
+        "abbrev": "CLE",
+        "locationName": "Cleveland",
+        "league": "American League",
+        "division": "American League Central",
+        "venue": "Progressive Field"
+      },
+      {
+        "teamId": 115,
+        "name": "Colorado Rockies",
+        "teamName": "Rockies",
+        "abbrev": "COL",
+        "locationName": "Denver",
+        "league": "National League",
+        "division": "National League West",
+        "venue": "Coors Field"
+      },
+      {
+        "teamId": 145,
+        "name": "Chicago White Sox",
+        "teamName": "White Sox",
+        "abbrev": "CWS",
+        "locationName": "Chicago",
+        "league": "American League",
+        "division": "American League Central",
+        "venue": "Rate Field"
+      },
+      {
+        "teamId": 116,
+        "name": "Detroit Tigers",
+        "teamName": "Tigers",
+        "abbrev": "DET",
+        "locationName": "Detroit",
+        "league": "American League",
+        "division": "American League Central",
+        "venue": "Comerica Park"
+      },
+      {
+        "teamId": 117,
+        "name": "Houston Astros",
+        "teamName": "Astros",
+        "abbrev": "HOU",
+        "locationName": "Houston",
+        "league": "American League",
+        "division": "American League West",
+        "venue": "Daikin Park"
+      },
+      {
+        "teamId": 118,
+        "name": "Kansas City Royals",
+        "teamName": "Royals",
+        "abbrev": "KC",
+        "locationName": "Kansas City",
+        "league": "American League",
+        "division": "American League Central",
+        "venue": "Kauffman Stadium"
+      },
+      {
+        "teamId": 108,
+        "name": "Los Angeles Angels",
+        "teamName": "Angels",
+        "abbrev": "LAA",
+        "locationName": "Anaheim",
+        "league": "American League",
+        "division": "American League West",
+        "venue": "Angel Stadium"
+      },
+      {
+        "teamId": 119,
+        "name": "Los Angeles Dodgers",
+        "teamName": "Dodgers",
+        "abbrev": "LAD",
+        "locationName": "Los Angeles",
+        "league": "National League",
+        "division": "National League West",
+        "venue": "Dodger Stadium"
+      },
+      {
+        "teamId": 146,
+        "name": "Miami Marlins",
+        "teamName": "Marlins",
+        "abbrev": "MIA",
+        "locationName": "Miami",
+        "league": "National League",
+        "division": "National League East",
+        "venue": "loanDepot park"
+      },
+      {
+        "teamId": 158,
+        "name": "Milwaukee Brewers",
+        "teamName": "Brewers",
+        "abbrev": "MIL",
+        "locationName": "Milwaukee",
+        "league": "National League",
+        "division": "National League Central",
+        "venue": "American Family Field"
+      },
+      {
+        "teamId": 142,
+        "name": "Minnesota Twins",
+        "teamName": "Twins",
+        "abbrev": "MIN",
+        "locationName": "Minneapolis",
+        "league": "American League",
+        "division": "American League Central",
+        "venue": "Target Field"
+      },
+      {
+        "teamId": 121,
+        "name": "New York Mets",
+        "teamName": "Mets",
+        "abbrev": "NYM",
+        "locationName": "Flushing",
+        "league": "National League",
+        "division": "National League East",
+        "venue": "Citi Field"
+      },
+      {
+        "teamId": 147,
+        "name": "New York Yankees",
+        "teamName": "Yankees",
+        "abbrev": "NYY",
+        "locationName": "Bronx",
+        "league": "American League",
+        "division": "American League East",
+        "venue": "Yankee Stadium"
+      },
+      {
+        "teamId": 143,
+        "name": "Philadelphia Phillies",
+        "teamName": "Phillies",
+        "abbrev": "PHI",
+        "locationName": "Philadelphia",
+        "league": "National League",
+        "division": "National League East",
+        "venue": "Citizens Bank Park"
+      },
+      {
+        "teamId": 134,
+        "name": "Pittsburgh Pirates",
+        "teamName": "Pirates",
+        "abbrev": "PIT",
+        "locationName": "Pittsburgh",
+        "league": "National League",
+        "division": "National League Central",
+        "venue": "PNC Park"
+      },
+      {
+        "teamId": 135,
+        "name": "San Diego Padres",
+        "teamName": "Padres",
+        "abbrev": "SD",
+        "locationName": "San Diego",
+        "league": "National League",
+        "division": "National League West",
+        "venue": "Petco Park"
+      },
+      {
+        "teamId": 136,
+        "name": "Seattle Mariners",
+        "teamName": "Mariners",
+        "abbrev": "SEA",
+        "locationName": "Seattle",
+        "league": "American League",
+        "division": "American League West",
+        "venue": "T-Mobile Park"
+      },
+      {
+        "teamId": 137,
+        "name": "San Francisco Giants",
+        "teamName": "Giants",
+        "abbrev": "SF",
+        "locationName": "San Francisco",
+        "league": "National League",
+        "division": "National League West",
+        "venue": "Oracle Park"
+      },
+      {
+        "teamId": 138,
+        "name": "St. Louis Cardinals",
+        "teamName": "Cardinals",
+        "abbrev": "STL",
+        "locationName": "St. Louis",
+        "league": "National League",
+        "division": "National League Central",
+        "venue": "Busch Stadium"
+      },
+      {
+        "teamId": 139,
+        "name": "Tampa Bay Rays",
+        "teamName": "Rays",
+        "abbrev": "TB",
+        "locationName": "Tampa",
+        "league": "American League",
+        "division": "American League East",
+        "venue": "George M. Steinbrenner Field"
+      },
+      {
+        "teamId": 140,
+        "name": "Texas Rangers",
+        "teamName": "Rangers",
+        "abbrev": "TEX",
+        "locationName": "Arlington",
+        "league": "American League",
+        "division": "American League West",
+        "venue": "Globe Life Field"
+      },
+      {
+        "teamId": 141,
+        "name": "Toronto Blue Jays",
+        "teamName": "Blue Jays",
+        "abbrev": "TOR",
+        "locationName": "Toronto",
+        "league": "American League",
+        "division": "American League East",
+        "venue": "Rogers Centre"
+      },
+      {
+        "teamId": 120,
+        "name": "Washington Nationals",
+        "teamName": "Nationals",
+        "abbrev": "WSH",
+        "locationName": "Washington",
+        "league": "National League",
+        "division": "National League East",
+        "venue": "Nationals Park"
+      }
+    ]
+  },
+  "all_pitchers": {
+    "674384": {
+      "playerId": 674384,
+      "fullName": "Eduarniel N\u00fa\u00f1ez",
+      "primaryNumber": "54",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "665660": {
+      "playerId": 665660,
+      "fullName": "Elvis Alvarado",
+      "primaryNumber": "61",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "663687": {
+      "playerId": 663687,
+      "fullName": "Hogan Harris",
+      "primaryNumber": "36",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "669372": {
+      "playerId": 669372,
+      "fullName": "J.T. Ginn",
+      "primaryNumber": "70",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "682052": {
+      "playerId": 682052,
+      "fullName": "Jacob Lopez",
+      "primaryNumber": "57",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "605488": {
+      "playerId": 605488,
+      "fullName": "Jeffrey Springs",
+      "primaryNumber": "59",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "683155": {
+      "playerId": 683155,
+      "fullName": "Joey Estes",
+      "primaryNumber": "68",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "686993": {
+      "playerId": 686993,
+      "fullName": "Justin Sterner",
+      "primaryNumber": "60",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "806960": {
+      "playerId": 806960,
+      "fullName": "Luis Morales",
+      "primaryNumber": "58",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "547184": {
+      "playerId": 547184,
+      "fullName": "Michael Kelly",
+      "primaryNumber": "49",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "674370": {
+      "playerId": 674370,
+      "fullName": "Osvaldo Bido",
+      "primaryNumber": "45",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "656794": {
+      "playerId": 656794,
+      "fullName": "Sean Newcomb",
+      "primaryNumber": "31",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "621053": {
+      "playerId": 621053,
+      "fullName": "Tyler Ferguson",
+      "primaryNumber": "44",
+      "position": "P",
+      "status": "Active",
+      "team_id": 133,
+      "team_name": "Athletics",
+      "team_abbrev": "ATH"
+    },
+    "607481": {
+      "playerId": 607481,
+      "fullName": "Aaron Bummer",
+      "primaryNumber": "49",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "680735": {
+      "playerId": 680735,
+      "fullName": "Austin Cox",
+      "primaryNumber": "68",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "693821": {
+      "playerId": 693821,
+      "fullName": "Bryce Elder",
+      "primaryNumber": "55",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "615698": {
+      "playerId": 615698,
+      "fullName": "Cal Quantrill",
+      "primaryNumber": "48",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "689266": {
+      "playerId": 689266,
+      "fullName": "Dylan Dodd",
+      "primaryNumber": "46",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "669276": {
+      "playerId": 669276,
+      "fullName": "Dylan Lee",
+      "primaryNumber": "52",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "607200": {
+      "playerId": 607200,
+      "fullName": "Erick Fedde",
+      "primaryNumber": "22",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "694462": {
+      "playerId": 694462,
+      "fullName": "Hurston Waldrep",
+      "primaryNumber": "64",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "666214": {
+      "playerId": 666214,
+      "fullName": "Joey Wentz",
+      "primaryNumber": "33",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "572955": {
+      "playerId": 572955,
+      "fullName": "Pierce Johnson",
+      "primaryNumber": "38",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "628452": {
+      "playerId": 628452,
+      "fullName": "Raisel Iglesias",
+      "primaryNumber": "26",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "675911": {
+      "playerId": 675911,
+      "fullName": "Spencer Strider",
+      "primaryNumber": "99",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "641755": {
+      "playerId": 641755,
+      "fullName": "Tyler Kinley",
+      "primaryNumber": "45",
+      "position": "P",
+      "status": "Active",
+      "team_id": 144,
+      "team_name": "Atlanta Braves",
+      "team_abbrev": "ATL"
+    },
+    "685314": {
+      "playerId": 685314,
+      "fullName": "Andrew Saalfrank",
+      "primaryNumber": "27",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "694297": {
+      "playerId": 694297,
+      "fullName": "Brandon Pfaadt",
+      "primaryNumber": "32",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "686826": {
+      "playerId": 686826,
+      "fullName": "Bryce Jarvis",
+      "primaryNumber": "40",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "593958": {
+      "playerId": 593958,
+      "fullName": "Eduardo Rodriguez",
+      "primaryNumber": "57",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "663765": {
+      "playerId": 663765,
+      "fullName": "Jake Woodford",
+      "primaryNumber": "41",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "656222": {
+      "playerId": 656222,
+      "fullName": "Jalen Beeks",
+      "primaryNumber": "68",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "595928": {
+      "playerId": 595928,
+      "fullName": "John Curtiss",
+      "primaryNumber": "46",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "686228": {
+      "playerId": 686228,
+      "fullName": "Juan Burgos",
+      "primaryNumber": "52",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "666661": {
+      "playerId": 666661,
+      "fullName": "Juan Morillo",
+      "primaryNumber": "67",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "679775": {
+      "playerId": 679775,
+      "fullName": "Kyle Backhus",
+      "primaryNumber": "43",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "622503": {
+      "playerId": 622503,
+      "fullName": "Nabil Crismatt",
+      "primaryNumber": "61",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "669194": {
+      "playerId": 669194,
+      "fullName": "Ryne Nelson",
+      "primaryNumber": "19",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "668678": {
+      "playerId": 668678,
+      "fullName": "Zac Gallen",
+      "primaryNumber": "23",
+      "position": "P",
+      "status": "Active",
+      "team_id": 109,
+      "team_name": "Arizona Diamondbacks",
+      "team_abbrev": "AZ"
+    },
+    "700249": {
+      "playerId": 700249,
+      "fullName": "Cade Povich",
+      "primaryNumber": "37",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "656686": {
+      "playerId": 656686,
+      "fullName": "Corbin Martin",
+      "primaryNumber": "48",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "665152": {
+      "playerId": 665152,
+      "fullName": "Dean Kremer",
+      "primaryNumber": "64",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "608650": {
+      "playerId": 608650,
+      "fullName": "Dietrich Enns",
+      "primaryNumber": "71",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "664991": {
+      "playerId": 664991,
+      "fullName": "Grant Wolfram",
+      "primaryNumber": "86",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "669704": {
+      "playerId": 669704,
+      "fullName": "Kade Strowd",
+      "primaryNumber": "57",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "669211": {
+      "playerId": 669211,
+      "fullName": "Keegan Akin",
+      "primaryNumber": "45",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "621199": {
+      "playerId": 621199,
+      "fullName": "Matt Bowman",
+      "primaryNumber": "51",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "670329": {
+      "playerId": 670329,
+      "fullName": "Rico Garcia",
+      "primaryNumber": "50",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "608372": {
+      "playerId": 608372,
+      "fullName": "Tomoyuki Sugano",
+      "primaryNumber": "19",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "669432": {
+      "playerId": 669432,
+      "fullName": "Trevor Rogers",
+      "primaryNumber": "28",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "682274": {
+      "playerId": 682274,
+      "fullName": "Yaramil Hiraldo",
+      "primaryNumber": "76",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "666974": {
+      "playerId": 666974,
+      "fullName": "Yennier Cano",
+      "primaryNumber": "78",
+      "position": "P",
+      "status": "Active",
+      "team_id": 110,
+      "team_name": "Baltimore Orioles",
+      "team_abbrev": "BAL"
+    },
+    "547973": {
+      "playerId": 547973,
+      "fullName": "Aroldis Chapman",
+      "primaryNumber": "44",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "678394": {
+      "playerId": 678394,
+      "fullName": "Brayan Bello",
+      "primaryNumber": "66",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "657514": {
+      "playerId": 657514,
+      "fullName": "Brennan Bernardino",
+      "primaryNumber": "83",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "669160": {
+      "playerId": 669160,
+      "fullName": "Dustin May",
+      "primaryNumber": "85",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "676979": {
+      "playerId": 676979,
+      "fullName": "Garrett Crochet",
+      "primaryNumber": "35",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "676477": {
+      "playerId": 676477,
+      "fullName": "Garrett Whitlock",
+      "primaryNumber": "22",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "669711": {
+      "playerId": 669711,
+      "fullName": "Greg Weissert",
+      "primaryNumber": "57",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "663855": {
+      "playerId": 663855,
+      "fullName": "Jordan Hicks",
+      "primaryNumber": "46",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "458677": {
+      "playerId": 458677,
+      "fullName": "Justin Wilson",
+      "primaryNumber": "32",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "608337": {
+      "playerId": 608337,
+      "fullName": "Lucas Giolito",
+      "primaryNumber": "54",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "690916": {
+      "playerId": 690916,
+      "fullName": "Richard Fitts",
+      "primaryNumber": "80",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "571927": {
+      "playerId": 571927,
+      "fullName": "Steven Matz",
+      "primaryNumber": "41",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    },
+    "621111": {
+      "playerId": 621111,
+      "fullName": "Walker Buehler",
+      "primaryNumber": "0",
+      "position": "P",
+      "status": "Active",
+      "team_id": 111,
+      "team_name": "Boston Red Sox",
+      "team_abbrev": "BOS"
+    }
+  },
+  "pitcher_performance": {
+    "674384": {
+      "pitcher_info": {
+        "playerId": 674384,
+        "fullName": "Eduarniel N\u00fa\u00f1ez",
+        "primaryNumber": "54",
+        "position": "P",
+        "status": "Active",
+        "team_id": 133,
+        "team_name": "Athletics",
+        "team_abbrev": "ATH"
+      },
+      "recent_starts": [
+        {
+          "et_datetime": "2025-08-05T00:00:00-04:00",
+          "date_et": "2025-08-05",
+          "innings_pitched": "0.2",
+          "earned_runs": 4,
+          "strikeouts": 1,
+          "walks": 2,
+          "hits_allowed": 4,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 120,
+          "opponent_name": "Washington Nationals",
+          "game_era": 180.0,
+          "game_whip": 30.0
+        },
+        {
+          "et_datetime": "2025-08-02T00:00:00-04:00",
+          "date_et": "2025-08-02",
+          "innings_pitched": "1.2",
+          "earned_runs": 1,
+          "strikeouts": 1,
+          "walks": 2,
+          "hits_allowed": 2,
+          "home_runs_allowed": 1,
+          "pitch_count": 0,
+          "opponent_team_id": 109,
+          "opponent_name": "Arizona Diamondbacks",
+          "game_era": 7.5,
+          "game_whip": 3.3333333333333335
+        },
+        {
+          "et_datetime": "2025-07-09T00:00:00-04:00",
+          "date_et": "2025-07-09",
+          "innings_pitched": "2.0",
+          "earned_runs": 2,
+          "strikeouts": 1,
+          "walks": 1,
+          "hits_allowed": 2,
+          "home_runs_allowed": 1,
+          "pitch_count": 0,
+          "opponent_team_id": 109,
+          "opponent_name": "Arizona Diamondbacks",
+          "game_era": 9.0,
+          "game_whip": 1.5
+        },
+        {
+          "et_datetime": "2025-07-07T00:00:00-04:00",
+          "date_et": "2025-07-07",
+          "innings_pitched": "1.1",
+          "earned_runs": 0,
+          "strikeouts": 1,
+          "walks": 1,
+          "hits_allowed": 1,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 109,
+          "opponent_name": "Arizona Diamondbacks",
+          "game_era": 0.0,
+          "game_whip": 1.8181818181818181
+        },
+        {
+          "et_datetime": "2025-07-05T00:00:00-04:00",
+          "date_et": "2025-07-05",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 0,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 140,
+          "opponent_name": "Texas Rangers",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        }
+      ],
+      "aggregates": {
+        "era": 11.454545454545455,
+        "whip": 2.727272727272727,
+        "k_per_9": 6.545454545454546,
+        "innings_pitched": 5.5,
+        "strikeouts": 4,
+        "walks": 6,
+        "hits_allowed": 9
+      },
+      "analysis_timestamp": "2025-08-23T21:44:01.824475"
+    },
+    "665660": {
+      "pitcher_info": {
+        "playerId": 665660,
+        "fullName": "Elvis Alvarado",
+        "primaryNumber": "61",
+        "position": "P",
+        "status": "Active",
+        "team_id": 133,
+        "team_name": "Athletics",
+        "team_abbrev": "ATH"
+      },
+      "recent_starts": [
+        {
+          "et_datetime": "2025-08-22T00:00:00-04:00",
+          "date_et": "2025-08-22",
+          "innings_pitched": "1.0",
+          "earned_runs": 2,
+          "strikeouts": 1,
+          "walks": 0,
+          "hits_allowed": 2,
+          "home_runs_allowed": 2,
+          "pitch_count": 0,
+          "opponent_team_id": 136,
+          "opponent_name": "Seattle Mariners",
+          "game_era": 18.0,
+          "game_whip": 2.0
+        },
+        {
+          "et_datetime": "2025-08-20T00:00:00-04:00",
+          "date_et": "2025-08-20",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 0,
+          "walks": 1,
+          "hits_allowed": 2,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 142,
+          "opponent_name": "Minnesota Twins",
+          "game_era": 0.0,
+          "game_whip": 3.0
+        },
+        {
+          "et_datetime": "2025-08-17T00:00:00-04:00",
+          "date_et": "2025-08-17",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 1,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 108,
+          "opponent_name": "Los Angeles Angels",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-15T00:00:00-04:00",
+          "date_et": "2025-08-15",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 2,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 108,
+          "opponent_name": "Los Angeles Angels",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-13T00:00:00-04:00",
+          "date_et": "2025-08-13",
+          "innings_pitched": "1.0",
+          "earned_runs": 2,
+          "strikeouts": 1,
+          "walks": 0,
+          "hits_allowed": 2,
+          "home_runs_allowed": 1,
+          "pitch_count": 0,
+          "opponent_team_id": 139,
+          "opponent_name": "Tampa Bay Rays",
+          "game_era": 18.0,
+          "game_whip": 2.0
+        }
+      ],
+      "aggregates": {
+        "era": 7.2,
+        "whip": 1.4,
+        "k_per_9": 9.0,
+        "innings_pitched": 5.0,
+        "strikeouts": 5,
+        "walks": 1,
+        "hits_allowed": 6
+      },
+      "analysis_timestamp": "2025-08-23T21:44:02.945988"
+    },
+    "607481": {
+      "pitcher_info": {
+        "playerId": 607481,
+        "fullName": "Aaron Bummer",
+        "primaryNumber": "49",
+        "position": "P",
+        "status": "Active",
+        "team_id": 144,
+        "team_name": "Atlanta Braves",
+        "team_abbrev": "ATL"
+      },
+      "recent_starts": [
+        {
+          "et_datetime": "2025-08-23T00:00:00-04:00",
+          "date_et": "2025-08-23",
+          "innings_pitched": "1.1",
+          "earned_runs": 0,
+          "strikeouts": 0,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 121,
+          "opponent_name": "New York Mets",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-17T00:00:00-04:00",
+          "date_et": "2025-08-17",
+          "innings_pitched": "2.0",
+          "earned_runs": 0,
+          "strikeouts": 1,
+          "walks": 0,
+          "hits_allowed": 1,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 114,
+          "opponent_name": "Cleveland Guardians",
+          "game_era": 0.0,
+          "game_whip": 0.5
+        },
+        {
+          "et_datetime": "2025-08-13T00:00:00-04:00",
+          "date_et": "2025-08-13",
+          "innings_pitched": "2.1",
+          "earned_runs": 0,
+          "strikeouts": 3,
+          "walks": 1,
+          "hits_allowed": 2,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 121,
+          "opponent_name": "New York Mets",
+          "game_era": 0.0,
+          "game_whip": 1.4285714285714286
+        },
+        {
+          "et_datetime": "2025-08-09T00:00:00-04:00",
+          "date_et": "2025-08-09",
+          "innings_pitched": "1.2",
+          "earned_runs": 1,
+          "strikeouts": 1,
+          "walks": 0,
+          "hits_allowed": 2,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 146,
+          "opponent_name": "Miami Marlins",
+          "game_era": 7.5,
+          "game_whip": 1.6666666666666667
+        },
+        {
+          "et_datetime": "2025-08-06T00:00:00-04:00",
+          "date_et": "2025-08-06",
+          "innings_pitched": "2.1",
+          "earned_runs": 0,
+          "strikeouts": 1,
+          "walks": 0,
+          "hits_allowed": 2,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 158,
+          "opponent_name": "Milwaukee Brewers",
+          "game_era": 0.0,
+          "game_whip": 0.9523809523809523
+        }
+      ],
+      "aggregates": {
+        "era": 1.0588235294117647,
+        "whip": 0.9411764705882353,
+        "k_per_9": 6.352941176470588,
+        "innings_pitched": 8.5,
+        "strikeouts": 6,
+        "walks": 1,
+        "hits_allowed": 7
+      },
+      "analysis_timestamp": "2025-08-23T21:44:04.182310"
+    },
+    "680735": {
+      "pitcher_info": {
+        "playerId": 680735,
+        "fullName": "Austin Cox",
+        "primaryNumber": "68",
+        "position": "P",
+        "status": "Active",
+        "team_id": 144,
+        "team_name": "Atlanta Braves",
+        "team_abbrev": "ATL"
+      },
+      "recent_starts": [
+        {
+          "et_datetime": "2025-08-23T00:00:00-04:00",
+          "date_et": "2025-08-23",
+          "innings_pitched": "0.0",
+          "earned_runs": 0,
+          "strikeouts": 0,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 121,
+          "opponent_name": "New York Mets",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-18T00:00:00-04:00",
+          "date_et": "2025-08-18",
+          "innings_pitched": "3.0",
+          "earned_runs": 3,
+          "strikeouts": 3,
+          "walks": 1,
+          "hits_allowed": 4,
+          "home_runs_allowed": 1,
+          "pitch_count": 0,
+          "opponent_team_id": 145,
+          "opponent_name": "Chicago White Sox",
+          "game_era": 9.0,
+          "game_whip": 1.6666666666666667
+        },
+        {
+          "et_datetime": "2025-08-12T00:00:00-04:00",
+          "date_et": "2025-08-12",
+          "innings_pitched": "2.2",
+          "earned_runs": 5,
+          "strikeouts": 2,
+          "walks": 1,
+          "hits_allowed": 6,
+          "home_runs_allowed": 3,
+          "pitch_count": 0,
+          "opponent_team_id": 121,
+          "opponent_name": "New York Mets",
+          "game_era": 20.454545454545453,
+          "game_whip": 3.1818181818181817
+        },
+        {
+          "et_datetime": "2025-08-09T00:00:00-04:00",
+          "date_et": "2025-08-09",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 2,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 146,
+          "opponent_name": "Miami Marlins",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-05T00:00:00-04:00",
+          "date_et": "2025-08-05",
+          "innings_pitched": "2.1",
+          "earned_runs": 1,
+          "strikeouts": 1,
+          "walks": 2,
+          "hits_allowed": 1,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 158,
+          "opponent_name": "Milwaukee Brewers",
+          "game_era": 4.285714285714286,
+          "game_whip": 1.4285714285714286
+        }
+      ],
+      "aggregates": {
+        "era": 9.759036144578312,
+        "whip": 1.8072289156626504,
+        "k_per_9": 8.674698795180722,
+        "innings_pitched": 8.3,
+        "strikeouts": 8,
+        "walks": 4,
+        "hits_allowed": 11
+      },
+      "analysis_timestamp": "2025-08-23T21:44:05.308975"
+    },
+    "685314": {
+      "pitcher_info": {
+        "playerId": 685314,
+        "fullName": "Andrew Saalfrank",
+        "primaryNumber": "27",
+        "position": "P",
+        "status": "Active",
+        "team_id": 109,
+        "team_name": "Arizona Diamondbacks",
+        "team_abbrev": "AZ"
+      },
+      "recent_starts": [
+        {
+          "et_datetime": "2025-08-22T00:00:00-04:00",
+          "date_et": "2025-08-22",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 0,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 113,
+          "opponent_name": "Cincinnati Reds",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-20T00:00:00-04:00",
+          "date_et": "2025-08-20",
+          "innings_pitched": "0.2",
+          "earned_runs": 0,
+          "strikeouts": 1,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 114,
+          "opponent_name": "Cleveland Guardians",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-19T00:00:00-04:00",
+          "date_et": "2025-08-19",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 1,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 114,
+          "opponent_name": "Cleveland Guardians",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-16T00:00:00-04:00",
+          "date_et": "2025-08-16",
+          "innings_pitched": "0.2",
+          "earned_runs": 2,
+          "strikeouts": 0,
+          "walks": 0,
+          "hits_allowed": 2,
+          "home_runs_allowed": 1,
+          "pitch_count": 0,
+          "opponent_team_id": 115,
+          "opponent_name": "Colorado Rockies",
+          "game_era": 90.0,
+          "game_whip": 10.0
+        },
+        {
+          "et_datetime": "2025-08-13T00:00:00-04:00",
+          "date_et": "2025-08-13",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 0,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 140,
+          "opponent_name": "Texas Rangers",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        }
+      ],
+      "aggregates": {
+        "era": 5.294117647058823,
+        "whip": 0.5882352941176471,
+        "k_per_9": 5.294117647058823,
+        "innings_pitched": 3.4,
+        "strikeouts": 2,
+        "walks": 0,
+        "hits_allowed": 2
+      },
+      "analysis_timestamp": "2025-08-23T21:44:06.531037"
+    },
+    "694297": {
+      "pitcher_info": {
+        "playerId": 694297,
+        "fullName": "Brandon Pfaadt",
+        "primaryNumber": "32",
+        "position": "P",
+        "status": "Active",
+        "team_id": 109,
+        "team_name": "Arizona Diamondbacks",
+        "team_abbrev": "AZ"
+      },
+      "recent_starts": [
+        {
+          "et_datetime": "2025-08-20T00:00:00-04:00",
+          "date_et": "2025-08-20",
+          "innings_pitched": "7.0",
+          "earned_runs": 2,
+          "strikeouts": 5,
+          "walks": 1,
+          "hits_allowed": 5,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 114,
+          "opponent_name": "Cleveland Guardians",
+          "game_era": 2.5714285714285716,
+          "game_whip": 0.8571428571428571
+        },
+        {
+          "et_datetime": "2025-08-15T00:00:00-04:00",
+          "date_et": "2025-08-15",
+          "innings_pitched": "6.0",
+          "earned_runs": 4,
+          "strikeouts": 4,
+          "walks": 2,
+          "hits_allowed": 8,
+          "home_runs_allowed": 1,
+          "pitch_count": 0,
+          "opponent_team_id": 115,
+          "opponent_name": "Colorado Rockies",
+          "game_era": 6.0,
+          "game_whip": 1.6666666666666667
+        },
+        {
+          "et_datetime": "2025-08-10T00:00:00-04:00",
+          "date_et": "2025-08-10",
+          "innings_pitched": "5.0",
+          "earned_runs": 3,
+          "strikeouts": 2,
+          "walks": 0,
+          "hits_allowed": 11,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 115,
+          "opponent_name": "Colorado Rockies",
+          "game_era": 5.4,
+          "game_whip": 2.2
+        },
+        {
+          "et_datetime": "2025-08-04T00:00:00-04:00",
+          "date_et": "2025-08-04",
+          "innings_pitched": "5.2",
+          "earned_runs": 2,
+          "strikeouts": 4,
+          "walks": 3,
+          "hits_allowed": 5,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 135,
+          "opponent_name": "San Diego Padres",
+          "game_era": 3.4615384615384612,
+          "game_whip": 1.5384615384615383
+        },
+        {
+          "et_datetime": "2025-07-29T00:00:00-04:00",
+          "date_et": "2025-07-29",
+          "innings_pitched": "4.2",
+          "earned_runs": 7,
+          "strikeouts": 3,
+          "walks": 0,
+          "hits_allowed": 11,
+          "home_runs_allowed": 3,
+          "pitch_count": 0,
+          "opponent_team_id": 116,
+          "opponent_name": "Detroit Tigers",
+          "game_era": 15.0,
+          "game_whip": 2.619047619047619
+        }
+      ],
+      "aggregates": {
+        "era": 5.912408759124088,
+        "whip": 1.6788321167883213,
+        "k_per_9": 5.912408759124088,
+        "innings_pitched": 27.4,
+        "strikeouts": 18,
+        "walks": 6,
+        "hits_allowed": 40
+      },
+      "analysis_timestamp": "2025-08-23T21:44:07.664039"
+    },
+    "700249": {
+      "pitcher_info": {
+        "playerId": 700249,
+        "fullName": "Cade Povich",
+        "primaryNumber": "37",
+        "position": "P",
+        "status": "Active",
+        "team_id": 110,
+        "team_name": "Baltimore Orioles",
+        "team_abbrev": "BAL"
+      },
+      "recent_starts": [
+        {
+          "et_datetime": "2025-08-22T00:00:00-04:00",
+          "date_et": "2025-08-22",
+          "innings_pitched": "4.2",
+          "earned_runs": 4,
+          "strikeouts": 5,
+          "walks": 2,
+          "hits_allowed": 4,
+          "home_runs_allowed": 1,
+          "pitch_count": 0,
+          "opponent_team_id": 117,
+          "opponent_name": "Houston Astros",
+          "game_era": 8.571428571428571,
+          "game_whip": 1.4285714285714286
+        },
+        {
+          "et_datetime": "2025-08-16T00:00:00-04:00",
+          "date_et": "2025-08-16",
+          "innings_pitched": "5.0",
+          "earned_runs": 3,
+          "strikeouts": 10,
+          "walks": 3,
+          "hits_allowed": 5,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 117,
+          "opponent_name": "Houston Astros",
+          "game_era": 5.4,
+          "game_whip": 1.6
+        },
+        {
+          "et_datetime": "2025-08-10T00:00:00-04:00",
+          "date_et": "2025-08-10",
+          "innings_pitched": "6.0",
+          "earned_runs": 1,
+          "strikeouts": 5,
+          "walks": 3,
+          "hits_allowed": 4,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 133,
+          "opponent_name": "Athletics",
+          "game_era": 1.5,
+          "game_whip": 1.1666666666666667
+        },
+        {
+          "et_datetime": "2025-08-04T00:00:00-04:00",
+          "date_et": "2025-08-04",
+          "innings_pitched": "5.2",
+          "earned_runs": 4,
+          "strikeouts": 7,
+          "walks": 1,
+          "hits_allowed": 4,
+          "home_runs_allowed": 2,
+          "pitch_count": 0,
+          "opponent_team_id": 143,
+          "opponent_name": "Philadelphia Phillies",
+          "game_era": 6.9230769230769225,
+          "game_whip": 0.9615384615384615
+        },
+        {
+          "et_datetime": "2025-06-15T00:00:00-04:00",
+          "date_et": "2025-06-15",
+          "innings_pitched": "3.2",
+          "earned_runs": 0,
+          "strikeouts": 4,
+          "walks": 1,
+          "hits_allowed": 3,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 108,
+          "opponent_name": "Los Angeles Angels",
+          "game_era": 0.0,
+          "game_whip": 1.25
+        }
+      ],
+      "aggregates": {
+        "era": 4.576271186440677,
+        "whip": 1.271186440677966,
+        "k_per_9": 11.822033898305085,
+        "innings_pitched": 23.6,
+        "strikeouts": 31,
+        "walks": 10,
+        "hits_allowed": 20
+      },
+      "analysis_timestamp": "2025-08-23T21:44:08.905425"
+    },
+    "656686": {
+      "pitcher_info": {
+        "playerId": 656686,
+        "fullName": "Corbin Martin",
+        "primaryNumber": "48",
+        "position": "P",
+        "status": "Active",
+        "team_id": 110,
+        "team_name": "Baltimore Orioles",
+        "team_abbrev": "BAL"
+      },
+      "recent_starts": [
+        {
+          "et_datetime": "2025-08-22T00:00:00-04:00",
+          "date_et": "2025-08-22",
+          "innings_pitched": "1.2",
+          "earned_runs": 1,
+          "strikeouts": 2,
+          "walks": 0,
+          "hits_allowed": 3,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 117,
+          "opponent_name": "Houston Astros",
+          "game_era": 7.5,
+          "game_whip": 2.5
+        },
+        {
+          "et_datetime": "2025-08-21T00:00:00-04:00",
+          "date_et": "2025-08-21",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 0,
+          "walks": 0,
+          "hits_allowed": 1,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 117,
+          "opponent_name": "Houston Astros",
+          "game_era": 0.0,
+          "game_whip": 1.0
+        },
+        {
+          "et_datetime": "2025-08-19T00:00:00-04:00",
+          "date_et": "2025-08-19",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 0,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 111,
+          "opponent_name": "Boston Red Sox",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-17T00:00:00-04:00",
+          "date_et": "2025-08-17",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 2,
+          "walks": 0,
+          "hits_allowed": 2,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 117,
+          "opponent_name": "Houston Astros",
+          "game_era": 0.0,
+          "game_whip": 2.0
+        },
+        {
+          "et_datetime": "2025-08-09T00:00:00-04:00",
+          "date_et": "2025-08-09",
+          "innings_pitched": "1.1",
+          "earned_runs": 1,
+          "strikeouts": 2,
+          "walks": 1,
+          "hits_allowed": 2,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 133,
+          "opponent_name": "Athletics",
+          "game_era": 8.181818181818182,
+          "game_whip": 2.727272727272727
+        }
+      ],
+      "aggregates": {
+        "era": 3.3962264150943398,
+        "whip": 1.6981132075471699,
+        "k_per_9": 10.18867924528302,
+        "innings_pitched": 5.3,
+        "strikeouts": 6,
+        "walks": 1,
+        "hits_allowed": 8
+      },
+      "analysis_timestamp": "2025-08-23T21:44:10.019817"
+    },
+    "547973": {
+      "pitcher_info": {
+        "playerId": 547973,
+        "fullName": "Aroldis Chapman",
+        "primaryNumber": "44",
+        "position": "P",
+        "status": "Active",
+        "team_id": 111,
+        "team_name": "Boston Red Sox",
+        "team_abbrev": "BOS"
+      },
+      "recent_starts": [
+        {
+          "et_datetime": "2025-08-22T00:00:00-04:00",
+          "date_et": "2025-08-22",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 2,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 147,
+          "opponent_name": "New York Yankees",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-21T00:00:00-04:00",
+          "date_et": "2025-08-21",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 0,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 147,
+          "opponent_name": "New York Yankees",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-19T00:00:00-04:00",
+          "date_et": "2025-08-19",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 3,
+          "walks": 1,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 110,
+          "opponent_name": "Baltimore Orioles",
+          "game_era": 0.0,
+          "game_whip": 1.0
+        },
+        {
+          "et_datetime": "2025-08-16T00:00:00-04:00",
+          "date_et": "2025-08-16",
+          "innings_pitched": "0.1",
+          "earned_runs": 0,
+          "strikeouts": 0,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 146,
+          "opponent_name": "Miami Marlins",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        },
+        {
+          "et_datetime": "2025-08-15T00:00:00-04:00",
+          "date_et": "2025-08-15",
+          "innings_pitched": "1.0",
+          "earned_runs": 0,
+          "strikeouts": 1,
+          "walks": 0,
+          "hits_allowed": 0,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 146,
+          "opponent_name": "Miami Marlins",
+          "game_era": 0.0,
+          "game_whip": 0.0
+        }
+      ],
+      "aggregates": {
+        "era": 0.0,
+        "whip": 0.24390243902439027,
+        "k_per_9": 13.170731707317074,
+        "innings_pitched": 4.1,
+        "strikeouts": 6,
+        "walks": 1,
+        "hits_allowed": 0
+      },
+      "analysis_timestamp": "2025-08-23T21:44:11.266238"
+    },
+    "678394": {
+      "pitcher_info": {
+        "playerId": 678394,
+        "fullName": "Brayan Bello",
+        "primaryNumber": "66",
+        "position": "P",
+        "status": "Active",
+        "team_id": 111,
+        "team_name": "Boston Red Sox",
+        "team_abbrev": "BOS"
+      },
+      "recent_starts": [
+        {
+          "et_datetime": "2025-08-22T00:00:00-04:00",
+          "date_et": "2025-08-22",
+          "innings_pitched": "7.0",
+          "earned_runs": 0,
+          "strikeouts": 5,
+          "walks": 1,
+          "hits_allowed": 3,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 147,
+          "opponent_name": "New York Yankees",
+          "game_era": 0.0,
+          "game_whip": 0.5714285714285714
+        },
+        {
+          "et_datetime": "2025-08-16T00:00:00-04:00",
+          "date_et": "2025-08-16",
+          "innings_pitched": "6.1",
+          "earned_runs": 2,
+          "strikeouts": 2,
+          "walks": 0,
+          "hits_allowed": 4,
+          "home_runs_allowed": 2,
+          "pitch_count": 0,
+          "opponent_team_id": 146,
+          "opponent_name": "Miami Marlins",
+          "game_era": 2.9508196721311477,
+          "game_whip": 0.6557377049180328
+        },
+        {
+          "et_datetime": "2025-08-10T00:00:00-04:00",
+          "date_et": "2025-08-10",
+          "innings_pitched": "5.2",
+          "earned_runs": 5,
+          "strikeouts": 7,
+          "walks": 3,
+          "hits_allowed": 6,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 135,
+          "opponent_name": "San Diego Padres",
+          "game_era": 8.653846153846153,
+          "game_whip": 1.7307692307692306
+        },
+        {
+          "et_datetime": "2025-08-04T00:00:00-04:00",
+          "date_et": "2025-08-04",
+          "innings_pitched": "6.0",
+          "earned_runs": 0,
+          "strikeouts": 5,
+          "walks": 1,
+          "hits_allowed": 6,
+          "home_runs_allowed": 0,
+          "pitch_count": 0,
+          "opponent_team_id": 118,
+          "opponent_name": "Kansas City Royals",
+          "game_era": 0.0,
+          "game_whip": 1.1666666666666667
+        },
+        {
+          "et_datetime": "2025-07-30T00:00:00-04:00",
+          "date_et": "2025-07-30",
+          "innings_pitched": "7.0",
+          "earned_runs": 1,
+          "strikeouts": 4,
+          "walks": 4,
+          "hits_allowed": 5,
+          "home_runs_allowed": 1,
+          "pitch_count": 0,
+          "opponent_team_id": 142,
+          "opponent_name": "Minnesota Twins",
+          "game_era": 1.2857142857142858,
+          "game_whip": 1.2857142857142858
+        }
+      ],
+      "aggregates": {
+        "era": 2.3003194888178915,
+        "whip": 1.0543130990415335,
+        "k_per_9": 6.613418530351438,
+        "innings_pitched": 31.3,
+        "strikeouts": 23,
+        "walks": 9,
+        "hits_allowed": 24
+      },
+      "analysis_timestamp": "2025-08-23T21:44:12.397849"
+    }
+  },
+  "research_summary": {
+    "research_completed": "2025-08-23T21:44:13.398686",
+    "data_coverage": {
+      "total_mlb_teams": 30,
+      "total_pitchers_discovered": 65,
+      "pitchers_analyzed": 10,
+      "analysis_completion_rate": "15.4%"
+    },
+    "performance_insights": {
+      "era_stats": {
+        "sample_size": 10,
+        "average": 5.095174862507135,
+        "min": 0.0,
+        "max": 11.454545454545455
+      },
+      "whip_stats": {
+        "sample_size": 10,
+        "average": 1.341026071072064,
+        "min": 0.24390243902439027,
+        "max": 2.727272727272727
+      },
+      "k9_stats": {
+        "sample_size": 10,
+        "average": 8.357448430454538,
+        "min": 5.294117647058823,
+        "max": 13.170731707317074
+      }
+    },
+    "available_data_fields": {
+      "pitcher_info": [
+        "playerId",
+        "fullName",
+        "primaryNumber",
+        "position",
+        "status",
+        "team_name",
+        "team_abbrev"
+      ],
+      "recent_starts": [
+        "et_datetime",
+        "date_et",
+        "innings_pitched",
+        "earned_runs",
+        "strikeouts",
+        "walks",
+        "hits_allowed",
+        "home_runs_allowed",
+        "opponent_name",
+        "game_era",
+        "game_whip"
+      ],
+      "aggregates": [
+        "era",
+        "whip",
+        "k_per_9",
+        "innings_pitched",
+        "strikeouts",
+        "walks",
+        "hits_allowed"
+      ]
+    },
+    "mcp_tools_tested": [
+      "getMLBTeams",
+      "getMLBTeamRoster",
+      "getMLBPitcherMatchup"
+    ]
+  }
+}
