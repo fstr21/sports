@@ -1922,6 +1922,222 @@ class MLBHandler(BaseSportHandler):
             logger.error(f"Error calling Chronulus analysis: {e}")
             return None
     
+    async def create_ai_analysis_embeds(self, match: Match, chronulus_data: Optional[Dict[str, Any]]) -> List[discord.Embed]:
+        """Create multiple AI Expert Analysis embeds using Custom Chronulus 5-expert data"""
+        embeds = []
+        
+        try:
+            if not chronulus_data:
+                return embeds
+            
+            # Extract analysis data
+            analysis_data = chronulus_data.get("analysis", {})
+            if not analysis_data:
+                return embeds
+            
+            # Extract key data
+            away_prob = analysis_data.get("away_team_win_probability", 0) * 100
+            home_prob = analysis_data.get("home_team_win_probability", 0) * 100
+            expert_count = analysis_data.get("expert_count", 5)
+            expert_analysis_text = analysis_data.get("expert_analysis", "")
+            betting_recommendation = analysis_data.get("betting_recommendation", "NO CLEAR EDGE")
+            market_edge = analysis_data.get("market_edge", 0) * 100
+            beta_params = analysis_data.get("beta_params", {})
+            
+            # Embed 1: Game Summary & Probabilities
+            summary_embed = discord.Embed(
+                title=f"🎯 Custom Chronulus Analysis • {match.away_team} @ {match.home_team}",
+                description="Enhanced 5-Expert Institutional Analysis (85% cost savings vs paid Chronulus)",
+                color=0x6A5ACD,  # Slate blue
+                timestamp=datetime.now()
+            )
+            
+            # Win probabilities with visual bars
+            away_bars = int(away_prob / 10)
+            home_bars = int(home_prob / 10)
+            away_visual = f"{'🟩' * away_bars}{'⬜' * (10 - away_bars)}"
+            home_visual = f"{'🟦' * home_bars}{'⬜' * (10 - home_bars)}"
+            
+            summary_embed.add_field(
+                name="🎲 Win Probabilities",
+                value=f"**{match.away_team}: {away_prob:.1f}%**\n{away_visual}\n\n**{match.home_team}: {home_prob:.1f}%**\n{home_visual}",
+                inline=False
+            )
+            
+            # Betting recommendation with market edge
+            rec_emoji = "✅" if "BET" in betting_recommendation.upper() else "⚠️" if "LEAN" in betting_recommendation.upper() else "❌"
+            summary_embed.add_field(
+                name="💰 Betting Recommendation",
+                value=f"{rec_emoji} **{betting_recommendation}**\nMarket Edge: {market_edge:+.2f}%",
+                inline=True
+            )
+            
+            # Technical stats
+            summary_embed.add_field(
+                name="📊 Analysis Stats",
+                value=f"• **Experts**: {expert_count} AI specialists\n• **Model**: google/gemini-2.0-flash-001\n• **Cost**: $0.10-0.25 (vs $0.75-1.50)",
+                inline=True
+            )
+            
+            # Beta distribution if available
+            if beta_params:
+                alpha = beta_params.get("alpha", 0)
+                beta = beta_params.get("beta", 0)
+                mean = beta_params.get("mean", 0)
+                variance = beta_params.get("variance", 0)
+                summary_embed.add_field(
+                    name="📈 Statistical Modeling",
+                    value=f"• **Beta α**: {alpha:.1f}\n• **Beta β**: {beta:.1f}\n• **Mean**: {mean:.3f}\n• **Variance**: {variance:.6f}",
+                    inline=False
+                )
+            
+            summary_embed.set_footer(text="Custom Chronulus MCP • Enhanced Multi-Expert Analysis")
+            embeds.append(summary_embed)
+            
+            # Parse expert analysis text into individual experts
+            expert_sections = {}
+            if expert_analysis_text:
+                # Split by expert markers
+                expert_markers = [
+                    ("[STATISTICAL EXPERT]", "Statistical Expert", "📊"),
+                    ("[SITUATIONAL EXPERT]", "Situational Expert", "⚡"),
+                    ("[CONTRARIAN EXPERT]", "Contrarian Expert", "🎭"),
+                    ("[SHARP EXPERT]", "Sharp Expert", "🎯"),
+                    ("[MARKET EXPERT]", "Market Expert", "💹")
+                ]
+                
+                for marker, name, emoji in expert_markers:
+                    if marker in expert_analysis_text:
+                        start = expert_analysis_text.find(marker)
+                        # Find next expert marker or end of text
+                        end = len(expert_analysis_text)
+                        for next_marker, _, _ in expert_markers:
+                            if next_marker != marker:
+                                next_start = expert_analysis_text.find(next_marker, start + 1)
+                                if next_start != -1 and next_start < end:
+                                    end = next_start
+                        
+                        # Extract expert's analysis
+                        expert_text = expert_analysis_text[start + len(marker):end].strip()
+                        # Clean up the text - remove probability/confidence lines at the end
+                        lines = expert_text.split('\n')
+                        cleaned_lines = []
+                        for line in lines:
+                            if 'Probability:' in line or 'Confidence:' in line:
+                                break
+                            if line.strip():
+                                cleaned_lines.append(line.strip())
+                        
+                        expert_sections[name] = {
+                            'emoji': emoji,
+                            'text': ' '.join(cleaned_lines)
+                        }
+            
+            # Embed 2: Statistical & Situational Experts
+            if 'Statistical Expert' in expert_sections or 'Situational Expert' in expert_sections:
+                experts_embed1 = discord.Embed(
+                    title="📊 Expert Analysis (1/3) • Statistical & Situational",
+                    color=0x4B0082,  # Indigo
+                    timestamp=datetime.now()
+                )
+                
+                if 'Statistical Expert' in expert_sections:
+                    stat_expert = expert_sections['Statistical Expert']
+                    stat_text = stat_expert['text'][:1000] + "..." if len(stat_expert['text']) > 1000 else stat_expert['text']
+                    experts_embed1.add_field(
+                        name=f"{stat_expert['emoji']} Statistical Expert Analysis",
+                        value=stat_text,
+                        inline=False
+                    )
+                
+                if 'Situational Expert' in expert_sections:
+                    sit_expert = expert_sections['Situational Expert']
+                    sit_text = sit_expert['text'][:1000] + "..." if len(sit_expert['text']) > 1000 else sit_expert['text']
+                    experts_embed1.add_field(
+                        name=f"{sit_expert['emoji']} Situational Expert Analysis",
+                        value=sit_text,
+                        inline=False
+                    )
+                
+                experts_embed1.set_footer(text="Enhanced Custom Chronulus • Institutional-Grade Analysis")
+                embeds.append(experts_embed1)
+            
+            # Embed 3: Contrarian & Sharp Experts
+            if 'Contrarian Expert' in expert_sections or 'Sharp Expert' in expert_sections:
+                experts_embed2 = discord.Embed(
+                    title="🎭 Expert Analysis (2/3) • Contrarian & Sharp",
+                    color=0x8B0000,  # Dark red
+                    timestamp=datetime.now()
+                )
+                
+                if 'Contrarian Expert' in expert_sections:
+                    con_expert = expert_sections['Contrarian Expert']
+                    con_text = con_expert['text'][:1000] + "..." if len(con_expert['text']) > 1000 else con_expert['text']
+                    experts_embed2.add_field(
+                        name=f"{con_expert['emoji']} Contrarian Expert Analysis",
+                        value=con_text,
+                        inline=False
+                    )
+                
+                if 'Sharp Expert' in expert_sections:
+                    sharp_expert = expert_sections['Sharp Expert']
+                    sharp_text = sharp_expert['text'][:1000] + "..." if len(sharp_expert['text']) > 1000 else sharp_expert['text']
+                    experts_embed2.add_field(
+                        name=f"{sharp_expert['emoji']} Sharp Expert Analysis",
+                        value=sharp_text,
+                        inline=False
+                    )
+                
+                experts_embed2.set_footer(text="Enhanced Custom Chronulus • Institutional-Grade Analysis")
+                embeds.append(experts_embed2)
+            
+            # Embed 4: Market Expert & Final Consensus
+            if 'Market Expert' in expert_sections:
+                experts_embed3 = discord.Embed(
+                    title="💹 Expert Analysis (3/3) • Market & Consensus",
+                    color=0x006400,  # Dark green
+                    timestamp=datetime.now()
+                )
+                
+                market_expert = expert_sections['Market Expert']
+                market_text = market_expert['text'][:1000] + "..." if len(market_expert['text']) > 1000 else market_expert['text']
+                experts_embed3.add_field(
+                    name=f"{market_expert['emoji']} Market Expert Analysis",
+                    value=market_text,
+                    inline=False
+                )
+                
+                # Extract final consensus
+                if "FINAL CONSENSUS:" in expert_analysis_text:
+                    consensus_start = expert_analysis_text.find("FINAL CONSENSUS:")
+                    consensus_text = expert_analysis_text[consensus_start:].strip()
+                    # Clean up and limit length
+                    consensus_lines = consensus_text.split('\n')[:4]  # First 4 lines
+                    final_consensus = '\n'.join(consensus_lines)
+                    if len(final_consensus) > 800:
+                        final_consensus = final_consensus[:800] + "..."
+                    
+                    experts_embed3.add_field(
+                        name="🎯 Final Expert Consensus",
+                        value=final_consensus,
+                        inline=False
+                    )
+                
+                experts_embed3.set_footer(text="Enhanced Custom Chronulus • 85% Cost Savings vs Paid Service")
+                embeds.append(experts_embed3)
+            
+            return embeds
+            
+        except Exception as e:
+            logger.error(f"Error creating AI analysis embeds: {e}")
+            # Return single error embed as fallback
+            error_embed = discord.Embed(
+                title="❌ AI Analysis Error",
+                description=f"Custom Chronulus analysis failed: {str(e)}",
+                color=discord.Color.red()
+            )
+            return [error_embed]
+
     async def create_ai_analysis_embed(self, match: Match, chronulus_data: Optional[Dict[str, Any]]) -> Optional[discord.Embed]:
         """Create AI Expert Analysis embed using Custom Chronulus data"""
         try:
