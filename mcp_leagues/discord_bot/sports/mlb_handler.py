@@ -238,36 +238,8 @@ class MLBHandler(BaseSportHandler):
                             if match:
                                 matches.append(match)
             
-            # TESTING: Filter to only the last game of the day for Chronulus testing
-            if matches:
-                # Sort by game time to get the latest game
-                sorted_matches = []
-                for match in matches:
-                    raw_time = match.additional_data.get('time', 'TBD')
-                    if raw_time != 'TBD' and 'T' in raw_time:
-                        try:
-                            # Parse time for sorting
-                            if raw_time.endswith('Z'):
-                                dt = datetime.fromisoformat(raw_time.replace('Z', '+00:00'))
-                            else:
-                                dt = datetime.fromisoformat(raw_time)
-                            sorted_matches.append((dt, match))
-                        except Exception:
-                            # If time parsing fails, add with current time as fallback
-                            sorted_matches.append((datetime.now(), match))
-                    else:
-                        # Games without time go to end
-                        sorted_matches.append((datetime.now(), match))
-                
-                # Sort by time and take only the LAST game (latest start time)
-                if sorted_matches:
-                    sorted_matches.sort(key=lambda x: x[0])  # Sort by datetime
-                    last_game = sorted_matches[-1][1]  # Get the match from the last tuple
-                    
-                    logger.info(f"TESTING MODE: Processing only last game of day: {last_game.away_team} @ {last_game.home_team}")
-                    logger.info(f"Skipping {len(matches) - 1} other games for Chronulus testing")
-                    
-                    return [last_game]  # Return only the last game
+            # Process all games for the day
+            logger.info(f"Processing all {len(matches)} MLB games for {date}")
             
             return matches
             
