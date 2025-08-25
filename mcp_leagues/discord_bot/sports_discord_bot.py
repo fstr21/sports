@@ -19,7 +19,7 @@ from starlette.routing import Route
 from core.mcp_client import MCPClient
 from core.sync_manager import SyncManager
 from core.sport_manager import SportManager
-from config import config
+from config import config, BotConfig  # type: ignore
 
 # Import HTML-to-image functionality
 from utils.html_to_image import create_baseball_analysis_image
@@ -41,7 +41,7 @@ class EnhancedSportsBot(commands.Bot):
         intents.guilds = True
         
         super().__init__(
-            command_prefix=None,
+            command_prefix="!",  # Default prefix for text commands
             intents=intents,
             description="Enhanced Sports Bot v2.0 - Full Architecture"
         )
@@ -460,10 +460,23 @@ async def test_mlb_image_command(interaction: discord.Interaction):
         betting_odds = None  # Could call real betting odds methods later
         pitcher_matchup = None  # Could call real pitcher methods later
         
-        # Create template data dictionary
-        template_data = await mlb_handler.create_template_data_for_image(
-            match, team_forms, betting_odds, pitcher_matchup
-        )
+        # Create template data dictionary using the actual method
+        if hasattr(mlb_handler, 'create_template_data_for_image'):
+            template_data = await mlb_handler.create_template_data_for_image(  # type: ignore
+                match, team_forms, betting_odds, pitcher_matchup
+            )
+        else:
+            # Fallback template data if method doesn't exist
+            template_data = {
+                'game_date': datetime.now().strftime('%B %d, %Y - %I:%M %p ET'),
+                'venue_name': match.additional_data.get('venue', 'MLB Stadium'),
+                'home_team_name': match.home_team,
+                'away_team_name': match.away_team,
+                'home_team_logo': match.home_team[:3].upper(),
+                'away_team_logo': match.away_team[:3].upper(),
+                'home_team_color_primary': '#1a4f3a',
+                'away_team_color_secondary': '#2d5a27'
+            }
         
         # Generate image
         image_bytes = await create_baseball_analysis_image(template_data)
@@ -500,9 +513,9 @@ async def test_mlb_image_command(interaction: discord.Interaction):
         await interaction.followup.send(embed=embed)
 
 
-@bot.tree.command(name="textonly", description="Test Custom Chronulus AI analysis with Red Sox @ Yankees data")
+@bot.tree.command(name="textonly", description="Enhanced Custom Chronulus AI analysis with 4-embed strategy")
 async def test_textonly_command(interaction: discord.Interaction):
-    """Test command to run Custom Chronulus analysis and break into Discord embeds"""
+    """Enhanced textonly command using 4-embed strategy to display full comprehensive analysis"""
     await interaction.response.defer()
     
     try:
