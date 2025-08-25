@@ -513,13 +513,13 @@ async def test_mlb_image_command(interaction: discord.Interaction):
         await interaction.followup.send(embed=embed)
 
 
-@bot.tree.command(name="textonly", description="Enhanced Custom Chronulus AI analysis with 4-embed strategy")
+@bot.tree.command(name="textonly", description="Enhanced Custom Chronulus AI analysis - Clean readable format")
 async def test_textonly_command(interaction: discord.Interaction):
-    """Enhanced textonly command using 4-embed strategy to display full comprehensive analysis"""
+    """Display comprehensive Chronulus analysis in clean, readable Discord format"""
     await interaction.response.defer()
     
     try:
-        # Enhanced comprehensive game data matching the successful comprehensive analysis
+        # Same game data as test script
         game_data = {
             "home_team": "New York Yankees (82-58, .586 win%, AL East leaders)",
             "away_team": "Boston Red Sox (75-65, .536 win%, Wild Card contention)", 
@@ -558,14 +558,19 @@ async def test_textonly_command(interaction: discord.Interaction):
                 "INJURY REPORT: "
                 "Yankees: Giancarlo Stanton (hamstring, questionable). "
                 "Red Sox: All key players healthy and available. "
-                "PUBLIC BETTING: 67% of bets on Yankees, 33% on Red Sox."
+                "PUBLIC BETTING: 67% of bets on Yankees, 33% on Red Sox. "
+                "ANALYSIS REQUIREMENTS: MANDATORY player-specific analysis with names and statistics. "
+                "Must specifically mention 'Gerrit Cole (3.41 ERA)' vs 'Brayan Bello (4.15 ERA)' comparison. "
+                "Include individual player performance metrics, ERA comparisons, WHIP analysis, and strikeout rates. "
+                "Analyze how Cole's 3.41 ERA compares to Bello's 4.15 ERA and impact on game outcome. "
+                "Reference key position players by name (Aaron Judge, Juan Soto, Rafael Devers, Trevor Story). "
+                "Provide detailed statistical breakdowns showing why specific players give advantages to their teams."
             )
         }
-        
         # Get Custom Chronulus MCP URL from config
         custom_chronulus_url = bot.config.custom_chronulus_mcp_url
         
-        # MCP request
+        # MCP request for 5-expert analysis with player focus
         mcp_request = {
             "jsonrpc": "2.0",
             "method": "tools/call",
@@ -575,7 +580,9 @@ async def test_textonly_command(interaction: discord.Interaction):
                 "arguments": {
                     "game_data": game_data,
                     "expert_count": 5,
-                    "analysis_depth": "comprehensive"
+                    "analysis_depth": "comprehensive",
+                    "player_analysis_required": True,
+                    "specific_instructions": "Must analyze individual player matchups, especially Gerrit Cole vs Brayan Bello pitching comparison with ERA analysis"
                 }
             }
         }
@@ -584,18 +591,14 @@ async def test_textonly_command(interaction: discord.Interaction):
         import httpx
         import json
         from datetime import datetime
-        import os
         
-        logger.info(f"Starting Custom Chronulus analysis...")
-        logger.info(f"MCP URL: {custom_chronulus_url}")
+        logger.info(f"Starting Enhanced Chronulus Analysis (matching test script)...")
         logger.info(f"Game: {game_data['away_team']} @ {game_data['home_team']}")
         
         async with httpx.AsyncClient(timeout=120.0) as client:
-            logger.info(f"Sending request to Custom Chronulus MCP...")
             response = await client.post(custom_chronulus_url, json=mcp_request)
             response.raise_for_status()
             result = response.json()
-            logger.info(f"Received response from Custom Chronulus MCP")
             
             if "result" not in result:
                 error_msg = result.get('error', 'Unknown error')
@@ -611,257 +614,179 @@ async def test_textonly_command(interaction: discord.Interaction):
             mcp_result = result["result"]
             analysis_text = mcp_result["content"][0]["text"] if "content" in mcp_result and mcp_result["content"] else "No analysis returned"
             
-            # Export raw MCP results to markdown
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            results_dir = "C:\\Users\\fstr2\\Desktop\\sports\\chronulus\\results"
-            md_file = f"{results_dir}\\textonly_raw_{timestamp}.md"
-            
-            # Create directory if it doesn't exist
-            try:
-                os.makedirs(results_dir, exist_ok=True)
-                logger.info(f"Created/verified results directory: {results_dir}")
-            except Exception as dir_error:
-                logger.error(f"Failed to create results directory: {dir_error}")
-                # Fallback to a simpler path
-                results_dir = "C:\\Users\\fstr2\\Desktop\\sports"
-                md_file = f"{results_dir}\\textonly_raw_{timestamp}.md"
-            
-            try:
-                with open(md_file, 'w', encoding='utf-8') as f:
-                    f.write(f"# /textonly Command - Raw MCP Results\\n\\n")
-                    f.write(f"**Generated**: {datetime.now().strftime('%B %d, %Y at %I:%M %p ET')}\\n")
-                    f.write(f"**Command**: /textonly\\n")
-                    f.write(f"**Game**: {game_data['away_team']} @ {game_data['home_team']}\\n\\n")
-                    f.write("## Raw MCP Response\\n\\n")
-                    f.write("```json\\n")
-                    f.write(json.dumps(result, indent=2))
-                    f.write("\\n```\\n\\n")
-                    f.write("## Analysis Text\\n\\n")
-                    f.write("```\\n")
-                    f.write(analysis_text)
-                    f.write("\\n```\\n")
-                
-                logger.info(f"✅ SUCCESS: Raw MCP results exported to: {md_file}")
-                
-                # Verify file was created
-                if os.path.exists(md_file):
-                    file_size = os.path.getsize(md_file)
-                    logger.info(f"File verified: {md_file} ({file_size} bytes)")
-                else:
-                    logger.error(f"❌ File was not created: {md_file}")
-                    
-            except Exception as file_error:
-                logger.error(f"❌ Failed to create markdown file: {file_error}")
-                # Try alternative location
-                fallback_file = f"C:\\Users\\fstr2\\Desktop\\sports\\textonly_raw_{timestamp}.md"
-                try:
-                    with open(fallback_file, 'w', encoding='utf-8') as f:
-                        f.write(f"# /textonly Command - Raw MCP Results (Fallback)\\n\\n")
-                        f.write(f"**Generated**: {datetime.now().strftime('%B %d, %Y at %I:%M %p ET')}\\n")
-                        f.write(f"Analysis Text: {analysis_text[:500]}...\\n")
-                    logger.info(f"✅ Fallback file created: {fallback_file}")
-                    md_file = fallback_file
-                except Exception as fallback_error:
-                    logger.error(f"❌ Fallback file also failed: {fallback_error}")
-                    md_file = "file_creation_failed"
-            
-            # Parse analysis if it's JSON
+            # Parse the JSON analysis (same as test script)
             try:
                 analysis_data = json.loads(analysis_text)
+                analysis = analysis_data.get("analysis", {})
                 
-                # Create multiple Discord embeds
-                embeds = []
-                
-                # Embed 1: Game Overview
+                # EMBED 1: Test Overview & Metrics (matching console output)
                 embed1 = discord.Embed(
-                    title="⚾ Custom Chronulus Analysis",
-                    description=f"**{game_data['away_team']} @ {game_data['home_team']}**\\n{game_data['game_date']} | {game_data['venue']}",
+                    title="🧪 Enhanced Chronulus Test Results",
+                    description=f"**{game_data['away_team']} @ {game_data['home_team']}**\n{game_data['game_date']} | {game_data['venue']}",
                     color=discord.Color.blue(),
                     timestamp=datetime.now()
                 )
                 
-                # Add betting lines
+                # Test metrics (matching console output)
                 embed1.add_field(
-                    name="💰 Betting Market",
-                    value=f"**Moneyline**\\nRed Sox: +{game_data['away_moneyline']} (40.8% implied)\\nYankees: {game_data['home_moneyline']} (62.3% implied)\\n\\n**Run Line**\\nRed Sox: +1.5 (-135)\\nYankees: -1.5 (+115)\\n\\n**Total**\\nOver 9.0 (-108) | Under 9.0 (-112)",
-                    inline=False
+                    name="📊 Analysis Quality Metrics",
+                    value=f"**Expert Count**: {analysis.get('expert_count', 'N/A')}\n**Model Used**: {analysis.get('model_used', 'N/A')}\n**Cost Estimate**: {analysis.get('cost_estimate', 'N/A')}\n**Analysis Length**: {len(analysis.get('expert_analysis', ''))} characters",
+                    inline=True
                 )
-                embeds.append(embed1)
                 
-                # Embed 2: AI Probabilities 
-                if "analysis" in analysis_data:
-                    analysis = analysis_data["analysis"]
-                    embed2 = discord.Embed(
-                        title="🤖 AI Probability Assessment",
-                        color=discord.Color.green()
+                # Game context
+                embed1.add_field(
+                    name="⚾ Game Data Analysis",
+                    value=f"**Yankees**: {game_data['home_moneyline']} (62.3% implied)\n**Red Sox**: +{game_data['away_moneyline']} (40.8% implied)\n**Context Length**: {len(game_data['additional_context'])} chars",
+                    inline=True
+                )
+                
+                await interaction.followup.send(embed=embed1)
+                
+                # EMBED 2: Win Probabilities (matching test output)
+                embed2 = discord.Embed(
+                    title="🎯 Win Probability Assessment",
+                    color=discord.Color.green()
+                )
+                
+                if "away_team_win_probability" in analysis and "home_team_win_probability" in analysis:
+                    away_prob = analysis["away_team_win_probability"] * 100
+                    home_prob = analysis["home_team_win_probability"] * 100
+                    
+                    # Visual probability display
+                    away_bars = int(away_prob / 10)
+                    home_bars = int(home_prob / 10)
+                    away_visual = f"{'🟩' * away_bars}{'⬜' * (10 - away_bars)}"
+                    home_visual = f"{'🟦' * home_bars}{'⬜' * (10 - home_bars)}"
+                    
+                    embed2.add_field(
+                        name="📊 Win Probabilities",
+                        value=f"**Red Sox: {away_prob:.1f}%**\n{away_visual}\n\n**Yankees: {home_prob:.1f}%**\n{home_visual}",
+                        inline=False
                     )
-                    
-                    if "away_team_win_probability" in analysis and "home_team_win_probability" in analysis:
-                        away_prob = analysis["away_team_win_probability"] * 100
-                        home_prob = analysis["home_team_win_probability"] * 100
-                        
-                        embed2.add_field(
-                            name="🎯 Win Probabilities",
-                            value=f"**Red Sox**: {away_prob:.1f}%\\n**Yankees**: {home_prob:.1f}%",
-                            inline=True
-                        )
-                        
-                        # Calculate edges
-                        red_sox_edge = away_prob - 40.8
-                        yankees_edge = home_prob - 62.3
-                        
-                        embed2.add_field(
-                            name="📊 Market Edge",
-                            value=f"**Red Sox**: {red_sox_edge:+.1f}pp\\n**Yankees**: {yankees_edge:+.1f}pp",
-                            inline=True
-                        )
-                    
-                    if "betting_recommendation" in analysis:
-                        embed2.add_field(
-                            name="💡 Recommendation", 
-                            value=analysis["betting_recommendation"],
-                            inline=False
-                        )
-                    
-                    embeds.append(embed2)
                 
-                # Embed 3: Expert Analysis (enhanced processing for comprehensive format)
-                if "analysis" in analysis_data and "expert_analysis" in analysis_data["analysis"]:
+                # Betting recommendation (matching test output)
+                if "betting_recommendation" in analysis:
+                    rec_emoji = "✅" if "BET" in analysis["betting_recommendation"].upper() else "⚠️"
+                    embed2.add_field(
+                        name="💰 Recommendation",
+                        value=f"{rec_emoji} **{analysis['betting_recommendation']}**",
+                        inline=True
+                    )
+                
+                await interaction.followup.send(embed=embed2)
+                
+                # EMBED 3: Expert Analysis Content
+                expert_analysis = analysis.get("expert_analysis", "")
+                if expert_analysis:
                     embed3 = discord.Embed(
-                        title="🧠 Chief Analyst Report",
+                        title="📋 Expert Analysis Report",
                         color=discord.Color.orange()
                     )
                     
-                    expert_text = analysis_data["analysis"]["expert_analysis"]
+                    # Extract Market Baseline section
+                    if "**MARKET BASELINE**:" in expert_analysis:
+                        start = expert_analysis.find("**MARKET BASELINE**:")
+                        end = expert_analysis.find("**ANALYTICAL", start)
+                        if end == -1:
+                            end = expert_analysis.find("**KEY FACTORS", start)
+                        if end > start:
+                            market_baseline = expert_analysis[start:end].strip()
+                            embed3.add_field(
+                                name="📊 Market Baseline",
+                                value=market_baseline[:1000],
+                                inline=False
+                            )
                     
-                    # Enhanced processing to preserve key sections from comprehensive analysis
-                    if len(expert_text) > 1000:
-                        # Strategy: Keep key sections and final assessment, trim verbose parts
-                        if "FINAL ASSESSMENT:" in expert_text:
-                            # Find key sections
-                            market_baseline_start = expert_text.find("**MARKET BASELINE**:")
-                            final_start = expert_text.find("FINAL ASSESSMENT:")
-                            
-                            if market_baseline_start > 0 and final_start > 0:
-                                # Get market baseline (essential)
-                                market_section = expert_text[market_baseline_start:market_baseline_start + 200] + "..."
-                                
-                                # Final assessment (must keep)
-                                final_section = expert_text[final_start:]
-                                
-                                # Reconstruct with key information
-                                expert_text = f"{market_section}\n\n{final_section}"
-                            
-                            # Final length check
-                            if len(expert_text) > 1000:
-                                # Last resort: prioritize final assessment
-                                final_start = expert_text.find("FINAL ASSESSMENT:")
-                                if final_start > 0:
-                                    final_section = expert_text[final_start:]
-                                    beginning_allowance = 1000 - len(final_section) - 50
-                                    if beginning_allowance > 0:
-                                        expert_text = expert_text[:beginning_allowance] + "\n\n*[Analysis condensed]*\n\n" + final_section
-                                    else:
-                                        expert_text = expert_text[:500] + "\n\n" + final_section
-                                else:
-                                    expert_text = expert_text[:950] + "..."
-                        else:
-                            expert_text = expert_text[:950] + "..."
+                    # Extract Key Factors section
+                    if "**KEY FACTORS FROM DATA**:" in expert_analysis:
+                        start = expert_analysis.find("**KEY FACTORS FROM DATA**:")
+                        end = expert_analysis.find("**BASEBALL VARIANCE", start)
+                        if end == -1:
+                            end = expert_analysis.find("**DIRECTIONAL", start)
+                        if end > start:
+                            key_factors = expert_analysis[start:end].strip()
+                            embed3.add_field(
+                                name="🔍 Key Factors From Data",
+                                value=key_factors[:1000],
+                                inline=False
+                            )
                     
-                    embed3.add_field(
-                        name="📋 Institutional Analysis",
-                        value=expert_text,
-                        inline=False
-                    )
-                    embeds.append(embed3)
+                    await interaction.followup.send(embed=embed3)
                 
-                # Embed 4: Technical Details
+                # EMBED 4: Final Assessment & Quality Check
                 embed4 = discord.Embed(
-                    title="🔧 Technical Details",
+                    title="⚖️ Final Assessment & Quality Check",
                     color=discord.Color.purple()
                 )
                 
-                if "analysis" in analysis_data:
-                    analysis = analysis_data["analysis"] 
+                # Extract Final Assessment (matching test structure)
+                if "FINAL ASSESSMENT:" in expert_analysis:
+                    final_start = expert_analysis.find("FINAL ASSESSMENT:")
+                    final_assessment = expert_analysis[final_start:].strip()
                     embed4.add_field(
-                        name="📊 Analysis Info",
-                        value=f"**Expert Count**: {analysis.get('expert_count', 'N/A')}\\n**Depth**: {analysis.get('analysis_depth', 'N/A')}\\n**Model**: {analysis.get('model_used', 'N/A')}\\n**Cost**: {analysis.get('cost_estimate', 'N/A')}",
+                        name="🎯 Expert Final Assessment",
+                        value=final_assessment[:1000],
+                        inline=False
+                    )
+                
+                # Quality indicators check (matching test output)
+                quality_indicators = [
+                    "MARKET BASELINE",
+                    "FINAL ASSESSMENT",
+                    "Win Probability:",
+                    "Analyst Confidence:",
+                    "Recommendation:"
+                ]
+                found_indicators = [indicator for indicator in quality_indicators if indicator in expert_analysis]
+                
+                embed4.add_field(
+                    name="✅ Quality Indicators Found",
+                    value=f"**Count**: {len(found_indicators)}/5\n**All Elements**: {'✅' if len(found_indicators) == 5 else '❌'}\n**Indicators**: {', '.join(found_indicators[:3])}",
+                    inline=True
+                )
+                
+                # Beta parameters (matching test data)
+                if "beta_params" in analysis:
+                    beta = analysis["beta_params"]
+                    embed4.add_field(
+                        name="📈 Statistical Model",
+                        value=f"**Alpha**: {beta.get('alpha', 0):.2f}\n**Beta**: {beta.get('beta', 0):.2f}\n**Mean**: {beta.get('mean', 0):.3f}\n**Variance**: {beta.get('variance', 0):.6f}",
                         inline=True
                     )
-                    
-                    if "beta_params" in analysis:
-                        beta = analysis["beta_params"]
-                        embed4.add_field(
-                            name="📈 Statistical Params",
-                            value=f"**Alpha**: {beta.get('alpha', 0):.2f}\\n**Beta**: {beta.get('beta', 0):.2f}\\n**Mean**: {beta.get('mean', 0):.3f}",
-                            inline=True
-                        )
                 
-                if md_file != "file_creation_failed":
-                    embed4.add_field(
-                        name="📄 Export Info",
-                        value=f"Raw MCP results exported to:\\n`{os.path.basename(md_file)}`\\n\\nFull path: `{md_file}`",
-                        inline=False
-                    )
-                else:
-                    embed4.add_field(
-                        name="⚠️ Export Warning",
-                        value="Failed to export raw MCP results to file",
-                        inline=False
-                    )
+                embed4.set_footer(text=f"Enhanced Chronulus Test Completed • {datetime.now().strftime('%I:%M %p ET')}")
+                await interaction.followup.send(embed=embed4)
                 
-                embed4.set_footer(text=f"Custom Chronulus MCP • {datetime.now().strftime('%I:%M %p ET')}")
-                embeds.append(embed4)
-                
-                # Send all embeds
-                for i, embed in enumerate(embeds):
-                    if i == 0:
-                        await interaction.followup.send(embed=embed)
-                    else:
-                        await asyncio.sleep(0.5)  # Slight delay between embeds
-                        await interaction.followup.send(embed=embed)
-                
-                logger.info(f"Successfully sent {len(embeds)} embeds for Custom Chronulus analysis")
+                logger.info(f"Successfully displayed enhanced Chronulus test results in readable Discord format")
                 
             except json.JSONDecodeError:
-                # Handle non-JSON response
+                # Fallback for unexpected text format
                 embed = discord.Embed(
-                    title="📝 Custom Chronulus Analysis (Text)",
+                    title="📄 Raw Analysis Output",
                     description=f"**{game_data['away_team']} @ {game_data['home_team']}**",
                     color=discord.Color.blue()
                 )
                 
-                # Truncate text response for Discord
-                if len(analysis_text) > 1000:
-                    analysis_text = analysis_text[:1000] + "..."
-                
                 embed.add_field(
-                    name="🤖 AI Analysis",
-                    value=analysis_text,
+                    name="🤖 Analysis Content",
+                    value=analysis_text[:1000] + "..." if len(analysis_text) > 1000 else analysis_text,
                     inline=False
                 )
                 
-                embed.add_field(
-                    name="📄 Full Results",
-                    value=f"Complete analysis exported to:\\n`{os.path.basename(md_file)}`",
-                    inline=False
-                )
-                
-                embed.set_footer(text=f"Custom Chronulus MCP • Text Response")
                 await interaction.followup.send(embed=embed)
                 
     except Exception as e:
-        logger.error(f"Error in textonly command: {e}")
+        logger.error(f"Error in enhanced textonly command: {e}")
         import traceback
         traceback.print_exc()
         
         embed = discord.Embed(
-            title="❌ Error",
-            description=f"Failed to run Custom Chronulus analysis: {str(e)}",
+            title="❌ Test Error",
+            description=f"Failed to run enhanced Chronulus test: {str(e)}",
             color=discord.Color.red()
         )
         await interaction.followup.send(embed=embed)
-
 
 # Health check endpoint for Railway
 async def health_check(request):
@@ -904,3 +829,4 @@ if __name__ == "__main__":
     print("Starting Enhanced Sports Discord Bot v2.0")
     print(f"Discord Token: {'SET' if config.discord_token else 'MISSING'}")
     asyncio.run(main())
+
