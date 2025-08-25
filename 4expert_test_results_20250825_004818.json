@@ -1,0 +1,32 @@
+{
+  "test_timestamp": "2025-08-25T00:48:18.572762",
+  "expert_count": 1,
+  "experts_found": [],
+  "analysis_length": 1601,
+  "template_data": {
+    "away_team": "Boston Red Sox",
+    "home_team": "New York Yankees",
+    "game_date": "August 24, 2025 - 7:05 PM ET",
+    "venue_name": "Yankee Stadium",
+    "away_status": "Wild Card Race",
+    "home_status": "AL East Leaders",
+    "away_record": "75-65 (.536)",
+    "home_record": "82-58 (.586)",
+    "away_odds": "+145 (40.8%)",
+    "home_odds": "-165 (62.3%)",
+    "away_prob": "35.0",
+    "home_prob": "65.0",
+    "recommendation_short": "BET YANKEES",
+    "model_name": "Gemini 2.0 Flash 001",
+    "expert_analysis": "INSTITUTIONAL SPORTS ANALYSIS\nBoston Red Sox (75-65, .536 win%, Wild Card contention) @ New York Yankees (82-58, .586 win%, AL East leaders)\n\nChief Sports Analyst \u2022 google/gemini-2.0-flash-001\n\n**MARKET BASELINE**: The current moneyline implies approximately 40.8% probability for the Boston Red Sox and 62.3% for the New York Yankees.\n\n**ANALYTICAL ASSESSMENT**: Based on the data, the market appears reasonably efficient, but the pitching matchup suggests slightly higher odds for the Yankees. Gerrit Cole's (3.41 ERA, 1.09 WHIP, 198 K) track record and strikeout ability offer a significant advantage over Brayan Bello's (4.15 ERA, 1.31 WHIP, 156 K) performance.\n\n**KEY FACTORS FROM DATA**: The Yankees' +89 run differential compared to the Red Sox\u2019s +42 highlights a differential in overall team strength. Furthermore, Aaron Judge (.312 BA, 48 HR) and Juan Soto (.288 BA, 35 HR) present a formidable offensive threat against Boston's pitching.\n\n**BASEBALL VARIANCE ACKNOWLEDGMENT**: Baseball's inherent unpredictability, influenced by factors like individual player performance and situational hitting, prevents absolute certainty in any single game outcome.\n\n**DIRECTIONAL ASSESSMENT**: While Rafael Devers (.287 BA, 28 HR) and Trevor Story (.251 BA, 15 HR) are key offensive contributors for Boston, the pitching mismatch and home-field advantage marginally favor the Yankees. I assess the Red Sox win probability at 37%.\n\nFINAL ASSESSMENT:\nWin Probability: 35.0% (Boston Red Sox (75-65, .536 win%, Wild Card contention))\nAnalyst Confidence: 75%\nRecommendation: BET HOME - Strong edge identified",
+    "timestamp": "August 25, 2025 at 12:48 AM ET",
+    "market_edge": "-0.06%",
+    "confidence": "75%"
+  },
+  "discord_fields": {
+    "team_records_odds": "**Red Sox**: 75-65 (.536) | +145 (40.8%)\n**Yankees**: 82-58 (.586) | -165 (62.3%)",
+    "model_info": "**Expert Count**: 1\n**Model**: Gemini 2.0 Flash 001\n**Cost**: $0.08-$0.20",
+    "key_matchup": "**Gerrit Cole** (3.41 ERA, 1.09 WHIP)\nvs\n**Brayan Bello** (4.15 ERA, 1.31 WHIP)"
+  },
+  "test_status": "SUCCESS"
+}

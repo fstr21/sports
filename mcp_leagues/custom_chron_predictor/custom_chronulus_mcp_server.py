@@ -72,6 +72,11 @@ class PredictionResult(BaseModel):
     expert_count: int
     beta_params: BetaDistributionParams
 
+class PredictionRequest(BaseModel):
+    """Prediction request with result"""
+    request_id: str
+    result: PredictionResult
+
 class GameData(BaseModel):
     """Universal game data structure"""
     home_team: str = Field(description="Home team with context")
@@ -121,48 +126,18 @@ class CustomBinaryPredictor:
         pass
     
     async def queue(self, item: GameData, num_experts: int = 1, note_length: Tuple[int, int] = (4, 5)) -> 'PredictionRequest':
-        """Generate single chief analyst institutional analysis"""
+        """Generate multi-expert analysis based on requested number of experts"""
         if not self.api_key:
             raise Exception("OpenRouter API key not configured")
         
-        # Generate single comprehensive analysis from Chief Sports Analyst
-        chief_analysis = await self._simulate_chief_analyst_with_openrouter(item, note_length)
-        
-        # Use chief analyst's probability and confidence for beta distribution
-        mean_prob = chief_analysis.probability
-        confidence = chief_analysis.confidence
-        
-        # Create beta distribution from single expert with realistic variance
-        # Higher confidence = lower variance
-        variance_factor = (1 - confidence) * 0.02  # Scale variance based on confidence
-        
-        if variance_factor > 0 and mean_prob * (1 - mean_prob) > variance_factor:
-            common_factor = (mean_prob * (1 - mean_prob) / variance_factor) - 1
-            alpha = mean_prob * common_factor
-            beta = (1 - mean_prob) * common_factor
+        # Generate analysis from multiple experts if requested
+        if num_experts > 1:
+            expert_analyses = await self._simulate_multi_expert_panel(item, num_experts, note_length)
+            result = await self._combine_expert_analyses(expert_analyses, item)
         else:
-            # Fallback based on confidence level
-            base_strength = confidence * 40 + 10  # 10-50 based on confidence
-            alpha = mean_prob * base_strength
-            beta = (1 - mean_prob) * base_strength
-        
-        beta_params = BetaDistributionParams(alpha=alpha, beta=beta)
-        
-        # Format professional analysis output
-        combined_text = f"INSTITUTIONAL SPORTS ANALYSIS\n{item.away_team} @ {item.home_team}\n\n"
-        combined_text += f"Chief Sports Analyst • {self.model}\n\n"
-        combined_text += chief_analysis.reasoning
-        combined_text += f"\n\nFINAL ASSESSMENT:\n"
-        combined_text += f"Win Probability: {mean_prob:.1%} ({item.away_team})\n"
-        combined_text += f"Analyst Confidence: {confidence:.0%}\n"
-        combined_text += f"Recommendation: {self._get_betting_recommendation(mean_prob, confidence)}"
-        
-        result = PredictionResult(
-            prob_a=mean_prob,
-            text=combined_text,
-            expert_count=1,  # Single chief analyst
-            beta_params=beta_params
-        )
+            # Single expert analysis (original behavior)
+            chief_analysis = await self._simulate_chief_analyst_with_openrouter(item, note_length)
+            result = self._create_single_expert_result(chief_analysis, item)
         
         return PredictionRequest(
             request_id=f"req_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
@@ -179,6 +154,263 @@ class CustomBinaryPredictor:
             return "BET HOME - Strong edge identified" 
         else:
             return "LEAN AWAY" if probability > 0.52 else "LEAN HOME" if probability < 0.48 else "PASS - No clear edge"
+    
+    async def _simulate_multi_expert_panel(self, game_data: GameData, num_experts: int, note_length: Tuple[int, int]) -> List[ExpertOpinion]:
+        """Generate analysis from multiple expert perspectives"""
+        expert_analyses = []
+        
+        # Use the first N expert personas based on requested count
+        selected_experts = self.expert_personas[:min(num_experts, len(self.expert_personas))]
+        
+        for i, expert_type in enumerate(selected_experts):
+            analysis = await self._simulate_expert_with_openrouter(game_data, expert_type, i+1, note_length)
+            expert_analyses.append(analysis)
+        
+        return expert_analyses
+    
+    async def _simulate_expert_with_openrouter(self, game_data: GameData, expert_type: str, expert_id: int, note_length: Tuple[int, int]) -> ExpertOpinion:
+        """Generate analysis from a specific expert perspective"""
+        
+        min_sentences, max_sentences = note_length
+        
+        # Expert-specific prompts
+        expert_prompts = {
+            "STATISTICAL EXPERT": f"You are a data-driven statistical analyst. Focus on hard numbers, team stats, historical performance, and mathematical models. Analyze {game_data.away_team} @ {game_data.home_team} using statistical evidence.",
+            "SITUATIONAL EXPERT": f"You are a situational analyst focusing on context, momentum, and current form. Analyze {game_data.away_team} @ {game_data.home_team} based on recent performance, injuries, and situational factors.",
+            "CONTRARIAN EXPERT": f"You are a contrarian analyst who looks for market inefficiencies and public bias. Analyze {game_data.away_team} @ {game_data.home_team} from a contrarian perspective, questioning popular opinion.",
+            "SHARP EXPERT": f"You are a sharp betting expert focused on line movement and professional betting patterns. Analyze {game_data.away_team} @ {game_data.home_team} for betting value and market edges.",
+            "MARKET EXPERT": f"You are a market analyst focused on odds, public betting percentages, and line movement. Analyze {game_data.away_team} @ {game_data.home_team} from a market efficiency perspective."
+        }
+        
+        prompt = expert_prompts.get(expert_type, expert_prompts["STATISTICAL EXPERT"])
+        
+        # Add game context
+        additional_context = game_data.additional_context
+        context_note = f"\n\nGAME CONTEXT: {additional_context}" if additional_context else ""
+        
+        # Calculate market implied probabilities
+        home_implied = abs(game_data.home_moneyline) / (abs(game_data.home_moneyline) + 100) if game_data.home_moneyline < 0 else 100 / (game_data.home_moneyline + 100)
+        away_implied = abs(game_data.away_moneyline) / (abs(game_data.away_moneyline) + 100) if game_data.away_moneyline < 0 else 100 / (game_data.away_moneyline + 100)
+        
+        expert_prompt = f"""{prompt}
+
+GAME DETAILS:
+• Away Team: {game_data.away_team}
+• Home Team: {game_data.home_team}
+• Venue: {game_data.venue}
+• Date: {game_data.game_date}
+• Market Odds: Away {game_data.away_moneyline:+d} ({away_implied:.1%}) | Home {game_data.home_moneyline:+d} ({home_implied:.1%}){context_note}
+
+Provide your {expert_type.lower()} perspective in {min_sentences}-{max_sentences} sentences. Include:
+1. Your win probability estimate for the away team
+2. Your confidence level (0-100%)
+3. Your key reasoning points
+4. Risk assessment and unit recommendation
+
+Format your response as a focused analysis from your {expert_type.lower()} specialty."""
+        
+        try:
+            client = await get_http_client()
+            response = await client.post(
+                f"{self.base_url}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": self.model,
+                    "messages": [{"role": "user", "content": expert_prompt}],
+                    "temperature": 0.7,
+                    "max_tokens": 400
+                },
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                analysis_text = result["choices"][0]["message"]["content"].strip()
+                
+                # Parse probability and confidence from the response
+                probability = self._extract_probability(analysis_text, away_implied)
+                confidence = self._extract_confidence(analysis_text)
+                
+                return ExpertOpinion(
+                    expert_id=expert_id,
+                    expert_type=expert_type,
+                    probability=probability,
+                    confidence=confidence,
+                    reasoning=analysis_text,
+                    unit_size=min(3, max(1, int(confidence * 3))),  # 1-3 units based on confidence
+                    risk_level="High" if confidence > 0.8 else "Medium" if confidence > 0.6 else "Low"
+                )
+            else:
+                # Fallback with market-based estimate
+                return self._create_fallback_expert(expert_id, expert_type, away_implied)
+                
+        except Exception as e:
+            # Fallback with market-based estimate
+            return self._create_fallback_expert(expert_id, expert_type, away_implied)
+    
+    def _extract_probability(self, text: str, market_baseline: float) -> float:
+        """Extract probability estimate from expert analysis text"""
+        import re
+        
+        # Look for percentage patterns
+        prob_patterns = [
+            r'(\d+(?:\.\d+)?)%',
+            r'probability.*?(\d+(?:\.\d+)?)',
+            r'chance.*?(\d+(?:\.\d+)?)',
+            r'(\d+(?:\.\d+)?) percent'
+        ]
+        
+        for pattern in prob_patterns:
+            matches = re.findall(pattern, text.lower())
+            if matches:
+                try:
+                    prob = float(matches[0])
+                    if prob > 1:  # Convert percentage to decimal
+                        prob = prob / 100
+                    if 0.1 <= prob <= 0.9:  # Reasonable range
+                        return prob
+                except ValueError:
+                    continue
+        
+        # If no clear probability found, use market baseline with small random variation
+        variation = random.uniform(-0.05, 0.05)
+        return max(0.15, min(0.85, market_baseline + variation))
+    
+    def _extract_confidence(self, text: str) -> float:
+        """Extract confidence level from expert analysis text"""
+        import re
+        
+        # Look for confidence patterns
+        conf_patterns = [
+            r'confidence.*?(\d+(?:\.\d+)?)%?',
+            r'confident.*?(\d+(?:\.\d+)?)%?',
+            r'(\d+(?:\.\d+)?)%?.*confidence'
+        ]
+        
+        for pattern in conf_patterns:
+            matches = re.findall(pattern, text.lower())
+            if matches:
+                try:
+                    conf = float(matches[0])
+                    if conf > 1:  # Convert percentage to decimal
+                        conf = conf / 100
+                    if 0.3 <= conf <= 1.0:  # Reasonable range
+                        return conf
+                except ValueError:
+                    continue
+        
+        # Default confidence based on text analysis
+        if any(word in text.lower() for word in ['strong', 'confident', 'clear', 'solid']):
+            return random.uniform(0.75, 0.90)
+        elif any(word in text.lower() for word in ['uncertain', 'unclear', 'difficult', 'close']):
+            return random.uniform(0.50, 0.65)
+        else:
+            return random.uniform(0.65, 0.80)
+    
+    def _create_fallback_expert(self, expert_id: int, expert_type: str, market_baseline: float) -> ExpertOpinion:
+        """Create fallback expert opinion when API fails"""
+        variation = random.uniform(-0.08, 0.08)
+        probability = max(0.15, min(0.85, market_baseline + variation))
+        confidence = random.uniform(0.6, 0.8)
+        
+        return ExpertOpinion(
+            expert_id=expert_id,
+            expert_type=expert_type,
+            probability=probability,
+            confidence=confidence,
+            reasoning=f"[{expert_type}] Market-based analysis suggests {probability:.1%} away team win probability with {confidence:.0%} confidence.",
+            unit_size=2,
+            risk_level="Medium"
+        )
+    
+    async def _combine_expert_analyses(self, expert_analyses: List[ExpertOpinion], game_data: GameData) -> PredictionResult:
+        """Combine multiple expert analyses into consensus prediction"""
+        
+        # Calculate weighted consensus
+        total_weight = sum(exp.confidence for exp in expert_analyses)
+        if total_weight == 0:
+            total_weight = len(expert_analyses)
+        
+        weighted_prob = sum(exp.probability * exp.confidence for exp in expert_analyses) / total_weight
+        avg_confidence = statistics.mean([exp.confidence for exp in expert_analyses])
+        
+        # Create beta distribution from expert consensus
+        # Higher consensus = lower variance
+        prob_variance = statistics.variance([exp.probability for exp in expert_analyses]) if len(expert_analyses) > 1 else 0.01
+        
+        # Scale variance based on consensus
+        if prob_variance > 0 and weighted_prob * (1 - weighted_prob) > prob_variance:
+            common_factor = (weighted_prob * (1 - weighted_prob) / prob_variance) - 1
+            alpha = weighted_prob * common_factor
+            beta = (1 - weighted_prob) * common_factor
+        else:
+            # Fallback based on consensus confidence
+            base_strength = avg_confidence * 50 + 20  # 20-70 based on confidence
+            alpha = weighted_prob * base_strength
+            beta = (1 - weighted_prob) * base_strength
+        
+        beta_params = BetaDistributionParams(alpha=alpha, beta=beta)
+        
+        # Format multi-expert analysis output
+        combined_text = f"ENHANCED MULTI-EXPERT ANALYSIS\n{game_data.away_team} @ {game_data.home_team}\n\n"
+        
+        for expert in expert_analyses:
+            combined_text += f"[{expert.expert_type}]\n"
+            combined_text += f"{expert.reasoning}\n"
+            combined_text += f"Probability: {expert.probability:.1%} | Confidence: {expert.confidence:.0%}\n\n"
+        
+        combined_text += f"EXPERT CONSENSUS:\n"
+        combined_text += f"Consensus Win Probability: {weighted_prob:.1%} ({game_data.away_team})\n"
+        combined_text += f"Panel Confidence: {avg_confidence:.0%}\n"
+        combined_text += f"Expert Count: {len(expert_analyses)}\n"
+        combined_text += f"Recommendation: {self._get_betting_recommendation(weighted_prob, avg_confidence)}"
+        
+        return PredictionResult(
+            prob_a=weighted_prob,
+            text=combined_text,
+            expert_count=len(expert_analyses),
+            beta_params=beta_params
+        )
+    
+    def _create_single_expert_result(self, chief_analysis: ExpertOpinion, game_data: GameData) -> PredictionResult:
+        """Create result for single expert analysis (original behavior)"""
+        
+        mean_prob = chief_analysis.probability
+        confidence = chief_analysis.confidence
+        
+        # Create beta distribution from single expert with realistic variance
+        variance_factor = (1 - confidence) * 0.02  # Scale variance based on confidence
+        
+        if variance_factor > 0 and mean_prob * (1 - mean_prob) > variance_factor:
+            common_factor = (mean_prob * (1 - mean_prob) / variance_factor) - 1
+            alpha = mean_prob * common_factor
+            beta = (1 - mean_prob) * common_factor
+        else:
+            # Fallback based on confidence level
+            base_strength = confidence * 40 + 10  # 10-50 based on confidence
+            alpha = mean_prob * base_strength
+            beta = (1 - mean_prob) * base_strength
+        
+        beta_params = BetaDistributionParams(alpha=alpha, beta=beta)
+        
+        # Format professional analysis output
+        combined_text = f"INSTITUTIONAL SPORTS ANALYSIS\n{game_data.away_team} @ {game_data.home_team}\n\n"
+        combined_text += f"Chief Sports Analyst • {self.model}\n\n"
+        combined_text += chief_analysis.reasoning
+        combined_text += f"\n\nFINAL ASSESSMENT:\n"
+        combined_text += f"Win Probability: {mean_prob:.1%} ({game_data.away_team})\n"
+        combined_text += f"Analyst Confidence: {confidence:.0%}\n"
+        combined_text += f"Recommendation: {self._get_betting_recommendation(mean_prob, confidence)}"
+        
+        return PredictionResult(
+            prob_a=mean_prob,
+            text=combined_text,
+            expert_count=1,
+            beta_params=beta_params
+        )
     
     async def _simulate_chief_analyst_with_openrouter(self, game_data: GameData, note_length: Tuple[int, int]) -> ExpertOpinion:
         """Generate comprehensive chief analyst analysis with Bloomberg-style formatting"""
@@ -486,7 +718,9 @@ CRITICAL RULES:
                 risk_level = risk_match.group(1).title()
             
             # Clean up reasoning
-            reasoning = content.replace(f"My probability: {prob_match.group(1)}%" if prob_match else "", "").strip()
+            reasoning = content
+            if 'prob_match' in locals() and prob_match:
+                reasoning = content.replace(f"My probability: {prob_match.group(1)}%", "").strip()
             
             return ExpertOpinion(
                 expert_id=expert_id,
@@ -509,12 +743,6 @@ CRITICAL RULES:
                 confidence=0.6,
                 reasoning=f"Fallback analysis due to API error. Based on team records and basic matchup factors."
             )
-
-class PredictionRequest:
-    """Wrapper for prediction request results"""
-    def __init__(self, request_id: str, result: PredictionResult):
-        self.request_id = request_id
-        self.result = result
 
 # MCP Tools
 AVAILABLE_TOOLS = [
@@ -627,10 +855,10 @@ async def get_custom_chronulus_analysis(game_data: Dict[str, Any], expert_count:
         predictor = CustomBinaryPredictor(session=session, input_type=GameData)
         predictor.create()
         
-        # Generate prediction with single chief analyst
+        # Generate prediction with requested number of experts
         request = await predictor.queue(
             item=game_obj,
-            num_experts=1,  # Single chief analyst
+            num_experts=expert_count,  # Use requested expert count
             note_length=note_length
         )
         

@@ -571,7 +571,7 @@ async def test_textonly_command(interaction: discord.Interaction):
         # Get Custom Chronulus MCP URL from config
         custom_chronulus_url = bot.config.custom_chronulus_mcp_url
         
-        # MCP request for 5-expert analysis with player focus
+        # MCP request for 4-expert analysis with player focus (EXPANDED ANALYSIS)
         mcp_request = {
             "jsonrpc": "2.0",
             "method": "tools/call",
@@ -580,7 +580,7 @@ async def test_textonly_command(interaction: discord.Interaction):
                 "name": "getCustomChronulusAnalysis",
                 "arguments": {
                     "game_data": game_data,
-                    "expert_count": 5,
+                    "expert_count": 4,
                     "analysis_depth": "comprehensive",
                     "player_analysis_required": True,
                     "specific_instructions": "Must analyze individual player matchups, especially Gerrit Cole vs Brayan Bello pitching comparison with ERA analysis"
@@ -593,7 +593,7 @@ async def test_textonly_command(interaction: discord.Interaction):
         import json
         from datetime import datetime
         
-        logger.info(f"Starting Hybrid Chronulus Analysis...")
+        logger.info(f"Starting Hybrid Chronulus Analysis with 4 experts...")
         logger.info(f"Game: {game_data['away_team']} @ {game_data['home_team']}")
         
         async with httpx.AsyncClient(timeout=120.0) as client:
@@ -623,12 +623,19 @@ async def test_textonly_command(interaction: discord.Interaction):
                 # Generate timestamp for image filename
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 
-                # STEP 1: Create Discord Text Summary (EVERYTHING except AI analysis)
+                # STEP 1: Create Discord Text Summary (EXPANDED with records/odds)
                 discord_embed = discord.Embed(
                     title="⚾ HYBRID ANALYSIS RESULTS",
                     description=f"**{game_data['away_team']} @ {game_data['home_team']}**\n{game_data['game_date']} | {game_data['venue']}",
                     color=discord.Color.blue(),
                     timestamp=datetime.now()
+                )
+                
+                # Team records and odds (NOW INCLUDED)
+                discord_embed.add_field(
+                    name="📊 TEAM RECORDS & ODDS",
+                    value=f"**Red Sox**: 75-65 (.536) | +145 (40.8%)\n**Yankees**: 82-58 (.586) | -165 (62.3%)",
+                    inline=False
                 )
                 
                 # Win probabilities with visual bars
@@ -648,21 +655,14 @@ async def test_textonly_command(interaction: discord.Interaction):
                     market_edge = analysis.get('market_edge', 0)
                     discord_embed.add_field(
                         name="💰 BETTING RECOMMENDATION",
-                        value=f"{rec_emoji} **{analysis['betting_recommendation']}**\nMarket Edge: {market_edge:.4f}\nConfidence: 75%",
+                        value=f"{rec_emoji} **{analysis['betting_recommendation']}**\nMarket Edge: {market_edge:.2f}%\nConfidence: 75%",
                         inline=True
                     )
                 
-                # Model info
+                # Model info (UPDATED WITH 4 EXPERTS)
                 discord_embed.add_field(
                     name="🤖 MODEL INFO",
-                    value=f"**Expert Count**: {analysis.get('expert_count', 'N/A')}\n**Model**: {analysis.get('model_used', 'N/A').replace('google/', '').replace('-', ' ').title()}\n**Cost**: {analysis.get('cost_estimate', 'N/A')}",
-                    inline=True
-                )
-                
-                # Betting lines
-                discord_embed.add_field(
-                    name="💰 BETTING LINES",
-                    value=f"**Yankees**: {game_data['home_moneyline']} (62.3% implied)\n**Red Sox**: +{game_data['away_moneyline']} (40.8% implied)\n**Total**: Over/Under 9.0 runs",
+                    value=f"**Expert Count**: {analysis.get('expert_count', 4)}\n**Model**: {analysis.get('model_used', 'N/A').replace('google/', '').replace('-', ' ').title()}\n**Cost**: {analysis.get('cost_estimate', 'N/A')}",
                     inline=True
                 )
                 
@@ -675,11 +675,11 @@ async def test_textonly_command(interaction: discord.Interaction):
                 
                 discord_embed.add_field(
                     name="📊 CLICK IMAGE BELOW",
-                    value="Click the image below for **complete expert analysis** with detailed player breakdowns!",
+                    value="Click the image below for **complete 4-expert analysis** with detailed player breakdowns!",
                     inline=False
                 )
                 
-                discord_embed.set_footer(text=f"Hybrid Analysis • {datetime.now().strftime('%I:%M %p ET')}")
+                discord_embed.set_footer(text=f"4-Expert Hybrid Analysis • {datetime.now().strftime('%I:%M %p ET')}")
                 
                 # STEP 2: Create Complete Analysis Image
                 expert_analysis = analysis.get("expert_analysis", "")
@@ -692,13 +692,17 @@ async def test_textonly_command(interaction: discord.Interaction):
                     'venue_name': 'Yankee Stadium',
                     'away_status': 'Wild Card Race',
                     'home_status': 'AL East Leaders',
+                    'away_record': '75-65 (.536)',
+                    'home_record': '82-58 (.586)', 
+                    'away_odds': f"+{game_data['away_moneyline']} (40.8%)",
+                    'home_odds': f"{game_data['home_moneyline']} (62.3%)",
                     'away_prob': f"{analysis.get('away_team_win_probability', 0) * 100:.1f}",
                     'home_prob': f"{analysis.get('home_team_win_probability', 0) * 100:.1f}",
                     'recommendation_short': analysis.get('betting_recommendation', 'N/A').replace('BET HOME', 'BET YANKEES').replace(' - Strong edge identified', ''),
                     'model_name': analysis.get('model_used', 'N/A').replace('google/', '').replace('-', ' ').title(),
                     'expert_analysis': expert_analysis,
                     'timestamp': datetime.now().strftime('%B %d, %Y at %I:%M %p ET'),
-                    'market_edge': analysis.get('market_edge', 0),
+                    'market_edge': f"{analysis.get('market_edge', 0):.2f}%",
                     'confidence': '75%'
                 }
                 
@@ -713,11 +717,11 @@ async def test_textonly_command(interaction: discord.Interaction):
                         filename=f"hybrid_analysis_{timestamp}.png"
                     )
                     
-                    # Send Discord summary embed with complete analysis image
-                    await interaction.followup.send(
-                        embed=discord_embed, 
-                        file=image_file
-                    )
+                    # Send Discord summary embed first, then image below
+                    await interaction.followup.send(embed=discord_embed)
+                    
+                    # Then send the complete analysis image
+                    await interaction.followup.send(file=image_file)
                     
                     logger.info(f"Hybrid analysis complete - Discord summary + detailed image ({len(image_bytes)} bytes)")
                     logger.info(f"Expert analysis included: {len(expert_analysis)} characters with player details")
@@ -763,7 +767,7 @@ async def test_textonly_command(interaction: discord.Interaction):
 
 @bot.tree.command(name="fullanalysis", description="Generate FULL untruncated Custom Chronulus analysis and save as .md file")
 async def full_analysis_command(interaction: discord.Interaction):
-    """Generate complete analysis with no truncation and save as markdown file"""
+    """Generate complete analysis with no truncation and save as .md file"""
     await interaction.response.defer()
     
     try:
@@ -1167,12 +1171,16 @@ async def dark_mode_test_command(interaction: discord.Interaction):
             'venue_name': 'Yankee Stadium',
             'away_status': 'Wild Card Race',
             'home_status': 'AL East Leaders',
+            'away_record': '75-65 (.536)',
+            'home_record': '82-58 (.586)',
+            'away_odds': '+145 (40.8%)',
+            'home_odds': '-165 (62.3%)',
             'away_prob': '35.0',
             'home_prob': '65.0',
             'recommendation_short': 'BET YANKEES',
             'model_name': 'Gemini 2.0',
             'confidence': '75%',
-            'market_edge': '-5.8%',
+            'market_edge': '-5.80%',
             'timestamp': datetime.now().strftime('%B %d, %Y at %I:%M %p ET'),
             'expert_analysis': '''**MARKET BASELINE**: The current moneyline implies approximately 40.8% probability for the Boston Red Sox and 62.3% for the New York Yankees.
 
@@ -1282,4 +1290,6 @@ if __name__ == "__main__":
     print("Starting Enhanced Sports Discord Bot v2.0")
     print(f"Discord Token: {'SET' if config.discord_token else 'MISSING'}")
     asyncio.run(main())
+
+
 

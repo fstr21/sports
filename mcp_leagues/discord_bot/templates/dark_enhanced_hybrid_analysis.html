@@ -119,6 +119,22 @@
             letter-spacing: 0.3px;
         }
 
+        .team-record {
+            font-size: 12px;
+            color: #cbd5e1;
+            font-weight: 600;
+            margin-top: 5px;
+            letter-spacing: 0.2px;
+        }
+
+        .team-odds {
+            font-size: 13px;
+            color: #10b981;
+            font-weight: 700;
+            margin-top: 3px;
+            letter-spacing: 0.3px;
+        }
+
         .vs-divider {
             font-size: 18px;
             font-weight: 800;
@@ -409,7 +425,7 @@
     <div class="analysis-container">
         <!-- Enhanced Dark Header -->
         <div class="header">
-            <h1>🏆 Enhanced Chronulus Analysis</h1>
+            <h1>🏆 Enhanced Analysis</h1>
             <h2>Professional Baseball Betting Intelligence</h2>
         </div>
 
@@ -419,6 +435,8 @@
                 <div class="team">
                     <div class="team-name">{{ away_team }}</div>
                     <div class="team-status">{{ away_status }}</div>
+                    <div class="team-record">{{ away_record }}</div>
+                    <div class="team-odds">{{ away_odds }}</div>
                 </div>
                 
                 <div class="vs-divider">VS</div>
@@ -426,6 +444,8 @@
                 <div class="team">
                     <div class="team-name">{{ home_team }}</div>
                     <div class="team-status">{{ home_status }}</div>
+                    <div class="team-record">{{ home_record }}</div>
+                    <div class="team-odds">{{ home_odds }}</div>
                 </div>
             </div>
             
@@ -475,14 +495,8 @@
             </div>
 
             <div class="analysis-content">
-                <div class="analysis-text">{{ expert_analysis }}</div>
+                <div class="analysis-text">{{ expert_analysis|replace('Chief Sports Analyst • google/gemini-2.0-flash-001', '')|replace('**BASEBALL VARIANCE ACKNOWLEDGEMENT**:', '')|replace('Baseball\'s inherent game-to-game variance makes high-confidence predictions imprudent, as unexpected events can easily shift outcomes.', '')|replace('**DIRECTIONAL ASSESSMENT**:', '**ASSESSMENT**:') }}</div>
             </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <p class="timestamp">Generated {{ timestamp }}</p>
-            <p>Enhanced Chronulus MCP • Player-specific analysis with enhanced dark mode design</p>
         </div>
     </div>
 </body>
