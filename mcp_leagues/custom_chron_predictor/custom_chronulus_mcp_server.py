@@ -163,93 +163,12 @@ class CustomBinaryPredictor:
         selected_experts = self.expert_personas[:min(num_experts, len(self.expert_personas))]
         
         for i, expert_type in enumerate(selected_experts):
-            analysis = await self._simulate_expert_with_openrouter(game_data, expert_type, i+1, note_length)
+            analysis = await self._simulate_expert_with_openrouter(game_data, i+1, expert_type, note_length)
             expert_analyses.append(analysis)
         
         return expert_analyses
     
-    async def _simulate_expert_with_openrouter(self, game_data: GameData, expert_type: str, expert_id: int, note_length: Tuple[int, int]) -> ExpertOpinion:
-        """Generate analysis from a specific expert perspective"""
-        
-        min_sentences, max_sentences = note_length
-        
-        # Expert-specific prompts
-        expert_prompts = {
-            "STATISTICAL EXPERT": f"You are a data-driven statistical analyst. Focus on hard numbers, team stats, historical performance, and mathematical models. Analyze {game_data.away_team} @ {game_data.home_team} using statistical evidence.",
-            "SITUATIONAL EXPERT": f"You are a situational analyst focusing on context, momentum, and current form. Analyze {game_data.away_team} @ {game_data.home_team} based on recent performance, injuries, and situational factors.",
-            "CONTRARIAN EXPERT": f"You are a contrarian analyst who looks for market inefficiencies and public bias. Analyze {game_data.away_team} @ {game_data.home_team} from a contrarian perspective, questioning popular opinion.",
-            "SHARP EXPERT": f"You are a sharp betting expert focused on line movement and professional betting patterns. Analyze {game_data.away_team} @ {game_data.home_team} for betting value and market edges.",
-            "MARKET EXPERT": f"You are a market analyst focused on odds, public betting percentages, and line movement. Analyze {game_data.away_team} @ {game_data.home_team} from a market efficiency perspective."
-        }
-        
-        prompt = expert_prompts.get(expert_type, expert_prompts["STATISTICAL EXPERT"])
-        
-        # Add game context
-        additional_context = game_data.additional_context
-        context_note = f"\n\nGAME CONTEXT: {additional_context}" if additional_context else ""
-        
-        # Calculate market implied probabilities
-        home_implied = abs(game_data.home_moneyline) / (abs(game_data.home_moneyline) + 100) if game_data.home_moneyline < 0 else 100 / (game_data.home_moneyline + 100)
-        away_implied = abs(game_data.away_moneyline) / (abs(game_data.away_moneyline) + 100) if game_data.away_moneyline < 0 else 100 / (game_data.away_moneyline + 100)
-        
-        expert_prompt = f"""{prompt}
 
-GAME DETAILS:
-• Away Team: {game_data.away_team}
-• Home Team: {game_data.home_team}
-• Venue: {game_data.venue}
-• Date: {game_data.game_date}
-• Market Odds: Away {game_data.away_moneyline:+d} ({away_implied:.1%}) | Home {game_data.home_moneyline:+d} ({home_implied:.1%}){context_note}
-
-Provide your {expert_type.lower()} perspective in {min_sentences}-{max_sentences} sentences. Include:
-1. Your win probability estimate for the away team
-2. Your confidence level (0-100%)
-3. Your key reasoning points
-4. Risk assessment and unit recommendation
-
-Format your response as a focused analysis from your {expert_type.lower()} specialty."""
-        
-        try:
-            client = await get_http_client()
-            response = await client.post(
-                f"{self.base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": self.model,
-                    "messages": [{"role": "user", "content": expert_prompt}],
-                    "temperature": 0.7,
-                    "max_tokens": 400
-                },
-                timeout=30.0
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                analysis_text = result["choices"][0]["message"]["content"].strip()
-                
-                # Parse probability and confidence from the response
-                probability = self._extract_probability(analysis_text, away_implied)
-                confidence = self._extract_confidence(analysis_text)
-                
-                return ExpertOpinion(
-                    expert_id=expert_id,
-                    expert_type=expert_type,
-                    probability=probability,
-                    confidence=confidence,
-                    reasoning=analysis_text,
-                    unit_size=min(3, max(1, int(confidence * 3))),  # 1-3 units based on confidence
-                    risk_level="High" if confidence > 0.8 else "Medium" if confidence > 0.6 else "Low"
-                )
-            else:
-                # Fallback with market-based estimate
-                return self._create_fallback_expert(expert_id, expert_type, away_implied)
-                
-        except Exception as e:
-            # Fallback with market-based estimate
-            return self._create_fallback_expert(expert_id, expert_type, away_implied)
     
     def _extract_probability(self, text: str, market_baseline: float) -> float:
         """Extract probability estimate from expert analysis text"""
@@ -688,6 +607,7 @@ CRITICAL RULES:
             ]
             
             probability = 0.5  # Default
+            prob_match = None  # Initialize to avoid unbound variable
             for pattern in prob_patterns:
                 prob_match = re.search(pattern, content, re.IGNORECASE)
                 if prob_match:
@@ -955,6 +875,7 @@ async def get_custom_chronulus_health() -> Dict[str, Any]:
 
 # MCP Route Handlers
 async def handle_mcp_request(request: Request) -> Response:
+    body = None  # Initialize to avoid unbound variable
     try:
         body = await request.json()
         
@@ -1028,7 +949,7 @@ async def handle_mcp_request(request: Request) -> Response:
         return Response(
             json.dumps({
                 "jsonrpc": "2.0",
-                "id": body.get("id", None) if 'body' in locals() else None,
+                "id": body.get("id", None) if body is not None else None,
                 "error": {"code": -32603, "message": f"Internal error: {str(e)}"}
             }),
             media_type="application/json",
