@@ -64,7 +64,7 @@ class HTMLToImageConverter:
             await self.start_browser()
             
         try:
-            page = await self.browser.new_page()
+            page = await self.browser.new_page()  # type: ignore
             
             # Set viewport size
             await page.set_viewport_size({
@@ -82,7 +82,7 @@ class HTMLToImageConverter:
             if height:
                 # Fixed height
                 screenshot = await page.screenshot(
-                    type=format,
+                    type="png" if format == "png" else "jpeg",  # type: ignore
                     full_page=False,
                     clip={
                         "x": 0,
@@ -94,7 +94,7 @@ class HTMLToImageConverter:
             else:
                 # Full page screenshot
                 screenshot = await page.screenshot(
-                    type=format,
+                    type="png" if format == "png" else "jpeg",  # type: ignore
                     full_page=True
                 )
             
@@ -124,7 +124,7 @@ class HTMLToImageConverter:
             # Default template path
             if not template_path:
                 current_dir = Path(__file__).parent.parent
-                template_path = current_dir / "templates" / "baseball_analysis.html"
+                template_path = str(current_dir / "templates" / "baseball_analysis.html")
             
             # Load template
             with open(template_path, 'r', encoding='utf-8') as f:
@@ -178,3 +178,42 @@ async def create_baseball_analysis_image(template_data: Dict[str, Any]) -> bytes
     """
     converter = await get_html_converter()
     return await converter.generate_baseball_analysis_image(template_data)
+
+async def create_hybrid_analysis_image(template_data: Dict[str, Any]) -> bytes:
+    """
+    Create hybrid analysis image with complete expert analysis
+    
+    Args:
+        template_data: Dictionary with template variables including expert_analysis
+    
+    Returns:
+        PNG image bytes
+    """
+    try:
+        converter = await get_html_converter()
+        
+        # Use the hybrid analysis template
+        current_dir = Path(__file__).parent.parent
+        template_path = str(current_dir / "templates" / "hybrid_analysis.html")
+        
+        # Load template
+        with open(template_path, 'r', encoding='utf-8') as f:
+            template_content = f.read()
+        
+        # Render template with data
+        template = Template(template_content)
+        rendered_html = template.render(**template_data)
+        
+        # Convert to image - optimized size for Discord readability
+        image_bytes = await converter.render_html_to_image(
+            rendered_html,
+            width=1200,  # Optimized width for Discord preview
+            format="png"
+        )
+        
+        logger.info(f"Generated hybrid analysis image ({len(image_bytes)} bytes)")
+        return image_bytes
+        
+    except Exception as e:
+        logger.error(f"Error generating hybrid analysis image: {e}")
+        raise

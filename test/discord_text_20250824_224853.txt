@@ -1,0 +1,28 @@
+**HYBRID ANALYSIS RESULTS**
+**Game**: Boston Red Sox (75-65, .536 win%, Wild Card contention) @ New York Yankees (82-58, .586 win%, AL East leaders)
+**Date**: August 24, 2025 - 7:05 PM ET
+**Venue**: Yankee Stadium (49,642 capacity, pitcher-friendly dimensions, iconic atmosphere)
+
+**WIN PROBABILITIES**
+Red Sox: 35.0%
+Yankees: 65.0%
+
+**BETTING RECOMMENDATION**
+BET HOME
+Market Edge: -0.0582
+Confidence: 75%
+
+**MODEL INFO**
+Expert Count: 1
+Model: google/gemini-2.0-flash-001
+Cost: $0.10-$0.25
+
+**BETTING LINES**
+Yankees: -165 (62.3% implied)
+Red Sox: +145 (40.8% implied)
+Total: Over/Under 9.0 runs
+
+**KEY MATCHUP**
+Gerrit Cole (3.41 ERA, 1.09 WHIP) vs Brayan Bello (4.15 ERA, 1.31 WHIP)
+
+Click the image below for complete expert analysis with detailed player breakdowns!

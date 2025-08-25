@@ -22,7 +22,7 @@ from core.sport_manager import SportManager
 from config import config, BotConfig  # type: ignore
 
 # Import HTML-to-image functionality
-from utils.html_to_image import create_baseball_analysis_image
+from utils.html_to_image import create_baseball_analysis_image, create_hybrid_analysis_image
 import io
 
 # Logging
@@ -513,13 +513,13 @@ async def test_mlb_image_command(interaction: discord.Interaction):
         await interaction.followup.send(embed=embed)
 
 
-@bot.tree.command(name="textonly", description="Enhanced Custom Chronulus AI analysis - Clean readable format")
+@bot.tree.command(name="textonly", description="Hybrid analysis: Discord summary + detailed image")
 async def test_textonly_command(interaction: discord.Interaction):
-    """Display comprehensive Chronulus analysis in clean, readable Discord format"""
+    """Hybrid approach: Discord text summary + complete analysis image for users to click"""
     await interaction.response.defer()
     
     try:
-        # Same game data as test script
+        # Same comprehensive game data
         game_data = {
             "home_team": "New York Yankees (82-58, .586 win%, AL East leaders)",
             "away_team": "Boston Red Sox (75-65, .536 win%, Wild Card contention)", 
@@ -567,6 +567,7 @@ async def test_textonly_command(interaction: discord.Interaction):
                 "Provide detailed statistical breakdowns showing why specific players give advantages to their teams."
             )
         }
+        
         # Get Custom Chronulus MCP URL from config
         custom_chronulus_url = bot.config.custom_chronulus_mcp_url
         
@@ -592,7 +593,7 @@ async def test_textonly_command(interaction: discord.Interaction):
         import json
         from datetime import datetime
         
-        logger.info(f"Starting Enhanced Chronulus Analysis (matching test script)...")
+        logger.info(f"Starting Hybrid Chronulus Analysis...")
         logger.info(f"Game: {game_data['away_team']} @ {game_data['home_team']}")
         
         async with httpx.AsyncClient(timeout=120.0) as client:
@@ -614,151 +615,121 @@ async def test_textonly_command(interaction: discord.Interaction):
             mcp_result = result["result"]
             analysis_text = mcp_result["content"][0]["text"] if "content" in mcp_result and mcp_result["content"] else "No analysis returned"
             
-            # Parse the JSON analysis (same as test script)
+            # Parse the JSON analysis 
             try:
                 analysis_data = json.loads(analysis_text)
                 analysis = analysis_data.get("analysis", {})
                 
-                # EMBED 1: Test Overview & Metrics (matching console output)
-                embed1 = discord.Embed(
-                    title="🧪 Enhanced Chronulus Test Results",
+                # Generate timestamp for image filename
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                
+                # STEP 1: Create Discord Text Summary (EVERYTHING except AI analysis)
+                discord_embed = discord.Embed(
+                    title="⚾ HYBRID ANALYSIS RESULTS",
                     description=f"**{game_data['away_team']} @ {game_data['home_team']}**\n{game_data['game_date']} | {game_data['venue']}",
                     color=discord.Color.blue(),
                     timestamp=datetime.now()
                 )
                 
-                # Test metrics (matching console output)
-                embed1.add_field(
-                    name="📊 Analysis Quality Metrics",
-                    value=f"**Expert Count**: {analysis.get('expert_count', 'N/A')}\n**Model Used**: {analysis.get('model_used', 'N/A')}\n**Cost Estimate**: {analysis.get('cost_estimate', 'N/A')}\n**Analysis Length**: {len(analysis.get('expert_analysis', ''))} characters",
-                    inline=True
-                )
-                
-                # Game context
-                embed1.add_field(
-                    name="⚾ Game Data Analysis",
-                    value=f"**Yankees**: {game_data['home_moneyline']} (62.3% implied)\n**Red Sox**: +{game_data['away_moneyline']} (40.8% implied)\n**Context Length**: {len(game_data['additional_context'])} chars",
-                    inline=True
-                )
-                
-                await interaction.followup.send(embed=embed1)
-                
-                # EMBED 2: Win Probabilities (matching test output)
-                embed2 = discord.Embed(
-                    title="🎯 Win Probability Assessment",
-                    color=discord.Color.green()
-                )
-                
+                # Win probabilities with visual bars
                 if "away_team_win_probability" in analysis and "home_team_win_probability" in analysis:
                     away_prob = analysis["away_team_win_probability"] * 100
                     home_prob = analysis["home_team_win_probability"] * 100
                     
-                    # Visual probability display
-                    away_bars = int(away_prob / 10)
-                    home_bars = int(home_prob / 10)
-                    away_visual = f"{'🟩' * away_bars}{'⬜' * (10 - away_bars)}"
-                    home_visual = f"{'🟦' * home_bars}{'⬜' * (10 - home_bars)}"
-                    
-                    embed2.add_field(
-                        name="📊 Win Probabilities",
-                        value=f"**Red Sox: {away_prob:.1f}%**\n{away_visual}\n\n**Yankees: {home_prob:.1f}%**\n{home_visual}",
-                        inline=False
-                    )
-                
-                # Betting recommendation (matching test output)
-                if "betting_recommendation" in analysis:
-                    rec_emoji = "✅" if "BET" in analysis["betting_recommendation"].upper() else "⚠️"
-                    embed2.add_field(
-                        name="💰 Recommendation",
-                        value=f"{rec_emoji} **{analysis['betting_recommendation']}**",
+                    discord_embed.add_field(
+                        name="🎯 WIN PROBABILITIES",
+                        value=f"**Red Sox**: {away_prob:.1f}%\n**Yankees**: {home_prob:.1f}%",
                         inline=True
                     )
                 
-                await interaction.followup.send(embed=embed2)
-                
-                # EMBED 3: Expert Analysis Content
-                expert_analysis = analysis.get("expert_analysis", "")
-                if expert_analysis:
-                    embed3 = discord.Embed(
-                        title="📋 Expert Analysis Report",
-                        color=discord.Color.orange()
-                    )
-                    
-                    # Extract Market Baseline section
-                    if "**MARKET BASELINE**:" in expert_analysis:
-                        start = expert_analysis.find("**MARKET BASELINE**:")
-                        end = expert_analysis.find("**ANALYTICAL", start)
-                        if end == -1:
-                            end = expert_analysis.find("**KEY FACTORS", start)
-                        if end > start:
-                            market_baseline = expert_analysis[start:end].strip()
-                            embed3.add_field(
-                                name="📊 Market Baseline",
-                                value=market_baseline[:1000],
-                                inline=False
-                            )
-                    
-                    # Extract Key Factors section
-                    if "**KEY FACTORS FROM DATA**:" in expert_analysis:
-                        start = expert_analysis.find("**KEY FACTORS FROM DATA**:")
-                        end = expert_analysis.find("**BASEBALL VARIANCE", start)
-                        if end == -1:
-                            end = expert_analysis.find("**DIRECTIONAL", start)
-                        if end > start:
-                            key_factors = expert_analysis[start:end].strip()
-                            embed3.add_field(
-                                name="🔍 Key Factors From Data",
-                                value=key_factors[:1000],
-                                inline=False
-                            )
-                    
-                    await interaction.followup.send(embed=embed3)
-                
-                # EMBED 4: Final Assessment & Quality Check
-                embed4 = discord.Embed(
-                    title="⚖️ Final Assessment & Quality Check",
-                    color=discord.Color.purple()
-                )
-                
-                # Extract Final Assessment (matching test structure)
-                if "FINAL ASSESSMENT:" in expert_analysis:
-                    final_start = expert_analysis.find("FINAL ASSESSMENT:")
-                    final_assessment = expert_analysis[final_start:].strip()
-                    embed4.add_field(
-                        name="🎯 Expert Final Assessment",
-                        value=final_assessment[:1000],
-                        inline=False
+                # Betting recommendation 
+                if "betting_recommendation" in analysis:
+                    rec_emoji = "✅" if "BET" in analysis["betting_recommendation"].upper() else "⚠️"
+                    market_edge = analysis.get('market_edge', 0)
+                    discord_embed.add_field(
+                        name="💰 BETTING RECOMMENDATION",
+                        value=f"{rec_emoji} **{analysis['betting_recommendation']}**\nMarket Edge: {market_edge:.4f}\nConfidence: 75%",
+                        inline=True
                     )
                 
-                # Quality indicators check (matching test output)
-                quality_indicators = [
-                    "MARKET BASELINE",
-                    "FINAL ASSESSMENT",
-                    "Win Probability:",
-                    "Analyst Confidence:",
-                    "Recommendation:"
-                ]
-                found_indicators = [indicator for indicator in quality_indicators if indicator in expert_analysis]
-                
-                embed4.add_field(
-                    name="✅ Quality Indicators Found",
-                    value=f"**Count**: {len(found_indicators)}/5\n**All Elements**: {'✅' if len(found_indicators) == 5 else '❌'}\n**Indicators**: {', '.join(found_indicators[:3])}",
+                # Model info
+                discord_embed.add_field(
+                    name="🤖 MODEL INFO",
+                    value=f"**Expert Count**: {analysis.get('expert_count', 'N/A')}\n**Model**: {analysis.get('model_used', 'N/A').replace('google/', '').replace('-', ' ').title()}\n**Cost**: {analysis.get('cost_estimate', 'N/A')}",
                     inline=True
                 )
                 
-                # Beta parameters (matching test data)
-                if "beta_params" in analysis:
-                    beta = analysis["beta_params"]
-                    embed4.add_field(
-                        name="📈 Statistical Model",
-                        value=f"**Alpha**: {beta.get('alpha', 0):.2f}\n**Beta**: {beta.get('beta', 0):.2f}\n**Mean**: {beta.get('mean', 0):.3f}\n**Variance**: {beta.get('variance', 0):.6f}",
-                        inline=True
+                # Betting lines
+                discord_embed.add_field(
+                    name="💰 BETTING LINES",
+                    value=f"**Yankees**: {game_data['home_moneyline']} (62.3% implied)\n**Red Sox**: +{game_data['away_moneyline']} (40.8% implied)\n**Total**: Over/Under 9.0 runs",
+                    inline=True
+                )
+                
+                # Key matchup
+                discord_embed.add_field(
+                    name="⚾ KEY MATCHUP",
+                    value=f"**Gerrit Cole** (3.41 ERA, 1.09 WHIP)\nvs\n**Brayan Bello** (4.15 ERA, 1.31 WHIP)",
+                    inline=True
+                )
+                
+                discord_embed.add_field(
+                    name="📊 CLICK IMAGE BELOW",
+                    value="Click the image below for **complete expert analysis** with detailed player breakdowns!",
+                    inline=False
+                )
+                
+                discord_embed.set_footer(text=f"Hybrid Analysis • {datetime.now().strftime('%I:%M %p ET')}")
+                
+                # STEP 2: Create Complete Analysis Image
+                expert_analysis = analysis.get("expert_analysis", "")
+                
+                # Prepare template data for image generation
+                template_data = {
+                    'away_team': game_data['away_team'].split(' (')[0],
+                    'home_team': game_data['home_team'].split(' (')[0], 
+                    'game_date': game_data['game_date'],
+                    'venue_name': 'Yankee Stadium',
+                    'away_status': 'Wild Card Race',
+                    'home_status': 'AL East Leaders',
+                    'away_prob': f"{analysis.get('away_team_win_probability', 0) * 100:.1f}",
+                    'home_prob': f"{analysis.get('home_team_win_probability', 0) * 100:.1f}",
+                    'recommendation_short': analysis.get('betting_recommendation', 'N/A').replace('BET HOME', 'BET YANKEES').replace(' - Strong edge identified', ''),
+                    'model_name': analysis.get('model_used', 'N/A').replace('google/', '').replace('-', ' ').title(),
+                    'expert_analysis': expert_analysis,
+                    'timestamp': datetime.now().strftime('%B %d, %Y at %I:%M %p ET'),
+                    'market_edge': analysis.get('market_edge', 0),
+                    'confidence': '75%'
+                }
+                
+                # Generate the complete analysis image using HTML converter
+                try:
+                    image_bytes = await create_hybrid_analysis_image(template_data)
+                    
+                    # Create Discord file
+                    image_file = discord.File(
+                        io.BytesIO(image_bytes), 
+                        filename=f"hybrid_analysis_{timestamp}.png"
                     )
-                
-                embed4.set_footer(text=f"Enhanced Chronulus Test Completed • {datetime.now().strftime('%I:%M %p ET')}")
-                await interaction.followup.send(embed=embed4)
-                
-                logger.info(f"Successfully displayed enhanced Chronulus test results in readable Discord format")
+                    
+                    # Send Discord summary embed with complete analysis image
+                    await interaction.followup.send(
+                        embed=discord_embed, 
+                        file=image_file
+                    )
+                    
+                    logger.info(f"Hybrid analysis complete - Discord summary + detailed image ({len(image_bytes)} bytes)")
+                    logger.info(f"Expert analysis included: {len(expert_analysis)} characters with player details")
+                    
+                except Exception as img_error:
+                    logger.error(f"Image generation failed: {img_error}")
+                    # Fallback: send just the Discord summary if image fails
+                    discord_embed.add_field(
+                        name="⚠️ IMAGE GENERATION FAILED",
+                        value=f"Could not generate analysis image: {str(img_error)}\nShowing summary only.",
+                        inline=False
+                    )
+                    await interaction.followup.send(embed=discord_embed)
                 
             except json.JSONDecodeError:
                 # Fallback for unexpected text format
@@ -777,13 +748,13 @@ async def test_textonly_command(interaction: discord.Interaction):
                 await interaction.followup.send(embed=embed)
                 
     except Exception as e:
-        logger.error(f"Error in enhanced textonly command: {e}")
+        logger.error(f"Error in hybrid textonly command: {e}")
         import traceback
         traceback.print_exc()
         
         embed = discord.Embed(
-            title="❌ Test Error",
-            description=f"Failed to run enhanced Chronulus test: {str(e)}",
+            title="❌ Hybrid Analysis Error",
+            description=f"Failed to run hybrid analysis: {str(e)}",
             color=discord.Color.red()
         )
         await interaction.followup.send(embed=embed)

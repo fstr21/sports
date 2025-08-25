@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baseball Analysis - Readability Test</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a4f3a 0%, #2d5a27 50%, #1a4f3a 100%);
+            margin: 0;
+            padding: 30px;
+            color: #1f2937;
+            line-height: 1.6;
+            box-sizing: border-box;
+        }
+
+        .analysis-container {
+            width: 1200px; /* Narrow width for readability */
+            max-width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+            overflow: hidden;
+            box-sizing: border-box;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #1a4f3a;
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a4f3a;
+            margin: 0 0 8px 0;
+        }
+
+        .header h2 {
+            font-size: 18px;
+            font-weight: 500;
+            color: #4b5563;
+            margin: 0;
+        }
+
+        .game-info {
+            text-align: center;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-left: 4px solid #1a4f3a;
+        }
+
+        .game-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 8px 0;
+        }
+
+        .game-info p {
+            font-size: 14px;
+            color: #6b7280;
+            margin: 3px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-box .label {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stat-box .value {
+            font-size: 16px;
+            color: #1f2937;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .recommendation-box {
+            background: #dcfce7;
+            border: 2px solid #16a34a;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .recommendation-box h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #16a34a;
+            margin: 0 0 8px 0;
+        }
+
+        .analysis-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #374151;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .analysis-content strong {
+            color: #1a4f3a;
+            font-weight: 600;
+        }
+
+        .size-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        
+        @media (max-width: 1000px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="size-indicator">
+        Container: 1200px wide<br>
+        Text: 14px base<br>
+        Click to test sizes
+    </div>
+    
+    <div class="analysis-container">
+        <div class="header">
+            <h1>🏟️ Enhanced Chronulus Analysis</h1>
+            <h2>Professional Baseball Betting Analysis</h2>
+        </div>
+
+        <div class="game-info">
+            <h3>Boston Red Sox @ New York Yankees</h3>
+            <p>August 24, 2025 - 7:05 PM ET | Yankee Stadium</p>
+            <p>Wild Card Race vs AL East Leaders</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="label">Red Sox Win %</div>
+                <div class="value">35.0%</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">Yankees Win %</div>
+                <div class="value">65.0%</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">Confidence</div>
+                <div class="value">75%</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">Model</div>
+                <div class="value">Gemini 2.0</div>
+            </div>
+        </div>
+
+        <div class="recommendation-box">
+            <h4>🎯 RECOMMENDATION: BET HOME (Yankees)</h4>
+            <p style="font-size: 14px; margin: 0; color: #059669;">Strong edge identified - Market Edge: -5.8%</p>
+        </div>
+
+        <div class="analysis-content">INSTITUTIONAL SPORTS ANALYSIS
+Boston Red Sox (75-65, .536 win%, Wild Card contention) @ New York Yankees (82-58, .586 win%, AL East leaders)
+
+Chief Sports Analyst • google/gemini-2.0-flash-001
+
+[CHIEF ANALYST]
+
+**MARKET BASELINE**: The current moneyline implies approximately 40.8% probability for the Boston Red Sox and 62.3% for the New York Yankees.
+
+**ANALYTICAL ASSESSMENT**: The market appears reasonably efficient, accurately reflecting the Yankees' superior record and home-field advantage. However, the Red Sox's Wild Card desperation and recent 6-4 stretch suggests slightly higher odds than the market implies.
+
+**KEY FACTORS FROM DATA**: The Yankees' +89 run differential compared to the Red Sox's +42 indicates a stronger overall team. The pitching matchup of Gerrit Cole (3.41 ERA) versus Brayan Bello (4.15 ERA) favors the Yankees, given Cole's lower ERA, WHIP of 1.09, and higher strikeout rate. Key players like Aaron Judge (.312 BA, 48 HR) and Juan Soto (.288 BA, 35 HR) provide significant offensive advantages.
+
+**BASEBALL VARIANCE ACKNOWLEDGMENT**: Despite these factors, baseball's inherent variance means any single game outcome is subject to considerable unpredictability, limiting our confidence.
+
+**DIRECTIONAL ASSESSMENT**: While the Yankees are favored, the Red Sox's motivation and healthy roster warrant a slight adjustment. I assess the Red Sox's win probability at 45%.
+
+FINAL ASSESSMENT:
+Win Probability: 35.0% (Boston Red Sox (75-65, .536 win%, Wild Card contention))
+Analyst Confidence: 75%
+Recommendation: BET HOME - Strong edge identified</div>
+    </div>
+
+    <script>
+        // Add click handler to test different sizes
+        document.addEventListener('click', function() {
+            const container = document.querySelector('.analysis-container');
+            const currentWidth = container.style.width;
+            
+            if (currentWidth === '900px') {
+                container.style.width = '1400px';
+                document.querySelector('.size-indicator').innerHTML = 'Container: 1400px wide<br>Text: 14px base<br>Click to test sizes';
+            } else if (currentWidth === '1400px') {
+                container.style.width = '1800px';
+                document.querySelector('.size-indicator').innerHTML = 'Container: 1800px wide<br>Text: 14px base<br>Click to test sizes';
+            } else if (currentWidth === '1800px') {
+                container.style.width = '1200px';
+                document.querySelector('.size-indicator').innerHTML = 'Container: 1200px wide<br>Text: 14px base<br>Click to test sizes';
+            } else {
+                container.style.width = '900px';
+                document.querySelector('.size-indicator').innerHTML = 'Container: 900px wide<br>Text: 14px base<br>Click to test sizes';
+            }
+        });
+    </script>
+</body>
+</html>
