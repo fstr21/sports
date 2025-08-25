@@ -217,3 +217,126 @@ async def create_hybrid_analysis_image(template_data: Dict[str, Any]) -> bytes:
     except Exception as e:
         logger.error(f"Error generating hybrid analysis image: {e}")
         raise
+
+async def create_enhanced_hybrid_analysis_image(template_data: Dict[str, Any]) -> bytes:
+    """
+    Create enhanced hybrid analysis image with professional sports betting design
+    
+    Args:
+        template_data: Dictionary with template variables including expert_analysis
+    
+    Returns:
+        PNG image bytes
+    """
+    try:
+        converter = await get_html_converter()
+        
+        # Use the enhanced hybrid analysis template
+        current_dir = Path(__file__).parent.parent
+        template_path = str(current_dir / "templates" / "enhanced_hybrid_analysis.html")
+        
+        # Load template
+        with open(template_path, 'r', encoding='utf-8') as f:
+            template_content = f.read()
+        
+        # Render template with data
+        template = Template(template_content)
+        rendered_html = template.render(**template_data)
+        
+        # Convert to image - optimized size for Discord readability
+        image_bytes = await converter.render_html_to_image(
+            rendered_html,
+            width=1200,  # Optimized width for Discord preview
+            format="png"
+        )
+        
+        logger.info(f"Generated enhanced hybrid analysis image ({len(image_bytes)} bytes)")
+        return image_bytes
+        
+    except Exception as e:
+        logger.error(f"Error generating enhanced hybrid analysis image: {e}")
+        # Fallback to regular hybrid template if enhanced fails
+        logger.info("Falling back to regular hybrid analysis template")
+        return await create_hybrid_analysis_image(template_data)
+
+async def create_dark_enhanced_hybrid_analysis_image(template_data: Dict[str, Any]) -> bytes:
+    """
+    Create dark mode enhanced hybrid analysis image with professional sports betting design
+    
+    Args:
+        template_data: Dictionary with template variables including expert_analysis
+    
+    Returns:
+        PNG image bytes
+    """
+    try:
+        converter = await get_html_converter()
+        
+        # Use the dark enhanced hybrid analysis template
+        current_dir = Path(__file__).parent.parent
+        template_path = str(current_dir / "templates" / "dark_enhanced_hybrid_analysis.html")
+        
+        # Load template
+        with open(template_path, 'r', encoding='utf-8') as f:
+            template_content = f.read()
+        
+        # Render template with data
+        template = Template(template_content)
+        rendered_html = template.render(**template_data)
+        
+        # Convert to image - optimized size for Discord readability
+        image_bytes = await converter.render_html_to_image(
+            rendered_html,
+            width=1200,  # Optimized width for Discord preview
+            format="png"
+        )
+        
+        logger.info(f"Generated dark enhanced hybrid analysis image ({len(image_bytes)} bytes)")
+        return image_bytes
+        
+    except Exception as e:
+        logger.error(f"Error generating dark enhanced hybrid analysis image: {e}")
+        # Fallback to regular enhanced template if dark enhanced fails
+        logger.info("Falling back to regular enhanced hybrid analysis template")
+        return await create_enhanced_hybrid_analysis_image(template_data)
+
+async def create_light_enhanced_hybrid_analysis_image(template_data: Dict[str, Any]) -> bytes:
+    """
+    Create light mode enhanced hybrid analysis image with professional sports betting design
+    
+    Args:
+        template_data: Dictionary with template variables including expert_analysis
+    
+    Returns:
+        PNG image bytes
+    """
+    try:
+        converter = await get_html_converter()
+        
+        # Use the light enhanced hybrid analysis template
+        current_dir = Path(__file__).parent.parent
+        template_path = str(current_dir / "templates" / "light_enhanced_hybrid_analysis.html")
+        
+        # Load template
+        with open(template_path, 'r', encoding='utf-8') as f:
+            template_content = f.read()
+        
+        # Render template with data
+        template = Template(template_content)
+        rendered_html = template.render(**template_data)
+        
+        # Convert to image - optimized size for Discord readability
+        image_bytes = await converter.render_html_to_image(
+            rendered_html,
+            width=1200,  # Optimized width for Discord preview
+            format="png"
+        )
+        
+        logger.info(f"Generated light enhanced hybrid analysis image ({len(image_bytes)} bytes)")
+        return image_bytes
+        
+    except Exception as e:
+        logger.error(f"Error generating light enhanced hybrid analysis image: {e}")
+        # Fallback to regular enhanced template if light enhanced fails
+        logger.info("Falling back to regular enhanced hybrid analysis template")
+        return await create_enhanced_hybrid_analysis_image(template_data)

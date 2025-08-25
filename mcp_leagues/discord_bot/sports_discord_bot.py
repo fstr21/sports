@@ -22,7 +22,7 @@ from core.sport_manager import SportManager
 from config import config, BotConfig  # type: ignore
 
 # Import HTML-to-image functionality
-from utils.html_to_image import create_baseball_analysis_image, create_hybrid_analysis_image
+from utils.html_to_image import create_baseball_analysis_image, create_hybrid_analysis_image, create_enhanced_hybrid_analysis_image
 import io
 
 # Logging
@@ -702,9 +702,10 @@ async def test_textonly_command(interaction: discord.Interaction):
                     'confidence': '75%'
                 }
                 
-                # Generate the complete analysis image using HTML converter
+                # Generate the complete analysis image using DARK ENHANCED template
                 try:
-                    image_bytes = await create_hybrid_analysis_image(template_data)
+                    from utils.html_to_image import create_dark_enhanced_hybrid_analysis_image
+                    image_bytes = await create_dark_enhanced_hybrid_analysis_image(template_data)
                     
                     # Create Discord file
                     image_file = discord.File(
@@ -1053,6 +1054,188 @@ async def full_analysis_command(interaction: discord.Interaction):
         embed = discord.Embed(
             title="❌ Analysis Error",
             description=f"Failed to generate full analysis: {str(e)}",
+            color=discord.Color.red()
+        )
+        await interaction.followup.send(embed=embed)
+
+
+@bot.tree.command(name="comparedesigns", description="Compare original vs enhanced hybrid analysis designs")
+async def compare_designs_command(interaction: discord.Interaction):
+    """Compare original and enhanced hybrid analysis image designs side by side"""
+    await interaction.response.defer()
+    
+    try:
+        # Sample data for comparison
+        template_data = {
+            'away_team': 'Boston Red Sox',
+            'home_team': 'New York Yankees', 
+            'game_date': 'August 24, 2025 - 7:05 PM ET',
+            'venue_name': 'Yankee Stadium',
+            'away_status': 'Wild Card Race',
+            'home_status': 'AL East Leaders',
+            'away_prob': '35.0',
+            'home_prob': '65.0',
+            'recommendation_short': 'BET YANKEES',
+            'model_name': 'Gemini 2.0',
+            'confidence': '75%',
+            'market_edge': '-5.8%',
+            'timestamp': datetime.now().strftime('%B %d, %Y at %I:%M %p ET'),
+            'expert_analysis': '''**MARKET BASELINE**: The current moneyline implies approximately 40.8% probability for the Boston Red Sox and 62.3% for the New York Yankees.
+
+**KEY FACTORS FROM DATA**: The Yankees' +89 run differential compared to the Red Sox's +42 indicates a stronger overall team. The pitching matchup of Gerrit Cole (3.41 ERA) versus Brayan Bello (4.15 ERA) favors the Yankees, given Cole's lower ERA, WHIP of 1.09, and higher strikeout rate.
+
+**FINAL ASSESSMENT**: Win Probability: 35.0% (Boston Red Sox), 65.0% (New York Yankees). Analyst Confidence: 75%. Recommendation: BET HOME - Strong edge identified'''
+        }
+        
+        # Generate both images
+        logger.info("Generating comparison images...")
+        
+        # Original hybrid design
+        original_bytes = await create_hybrid_analysis_image(template_data)
+        original_file = discord.File(
+            io.BytesIO(original_bytes), 
+            filename="original_hybrid_design.png"
+        )
+        
+        # Enhanced hybrid design
+        enhanced_bytes = await create_enhanced_hybrid_analysis_image(template_data)
+        enhanced_file = discord.File(
+            io.BytesIO(enhanced_bytes), 
+            filename="enhanced_hybrid_design.png"
+        )
+        
+        # Create comparison embed
+        embed = discord.Embed(
+            title="🎨 Hybrid Analysis Design Comparison",
+            description="**Red Sox @ Yankees** - Design comparison test",
+            color=discord.Color.blue(),
+            timestamp=datetime.now()
+        )
+        
+        embed.add_field(
+            name="📊 Original Design",
+            value=f"• Basic layout\n• Standard colors\n• Simple typography\n• Size: {len(original_bytes) / 1024:.1f} KB",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="✨ Enhanced Design",
+            value=f"• Professional layout\n• Sports betting theme\n• Improved readability\n• Size: {len(enhanced_bytes) / 1024:.1f} KB",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="🔍 Key Improvements",
+            value="• Better visual hierarchy\n• Professional sports aesthetics\n• Enhanced typography\n• Clearer sections",
+            inline=False
+        )
+        
+        embed.set_footer(text="Compare both images to see the improvements!")
+        
+        # Send both images with comparison
+        await interaction.followup.send(
+            content="**ORIGINAL vs ENHANCED Hybrid Analysis Design:**",
+            embed=embed,
+            files=[original_file, enhanced_file]
+        )
+        
+        logger.info("Design comparison sent successfully")
+        
+    except Exception as e:
+        logger.error(f"Error in compare designs command: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        embed = discord.Embed(
+            title="❌ Design Comparison Error",
+            description=f"Failed to generate comparison: {str(e)}",
+            color=discord.Color.red()
+        )
+        await interaction.followup.send(embed=embed)
+
+@bot.tree.command(name="darkmode", description="Test the new dark mode enhanced design")
+async def dark_mode_test_command(interaction: discord.Interaction):
+    """Test the new dark mode enhanced hybrid analysis design"""
+    await interaction.response.defer()
+    
+    try:
+        # Sample data for dark mode test
+        template_data = {
+            'away_team': 'Boston Red Sox',
+            'home_team': 'New York Yankees', 
+            'game_date': 'August 24, 2025 - 7:05 PM ET',
+            'venue_name': 'Yankee Stadium',
+            'away_status': 'Wild Card Race',
+            'home_status': 'AL East Leaders',
+            'away_prob': '35.0',
+            'home_prob': '65.0',
+            'recommendation_short': 'BET YANKEES',
+            'model_name': 'Gemini 2.0',
+            'confidence': '75%',
+            'market_edge': '-5.8%',
+            'timestamp': datetime.now().strftime('%B %d, %Y at %I:%M %p ET'),
+            'expert_analysis': '''**MARKET BASELINE**: The current moneyline implies approximately 40.8% probability for the Boston Red Sox and 62.3% for the New York Yankees.
+
+**KEY FACTORS FROM DATA**: The Yankees' +89 run differential compared to the Red Sox's +42 indicates a stronger overall team. The pitching matchup of Gerrit Cole (3.41 ERA) versus Brayan Bello (4.15 ERA) favors the Yankees, given Cole's lower ERA, WHIP of 1.09, and higher strikeout rate.
+
+**FINAL ASSESSMENT**: Win Probability: 35.0% (Boston Red Sox), 65.0% (New York Yankees). Analyst Confidence: 75%. Recommendation: BET HOME - Strong edge identified'''
+        }
+        
+        # Generate dark mode image
+        logger.info("Generating dark mode enhanced image...")
+        
+        from utils.html_to_image import create_dark_enhanced_hybrid_analysis_image
+        dark_bytes = await create_dark_enhanced_hybrid_analysis_image(template_data)
+        dark_file = discord.File(
+            io.BytesIO(dark_bytes), 
+            filename="dark_enhanced_hybrid_design.png"
+        )
+        
+        # Create dark mode showcase embed
+        embed = discord.Embed(
+            title="🌙 Dark Mode Enhanced Design",
+            description="**Red Sox @ Yankees** - Premium dark mode design showcase",
+            color=0x7c3aed,  # Purple color to match dark mode header
+            timestamp=datetime.now()
+        )
+        
+        embed.add_field(
+            name="🎨 Design Features",
+            value="• Purple gradient header\n• Dark slate backgrounds\n• Glowing card effects\n• High contrast text\n• Premium aesthetics",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="📊 Technical Details",
+            value=f"• Image size: {len(dark_bytes) / 1024:.1f} KB\n• Resolution: 1200x2000px\n• Format: PNG\n• Template: dark_enhanced_hybrid_analysis.html",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="✨ Visual Improvements",
+            value="• Shimmer animations\n• Color-coded team cards\n• Enhanced shadows\n• Professional sports betting theme",
+            inline=False
+        )
+        
+        embed.set_footer(text="Dark Mode Enhanced • Ready for production use!")
+        
+        # Send dark mode showcase
+        await interaction.followup.send(
+            content="**🌙 DARK MODE ENHANCED DESIGN - PREMIUM THEME:**",
+            embed=embed,
+            file=dark_file
+        )
+        
+        logger.info("Dark mode test sent successfully")
+        
+    except Exception as e:
+        logger.error(f"Error in dark mode test command: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        embed = discord.Embed(
+            title="❌ Dark Mode Test Error",
+            description=f"Failed to generate dark mode test: {str(e)}",
             color=discord.Color.red()
         )
         await interaction.followup.send(embed=embed)

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced vs Original Hybrid Analysis Comparison</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .comparison-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .comparison-container {
+            display: flex;
+            gap: 20px;
+            max-width: 2500px;
+            margin: 0 auto;
+        }
+        
+        .design-column {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .design-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .original-title {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .enhanced-title {
+            background: #10b981;
+            color: white;
+        }
+        
+        .design-preview {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transform: scale(0.4);
+            transform-origin: top left;
+            width: 250%;
+            height: 500px;
+        }
+        
+        .improvements-list {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .improvements-list h4 {
+            margin-top: 0;
+            color: #1f2937;
+        }
+        
+        .improvements-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .improvements-list li {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .note {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: #dbeafe;
+            border-radius: 5px;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="comparison-header">
+        <h1>🎨 Enhanced vs Original Hybrid Analysis Design</h1>
+        <p>Comparison of Discord hybrid analysis image improvements</p>
+    </div>
+    
+    <div class="comparison-container">
+        <!-- Original Design -->
+        <div class="design-column">
+            <div class="design-title original-title">📊 Original Design</div>
+            
+            <div class="design-preview">
+                <iframe src="../mcp_leagues/discord_bot/templates/hybrid_analysis.html" 
+                        width="1200" height="1500" style="border: none;"></iframe>
+            </div>
+            
+            <div class="improvements-list">
+                <h4>Current Features:</h4>
+                <ul>
+                    <li>Basic green gradient background</li>
+                    <li>Simple white container</li>
+                    <li>Standard typography</li>
+                    <li>Basic stat grid layout</li>
+                    <li>Minimal visual hierarchy</li>
+                    <li>Single analysis section</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Enhanced Design -->
+        <div class="design-column">
+            <div class="design-title enhanced-title">✨ Enhanced Design</div>
+            
+            <div class="design-preview">
+                <iframe src="../mcp_leagues/discord_bot/templates/enhanced_hybrid_analysis.html" 
+                        width="1200" height="1500" style="border: none;"></iframe>
+            </div>
+            
+            <div class="improvements-list">
+                <h4>🎯 Key Improvements:</h4>
+                <ul>
+                    <li><strong>Professional Sports Theme:</strong> Blue gradient header with baseball emoji</li>
+                    <li><strong>Better Visual Hierarchy:</strong> Clear sections with distinct backgrounds</li>
+                    <li><strong>Enhanced Typography:</strong> Multiple Inter font weights (300-800)</li>
+                    <li><strong>Improved Layout:</strong> Game header with VS divider</li>
+                    <li><strong>Highlighted Elements:</strong> Green recommendation banner</li>
+                    <li><strong>Key Insights Section:</strong> Yellow callout for important info</li>
+                    <li><strong>Better Readability:</strong> Larger text, better contrast</li>
+                    <li><strong>Professional Footer:</strong> Timestamp and branding</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="note">
+        <p><strong>📌 Note:</strong> To see the full comparison, use the Discord bot commands:</p>
+        <p><code>/textonly</code> - Uses enhanced design by default</p>
+        <p><code>/comparedesigns</code> - Shows both versions side-by-side</p>
+    </div>
+    
+    <script>
+        // Sample data for template rendering (if templates support it)
+        const sampleData = {
+            away_team: "Boston Red Sox",
+            home_team: "New York Yankees",
+            game_date: "August 24, 2025 - 7:05 PM ET",
+            venue_name: "Yankee Stadium",
+            away_status: "Wild Card Race",
+            home_status: "AL East Leaders",
+            away_prob: "35.0",
+            home_prob: "65.0",
+            recommendation_short: "BET YANKEES",
+            model_name: "Gemini 2.0",
+            confidence: "75%",
+            market_edge: "-5.8%",
+            timestamp: "August 24, 2025 at 11:20 PM ET",
+            expert_analysis: "**MARKET BASELINE**: The current moneyline implies approximately 40.8% probability for the Boston Red Sox and 62.3% for the New York Yankees.\n\n**KEY FACTORS FROM DATA**: The Yankees' +89 run differential compared to the Red Sox's +42 indicates a stronger overall team. The pitching matchup of Gerrit Cole (3.41 ERA) versus Brayan Bello (4.15 ERA) favors the Yankees.\n\n**FINAL ASSESSMENT**: Win Probability: 35.0% (Boston Red Sox), 65.0% (New York Yankees). Analyst Confidence: 75%. Recommendation: BET HOME - Strong edge identified"
+        };
+        
+        console.log("Sample data loaded for templates:", sampleData);
+    </script>
+</body>
+</html>
